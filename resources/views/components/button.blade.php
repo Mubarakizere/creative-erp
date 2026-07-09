@@ -5,6 +5,7 @@
     'disabled' => false,
     'loading' => false,
     'icon' => null,
+    'submit' => false,
 ])
 
 @php
@@ -40,7 +41,7 @@
         {{ $slot }}
     </a>
 @else
-    <button {{ $attributes->merge(['class' => $classes, 'type' => 'button', 'disabled' => $disabled || $loading]) }}>
+    <button {{ $attributes->merge(['class' => $classes, 'type' => $submit ? 'submit' : 'button', 'disabled' => $disabled || $loading]) }}>
         @if($loading)
             <x-loader size="sm" class="mr-2" />
         @endif

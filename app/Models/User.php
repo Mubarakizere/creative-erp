@@ -123,6 +123,14 @@ class User extends Authenticatable
     */
 
     /**
+     * Get the company that the user belongs to.
+     */
+    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Company::class);
+    }
+
+    /**
      * Get the login history for the user.
      */
     public function loginHistories(): HasMany
