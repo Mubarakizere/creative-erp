@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Database\Factories\CompanyFactory;
+use Database\Factories\BranchFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,9 +10,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
-class Company extends Model
+class Branch extends Model
 {
-    /** @use HasFactory<CompanyFactory> */
+    /** @use HasFactory<BranchFactory> */
     use HasFactory, SoftDeletes;
 
     /**
@@ -22,30 +22,21 @@ class Company extends Model
      */
     protected $fillable = [
         'uuid',
+        'company_id',
         'name',
-        'legal_name',
-        'slug',
+        'code',
         'email',
         'phone',
-        'alternate_phone',
-        'website',
-        'logo',
-        'favicon',
-        'registration_number',
-        'tax_number',
+        'manager_name',
         'country',
         'state',
         'city',
         'address',
         'postal_code',
-        'currency',
-        'timezone',
-        'language',
-        'working_days',
-        'working_hours_start',
-        'working_hours_end',
-        'notes',
+        'latitude',
+        'longitude',
         'status',
+        'notes',
         'created_by',
         'updated_by',
     ];
@@ -58,9 +49,8 @@ class Company extends Model
     protected function casts(): array
     {
         return [
-            'working_days' => 'array',
-            'working_hours_start' => 'datetime:H:i',
-            'working_hours_end' => 'datetime:H:i',
+            'latitude' => 'decimal:7',
+            'longitude' => 'decimal:7',
         ];
     }
 
@@ -77,45 +67,11 @@ class Company extends Model
     {
         parent::boot();
 
-        static::creating(function (Company $company) {
-            if (empty($company->uuid)) {
-                $company->uuid = (string) Str::uuid();
-            }
-
-            if (empty($company->slug)) {
-                $company->slug = Str::slug($company->name);
+        static::creating(function (Branch $branch) {
+            if (empty($branch->uuid)) {
+                $branch->uuid = (string) Str::uuid();
             }
         });
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Accessors
-    |--------------------------------------------------------------------------
-    */
-
-    /**
-     * Get the company logo URL.
-     */
-    public function getLogoUrlAttribute(): ?string
-    {
-        if (! $this->logo) {
-            return null;
-        }
-
-        return asset('storage/' . $this->logo);
-    }
-
-    /**
-     * Get the company favicon URL.
-     */
-    public function getFaviconUrlAttribute(): ?string
-    {
-        if (! $this->favicon) {
-            return null;
-        }
-
-        return asset('storage/' . $this->favicon);
     }
 
     /*
@@ -125,7 +81,7 @@ class Company extends Model
     */
 
     /**
-     * Check if the company is active.
+     * Check if the branch is active.
      */
     public function isActive(): bool
     {
@@ -133,19 +89,11 @@ class Company extends Model
     }
 
     /**
-     * Check if the company is inactive.
+     * Check if the branch is inactive.
      */
     public function isInactive(): bool
     {
         return $this->status === 'inactive';
-    }
-
-    /**
-     * Check if the company is suspended.
-     */
-    public function isSuspended(): bool
-    {
-        return $this->status === 'suspended';
     }
 
     /*
@@ -155,11 +103,11 @@ class Company extends Model
     */
 
     /**
-     * Get the users belonging to this company.
+     * Get the company that owns this branch.
      */
-    public function users(): HasMany
+    public function company(): BelongsTo
     {
-        return $this->hasMany(User::class);
+        return $this->belongsTo(Company::class);
     }
 
     /**
@@ -184,32 +132,19 @@ class Company extends Model
     |--------------------------------------------------------------------------
     */
 
-    /**
-     * Get the branches belonging to this company.
-     */
-    public function branches(): HasMany
-    {
-        return $this->hasMany(Branch::class);
-    }
-
     // public function departments(): HasMany
     // {
     //     return $this->hasMany(Department::class);
     // }
 
-    // public function clients(): HasMany
+    // public function employees(): HasMany
     // {
-    //     return $this->hasMany(Client::class);
+    //     return $this->hasMany(Employee::class);
     // }
 
     // public function projects(): HasMany
     // {
     //     return $this->hasMany(Project::class);
-    // }
-
-    // public function employees(): HasMany
-    // {
-    //     return $this->hasMany(Employee::class);
     // }
 
     // public function warehouses(): HasMany

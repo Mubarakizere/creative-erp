@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\DashboardController;
 use Illuminate\Support\Facades\Route;
@@ -23,4 +24,10 @@ Route::middleware(['auth', 'check.status', 'track.activity'])->prefix('admin')->
     Route::patch('/companies/{company}/deactivate', [CompanyController::class, 'deactivate'])->name('companies.deactivate');
     Route::get('/companies/{company}/settings', [CompanyController::class, 'settings'])->name('companies.settings');
     Route::resource('companies', CompanyController::class);
+
+    // Branches
+    Route::patch('/branches/{branch}/restore', [BranchController::class, 'restore'])->name('branches.restore')->withTrashed();
+    Route::patch('/branches/{branch}/activate', [BranchController::class, 'activate'])->name('branches.activate');
+    Route::patch('/branches/{branch}/deactivate', [BranchController::class, 'deactivate'])->name('branches.deactivate');
+    Route::resource('branches', BranchController::class);
 });
