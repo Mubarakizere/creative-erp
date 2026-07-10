@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DepartmentController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -30,4 +31,11 @@ Route::middleware(['auth', 'check.status', 'track.activity'])->prefix('admin')->
     Route::patch('/branches/{branch}/activate', [BranchController::class, 'activate'])->name('branches.activate');
     Route::patch('/branches/{branch}/deactivate', [BranchController::class, 'deactivate'])->name('branches.deactivate');
     Route::resource('branches', BranchController::class);
+
+    // Departments
+    Route::get('/departments/branches/{company}', [DepartmentController::class, 'getBranches'])->name('departments.branches');
+    Route::patch('/departments/{department}/restore', [DepartmentController::class, 'restore'])->name('departments.restore')->withTrashed();
+    Route::patch('/departments/{department}/activate', [DepartmentController::class, 'activate'])->name('departments.activate');
+    Route::patch('/departments/{department}/deactivate', [DepartmentController::class, 'deactivate'])->name('departments.deactivate');
+    Route::resource('departments', DepartmentController::class);
 });

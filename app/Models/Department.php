@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Database\Factories\BranchFactory;
+use Database\Factories\DepartmentFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,9 +10,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
-class Branch extends Model
+class Department extends Model
 {
-    /** @use HasFactory<BranchFactory> */
+    /** @use HasFactory<DepartmentFactory> */
     use HasFactory, SoftDeletes;
 
     /**
@@ -23,36 +23,17 @@ class Branch extends Model
     protected $fillable = [
         'uuid',
         'company_id',
+        'branch_id',
         'name',
         'code',
+        'manager_name',
         'email',
         'phone',
-        'manager_name',
-        'country',
-        'state',
-        'city',
-        'address',
-        'postal_code',
-        'latitude',
-        'longitude',
+        'description',
         'status',
-        'notes',
         'created_by',
         'updated_by',
     ];
-
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'latitude' => 'decimal:7',
-            'longitude' => 'decimal:7',
-        ];
-    }
 
     /*
     |--------------------------------------------------------------------------
@@ -67,9 +48,9 @@ class Branch extends Model
     {
         parent::boot();
 
-        static::creating(function (Branch $branch) {
-            if (empty($branch->uuid)) {
-                $branch->uuid = (string) Str::uuid();
+        static::creating(function (Department $department) {
+            if (empty($department->uuid)) {
+                $department->uuid = (string) Str::uuid();
             }
         });
     }
@@ -81,7 +62,7 @@ class Branch extends Model
     */
 
     /**
-     * Check if the branch is active.
+     * Check if the department is active.
      */
     public function isActive(): bool
     {
@@ -89,7 +70,7 @@ class Branch extends Model
     }
 
     /**
-     * Check if the branch is inactive.
+     * Check if the department is inactive.
      */
     public function isInactive(): bool
     {
@@ -103,11 +84,19 @@ class Branch extends Model
     */
 
     /**
-     * Get the company that owns this branch.
+     * Get the company that owns this department.
      */
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
+    }
+
+    /**
+     * Get the branch that owns this department.
+     */
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
     }
 
     /**
@@ -132,13 +121,10 @@ class Branch extends Model
     |--------------------------------------------------------------------------
     */
 
-    /**
-     * Get the departments belonging to this branch.
-     */
-    public function departments(): HasMany
-    {
-        return $this->hasMany(Department::class);
-    }
+    // public function users(): HasMany
+    // {
+    //     return $this->hasMany(User::class);
+    // }
 
     // public function employees(): HasMany
     // {
@@ -148,10 +134,5 @@ class Branch extends Model
     // public function projects(): HasMany
     // {
     //     return $this->hasMany(Project::class);
-    // }
-
-    // public function warehouses(): HasMany
-    // {
-    //     return $this->hasMany(Warehouse::class);
     // }
 }

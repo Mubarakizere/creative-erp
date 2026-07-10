@@ -192,10 +192,13 @@ class Company extends Model
         return $this->hasMany(Branch::class);
     }
 
-    // public function departments(): HasMany
-    // {
-    //     return $this->hasMany(Department::class);
-    // }
+    /**
+     * Get the departments belonging to this company.
+     */
+    public function departments(): HasMany
+    {
+        return $this->hasMany(Department::class);
+    }
 
     // public function clients(): HasMany
     // {
