@@ -36,6 +36,11 @@ class RolesAndPermissionsSeeder extends Seeder
             
             // User (Future)
             'user.view', 'user.create', 'user.update', 'user.delete',
+            'user.restore', 'user.activate', 'user.deactivate', 'user.reset-password',
+            
+            // Client
+            'client.view', 'client.create', 'client.update', 'client.delete',
+            'client.restore', 'client.activate', 'client.deactivate', 'client.export', 'client.import',
             
             // Project (Future)
             'project.view', 'project.create', 'project.update', 'project.delete',

@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             CompanySeeder::class,
             BranchSeeder::class,
             DepartmentSeeder::class,
+            UserSeeder::class,
         ]);
     }
 }

@@ -23,10 +23,13 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'company_id',
+        'branch_id',
+        'department_id',
         'first_name',
         'last_name',
         'email',
         'phone',
+        'job_title',
         'password',
         'avatar',
         'status',
@@ -129,6 +132,22 @@ class User extends Authenticatable
     public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Company::class);
+    }
+
+    /**
+     * Get the branch that the user belongs to.
+     */
+    public function branch(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
+    }
+
+    /**
+     * Get the department that the user belongs to.
+     */
+    public function department(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Department::class);
     }
 
     /**

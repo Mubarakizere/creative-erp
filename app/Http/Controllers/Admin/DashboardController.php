@@ -12,6 +12,8 @@ class DashboardController extends Controller
      */
     public function index(): View
     {
-        return view('admin.dashboard.index');
+        $clientsCount = \App\Models\Client::count();
+        
+        return view('admin.dashboard.index', compact('clientsCount'));
     }
 }

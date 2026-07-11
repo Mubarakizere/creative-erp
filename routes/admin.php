@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\PermissionController;
+use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -44,4 +45,19 @@ Route::middleware(['auth', 'check.status', 'track.activity'])->prefix('admin')->
     // Roles & Permissions
     Route::resource('roles', RoleController::class);
     Route::resource('permissions', PermissionController::class);
+
+    // Users
+    Route::get('/users/branches/{company}', [UserController::class, 'getBranches'])->name('users.branches');
+    Route::get('/users/departments/{branch}', [UserController::class, 'getDepartments'])->name('users.departments');
+    Route::patch('/users/{user}/restore', [UserController::class, 'restore'])->name('users.restore')->withTrashed();
+    Route::patch('/users/{user}/activate', [UserController::class, 'activate'])->name('users.activate');
+    Route::patch('/users/{user}/deactivate', [UserController::class, 'deactivate'])->name('users.deactivate');
+    Route::post('/users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
+    Route::resource('users', UserController::class);
+
+    // Clients
+    Route::patch('/clients/{client}/restore', [\App\Http\Controllers\Admin\ClientController::class, 'restore'])->name('clients.restore')->withTrashed();
+    Route::patch('/clients/{client}/activate', [\App\Http\Controllers\Admin\ClientController::class, 'activate'])->name('clients.activate');
+    Route::patch('/clients/{client}/deactivate', [\App\Http\Controllers\Admin\ClientController::class, 'deactivate'])->name('clients.deactivate');
+    Route::resource('clients', \App\Http\Controllers\Admin\ClientController::class);
 });

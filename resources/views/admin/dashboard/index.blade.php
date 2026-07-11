@@ -43,7 +43,7 @@
         {{-- Clients --}}
         <x-stats-card
             title="Clients"
-            value="48"
+            value="{{ number_format($clientsCount ?? 0) }}"
             trend="+8%"
             :trend-up="true"
             color="purple"
