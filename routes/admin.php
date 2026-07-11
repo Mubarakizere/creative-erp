@@ -4,6 +4,8 @@ use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DepartmentController;
+use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\PermissionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -38,4 +40,8 @@ Route::middleware(['auth', 'check.status', 'track.activity'])->prefix('admin')->
     Route::patch('/departments/{department}/activate', [DepartmentController::class, 'activate'])->name('departments.activate');
     Route::patch('/departments/{department}/deactivate', [DepartmentController::class, 'deactivate'])->name('departments.deactivate');
     Route::resource('departments', DepartmentController::class);
+
+    // Roles & Permissions
+    Route::resource('roles', RoleController::class);
+    Route::resource('permissions', PermissionController::class);
 });
