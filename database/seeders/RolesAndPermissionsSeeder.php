@@ -42,8 +42,11 @@ class RolesAndPermissionsSeeder extends Seeder
             'client.view', 'client.create', 'client.update', 'client.delete',
             'client.restore', 'client.activate', 'client.deactivate', 'client.export', 'client.import',
             
-            // Project (Future)
+            // Project
             'project.view', 'project.create', 'project.update', 'project.delete',
+            'project.restore', 'project.archive', 'project.close', 'project.reopen',
+            'project.export', 'project.import', 'project.assign-manager', 'project.change-status',
+            'project.view-budget', 'project.edit-budget',
             
             // Inventory (Future)
             'inventory.view', 'inventory.create', 'inventory.update', 'inventory.delete',

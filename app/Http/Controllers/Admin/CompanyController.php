@@ -65,6 +65,8 @@ class CompanyController extends Controller
     {
         Gate::authorize('view', $company);
 
+        $company->load(['creator', 'updater']);
+
         return view('admin.companies.show', compact('company'));
     }
 

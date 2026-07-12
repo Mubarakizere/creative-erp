@@ -40,7 +40,7 @@ return new class extends Migration
             $table->string('postal_code', 20)->nullable();
 
             // Localization
-            $table->string('currency', 10)->default('USD');
+            $table->string('currency', 10)->default('RWF');
             $table->string('timezone')->default('UTC');
             $table->string('language', 10)->default('en');
 

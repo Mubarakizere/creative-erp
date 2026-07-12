@@ -170,7 +170,7 @@
                 </x-slot:header>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <x-select name="currency" label="Currency" :options="['USD' => 'USD - US Dollar', 'EUR' => 'EUR - Euro', 'GBP' => 'GBP - British Pound', 'RWF' => 'RWF - Rwandan Franc', 'KES' => 'KES - Kenyan Shilling', 'UGX' => 'UGX - Ugandan Shilling', 'TZS' => 'TZS - Tanzanian Shilling', 'BIF' => 'BIF - Burundian Franc', 'AED' => 'AED - UAE Dirham', 'SAR' => 'SAR - Saudi Riyal', 'QAR' => 'QAR - Qatari Riyal', 'KWD' => 'KWD - Kuwaiti Dinar', 'BHD' => 'BHD - Bahraini Dinar', 'OMR' => 'OMR - Omani Rial', 'EGP' => 'EGP - Egyptian Pound', 'JOD' => 'JOD - Jordanian Dinar', 'INR' => 'INR - Indian Rupee']" :selected="$company->currency" />
+                    <x-select name="currency" label="Currency" :options="['RWF' => 'RWF - Rwandan Franc', 'USD' => 'USD - US Dollar', 'EUR' => 'EUR - Euro', 'GBP' => 'GBP - British Pound', 'KES' => 'KES - Kenyan Shilling', 'UGX' => 'UGX - Ugandan Shilling', 'TZS' => 'TZS - Tanzanian Shilling', 'BIF' => 'BIF - Burundian Franc', 'AED' => 'AED - UAE Dirham', 'SAR' => 'SAR - Saudi Riyal', 'QAR' => 'QAR - Qatari Riyal', 'KWD' => 'KWD - Kuwaiti Dinar', 'BHD' => 'BHD - Bahraini Dinar', 'OMR' => 'OMR - Omani Rial', 'EGP' => 'EGP - Egyptian Pound', 'JOD' => 'JOD - Jordanian Dinar', 'INR' => 'INR - Indian Rupee']" :selected="$company->currency" />
                     <x-select name="timezone" label="Timezone" :options="[
                         'UTC' => 'UTC',
                         'Africa/Kigali' => 'Kigali (Rwanda)',

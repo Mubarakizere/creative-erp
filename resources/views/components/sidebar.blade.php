@@ -77,24 +77,52 @@
 
         {{-- Divider --}}
         <div x-show="sidebarOpen" class="pt-4 pb-2">
-            <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Management</p>
+            <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Security</p>
         </div>
 
-        {{-- Projects --}}
-        <a href="#" class="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-gray-300 hover:bg-sidebar-hover hover:text-white transition-all duration-200 group">
+        {{-- Roles --}}
+        <a href="{{ route('admin.roles.index') }}"
+           @class([
+               'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
+               'bg-sidebar-active text-white' => request()->routeIs('admin.roles.*'),
+               'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.roles.*'),
+           ])>
             <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
             </svg>
-            <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Projects</span>
+            <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Roles</span>
         </a>
 
-        {{-- Employees --}}
-        <a href="#" class="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-gray-300 hover:bg-sidebar-hover hover:text-white transition-all duration-200 group">
+        {{-- Permissions --}}
+        <a href="{{ route('admin.permissions.index') }}"
+           @class([
+               'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
+               'bg-sidebar-active text-white' => request()->routeIs('admin.permissions.*'),
+               'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.permissions.*'),
+           ])>
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+            <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Permissions</span>
+        </a>
+
+        {{-- Users --}}
+        <a href="{{ route('admin.users.index') }}"
+           @class([
+               'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
+               'bg-sidebar-active text-white' => request()->routeIs('admin.users.*'),
+               'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.users.*'),
+           ])>
             <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
             </svg>
-            <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Employees</span>
+            <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Users</span>
         </a>
+
+        {{-- Divider --}}
+        <div x-show="sidebarOpen" class="pt-4 pb-2">
+            <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Management</p>
+        </div>
 
         {{-- Clients --}}
         <a href="{{ route('admin.clients.index') }}"
@@ -109,47 +137,67 @@
             <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Clients</span>
         </a>
 
+        {{-- Projects --}}
+        <a href="{{ route('admin.projects.index') }}"
+           @class([
+               'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
+               'bg-sidebar-active text-white' => request()->routeIs('admin.projects.*'),
+               'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.projects.*'),
+           ])>
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+            </svg>
+            <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Projects</span>
+        </a>
+
         {{-- Divider --}}
         <div x-show="sidebarOpen" class="pt-4 pb-2">
             <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Resources</p>
         </div>
 
         {{-- Inventory --}}
-        <a href="#" class="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-gray-300 hover:bg-sidebar-hover hover:text-white transition-all duration-200 group">
-            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-            </svg>
-            <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Inventory</span>
+        <a href="#" class="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-gray-400 cursor-not-allowed group justify-between">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 flex-shrink-0 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                </svg>
+                <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Inventory</span>
+            </div>
+            <span x-show="sidebarOpen" class="text-[10px] uppercase font-bold bg-gray-700 text-gray-300 px-1.5 py-0.5 rounded">Soon</span>
         </a>
-
-        {{-- Materials --}}
-        <a href="#" class="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-gray-300 hover:bg-sidebar-hover hover:text-white transition-all duration-200 group">
-            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>
-            </svg>
-            <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Materials</span>
-        </a>
-
-        {{-- Equipment --}}
-        <a href="#" class="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-gray-300 hover:bg-sidebar-hover hover:text-white transition-all duration-200 group">
-            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-            </svg>
-            <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Equipment</span>
-        </a>
-
-        {{-- Divider --}}
-        <div x-show="sidebarOpen" class="pt-4 pb-2">
-            <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Finance</p>
-        </div>
 
         {{-- Finance --}}
-        <a href="#" class="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-gray-300 hover:bg-sidebar-hover hover:text-white transition-all duration-200 group">
-            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Finance</span>
+        <a href="#" class="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-gray-400 cursor-not-allowed group justify-between">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 flex-shrink-0 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Finance</span>
+            </div>
+            <span x-show="sidebarOpen" class="text-[10px] uppercase font-bold bg-gray-700 text-gray-300 px-1.5 py-0.5 rounded">Soon</span>
+        </a>
+
+        {{-- Reports --}}
+        <a href="#" class="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-gray-400 cursor-not-allowed group justify-between">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 flex-shrink-0 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Reports</span>
+            </div>
+            <span x-show="sidebarOpen" class="text-[10px] uppercase font-bold bg-gray-700 text-gray-300 px-1.5 py-0.5 rounded">Soon</span>
+        </a>
+
+        {{-- Settings --}}
+        <a href="#" class="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-gray-400 cursor-not-allowed group justify-between">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 flex-shrink-0 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Settings</span>
+            </div>
+            <span x-show="sidebarOpen" class="text-[10px] uppercase font-bold bg-gray-700 text-gray-300 px-1.5 py-0.5 rounded">Soon</span>
         </a>
     </nav>
 
@@ -233,38 +281,78 @@
         </a>
 
         {{-- Departments --}}
-        <a href="{{ route('admin.departments.index') }}"
-           @class([
-               'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
-               'bg-sidebar-active text-white' => request()->routeIs('admin.departments.*'),
-               'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.departments.*'),
-           ])>
-            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <a href="{{ route('admin.departments.index') }}" @class([
+            'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+            'bg-sidebar-active text-white' => request()->routeIs('admin.departments.*'),
+            'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.departments.*'),
+        ])>
+            <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
             </svg>
-            <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Departments</span>
+            Departments
         </a>
-        <a href="#" class="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-gray-300 hover:bg-sidebar-hover hover:text-white transition-all">
-            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+
+        <div class="pt-4 pb-2">
+            <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Security</p>
+        </div>
+
+        <a href="{{ route('admin.roles.index') }}" @class([
+            'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+            'bg-sidebar-active text-white' => request()->routeIs('admin.roles.*'),
+            'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.roles.*'),
+        ])>
+            <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
             </svg>
-            Projects
+            Roles
         </a>
-        <a href="#" class="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-gray-300 hover:bg-sidebar-hover hover:text-white transition-all">
-            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+
+        <a href="{{ route('admin.permissions.index') }}" @class([
+            'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+            'bg-sidebar-active text-white' => request()->routeIs('admin.permissions.*'),
+            'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.permissions.*'),
+        ])>
+            <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
             </svg>
-            Employees
+            Permissions
         </a>
+
+        <a href="{{ route('admin.users.index') }}" @class([
+            'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+            'bg-sidebar-active text-white' => request()->routeIs('admin.users.*'),
+            'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.users.*'),
+        ])>
+            <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+            Users
+        </a>
+
+        <div class="pt-4 pb-2">
+            <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Management</p>
+        </div>
+
         <a href="{{ route('admin.clients.index') }}" @class([
             'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
             'bg-sidebar-active text-white' => request()->routeIs('admin.clients.*'),
             'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.clients.*'),
         ])>
-            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
             </svg>
             Clients
+        </a>
+
+        <a href="{{ route('admin.projects.index') }}" @class([
+            'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+            'bg-sidebar-active text-white' => request()->routeIs('admin.projects.*'),
+            'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.projects.*'),
+        ])>
+            <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+            </svg>
+            Projects
         </a>
     </nav>
 </aside>

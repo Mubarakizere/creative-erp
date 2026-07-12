@@ -14,10 +14,10 @@
 
     {{-- Stats Grid --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {{-- Active Projects --}}
+        {{-- Total Projects --}}
         <x-stats-card
-            title="Active Projects"
-            value="24"
+            title="Total Projects"
+            value="{{ number_format($stats['projects']) }}"
             trend="+12%"
             :trend-up="true"
             color="blue"
@@ -27,23 +27,23 @@
             </svg>
         </x-stats-card>
 
-        {{-- Employees --}}
+        {{-- Active Projects --}}
         <x-stats-card
-            title="Employees"
-            value="156"
-            trend="+3%"
+            title="Active Projects"
+            value="{{ number_format($stats['active_projects']) }}"
+            trend="+5%"
             :trend-up="true"
             color="emerald"
         >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
             </svg>
         </x-stats-card>
 
         {{-- Clients --}}
         <x-stats-card
-            title="Clients"
-            value="{{ number_format($clientsCount ?? 0) }}"
+            title="Total Clients"
+            value="{{ number_format($stats['clients']) }}"
             trend="+8%"
             :trend-up="true"
             color="purple"
@@ -53,13 +53,72 @@
             </svg>
         </x-stats-card>
 
-        {{-- Revenue --}}
+        {{-- Users --}}
         <x-stats-card
-            title="Revenue (MTD)"
-            value="$2.4M"
-            trend="+15%"
+            title="Total Users"
+            value="{{ number_format($stats['users']) }}"
+            trend="+3%"
             :trend-up="true"
             color="amber"
+        >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+        </x-stats-card>
+    </div>
+
+    {{-- Second Row Stats --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+        {{-- Companies --}}
+        <x-stats-card
+            title="Companies"
+            value="{{ number_format($stats['companies']) }}"
+            color="cyan"
+        >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+            </svg>
+        </x-stats-card>
+
+        {{-- Branches --}}
+        <x-stats-card
+            title="Branches"
+            value="{{ number_format($stats['branches']) }}"
+            color="orange"
+        >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+        </x-stats-card>
+
+        {{-- Departments --}}
+        <x-stats-card
+            title="Departments"
+            value="{{ number_format($stats['departments']) }}"
+            color="indigo"
+        >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+            </svg>
+        </x-stats-card>
+
+        {{-- Est Budget --}}
+        <x-stats-card
+            title="Total Est. Budget"
+            value="{{ format_currency($stats['total_estimated_budget']) }}"
+            color="rose"
+        >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+        </x-stats-card>
+
+        {{-- Act Budget --}}
+        <x-stats-card
+            title="Total Act. Budget"
+            value="{{ format_currency($stats['total_actual_budget']) }}"
+            color="emerald"
         >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -67,149 +126,73 @@
         </x-stats-card>
     </div>
 
-    {{-- Second Row Stats --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-        {{-- Inventory --}}
-        <x-stats-card
-            title="Inventory Items"
-            value="1,247"
-            color="cyan"
-        >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-            </svg>
-        </x-stats-card>
-
-        {{-- Materials --}}
-        <x-stats-card
-            title="Materials"
-            value="892"
-            color="orange"
-        >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>
-            </svg>
-        </x-stats-card>
-
-        {{-- Equipment --}}
-        <x-stats-card
-            title="Equipment"
-            value="67"
-            color="indigo"
-        >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-            </svg>
-        </x-stats-card>
-
-        {{-- Notifications --}}
-        <x-stats-card
-            title="Notifications"
-            value="12"
-            color="rose"
-        >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-            </svg>
-        </x-stats-card>
-
-        {{-- Pending Tasks --}}
-        <x-stats-card
-            title="Pending Tasks"
-            value="38"
-            trend="-5%"
-            :trend-up="false"
-            color="emerald"
-        >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-            </svg>
-        </x-stats-card>
-    </div>
-
-    {{-- Bottom Section: Recent Activity + Quick Actions --}}
+    {{-- Bottom Section: Recent Projects + Quick Actions --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        {{-- Recent Activity --}}
-        <div class="lg:col-span-2">
+        {{-- Latest Projects --}}
+        <div class="lg:col-span-2 space-y-6">
             <x-card>
                 <x-slot:header>
                     <div class="flex items-center justify-between">
-                        <h3 class="text-lg font-semibold text-gray-900">Recent Activity</h3>
-                        <a href="#" class="text-sm text-blue-600 hover:text-blue-700 font-medium">View All</a>
+                        <h3 class="text-lg font-semibold text-gray-900">Latest Projects</h3>
+                        <a href="{{ route('admin.projects.index') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">View All</a>
                     </div>
                 </x-slot:header>
 
                 <div class="space-y-4">
-                    {{-- Activity Item 1 --}}
-                    <div class="flex items-start gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                        <div class="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                            </svg>
+                    @forelse($latestProjects as $project)
+                        <div class="flex items-start gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                            <div class="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <a href="{{ route('admin.projects.show', $project) }}" class="text-sm font-medium text-gray-900 hover:text-blue-600">{{ $project->name }}</a>
+                                <p class="text-xs text-gray-500 mt-1">{{ $project->company?->name }} • {{ $project->created_at->diffForHumans() }}</p>
+                            </div>
+                            <x-badge :type="match($project->status) { 'Planning' => 'default', 'In Progress' => 'primary', 'Completed', 'Closed' => 'success', default => 'warning' }">
+                                {{ $project->status }}
+                            </x-badge>
                         </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-gray-900">New project "Highway Bridge Section B" was created</p>
-                            <p class="text-xs text-gray-500 mt-1">Project Management • 2 hours ago</p>
-                        </div>
-                        <x-badge type="info">New</x-badge>
-                    </div>
+                    @empty
+                        <p class="text-sm text-gray-500 py-4 text-center">No projects created yet.</p>
+                    @endforelse
+                </div>
+            </x-card>
 
-                    {{-- Activity Item 2 --}}
-                    <div class="flex items-start gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                        <div class="flex-shrink-0 w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
-                            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
+            {{-- Recent Activity Feed (Sample Data) --}}
+            <x-card>
+                <x-slot:header>
+                    <h3 class="text-lg font-semibold text-gray-900">Recent Activity</h3>
+                </x-slot:header>
+                <div class="space-y-4">
+                    <div class="flex items-start gap-4">
+                        <div class="flex-shrink-0 w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center mt-1">
+                            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                         </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-gray-900">Purchase Order #PO-2024-089 was approved</p>
-                            <p class="text-xs text-gray-500 mt-1">Procurement • 3 hours ago</p>
+                        <div>
+                            <p class="text-sm text-gray-900"><span class="font-medium">System</span> completed database backup.</p>
+                            <p class="text-xs text-gray-500 mt-0.5">10 minutes ago</p>
                         </div>
-                        <x-badge type="success">Approved</x-badge>
                     </div>
-
-                    {{-- Activity Item 3 --}}
-                    <div class="flex items-start gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                        <div class="flex-shrink-0 w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
-                            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.962-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
-                            </svg>
+                    <div class="flex items-start gap-4">
+                        <div class="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mt-1">
+                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                         </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-gray-900">Inventory alert: Cement stock is running low</p>
-                            <p class="text-xs text-gray-500 mt-1">Inventory • 5 hours ago</p>
+                        <div>
+                            <p class="text-sm text-gray-900"><span class="font-medium">Admin User</span> added a new client <span class="font-medium">MTN Rwanda</span>.</p>
+                            <p class="text-xs text-gray-500 mt-0.5">2 hours ago</p>
                         </div>
-                        <x-badge type="warning">Alert</x-badge>
                     </div>
-
-                    {{-- Activity Item 4 --}}
-                    <div class="flex items-start gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                        <div class="flex-shrink-0 w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                            </svg>
+                    <div class="flex items-start gap-4">
+                        <div class="flex-shrink-0 w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center mt-1">
+                            <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
                         </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-gray-900">New employee "Ahmed Hassan" was registered</p>
-                            <p class="text-xs text-gray-500 mt-1">HR Department • Yesterday</p>
+                        <div>
+                            <p class="text-sm text-gray-900"><span class="font-medium">Project Manager</span> updated project status to <span class="font-medium">In Progress</span>.</p>
+                            <p class="text-xs text-gray-500 mt-0.5">Yesterday at 4:30 PM</p>
                         </div>
-                        <x-badge type="info">New</x-badge>
-                    </div>
-
-                    {{-- Activity Item 5 --}}
-                    <div class="flex items-start gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                        <div class="flex-shrink-0 w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center">
-                            <svg class="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/>
-                            </svg>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-gray-900">Invoice #INV-2024-156 sent to Al Raha Construction</p>
-                            <p class="text-xs text-gray-500 mt-1">Finance • Yesterday</p>
-                        </div>
-                        <x-badge type="purple">Sent</x-badge>
                     </div>
                 </div>
             </x-card>
@@ -224,7 +207,7 @@
                 </x-slot:header>
 
                 <div class="grid grid-cols-2 gap-3">
-                    <a href="#" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-blue-50 hover:text-blue-700 text-gray-600 transition-all duration-200 group">
+                    <a href="{{ route('admin.projects.create') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-blue-50 hover:text-blue-700 text-gray-600 transition-all duration-200 group">
                         <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
@@ -232,29 +215,29 @@
                         </div>
                         <span class="text-xs font-medium">New Project</span>
                     </a>
-                    <a href="#" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-emerald-50 hover:text-emerald-700 text-gray-600 transition-all duration-200 group">
+                    <a href="{{ route('admin.clients.create') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-emerald-50 hover:text-emerald-700 text-gray-600 transition-all duration-200 group">
                         <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
                             </svg>
                         </div>
-                        <span class="text-xs font-medium">Add Employee</span>
+                        <span class="text-xs font-medium">New Client</span>
                     </a>
-                    <a href="#" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-purple-50 hover:text-purple-700 text-gray-600 transition-all duration-200 group">
+                    <a href="{{ route('admin.users.create') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-purple-50 hover:text-purple-700 text-gray-600 transition-all duration-200 group">
                         <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
                             </svg>
                         </div>
-                        <span class="text-xs font-medium">Create Invoice</span>
+                        <span class="text-xs font-medium">Add User</span>
                     </a>
-                    <a href="#" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-amber-50 hover:text-amber-700 text-gray-600 transition-all duration-200 group">
+                    <a href="{{ route('admin.companies.create') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-amber-50 hover:text-amber-700 text-gray-600 transition-all duration-200 group">
                         <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                             </svg>
                         </div>
-                        <span class="text-xs font-medium">View Reports</span>
+                        <span class="text-xs font-medium">New Company</span>
                     </a>
                 </div>
             </x-card>
@@ -265,27 +248,46 @@
                     <h3 class="text-lg font-semibold text-gray-900">Projects by Status</h3>
                 </x-slot:header>
 
+                @php
+                    $total = $stats['projects'] > 0 ? $stats['projects'] : 1;
+                    $activePct = round(($stats['active_projects'] / $total) * 100);
+                    $completedPct = round(($stats['completed_projects'] / $total) * 100);
+                    $closedPct = round(($stats['closed_projects'] / $total) * 100);
+                    $holdPct = round(($stats['on_hold_projects'] / $total) * 100);
+                @endphp
+
                 <div class="space-y-4">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
-                            <div class="w-3 h-3 bg-emerald-500 rounded-full"></div>
+                            <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
                             <span class="text-sm text-gray-600">Active</span>
                         </div>
-                        <span class="text-sm font-semibold text-gray-900">18</span>
+                        <span class="text-sm font-semibold text-gray-900">{{ number_format($stats['active_projects']) }} ({{ $activePct }}%)</span>
                     </div>
                     <div class="w-full bg-gray-100 rounded-full h-2">
-                        <div class="bg-emerald-500 h-2 rounded-full" style="width: 75%"></div>
+                        <div class="bg-blue-500 h-2 rounded-full" style="width: {{ $activePct }}%"></div>
                     </div>
 
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
-                            <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
-                            <span class="text-sm text-gray-600">Planning</span>
+                            <div class="w-3 h-3 bg-emerald-500 rounded-full"></div>
+                            <span class="text-sm text-gray-600">Completed</span>
                         </div>
-                        <span class="text-sm font-semibold text-gray-900">4</span>
+                        <span class="text-sm font-semibold text-gray-900">{{ number_format($stats['completed_projects']) }} ({{ $completedPct }}%)</span>
                     </div>
                     <div class="w-full bg-gray-100 rounded-full h-2">
-                        <div class="bg-blue-500 h-2 rounded-full" style="width: 17%"></div>
+                        <div class="bg-emerald-500 h-2 rounded-full" style="width: {{ $completedPct }}%"></div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
+                            <span class="text-sm text-gray-600">Closed</span>
+                        </div>
+                        <span class="text-sm font-semibold text-gray-900">{{ number_format($stats['closed_projects']) }} ({{ $closedPct }}%)</span>
+                    </div>
+                    <div class="w-full bg-gray-100 rounded-full h-2">
+                        <div class="bg-purple-500 h-2 rounded-full" style="width: {{ $closedPct }}%"></div>
                     </div>
 
                     <div class="flex items-center justify-between">
@@ -293,10 +295,10 @@
                             <div class="w-3 h-3 bg-amber-500 rounded-full"></div>
                             <span class="text-sm text-gray-600">On Hold</span>
                         </div>
-                        <span class="text-sm font-semibold text-gray-900">2</span>
+                        <span class="text-sm font-semibold text-gray-900">{{ number_format($stats['on_hold_projects']) }} ({{ $holdPct }}%)</span>
                     </div>
                     <div class="w-full bg-gray-100 rounded-full h-2">
-                        <div class="bg-amber-500 h-2 rounded-full" style="width: 8%"></div>
+                        <div class="bg-amber-500 h-2 rounded-full" style="width: {{ $holdPct }}%"></div>
                     </div>
                 </div>
             </x-card>

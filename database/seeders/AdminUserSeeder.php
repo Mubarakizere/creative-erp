@@ -12,7 +12,7 @@ class AdminUserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::updateOrCreate(
+        $user = User::updateOrCreate(
             ['email' => 'admin@creative-erp.com'],
             [
                 'first_name' => 'System',
@@ -23,5 +23,9 @@ class AdminUserSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
+
+        if (!$user->hasRole('Super Admin')) {
+            $user->assignRole('Super Admin');
+        }
     }
 }

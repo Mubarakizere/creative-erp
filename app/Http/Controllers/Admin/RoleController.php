@@ -66,6 +66,10 @@ class RoleController extends Controller
      */
     public function edit(Role $role)
     {
+        if ($role->name === 'Super Admin') {
+            abort(403, 'Cannot edit Super Admin role.');
+        }
+
         Gate::authorize('update', $role);
         $permissionsGrouped = $this->permissionService->getAllPermissionsGroupedByModule();
         $rolePermissions = $role->permissions->pluck('name')->toArray();
@@ -78,6 +82,10 @@ class RoleController extends Controller
      */
     public function update(UpdateRoleRequest $request, Role $role)
     {
+        if ($role->name === 'Super Admin') {
+            abort(403, 'Cannot modify Super Admin role.');
+        }
+
         $this->roleService->updateRole($role, $request->validated());
 
         return redirect()->route('admin.roles.index')
@@ -89,6 +97,10 @@ class RoleController extends Controller
      */
     public function destroy(Role $role)
     {
+        if ($role->name === 'Super Admin') {
+            abort(403, 'Cannot delete Super Admin role.');
+        }
+
         Gate::authorize('delete', $role);
         $this->roleService->deleteRole($role);
 

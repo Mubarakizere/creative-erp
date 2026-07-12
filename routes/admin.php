@@ -60,4 +60,12 @@ Route::middleware(['auth', 'check.status', 'track.activity'])->prefix('admin')->
     Route::patch('/clients/{client}/activate', [\App\Http\Controllers\Admin\ClientController::class, 'activate'])->name('clients.activate');
     Route::patch('/clients/{client}/deactivate', [\App\Http\Controllers\Admin\ClientController::class, 'deactivate'])->name('clients.deactivate');
     Route::resource('clients', \App\Http\Controllers\Admin\ClientController::class);
+
+    // Projects
+    Route::patch('/projects/{project}/restore', [\App\Http\Controllers\Admin\ProjectController::class, 'restore'])->name('projects.restore')->withTrashed();
+    Route::patch('/projects/{project}/close', [\App\Http\Controllers\Admin\ProjectController::class, 'close'])->name('projects.close');
+    Route::patch('/projects/{project}/reopen', [\App\Http\Controllers\Admin\ProjectController::class, 'reopen'])->name('projects.reopen');
+    Route::post('/projects/{project}/duplicate', [\App\Http\Controllers\Admin\ProjectController::class, 'duplicate'])->name('projects.duplicate');
+    Route::get('/projects/{project}/timeline', [\App\Http\Controllers\Admin\ProjectController::class, 'timeline'])->name('projects.timeline');
+    Route::resource('projects', \App\Http\Controllers\Admin\ProjectController::class);
 });

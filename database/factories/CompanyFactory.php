@@ -41,7 +41,7 @@ class CompanyFactory extends Factory
             'city' => fake()->city(),
             'address' => fake()->streetAddress(),
             'postal_code' => fake()->postcode(),
-            'currency' => fake()->randomElement(['USD', 'EUR', 'GBP', 'AED', 'SAR', 'QAR']),
+            'currency' => fake()->randomElement(['RWF', 'USD', 'EUR', 'GBP', 'KES', 'UGX']),
             'timezone' => fake()->timezone(),
             'language' => 'en',
             'working_days' => ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
