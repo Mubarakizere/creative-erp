@@ -91,4 +91,16 @@ class Project extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
+
+    public function projectMembers()
+    {
+        return $this->hasMany(ProjectMember::class);
+    }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'project_members')
+                    ->withPivot('project_role', 'allocation_percentage', 'status')
+                    ->withTimestamps();
+    }
 }

@@ -33,11 +33,19 @@ class DashboardController extends Controller
             
             'total_estimated_budget' => Project::sum('estimated_budget'),
             'total_actual_budget' => Project::sum('actual_budget'),
+            
+            // Team stats
+            'total_team_members' => \App\Models\ProjectMember::count(),
+            'active_team_members' => \App\Models\ProjectMember::where('status', 'Active')->count(),
+            'inactive_team_members' => \App\Models\ProjectMember::where('status', 'Inactive')->count(),
+            'project_managers' => \App\Models\ProjectMember::where('project_role', 'Project Manager')->where('status', 'Active')->count(),
+            'engineers' => \App\Models\ProjectMember::where('project_role', 'like', '%Engineer%')->count(),
         ];
         
         $latestProjects = Project::with('company')->latest()->take(5)->get();
         $latestClients = Client::latest()->take(5)->get();
+        $latestTeamMembers = \App\Models\ProjectMember::with(['user', 'project', 'department'])->latest('joined_at')->take(5)->get();
 
-        return view('admin.dashboard.index', compact('stats', 'latestProjects', 'latestClients'));
+        return view('admin.dashboard.index', compact('stats', 'latestProjects', 'latestClients', 'latestTeamMembers'));
     }
 }

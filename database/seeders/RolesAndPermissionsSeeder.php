@@ -48,6 +48,11 @@ class RolesAndPermissionsSeeder extends Seeder
             'project.export', 'project.import', 'project.assign-manager', 'project.change-status',
             'project.view-budget', 'project.edit-budget',
             
+            // Project Teams
+            'project-team.view', 'project-team.create', 'project-team.update', 'project-team.delete',
+            'project-team.restore', 'project-team.assign', 'project-team.remove', 
+            'project-team.activate', 'project-team.deactivate', 'project-team.export', 'project-team.import',
+            
             // Inventory (Future)
             'inventory.view', 'inventory.create', 'inventory.update', 'inventory.delete',
             

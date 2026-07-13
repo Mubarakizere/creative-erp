@@ -181,4 +181,16 @@ class User extends Authenticatable
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
+
+    public function projectMembers(): HasMany
+    {
+        return $this->hasMany(ProjectMember::class);
+    }
+
+    public function projects(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Project::class, 'project_members')
+                    ->withPivot('project_role', 'allocation_percentage', 'status')
+                    ->withTimestamps();
+    }
 }

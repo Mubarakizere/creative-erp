@@ -135,4 +135,9 @@ class Department extends Model
     // {
     //     return $this->hasMany(Project::class);
     // }
+
+    public function projectMembers(): HasMany
+    {
+        return $this->hasMany(ProjectMember::class);
+    }
 }

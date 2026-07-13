@@ -38,176 +38,259 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 space-y-6">
-            {{-- Project Information --}}
-            <x-card>
-                <h3 class="text-lg font-bold text-gray-900 border-b pb-3 mb-4">Project Information</h3>
+    {{-- Tabs --}}
+    <div x-data="{ activeTab: '{{ session('activeTab', 'overview') }}' }" class="mb-8">
+        <div class="border-b border-gray-200 overflow-x-auto">
+            <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                <button @click="activeTab = 'overview'" :class="{ 'border-blue-500 text-blue-600': activeTab === 'overview', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'overview' }" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
+                    Overview
+                </button>
+                <button @click="activeTab = 'team'" :class="{ 'border-blue-500 text-blue-600': activeTab === 'team', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'team' }" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
+                    Team
+                </button>
+                <button @click="activeTab = 'timeline'" :class="{ 'border-blue-500 text-blue-600': activeTab === 'timeline', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'timeline' }" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
+                    Timeline
+                </button>
+                <button @click="activeTab = 'budget'" :class="{ 'border-blue-500 text-blue-600': activeTab === 'budget', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'budget' }" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
+                    Budget
+                </button>
+                <button @click="activeTab = 'activity'" :class="{ 'border-blue-500 text-blue-600': activeTab === 'activity', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'activity' }" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
+                    Activity
+                </button>
                 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6">
-                    <div>
-                        <span class="text-xs font-semibold text-gray-500 uppercase">Category</span>
-                        <p class="mt-1 text-sm text-gray-900">{{ $project->category ?? 'N/A' }}</p>
-                    </div>
-                    <div>
-                        <span class="text-xs font-semibold text-gray-500 uppercase">Priority</span>
-                        <p class="mt-1 text-sm text-gray-900">
-                            <x-badge :type="match($project->priority) { 'Critical' => 'danger', 'High' => 'warning', 'Low' => 'default', default => 'primary' }">
-                                {{ $project->priority }}
-                            </x-badge>
-                        </p>
-                    </div>
-                    <div>
-                        <span class="text-xs font-semibold text-gray-500 uppercase">Status</span>
-                        <p class="mt-1 text-sm text-gray-900">
-                            <x-badge :type="match($project->status) { 'Completed', 'Closed' => 'success', 'Cancelled' => 'danger', 'In Progress' => 'primary', 'Pending' => 'warning', default => 'default' }">
-                                {{ $project->status }}
-                            </x-badge>
-                        </p>
-                    </div>
-                    <div>
-                        <span class="text-xs font-semibold text-gray-500 uppercase">Progress</span>
-                        <div class="mt-1 flex items-center gap-2">
-                            <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden max-w-[150px]">
-                                <div class="h-full bg-blue-600 rounded-full" style="width: {{ $project->progress }}%"></div>
-                            </div>
-                            <span class="text-sm font-medium text-gray-900">{{ $project->progress }}%</span>
-                        </div>
-                    </div>
-                    <div class="sm:col-span-2">
-                        <span class="text-xs font-semibold text-gray-500 uppercase">Description</span>
-                        <p class="mt-1 text-sm text-gray-900 whitespace-pre-wrap">{{ $project->description ?: 'No description provided.' }}</p>
-                    </div>
+                {{-- Coming Soon Tabs --}}
+                <div class="relative flex items-center group cursor-not-allowed">
+                    <button disabled class="whitespace-nowrap py-4 px-1 border-b-2 border-transparent text-gray-400 font-medium text-sm">
+                        Documents
+                    </button>
+                    <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">Coming Soon</span>
                 </div>
-            </x-card>
-            
-            {{-- Financials --}}
-            <x-card>
-                <h3 class="text-lg font-bold text-gray-900 border-b pb-3 mb-4">Financials</h3>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6">
-                    <div>
-                        <span class="text-xs font-semibold text-gray-500 uppercase">Estimated Budget</span>
-                        <p class="mt-1 text-lg font-bold text-gray-900">{{ $project->estimated_budget ? format_currency($project->estimated_budget, $project->currency) : 'N/A' }}</p>
-                    </div>
-                    <div>
-                        <span class="text-xs font-semibold text-gray-500 uppercase">Actual Budget</span>
-                        <p class="mt-1 text-lg font-bold text-gray-900">{{ $project->actual_budget ? format_currency($project->actual_budget, $project->currency) : 'N/A' }}</p>
-                    </div>
-                    <div>
-                        <span class="text-xs font-semibold text-gray-500 uppercase">Estimated Cost</span>
-                        <p class="mt-1 text-lg font-bold text-gray-900">{{ $project->estimated_cost ? format_currency($project->estimated_cost, $project->currency) : 'N/A' }}</p>
-                    </div>
-                    <div>
-                        <span class="text-xs font-semibold text-gray-500 uppercase">Actual Cost</span>
-                        <p class="mt-1 text-lg font-bold text-gray-900">{{ $project->actual_cost ? format_currency($project->actual_cost, $project->currency) : 'N/A' }}</p>
-                    </div>
+                <div class="relative flex items-center group cursor-not-allowed">
+                    <button disabled class="whitespace-nowrap py-4 px-1 border-b-2 border-transparent text-gray-400 font-medium text-sm">
+                        Tasks
+                    </button>
+                    <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">Coming Soon</span>
                 </div>
-            </x-card>
-            
-            {{-- Additional Details --}}
-            <x-card>
-                <h3 class="text-lg font-bold text-gray-900 border-b pb-3 mb-4">Additional Details</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6">
-                    <div>
-                        <span class="text-xs font-semibold text-gray-500 uppercase">Contract Number</span>
-                        <p class="mt-1 text-sm text-gray-900">{{ $project->contract_number ?? 'N/A' }}</p>
-                    </div>
-                    <div>
-                        <span class="text-xs font-semibold text-gray-500 uppercase">Reference Number</span>
-                        <p class="mt-1 text-sm text-gray-900">{{ $project->reference_number ?? 'N/A' }}</p>
-                    </div>
-                    <div>
-                        <span class="text-xs font-semibold text-gray-500 uppercase">Location</span>
-                        <p class="mt-1 text-sm text-gray-900">{{ $project->location ?? 'N/A' }}</p>
-                    </div>
+                <div class="relative flex items-center group cursor-not-allowed">
+                    <button disabled class="whitespace-nowrap py-4 px-1 border-b-2 border-transparent text-gray-400 font-medium text-sm">
+                        Milestones
+                    </button>
+                    <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">Coming Soon</span>
                 </div>
-                
-                <div class="mt-4">
-                    <span class="text-xs font-semibold text-gray-500 uppercase">Notes</span>
-                    <p class="mt-1 text-sm text-gray-900 whitespace-pre-wrap bg-gray-50 p-3 rounded-lg">{{ $project->notes ?: 'No notes provided.' }}</p>
-                </div>
-            </x-card>
+            </nav>
         </div>
         
-        <div class="space-y-6">
-            {{-- Organization & People --}}
-            <x-card>
-                <h3 class="text-lg font-bold text-gray-900 border-b pb-3 mb-4">Organization & People</h3>
-                
-                <ul class="space-y-4">
-                    <li class="flex items-start gap-3">
-                        <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                        </div>
-                        <div>
-                            <span class="block text-xs font-semibold text-gray-500 uppercase">Company / Branch</span>
-                            <span class="block text-sm font-medium text-gray-900">{{ $project->company?->name }}</span>
-                            <span class="block text-xs text-gray-500">{{ $project->branch?->name }}</span>
-                        </div>
-                    </li>
-                    <li class="flex items-start gap-3">
-                        <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 flex-shrink-0">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                        </div>
-                        <div>
-                            <span class="block text-xs font-semibold text-gray-500 uppercase">Client</span>
-                            <span class="block text-sm font-medium text-gray-900">{{ $project->client?->display_name }}</span>
-                        </div>
-                    </li>
-                    <li class="flex items-start gap-3">
-                        <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 flex-shrink-0">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                        </div>
-                        <div>
-                            <span class="block text-xs font-semibold text-gray-500 uppercase">Project Manager</span>
-                            <span class="block text-sm font-medium text-gray-900">{{ $project->manager?->name }}</span>
-                        </div>
-                    </li>
-                </ul>
-            </x-card>
+        <div class="mt-6">
+            {{-- Overview Tab --}}
+            <div x-show="activeTab === 'overview'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" style="display: none;">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 space-y-6">
+                        {{-- Project Information --}}
+                        <x-card>
+                            <h3 class="text-lg font-bold text-gray-900 border-b pb-3 mb-4">Project Information</h3>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6">
+                                <div>
+                                    <span class="text-xs font-semibold text-gray-500 uppercase">Category</span>
+                                    <p class="mt-1 text-sm text-gray-900">{{ $project->category ?? 'N/A' }}</p>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-semibold text-gray-500 uppercase">Priority</span>
+                                    <p class="mt-1 text-sm text-gray-900">
+                                        <x-badge :type="match($project->priority) { 'Critical' => 'danger', 'High' => 'warning', 'Low' => 'default', default => 'primary' }">
+                                            {{ $project->priority }}
+                                        </x-badge>
+                                    </p>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-semibold text-gray-500 uppercase">Status</span>
+                                    <p class="mt-1 text-sm text-gray-900">
+                                        <x-badge :type="match($project->status) { 'Completed', 'Closed' => 'success', 'Cancelled' => 'danger', 'In Progress' => 'primary', 'Pending' => 'warning', default => 'default' }">
+                                            {{ $project->status }}
+                                        </x-badge>
+                                    </p>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-semibold text-gray-500 uppercase">Progress</span>
+                                    <div class="mt-1 flex items-center gap-2">
+                                        <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden max-w-[150px]">
+                                            <div class="h-full bg-blue-600 rounded-full" style="width: {{ $project->progress }}%"></div>
+                                        </div>
+                                        <span class="text-sm font-medium text-gray-900">{{ $project->progress }}%</span>
+                                    </div>
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <span class="text-xs font-semibold text-gray-500 uppercase">Description</span>
+                                    <p class="mt-1 text-sm text-gray-900 whitespace-pre-wrap">{{ $project->description ?: 'No description provided.' }}</p>
+                                </div>
+                            </div>
+                        </x-card>
+                        
+                        {{-- Financials --}}
+                        <x-card>
+                            <h3 class="text-lg font-bold text-gray-900 border-b pb-3 mb-4">Financials</h3>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6">
+                                <div>
+                                    <span class="text-xs font-semibold text-gray-500 uppercase">Estimated Budget</span>
+                                    <p class="mt-1 text-lg font-bold text-gray-900">{{ $project->estimated_budget ? format_currency($project->estimated_budget, $project->currency) : 'N/A' }}</p>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-semibold text-gray-500 uppercase">Actual Budget</span>
+                                    <p class="mt-1 text-lg font-bold text-gray-900">{{ $project->actual_budget ? format_currency($project->actual_budget, $project->currency) : 'N/A' }}</p>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-semibold text-gray-500 uppercase">Estimated Cost</span>
+                                    <p class="mt-1 text-lg font-bold text-gray-900">{{ $project->estimated_cost ? format_currency($project->estimated_cost, $project->currency) : 'N/A' }}</p>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-semibold text-gray-500 uppercase">Actual Cost</span>
+                                    <p class="mt-1 text-lg font-bold text-gray-900">{{ $project->actual_cost ? format_currency($project->actual_cost, $project->currency) : 'N/A' }}</p>
+                                </div>
+                            </div>
+                        </x-card>
+                        
+                        {{-- Additional Details --}}
+                        <x-card>
+                            <h3 class="text-lg font-bold text-gray-900 border-b pb-3 mb-4">Additional Details</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6">
+                                <div>
+                                    <span class="text-xs font-semibold text-gray-500 uppercase">Contract Number</span>
+                                    <p class="mt-1 text-sm text-gray-900">{{ $project->contract_number ?? 'N/A' }}</p>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-semibold text-gray-500 uppercase">Reference Number</span>
+                                    <p class="mt-1 text-sm text-gray-900">{{ $project->reference_number ?? 'N/A' }}</p>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-semibold text-gray-500 uppercase">Location</span>
+                                    <p class="mt-1 text-sm text-gray-900">{{ $project->location ?? 'N/A' }}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <span class="text-xs font-semibold text-gray-500 uppercase">Notes</span>
+                                <p class="mt-1 text-sm text-gray-900 whitespace-pre-wrap bg-gray-50 p-3 rounded-lg">{{ $project->notes ?: 'No notes provided.' }}</p>
+                            </div>
+                        </x-card>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        {{-- Organization & People --}}
+                        <x-card>
+                            <div class="flex items-center justify-between border-b pb-3 mb-4">
+                                <h3 class="text-lg font-bold text-gray-900">Organization</h3>
+                            </div>
+                            
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                    </div>
+                                    <div>
+                                        <span class="block text-xs font-semibold text-gray-500 uppercase">Company / Branch</span>
+                                        <span class="block text-sm font-medium text-gray-900">{{ $project->company?->name }}</span>
+                                        <span class="block text-xs text-gray-500">{{ $project->branch?->name }}</span>
+                                    </div>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 flex-shrink-0">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    </div>
+                                    <div>
+                                        <span class="block text-xs font-semibold text-gray-500 uppercase">Client</span>
+                                        <span class="block text-sm font-medium text-gray-900">{{ $project->client?->display_name }}</span>
+                                    </div>
+                                </li>
+                                <li class="flex items-start gap-3 cursor-pointer hover:bg-gray-50 p-1 -m-1 rounded transition-colors" @click="activeTab = 'team'">
+                                    <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 flex-shrink-0">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                    </div>
+                                    <div>
+                                        <span class="block text-xs font-semibold text-gray-500 uppercase">Project Manager</span>
+                                        <span class="block text-sm font-medium text-gray-900">{{ $project->manager?->name ?? 'Not Assigned' }}</span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </x-card>
 
-            {{-- Dates --}}
-            <x-card>
-                <h3 class="text-lg font-bold text-gray-900 border-b pb-3 mb-4">Dates</h3>
-                <ul class="space-y-4">
-                    <li>
-                        <span class="block text-xs font-semibold text-gray-500 uppercase">Start Date</span>
-                        <span class="block text-sm text-gray-900">{{ $project->start_date?->format('F j, Y') ?? 'N/A' }}</span>
-                    </li>
-                    <li>
-                        <span class="block text-xs font-semibold text-gray-500 uppercase">Planned End Date</span>
-                        <span class="block text-sm text-gray-900">{{ $project->planned_end_date?->format('F j, Y') ?? 'N/A' }}</span>
-                    </li>
-                    <li>
-                        <span class="block text-xs font-semibold text-gray-500 uppercase">Actual End Date</span>
-                        <span class="block text-sm text-gray-900">{{ $project->actual_end_date?->format('F j, Y') ?? 'N/A' }}</span>
-                    </li>
-                </ul>
-            </x-card>
+                        {{-- Dates --}}
+                        <x-card>
+                            <h3 class="text-lg font-bold text-gray-900 border-b pb-3 mb-4">Dates</h3>
+                            <ul class="space-y-4">
+                                <li>
+                                    <span class="block text-xs font-semibold text-gray-500 uppercase">Start Date</span>
+                                    <span class="block text-sm text-gray-900">{{ $project->start_date?->format('F j, Y') ?? 'N/A' }}</span>
+                                </li>
+                                <li>
+                                    <span class="block text-xs font-semibold text-gray-500 uppercase">Planned End Date</span>
+                                    <span class="block text-sm text-gray-900">{{ $project->planned_end_date?->format('F j, Y') ?? 'N/A' }}</span>
+                                </li>
+                                <li>
+                                    <span class="block text-xs font-semibold text-gray-500 uppercase">Actual End Date</span>
+                                    <span class="block text-sm text-gray-900">{{ $project->actual_end_date?->format('F j, Y') ?? 'N/A' }}</span>
+                                </li>
+                            </ul>
+                        </x-card>
+                        
+                        {{-- System Info --}}
+                        <x-card>
+                            <h3 class="text-lg font-bold text-gray-900 border-b pb-3 mb-4">System Info</h3>
+                            <ul class="space-y-3">
+                                <li class="text-sm">
+                                    <span class="font-semibold text-gray-500">Created At:</span>
+                                    <span class="text-gray-900 ml-1">{{ $project->created_at?->format('Y-m-d H:i') }}</span>
+                                </li>
+                                <li class="text-sm">
+                                    <span class="font-semibold text-gray-500">Created By:</span>
+                                    <span class="text-gray-900 ml-1">{{ $project->creator?->name ?? 'System' }}</span>
+                                </li>
+                                <li class="text-sm">
+                                    <span class="font-semibold text-gray-500">Last Updated:</span>
+                                    <span class="text-gray-900 ml-1">{{ $project->updated_at?->format('Y-m-d H:i') }}</span>
+                                </li>
+                                <li class="text-sm">
+                                    <span class="font-semibold text-gray-500">Updated By:</span>
+                                    <span class="text-gray-900 ml-1">{{ $project->updater?->name ?? 'System' }}</span>
+                                </li>
+                            </ul>
+                        </x-card>
+                    </div>
+                </div>
+            </div>
             
-            {{-- System Info --}}
-            <x-card>
-                <h3 class="text-lg font-bold text-gray-900 border-b pb-3 mb-4">System Info</h3>
-                <ul class="space-y-3">
-                    <li class="text-sm">
-                        <span class="font-semibold text-gray-500">Created At:</span>
-                        <span class="text-gray-900 ml-1">{{ $project->created_at?->format('Y-m-d H:i') }}</span>
-                    </li>
-                    <li class="text-sm">
-                        <span class="font-semibold text-gray-500">Created By:</span>
-                        <span class="text-gray-900 ml-1">{{ $project->creator?->name ?? 'System' }}</span>
-                    </li>
-                    <li class="text-sm">
-                        <span class="font-semibold text-gray-500">Last Updated:</span>
-                        <span class="text-gray-900 ml-1">{{ $project->updated_at?->format('Y-m-d H:i') }}</span>
-                    </li>
-                    <li class="text-sm">
-                        <span class="font-semibold text-gray-500">Updated By:</span>
-                        <span class="text-gray-900 ml-1">{{ $project->updater?->name ?? 'System' }}</span>
-                    </li>
-                </ul>
-            </x-card>
+            {{-- Team Tab --}}
+            <div x-show="activeTab === 'team'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" style="display: none;" x-cloak>
+                @include('admin.projects.team.partials.team_tab', ['project' => $project])
+            </div>
+            
+            {{-- Other Placeholder Tabs --}}
+            <div x-show="activeTab === 'timeline'" style="display: none;" x-cloak>
+                <x-card>
+                    <div class="text-center py-12">
+                        <h3 class="text-lg font-medium text-gray-900">Project Timeline</h3>
+                        <p class="mt-1 text-sm text-gray-500">This feature will be available in the upcoming sprints.</p>
+                    </div>
+                </x-card>
+            </div>
+
+            <div x-show="activeTab === 'budget'" style="display: none;" x-cloak>
+                <x-card>
+                    <div class="text-center py-12">
+                        <h3 class="text-lg font-medium text-gray-900">Budget Details</h3>
+                        <p class="mt-1 text-sm text-gray-500">This feature will be available in the upcoming sprints.</p>
+                    </div>
+                </x-card>
+            </div>
+
+            <div x-show="activeTab === 'activity'" style="display: none;" x-cloak>
+                <x-card>
+                    <div class="text-center py-12">
+                        <h3 class="text-lg font-medium text-gray-900">Activity Log</h3>
+                        <p class="mt-1 text-sm text-gray-500">This feature will be available in the upcoming sprints.</p>
+                    </div>
+                </x-card>
+            </div>
         </div>
     </div>
 </x-layouts.admin>

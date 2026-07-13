@@ -126,6 +126,33 @@
         </x-stats-card>
     </div>
 
+    {{-- Third Row Stats: Project Teams --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6 mb-8">
+        <x-stats-card title="Total Members" value="{{ number_format($stats['total_team_members']) }}" color="blue">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+        </x-stats-card>
+        
+        <x-stats-card title="Active Members" value="{{ number_format($stats['active_team_members']) }}" color="emerald">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </x-stats-card>
+        
+        <x-stats-card title="Inactive Members" value="{{ number_format($stats['inactive_team_members']) }}" color="amber">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </x-stats-card>
+        
+        <x-stats-card title="Project Managers" value="{{ number_format($stats['project_managers']) }}" color="purple">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+        </x-stats-card>
+        
+        <x-stats-card title="Engineers" value="{{ number_format($stats['engineers']) }}" color="cyan">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+        </x-stats-card>
+        
+        <x-stats-card title="Team Utilization" value="{{ $stats['total_team_members'] > 0 ? round(($stats['active_team_members'] / $stats['total_team_members']) * 100) : 0 }}%" color="indigo">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+        </x-stats-card>
+    </div>
+
     {{-- Bottom Section: Recent Projects + Quick Actions --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
@@ -215,6 +242,14 @@
                         </div>
                         <span class="text-xs font-medium">New Project</span>
                     </a>
+                    <a href="{{ route('admin.projects.team.create') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-blue-50 hover:text-blue-700 text-gray-600 transition-all duration-200 group">
+                        <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                        </div>
+                        <span class="text-xs font-medium">Assign Member</span>
+                    </a>
                     <a href="{{ route('admin.clients.create') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-emerald-50 hover:text-emerald-700 text-gray-600 transition-all duration-200 group">
                         <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -303,5 +338,68 @@
                 </div>
             </x-card>
         </div>
+    </div>
+
+    {{-- Latest Team Members --}}
+    <div class="mt-8">
+        <x-card>
+            <x-slot:header>
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">Recently Assigned Team Members</h3>
+                    <a href="{{ route('admin.projects.team.index') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">View All Team Members</a>
+                </div>
+            </x-slot:header>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Member</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role & Dept</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Join Date</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        @forelse($latestTeamMembers ?? [] as $member)
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-8 w-8">
+                                            @if($member->user->avatar)
+                                                <img class="h-8 w-8 rounded-full" src="{{ asset('storage/' . $member->user->avatar) }}" alt="">
+                                            @else
+                                                <div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs">
+                                                    {{ $member->user->initials }}
+                                                </div>
+                                            @endif
+                                        </div>
+                                        <div class="ml-3">
+                                            <div class="text-sm font-medium text-gray-900">{{ $member->user->full_name }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <a href="{{ route('admin.projects.show', $member->project_id) }}" class="text-sm text-blue-600 hover:text-blue-900">{{ $member->project->name }}</a>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">{{ $member->project_role }}</div>
+                                    <div class="text-xs text-gray-500">{{ $member->department->name }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ $member->joined_at->format('M j, Y') }}
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+                                    No team members assigned yet.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </x-card>
     </div>
 </x-layouts.admin>

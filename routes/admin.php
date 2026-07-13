@@ -67,5 +67,16 @@ Route::middleware(['auth', 'check.status', 'track.activity'])->prefix('admin')->
     Route::patch('/projects/{project}/reopen', [\App\Http\Controllers\Admin\ProjectController::class, 'reopen'])->name('projects.reopen');
     Route::post('/projects/{project}/duplicate', [\App\Http\Controllers\Admin\ProjectController::class, 'duplicate'])->name('projects.duplicate');
     Route::get('/projects/{project}/timeline', [\App\Http\Controllers\Admin\ProjectController::class, 'timeline'])->name('projects.timeline');
+    // Project Teams
+    Route::prefix('projects/team')->name('projects.team.')->group(function () {
+        Route::patch('/{team}/restore', [\App\Http\Controllers\Admin\ProjectTeamController::class, 'restore'])->name('restore')->withTrashed();
+        Route::patch('/{team}/activate', [\App\Http\Controllers\Admin\ProjectTeamController::class, 'activate'])->name('activate');
+        Route::patch('/{team}/deactivate', [\App\Http\Controllers\Admin\ProjectTeamController::class, 'deactivate'])->name('deactivate');
+    });
+    Route::resource('projects/team', \App\Http\Controllers\Admin\ProjectTeamController::class, [
+        'names' => 'projects.team',
+        'parameters' => ['team' => 'teamMember']
+    ]);
+
     Route::resource('projects', \App\Http\Controllers\Admin\ProjectController::class);
 });
