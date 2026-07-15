@@ -74,12 +74,9 @@
                 <button @click="activeTab = 'tasks'" :class="{ 'border-blue-500 text-blue-600': activeTab === 'tasks', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'tasks' }" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
                     Tasks
                 </button>
-                <div class="relative flex items-center group cursor-not-allowed">
-                    <button disabled class="whitespace-nowrap py-4 px-1 border-b-2 border-transparent text-gray-400 font-medium text-sm">
-                        Milestones
-                    </button>
-                    <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">Coming Soon</span>
-                </div>
+                <button @click="activeTab = 'milestones'" :class="{ 'border-blue-500 text-blue-600': activeTab === 'milestones', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'milestones' }" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
+                    Milestones
+                </button>
             </nav>
         </div>
         
@@ -270,6 +267,57 @@
             {{-- Tasks Tab --}}
             <div x-show="activeTab === 'tasks'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" style="display: none;" x-cloak>
                 @include('admin.projects.tasks.partials.tasks_tab', ['project' => $project])
+            </div>
+            
+            {{-- Milestones Tab --}}
+            <div x-show="activeTab === 'milestones'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" style="display: none;" x-cloak>
+                <x-card>
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-medium text-gray-900">Project Milestones</h3>
+                        @can('create', App\Models\Milestone::class)
+                            <x-button type="primary" href="{{ route('admin.milestones.create') }}?project_id={{ $project->id }}" size="sm">
+                                Create Milestone
+                            </x-button>
+                        @endcan
+                    </div>
+                    
+                    <x-table>
+                        <x-slot:head>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Milestone Name</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Progress</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Due Date</th>
+                        </x-slot:head>
+
+                        @forelse($project->milestones as $milestone)
+                            <tr>
+                                <td class="px-4 py-3">
+                                    <a href="{{ route('admin.milestones.show', $milestone) }}" class="text-sm font-semibold text-gray-900 hover:text-blue-600">
+                                        {{ $milestone->name }}
+                                    </a>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="text-sm text-gray-600">{{ $milestone->status }}</span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden w-24">
+                                            <div class="h-full bg-blue-600 rounded-full" style="width: {{ $milestone->progress }}%"></div>
+                                        </div>
+                                        <span class="text-xs font-medium text-gray-600">{{ $milestone->progress }}%</span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="text-sm text-gray-600">{{ $milestone->due_date ? $milestone->due_date->format('M d, Y') : '-' }}</span>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="px-4 py-8 text-center text-gray-500">No milestones created for this project yet.</td>
+                            </tr>
+                        @endforelse
+                    </x-table>
+                </x-card>
             </div>
             
             {{-- Other Placeholder Tabs --}}

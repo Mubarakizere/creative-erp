@@ -57,6 +57,13 @@ class TaskService
 
             $task->update($data);
 
+            // Recalculate milestone progress if task status changed
+            if (isset($data['status'])) {
+                foreach ($task->milestones as $milestone) {
+                    app(MilestoneService::class)->calculateProgress($milestone);
+                }
+            }
+
             return $task;
         });
     }

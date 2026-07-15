@@ -6,19 +6,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Str;
 
-class Task extends Model
+class Milestone extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'company_id',
         'project_id',
-        'parent_id',
-        'assigned_to',
-        'task_code',
         'name',
         'description',
         'priority',
@@ -59,19 +56,9 @@ class Task extends Model
         return $this->belongsTo(Project::class);
     }
 
-    public function assignee(): BelongsTo
+    public function tasks(): BelongsToMany
     {
-        return $this->belongsTo(User::class, 'assigned_to');
-    }
-
-    public function parent(): BelongsTo
-    {
-        return $this->belongsTo(Task::class, 'parent_id');
-    }
-
-    public function children(): HasMany
-    {
-        return $this->hasMany(Task::class, 'parent_id');
+        return $this->belongsToMany(Task::class, 'milestone_task')->withTimestamps();
     }
 
     public function creator(): BelongsTo
@@ -82,10 +69,5 @@ class Task extends Model
     public function updater(): BelongsTo
     {
         return $this->belongsTo(User::class, 'updated_by');
-    }
-
-    public function milestones(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
-    {
-        return $this->belongsToMany(Milestone::class, 'milestone_task')->withTimestamps();
     }
 }

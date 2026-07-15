@@ -103,4 +103,9 @@ class Project extends Model
                     ->withPivot('project_role', 'allocation_percentage', 'status')
                     ->withTimestamps();
     }
+
+    public function milestones(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Milestone::class);
+    }
 }

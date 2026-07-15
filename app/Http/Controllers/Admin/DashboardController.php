@@ -51,6 +51,11 @@ class DashboardController extends Controller
             'tasks_due_today' => Task::where('status', '!=', 'Completed')->whereDate('due_date', now()->toDateString())->count(),
             'tasks_due_this_week' => Task::where('status', '!=', 'Completed')->whereBetween('due_date', [now()->startOfWeek(), now()->endOfWeek()])->count(),
             'critical_tasks' => Task::where('status', '!=', 'Completed')->where('priority', 'Critical')->count(),
+
+            // Milestone stats
+            'total_milestones' => \App\Models\Milestone::count(),
+            'active_milestones' => \App\Models\Milestone::whereIn('status', ['Pending', 'In Progress'])->count(),
+            'completed_milestones' => \App\Models\Milestone::where('status', 'Completed')->count(),
         ];
         
         // Task Widgets Data
@@ -60,6 +65,9 @@ class DashboardController extends Controller
         $overdueTasksList = Task::with('project')->where('status', '!=', 'Completed')->whereNotNull('due_date')->where('due_date', '<', now())->orderBy('due_date')->take(5)->get();
         $upcomingDeadlines = Task::with('project')->where('status', '!=', 'Completed')->whereNotNull('due_date')->where('due_date', '>=', now())->orderBy('due_date')->take(5)->get();
         $tasksWaitingReview = Task::with('project')->where('status', 'Waiting Review')->latest()->take(5)->get();
+        
+        // Milestone Widgets Data
+        $latestMilestones = \App\Models\Milestone::with('project')->latest()->take(5)->get();
 
         // Chart Placeholder Datasets
         $chartData = [
@@ -77,7 +85,8 @@ class DashboardController extends Controller
         return view('admin.dashboard.index', compact(
             'stats', 'latestProjects', 'latestClients', 'latestTeamMembers', 
             'myAssignedTasks', 'recentlyCreatedTasks', 'recentlyCompletedTasks', 
-            'overdueTasksList', 'upcomingDeadlines', 'tasksWaitingReview', 'chartData'
+            'overdueTasksList', 'upcomingDeadlines', 'tasksWaitingReview', 'chartData',
+            'latestMilestones'
         ));
     }
 }

@@ -172,6 +172,21 @@
         </x-stats-card>
     </div>
 
+    {{-- Fifth Row Stats: Milestones --}}
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+        <x-stats-card title="Total Milestones" value="{{ number_format($stats['total_milestones']) }}" color="purple">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+        </x-stats-card>
+
+        <x-stats-card title="Active Milestones" value="{{ number_format($stats['active_milestones']) }}" color="blue">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+        </x-stats-card>
+
+        <x-stats-card title="Completed Milestones" value="{{ number_format($stats['completed_milestones']) }}" color="emerald">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </x-stats-card>
+    </div>
+
     {{-- Bottom Section: Recent Projects + Quick Actions --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
