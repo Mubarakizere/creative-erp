@@ -78,5 +78,14 @@ Route::middleware(['auth', 'check.status', 'track.activity'])->prefix('admin')->
         'parameters' => ['team' => 'teamMember']
     ]);
 
+    // Tasks
+    Route::prefix('projects/tasks')->name('projects.tasks.')->group(function () {
+        Route::patch('/{task}/restore', [\App\Http\Controllers\Admin\TaskController::class, 'restore'])->name('restore')->withTrashed();
+        Route::post('/{task}/duplicate', [\App\Http\Controllers\Admin\TaskController::class, 'duplicate'])->name('duplicate');
+    });
+    Route::resource('projects/tasks', \App\Http\Controllers\Admin\TaskController::class, [
+        'names' => 'projects.tasks'
+    ]);
+
     Route::resource('projects', \App\Http\Controllers\Admin\ProjectController::class);
 });

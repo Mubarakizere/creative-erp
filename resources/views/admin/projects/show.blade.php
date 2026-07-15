@@ -67,10 +67,13 @@
                 </div>
                 <div class="relative flex items-center group cursor-not-allowed">
                     <button disabled class="whitespace-nowrap py-4 px-1 border-b-2 border-transparent text-gray-400 font-medium text-sm">
-                        Tasks
+                        Documents
                     </button>
                     <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">Coming Soon</span>
                 </div>
+                <button @click="activeTab = 'tasks'" :class="{ 'border-blue-500 text-blue-600': activeTab === 'tasks', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'tasks' }" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
+                    Tasks
+                </button>
                 <div class="relative flex items-center group cursor-not-allowed">
                     <button disabled class="whitespace-nowrap py-4 px-1 border-b-2 border-transparent text-gray-400 font-medium text-sm">
                         Milestones
@@ -262,6 +265,11 @@
             {{-- Team Tab --}}
             <div x-show="activeTab === 'team'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" style="display: none;" x-cloak>
                 @include('admin.projects.team.partials.team_tab', ['project' => $project])
+            </div>
+            
+            {{-- Tasks Tab --}}
+            <div x-show="activeTab === 'tasks'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" style="display: none;" x-cloak>
+                @include('admin.projects.tasks.partials.tasks_tab', ['project' => $project])
             </div>
             
             {{-- Other Placeholder Tabs --}}

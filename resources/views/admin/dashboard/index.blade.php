@@ -153,6 +153,25 @@
         </x-stats-card>
     </div>
 
+    {{-- Fourth Row Stats: Tasks --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <x-stats-card title="My Assigned Tasks" value="{{ number_format($stats['my_tasks']) }}" color="blue">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+        </x-stats-card>
+
+        <x-stats-card title="Active Tasks" value="{{ number_format($stats['active_tasks']) }}" color="emerald">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+        </x-stats-card>
+
+        <x-stats-card title="Overdue Tasks" value="{{ number_format($stats['overdue_tasks']) }}" color="rose">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </x-stats-card>
+
+        <x-stats-card title="Critical Tasks" value="{{ number_format($stats['critical_tasks']) }}" color="orange">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        </x-stats-card>
+    </div>
+
     {{-- Bottom Section: Recent Projects + Quick Actions --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
@@ -191,36 +210,31 @@
             {{-- Recent Activity Feed (Sample Data) --}}
             <x-card>
                 <x-slot:header>
-                    <h3 class="text-lg font-semibold text-gray-900">Recent Activity</h3>
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900">My Latest Tasks</h3>
+                        <a href="{{ route('admin.projects.tasks.index', ['assigned_to' => auth()->id()]) }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">View All</a>
+                    </div>
                 </x-slot:header>
+
                 <div class="space-y-4">
-                    <div class="flex items-start gap-4">
-                        <div class="flex-shrink-0 w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center mt-1">
-                            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    @forelse($myAssignedTasks as $task)
+                        <div class="flex items-start gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                            <div class="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <a href="{{ route('admin.projects.tasks.show', $task) }}" class="text-sm font-medium text-gray-900 hover:text-blue-600">{{ $task->name }}</a>
+                                <p class="text-xs text-gray-500 mt-1">{{ $task->project->name }} • Due: {{ $task->due_date ? $task->due_date->format('M j, Y') : 'N/A' }}</p>
+                            </div>
+                            <x-badge :type="match($task->status) { 'Pending' => 'default', 'In Progress' => 'primary', 'Completed' => 'success', default => 'warning' }">
+                                {{ $task->status }}
+                            </x-badge>
                         </div>
-                        <div>
-                            <p class="text-sm text-gray-900"><span class="font-medium">System</span> completed database backup.</p>
-                            <p class="text-xs text-gray-500 mt-0.5">10 minutes ago</p>
-                        </div>
-                    </div>
-                    <div class="flex items-start gap-4">
-                        <div class="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mt-1">
-                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-900"><span class="font-medium">Admin User</span> added a new client <span class="font-medium">MTN Rwanda</span>.</p>
-                            <p class="text-xs text-gray-500 mt-0.5">2 hours ago</p>
-                        </div>
-                    </div>
-                    <div class="flex items-start gap-4">
-                        <div class="flex-shrink-0 w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center mt-1">
-                            <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-900"><span class="font-medium">Project Manager</span> updated project status to <span class="font-medium">In Progress</span>.</p>
-                            <p class="text-xs text-gray-500 mt-0.5">Yesterday at 4:30 PM</p>
-                        </div>
-                    </div>
+                    @empty
+                        <p class="text-sm text-gray-500 py-4 text-center">No open tasks assigned to you.</p>
+                    @endforelse
                 </div>
             </x-card>
         </div>
