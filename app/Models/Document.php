@@ -130,4 +130,12 @@ class Document extends Model
     {
         return asset('storage/' . $this->path);
     }
+
+    /**
+     * Get all of the document's comments.
+     */
+    public function comments(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    {
+        return $this->morphMany(Comment::class, 'commentable');
+    }
 }

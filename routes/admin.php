@@ -108,4 +108,12 @@ Route::middleware(['auth', 'check.status', 'track.activity'])->prefix('admin')->
 
     // Document Categories
     Route::resource('document-categories', \App\Http\Controllers\Admin\DocumentCategoryController::class);
+
+    // Comments & Discussions
+    Route::prefix('comments')->name('comments.')->group(function () {
+        Route::post('/{comment}/pin', [\App\Http\Controllers\CommentController::class, 'pin'])->name('pin');
+        Route::post('/{comment}/unpin', [\App\Http\Controllers\CommentController::class, 'unpin'])->name('unpin');
+        Route::patch('/{comment}/restore', [\App\Http\Controllers\CommentController::class, 'restore'])->name('restore')->withTrashed();
+    });
+    Route::resource('comments', \App\Http\Controllers\CommentController::class)->only(['store', 'update', 'destroy']);
 });

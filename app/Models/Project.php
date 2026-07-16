@@ -122,4 +122,12 @@ class Project extends Model
     {
         return $this->morphMany(Document::class, 'documentable');
     }
+
+    /**
+     * Get all of the project's comments.
+     */
+    public function comments(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    {
+        return $this->morphMany(Comment::class, 'commentable');
+    }
 }

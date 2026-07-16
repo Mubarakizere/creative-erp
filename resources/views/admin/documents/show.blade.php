@@ -80,6 +80,10 @@
                     </div>
                 </dl>
             </x-card>
+            
+            <div class="mt-6">
+                <x-discussions :model="$document" />
+            </div>
         </div>
 
         <div class="space-y-6">

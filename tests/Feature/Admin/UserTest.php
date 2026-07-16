@@ -32,15 +32,15 @@ class UserTest extends TestCase
         $this->department = Department::create(['branch_id' => $this->branch->id, 'company_id' => $this->company->id, 'name' => 'IT', 'code' => 'IT', 'status' => 'active']);
 
         // Setup roles & permissions
-        $superAdminRole = Role::create(['name' => 'Super Admin']);
-        $this->employeeRole = Role::create(['name' => 'Employee']);
+        $superAdminRole = Role::firstOrCreate(['name' => 'Super Admin']);
+        $this->employeeRole = Role::firstOrCreate(['name' => 'Employee']);
 
         $permissions = [
             'user.view', 'user.create', 'user.update', 'user.delete',
             'user.restore', 'user.activate', 'user.deactivate', 'user.reset-password'
         ];
         foreach ($permissions as $perm) {
-            Permission::create(['name' => $perm]);
+            Permission::firstOrCreate(['name' => $perm]);
             $superAdminRole->givePermissionTo($perm);
         }
 

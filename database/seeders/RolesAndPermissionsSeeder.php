@@ -53,6 +53,25 @@ class RolesAndPermissionsSeeder extends Seeder
             'project-team.restore', 'project-team.assign', 'project-team.remove', 
             'project-team.activate', 'project-team.deactivate', 'project-team.export', 'project-team.import',
             
+            // Tasks
+            'view-tasks', 'create-tasks', 'edit-tasks', 'delete-tasks',
+            'restore-tasks', 'assign-tasks',
+            
+            // Milestones
+            'view-milestones', 'create-milestones', 'edit-milestones', 'delete-milestones',
+            'restore-milestones',
+            
+            // Documents
+            'document.view', 'document.create', 'document.upload', 'document.update', 'document.delete',
+            'document.restore', 'document.download', 'document.replace',
+            
+            // Document Categories
+            'document-category.view', 'document-category.create', 'document-category.update', 'document-category.delete',
+            
+            // Comments & Discussions
+            'comment.view', 'comment.create', 'comment.update', 'comment.delete',
+            'comment.pin', 'comment.internal',
+            
             // Inventory (Future)
             'inventory.view', 'inventory.create', 'inventory.update', 'inventory.delete',
             

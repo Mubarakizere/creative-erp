@@ -23,13 +23,13 @@ class RoleTest extends TestCase
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         // Create Permissions
-        Permission::create(['name' => 'role.view']);
-        Permission::create(['name' => 'role.create']);
-        Permission::create(['name' => 'role.update']);
-        Permission::create(['name' => 'role.delete']);
+        Permission::firstOrCreate(['name' => 'role.view']);
+        Permission::firstOrCreate(['name' => 'role.create']);
+        Permission::firstOrCreate(['name' => 'role.update']);
+        Permission::firstOrCreate(['name' => 'role.delete']);
 
         // Create Super Admin
-        $superAdminRole = Role::create(['name' => 'Super Admin']);
+        $superAdminRole = Role::firstOrCreate(['name' => 'Super Admin']);
         $superAdminRole->givePermissionTo(Permission::all());
 
         $this->superAdmin = User::factory()->create(['status' => 'active']);
@@ -71,7 +71,7 @@ class RoleTest extends TestCase
 
     public function test_super_admin_can_update_role(): void
     {
-        $role = Role::create(['name' => 'Old Name']);
+        $role = Role::firstOrCreate(['name' => 'Old Name']);
         
         $roleData = [
             'name' => 'New Name',
@@ -88,7 +88,7 @@ class RoleTest extends TestCase
 
     public function test_super_admin_can_delete_role(): void
     {
-        $role = Role::create(['name' => 'Role to Delete']);
+        $role = Role::firstOrCreate(['name' => 'Role to Delete']);
         
         $response = $this->actingAs($this->superAdmin)->delete(route('admin.roles.destroy', $role));
         

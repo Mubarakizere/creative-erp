@@ -57,6 +57,12 @@
                 <button @click="activeTab = 'activity'" :class="{ 'border-blue-500 text-blue-600': activeTab === 'activity', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'activity' }" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
                     Activity
                 </button>
+                <button @click="activeTab = 'discussions'" :class="{ 'border-blue-500 text-blue-600': activeTab === 'discussions', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'discussions' }" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2">
+                    Discussions
+                    @if($project->comments()->count() > 0)
+                        <span class="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">{{ $project->comments()->count() }}</span>
+                    @endif
+                </button>
                 
                 <button @click="activeTab = 'documents'" :class="{ 'border-blue-500 text-blue-600': activeTab === 'documents', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'documents' }" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
                     Documents
@@ -347,6 +353,10 @@
                         <p class="mt-1 text-sm text-gray-500">This feature will be available in the upcoming sprints.</p>
                     </div>
                 </x-card>
+            </div>
+
+            <div x-show="activeTab === 'discussions'" style="display: none;" x-cloak>
+                <x-discussions :model="$project" />
             </div>
         </div>
     </div>

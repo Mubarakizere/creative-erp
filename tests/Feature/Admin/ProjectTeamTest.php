@@ -43,7 +43,7 @@ class ProjectTeamTest extends TestCase
             Permission::findOrCreate($permission, 'web');
         }
 
-        $role = Role::create(['name' => 'Super Admin']);
+        $role = Role::firstOrCreate(['name' => 'Super Admin']);
         $role->givePermissionTo(Permission::all());
         $this->admin->assignRole('Super Admin');
     }

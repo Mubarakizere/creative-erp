@@ -30,5 +30,23 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::policy(Role::class, RolePolicy::class);
         Gate::policy(Permission::class, PermissionPolicy::class);
+
+        \Illuminate\Support\Facades\Event::listen(\App\Events\CommentCreated::class, \App\Listeners\LogActivityListener::class);
+        \Illuminate\Support\Facades\Event::listen(\App\Events\CommentCreated::class, \App\Listeners\UpdateDiscussionStatisticsListener::class);
+        \Illuminate\Support\Facades\Event::listen(\App\Events\CommentCreated::class, \App\Listeners\RefreshDashboardListener::class);
+        
+        \Illuminate\Support\Facades\Event::listen(\App\Events\CommentUpdated::class, \App\Listeners\LogActivityListener::class);
+        
+        \Illuminate\Support\Facades\Event::listen(\App\Events\CommentDeleted::class, \App\Listeners\LogActivityListener::class);
+        \Illuminate\Support\Facades\Event::listen(\App\Events\CommentDeleted::class, \App\Listeners\UpdateDiscussionStatisticsListener::class);
+        \Illuminate\Support\Facades\Event::listen(\App\Events\CommentDeleted::class, \App\Listeners\RefreshDashboardListener::class);
+        
+        \Illuminate\Support\Facades\Event::listen(\App\Events\CommentRestored::class, \App\Listeners\LogActivityListener::class);
+        \Illuminate\Support\Facades\Event::listen(\App\Events\CommentRestored::class, \App\Listeners\UpdateDiscussionStatisticsListener::class);
+        
+        \Illuminate\Support\Facades\Event::listen(\App\Events\CommentPinned::class, \App\Listeners\LogActivityListener::class);
+        \Illuminate\Support\Facades\Event::listen(\App\Events\CommentUnpinned::class, \App\Listeners\LogActivityListener::class);
+        
+        \Illuminate\Support\Facades\Event::listen(\App\Events\MentionDetected::class, \App\Listeners\NotifyMentionedUsersListener::class);
     }
 }

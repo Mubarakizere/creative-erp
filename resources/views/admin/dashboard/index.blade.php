@@ -195,6 +195,29 @@
         </x-stats-card>
     </div>
 
+    {{-- Sixth Row Stats: Discussions --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+        <x-stats-card title="Total Discussions" value="{{ number_format($stats['total_discussions']) }}" color="blue">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+        </x-stats-card>
+
+        <x-stats-card title="Comments Today" value="{{ number_format($stats['comments_today']) }}" color="emerald">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </x-stats-card>
+
+        <x-stats-card title="My Mentions" value="{{ number_format($stats['my_mentions']) }}" color="rose">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+        </x-stats-card>
+        
+        <x-stats-card title="Active Threads" value="{{ number_format($stats['active_threads']) }}" color="cyan">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"></path></svg>
+        </x-stats-card>
+        
+        <x-stats-card title="Internal Notes" value="{{ number_format($stats['internal_notes']) }}" color="orange">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+        </x-stats-card>
+    </div>
+
     {{-- Bottom Section: Recent Projects + Quick Actions --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
@@ -286,6 +309,34 @@
                         </div>
                     @empty
                         <p class="text-sm text-gray-500 py-4 text-center">No documents uploaded yet.</p>
+                    @endforelse
+                </div>
+            </x-card>
+
+            {{-- Recent Discussions Feed --}}
+            <x-card>
+                <x-slot:header>
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900">Recent Discussions</h3>
+                    </div>
+                </x-slot:header>
+
+                <div class="space-y-4">
+                    @forelse($recentDiscussions as $discussion)
+                        <div class="flex items-start gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                            <div class="flex-shrink-0 w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900">{{ Str::limit(strip_tags($discussion->body), 50) }}</p>
+                                <p class="text-xs text-gray-500 mt-1">{{ class_basename($discussion->commentable_type) }} • by {{ $discussion->user->first_name }}</p>
+                            </div>
+                            <span class="text-xs text-gray-400">{{ $discussion->created_at->diffForHumans() }}</span>
+                        </div>
+                    @empty
+                        <p class="text-sm text-gray-500 py-4 text-center">No discussions yet.</p>
                     @endforelse
                 </div>
             </x-card>
