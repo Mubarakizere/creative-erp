@@ -122,6 +122,11 @@
                 @endif
             </x-card>
 
+            {{-- Documents --}}
+            <div class="mt-6">
+                @include('admin.documents.partials.document_tab', ['documentable' => $task])
+            </div>
+
             {{-- Placeholder for Comments / Activity --}}
             <x-card>
                 <x-slot:header>

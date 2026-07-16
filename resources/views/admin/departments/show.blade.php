@@ -112,6 +112,11 @@
                     <p class="text-sm text-gray-600 whitespace-pre-line">{{ $department->description }}</p>
                 </x-card>
             @endif
+
+            {{-- Documents --}}
+            <div class="mt-6">
+                @include('admin.documents.partials.document_tab', ['documentable' => $department])
+            </div>
         </div>
 
         {{-- Right Column: Summary & Meta --}}

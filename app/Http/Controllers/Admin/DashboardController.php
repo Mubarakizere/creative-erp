@@ -11,6 +11,8 @@ use App\Models\Branch;
 use App\Models\Department;
 use App\Models\User;
 use App\Models\Task;
+use App\Models\Document;
+use App\Models\DocumentCategory;
 
 class DashboardController extends Controller
 {
@@ -56,6 +58,10 @@ class DashboardController extends Controller
             'total_milestones' => \App\Models\Milestone::count(),
             'active_milestones' => \App\Models\Milestone::whereIn('status', ['Pending', 'In Progress'])->count(),
             'completed_milestones' => \App\Models\Milestone::where('status', 'Completed')->count(),
+            
+            // Document stats
+            'total_documents' => Document::count(),
+            'document_categories' => DocumentCategory::count(),
         ];
         
         // Task Widgets Data
@@ -68,6 +74,9 @@ class DashboardController extends Controller
         
         // Milestone Widgets Data
         $latestMilestones = \App\Models\Milestone::with('project')->latest()->take(5)->get();
+        
+        // Document Widgets Data
+        $latestDocuments = Document::with('documentable')->latest()->take(5)->get();
 
         // Chart Placeholder Datasets
         $chartData = [
@@ -86,7 +95,7 @@ class DashboardController extends Controller
             'stats', 'latestProjects', 'latestClients', 'latestTeamMembers', 
             'myAssignedTasks', 'recentlyCreatedTasks', 'recentlyCompletedTasks', 
             'overdueTasksList', 'upcomingDeadlines', 'tasksWaitingReview', 'chartData',
-            'latestMilestones'
+            'latestMilestones', 'latestDocuments'
         ));
     }
 }

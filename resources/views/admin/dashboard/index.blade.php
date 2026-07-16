@@ -172,8 +172,8 @@
         </x-stats-card>
     </div>
 
-    {{-- Fifth Row Stats: Milestones --}}
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+    {{-- Fifth Row Stats: Milestones & Documents --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
         <x-stats-card title="Total Milestones" value="{{ number_format($stats['total_milestones']) }}" color="purple">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
         </x-stats-card>
@@ -184,6 +184,14 @@
 
         <x-stats-card title="Completed Milestones" value="{{ number_format($stats['completed_milestones']) }}" color="emerald">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </x-stats-card>
+        
+        <x-stats-card title="Total Documents" value="{{ number_format($stats['total_documents']) }}" color="cyan">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+        </x-stats-card>
+        
+        <x-stats-card title="Doc Categories" value="{{ number_format($stats['document_categories']) }}" color="orange">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
         </x-stats-card>
     </div>
 
@@ -249,6 +257,35 @@
                         </div>
                     @empty
                         <p class="text-sm text-gray-500 py-4 text-center">No open tasks assigned to you.</p>
+                    @endforelse
+                </div>
+            </x-card>
+            
+            {{-- Latest Documents Feed --}}
+            <x-card>
+                <x-slot:header>
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900">Recently Uploaded Documents</h3>
+                        <a href="{{ route('admin.documents.index') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">View All</a>
+                    </div>
+                </x-slot:header>
+
+                <div class="space-y-4">
+                    @forelse($latestDocuments as $document)
+                        <div class="flex items-start gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                            <div class="flex-shrink-0 w-10 h-10 bg-cyan-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <a href="{{ route('admin.documents.show', $document) }}" class="text-sm font-medium text-gray-900 hover:text-blue-600">{{ Str::limit($document->original_name, 30) }}</a>
+                                <p class="text-xs text-gray-500 mt-1">{{ class_basename($document->documentable_type) }} • {{ $document->formatted_size }}</p>
+                            </div>
+                            <span class="text-xs text-gray-400">{{ $document->created_at->diffForHumans() }}</span>
+                        </div>
+                    @empty
+                        <p class="text-sm text-gray-500 py-4 text-center">No documents uploaded yet.</p>
                     @endforelse
                 </div>
             </x-card>

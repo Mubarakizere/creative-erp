@@ -185,6 +185,11 @@
                     <p class="text-sm text-gray-600 whitespace-pre-line">{{ $company->notes }}</p>
                 </x-card>
             @endif
+
+            {{-- Documents --}}
+            <div class="mt-6">
+                @include('admin.documents.partials.document_tab', ['documentable' => $company])
+            </div>
         </div>
 
         {{-- Right Column: Settings & Meta --}}

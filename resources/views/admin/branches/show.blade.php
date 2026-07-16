@@ -162,6 +162,11 @@
                     <p class="text-sm text-gray-600 whitespace-pre-line">{{ $branch->notes }}</p>
                 </x-card>
             @endif
+
+            {{-- Documents --}}
+            <div class="mt-6">
+                @include('admin.documents.partials.document_tab', ['documentable' => $branch])
+            </div>
         </div>
 
         {{-- Right Column: Summary & Meta --}}

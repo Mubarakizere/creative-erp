@@ -42,6 +42,9 @@
                 <button @click="activeTab = 'tasks'" :class="{ 'border-blue-500 text-blue-600': activeTab === 'tasks', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'tasks' }" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
                     Tasks
                 </button>
+                <button @click="activeTab = 'documents'" :class="{ 'border-blue-500 text-blue-600': activeTab === 'documents', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'documents' }" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
+                    Documents
+                </button>
                 <button @click="activeTab = 'activity'" :class="{ 'border-blue-500 text-blue-600': activeTab === 'activity', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'activity' }" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
                     Activity
                 </button>
@@ -164,6 +167,11 @@
                         </tr>
                     @endforelse
                 </x-table>
+            </div>
+            
+            {{-- Documents Tab --}}
+            <div x-show="activeTab === 'documents'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" style="display: none;" x-cloak>
+                @include('admin.documents.partials.document_tab', ['documentable' => $milestone])
             </div>
             
             {{-- Activity Tab --}}

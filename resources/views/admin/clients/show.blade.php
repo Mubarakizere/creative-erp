@@ -201,6 +201,11 @@
                     Projects integration will be available in Sprint 08.
                 </div>
             </x-card>
+
+            {{-- Documents --}}
+            <div class="mt-6">
+                @include('admin.documents.partials.document_tab', ['documentable' => $client])
+            </div>
         </div>
 
         {{-- Right Column: Meta & Actions --}}

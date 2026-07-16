@@ -99,4 +99,13 @@ Route::middleware(['auth', 'check.status', 'track.activity'])->prefix('admin')->
         Route::get('/{milestone}/activity', [\App\Http\Controllers\Admin\MilestoneController::class, 'activity'])->name('activity');
     });
     Route::resource('milestones', \App\Http\Controllers\Admin\MilestoneController::class);
+    // Documents
+    Route::prefix('documents')->name('documents.')->group(function () {
+        Route::get('/records/{module}', [\App\Http\Controllers\Admin\DocumentController::class, 'getRecords'])->name('records');
+        Route::get('/{document}/download', [\App\Http\Controllers\Admin\DocumentController::class, 'download'])->name('download');
+    });
+    Route::resource('documents', \App\Http\Controllers\Admin\DocumentController::class);
+
+    // Document Categories
+    Route::resource('document-categories', \App\Http\Controllers\Admin\DocumentCategoryController::class);
 });
