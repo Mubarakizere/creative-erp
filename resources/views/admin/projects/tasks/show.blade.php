@@ -178,6 +178,20 @@
                         </div>
                     </div>
 
+                    {{-- Total Tracked Time --}}
+                    <div>
+                        <span class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Total Tracked Time</span>
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span class="text-sm font-medium text-gray-900">
+                                @php
+                                    $taskMinutes = $task->timeEntries()->where('status', 'completed')->sum('duration_minutes');
+                                @endphp
+                                {{ intdiv($taskMinutes, 60) }}h {{ $taskMinutes % 60 }}m
+                            </span>
+                        </div>
+                    </div>
+
                     <hr class="border-gray-100">
 
                     {{-- Dates --}}

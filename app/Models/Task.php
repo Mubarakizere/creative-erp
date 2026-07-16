@@ -105,4 +105,12 @@ class Task extends Model
     {
         return $this->morphMany(Comment::class, 'commentable');
     }
+
+    /**
+     * Get all of the task's time entries.
+     */
+    public function timeEntries(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(TimeEntry::class);
+    }
 }

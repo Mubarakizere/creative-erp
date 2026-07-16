@@ -138,4 +138,12 @@ class Project extends Model
     {
         return $this->hasMany(Meeting::class);
     }
+
+    /**
+     * Get all of the project's time entries.
+     */
+    public function timeEntries(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(TimeEntry::class);
+    }
 }

@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             DocumentSeeder::class,
             CommentSeeder::class,
             MeetingSeeder::class,
+            TimeEntrySeeder::class,
         ]);
     }
 }

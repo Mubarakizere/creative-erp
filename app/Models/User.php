@@ -211,4 +211,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(Meeting::class, 'created_by');
     }
+
+    /**
+     * Get all time entries for this user.
+     */
+    public function timeEntries(): HasMany
+    {
+        return $this->hasMany(TimeEntry::class);
+    }
 }

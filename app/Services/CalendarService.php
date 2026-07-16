@@ -7,6 +7,7 @@ use App\Calendar\MeetingCalendarProvider;
 use App\Calendar\TaskCalendarProvider;
 use App\Calendar\MilestoneCalendarProvider;
 use App\Calendar\ProjectCalendarProvider;
+use App\Calendar\TimeEntryCalendarProvider;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
@@ -26,6 +27,7 @@ class CalendarService
         $this->registerProvider(new TaskCalendarProvider());
         $this->registerProvider(new MilestoneCalendarProvider());
         $this->registerProvider(new ProjectCalendarProvider());
+        $this->registerProvider(new TimeEntryCalendarProvider());
     }
 
     /**

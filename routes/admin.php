@@ -21,6 +21,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'check.status', 'track.activity'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    
+    // Global Search
+    Route::get('/search', [\App\Http\Controllers\Admin\SearchController::class, 'index'])->name('search');
 
     // Companies
     Route::patch('/companies/{company}/restore', [CompanyController::class, 'restore'])->name('companies.restore')->withTrashed();
@@ -116,6 +119,19 @@ Route::middleware(['auth', 'check.status', 'track.activity'])->prefix('admin')->
         Route::patch('/{comment}/restore', [\App\Http\Controllers\CommentController::class, 'restore'])->name('restore')->withTrashed();
     });
     Route::resource('comments', \App\Http\Controllers\CommentController::class)->only(['store', 'update', 'destroy']);
+
+    // Time Tracking
+    Route::prefix('time-tracking')->name('time-tracking.')->group(function () {
+        Route::get('/timesheet', [\App\Http\Controllers\Admin\TimeEntryController::class, 'timesheet'])->name('timesheet');
+        Route::get('/reports', [\App\Http\Controllers\Admin\TimeEntryController::class, 'reports'])->name('reports');
+        
+        // Timer
+        Route::post('/timer/start', [\App\Http\Controllers\Admin\TimeEntryController::class, 'startTimer'])->name('timer.start');
+        Route::patch('/timer/{timeEntry}/stop', [\App\Http\Controllers\Admin\TimeEntryController::class, 'stopTimer'])->name('timer.stop');
+        Route::patch('/timer/{timeEntry}/pause', [\App\Http\Controllers\Admin\TimeEntryController::class, 'pauseTimer'])->name('timer.pause');
+        Route::patch('/timer/{timeEntry}/resume', [\App\Http\Controllers\Admin\TimeEntryController::class, 'resumeTimer'])->name('timer.resume');
+    });
+    Route::resource('time-tracking', \App\Http\Controllers\Admin\TimeEntryController::class)->parameters(['time-tracking' => 'timeEntry']);
 
     // Calendar
     Route::get('/calendar', [\App\Http\Controllers\Admin\CalendarController::class, 'index'])->name('calendar.index');

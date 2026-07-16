@@ -16,6 +16,7 @@ use App\Models\Milestone;
 use App\Models\Comment;
 use App\Models\Meeting;
 use App\Services\CalendarService;
+use App\Services\MetricsService;
 
 class DashboardService
 {
@@ -40,6 +41,12 @@ class DashboardService
             ->forUser($userId)
             ->take(5)
             ->get();
+            
+        // Time Tracking Stats
+        $metricsService = app(MetricsService::class);
+        $timeStats = $companyId ? $metricsService->getDashboardTimeStats($companyId) : [];
+        $stats = array_merge($stats, $timeStats);
+
         $charts = $this->getChartData();
 
         return array_merge(['stats' => $stats, 'chartData' => $charts], $widgets);
@@ -135,6 +142,10 @@ class DashboardService
             'latestProjects' => Project::with('company')->latest()->take(5)->get(),
             'latestClients' => Client::with('company')->latest()->take(5)->get(),
             'latestTeamMembers' => ProjectMember::with(['user', 'project', 'department'])->latest('joined_at')->take(5)->get(),
+
+            // Time Tracking
+            'runningTimersList' => \App\Models\TimeEntry::with(['user', 'project'])->where('status', 'running')->latest()->take(5)->get(),
+            'myTimesheetToday' => \App\Models\TimeEntry::with('project')->where('user_id', auth()->id())->whereDate('start_time', now()->toDateString())->latest()->take(5)->get(),
         ];
     }
 

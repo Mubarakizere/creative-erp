@@ -79,6 +79,9 @@
                 <button @click="activeTab = 'milestones'" :class="{ 'border-blue-500 text-blue-600': activeTab === 'milestones', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'milestones' }" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
                     Milestones
                 </button>
+                <button @click="activeTab = 'time_tracking'" :class="{ 'border-blue-500 text-blue-600': activeTab === 'time_tracking', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'time_tracking' }" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
+                    Time Tracking
+                </button>
             </nav>
         </div>
         
@@ -120,6 +123,15 @@
                                         </div>
                                         <span class="text-sm font-medium text-gray-900">{{ $project->progress }}%</span>
                                     </div>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-semibold text-gray-500 uppercase">Total Tracked Time</span>
+                                    <p class="mt-1 text-sm text-gray-900 font-medium">
+                                        @php
+                                            $totalMinutes = $project->timeEntries()->where('status', 'completed')->sum('duration_minutes');
+                                        @endphp
+                                        {{ intdiv($totalMinutes, 60) }}h {{ $totalMinutes % 60 }}m
+                                    </p>
                                 </div>
                                 <div class="sm:col-span-2">
                                     <span class="text-xs font-semibold text-gray-500 uppercase">Description</span>
@@ -321,6 +333,36 @@
                         @empty
                             <tr>
                                 <td colspan="4" class="px-4 py-8 text-center text-gray-500">No milestones created for this project yet.</td>
+                            </tr>
+                        @endforelse
+                    </x-table>
+                </x-card>
+            </div>
+            
+            {{-- Time Tracking Tab --}}
+            <div x-show="activeTab === 'time_tracking'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" style="display: none;" x-cloak>
+                <x-card>
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-medium text-gray-900">Project Time Log</h3>
+                        <a href="{{ route('admin.time-tracking.index', ['project_id' => $project->id]) }}" class="text-sm text-blue-600 hover:text-blue-900 font-medium">View Detailed Report</a>
+                    </div>
+                    <p class="text-sm text-gray-500 mb-4">Total time logged: {{ intdiv($project->timeEntries()->where('status', 'completed')->sum('duration_minutes'), 60) }}h {{ $project->timeEntries()->where('status', 'completed')->sum('duration_minutes') % 60 }}m</p>
+                    
+                    <x-table>
+                        <x-slot:head>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">User</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Duration</th>
+                        </x-slot:head>
+                        @forelse($project->timeEntries()->where('status', 'completed')->with('user')->latest()->take(5)->get() as $entry)
+                            <tr>
+                                <td class="px-4 py-3 text-sm text-gray-900">{{ $entry->user->full_name }}</td>
+                                <td class="px-4 py-3 text-sm text-gray-900">{{ $entry->start_time->format('M d, Y') }}</td>
+                                <td class="px-4 py-3 text-sm text-gray-900">{{ intdiv($entry->duration_minutes, 60) }}h {{ $entry->duration_minutes % 60 }}m</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="3" class="px-4 py-8 text-center text-gray-500">No time logged for this project yet.</td>
                             </tr>
                         @endforelse
                     </x-table>

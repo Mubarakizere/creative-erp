@@ -91,6 +91,15 @@ class RolesAndPermissionsSeeder extends Seeder
             'meeting.invite',
             'meeting.cancel',
             
+            // Time Tracking
+            'time.view',
+            'time.create',
+            'time.update',
+            'time.delete',
+            'time.restore',
+            'time.export',
+            'time.approve',
+            
             // Settings
             'settings.manage',
         ];
@@ -139,6 +148,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'document.view', 'document.create', 'document.update',
                 'comment.view', 'comment.create', 'comment.update', 'comments.reply',
                 'meeting.view', 'meeting.create', 'meeting.update', 'meeting.invite', 'meeting.cancel',
+                'time.view', 'time.create', 'time.update', 'time.delete', 'time.export', 'time.approve',
             ]);
         }
 
@@ -150,6 +160,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'document.view', 'document.create',
                 'comment.view', 'comment.create', 'comments.reply',
                 'meeting.view', 'meeting.create', 'meeting.invite',
+                'time.view', 'time.create', 'time.update',
             ]);
         }
     }
