@@ -116,4 +116,19 @@ Route::middleware(['auth', 'check.status', 'track.activity'])->prefix('admin')->
         Route::patch('/{comment}/restore', [\App\Http\Controllers\CommentController::class, 'restore'])->name('restore')->withTrashed();
     });
     Route::resource('comments', \App\Http\Controllers\CommentController::class)->only(['store', 'update', 'destroy']);
+
+    // Calendar
+    Route::get('/calendar', [\App\Http\Controllers\Admin\CalendarController::class, 'index'])->name('calendar.index');
+    Route::get('/calendar/events', [\App\Http\Controllers\Admin\CalendarController::class, 'events'])->name('calendar.events');
+    Route::get('/calendar/agenda', [\App\Http\Controllers\Admin\CalendarController::class, 'agenda'])->name('calendar.agenda');
+    Route::get('/calendar/upcoming', [\App\Http\Controllers\Admin\CalendarController::class, 'upcoming'])->name('calendar.upcoming');
+
+    // Meetings
+    Route::patch('/meetings/{meeting}/restore', [\App\Http\Controllers\Admin\MeetingController::class, 'restore'])->name('meetings.restore')->withTrashed();
+    Route::patch('/meetings/{meeting}/cancel', [\App\Http\Controllers\Admin\MeetingController::class, 'cancel'])->name('meetings.cancel');
+    Route::patch('/meetings/{meeting}/reschedule', [\App\Http\Controllers\Admin\MeetingController::class, 'reschedule'])->name('meetings.reschedule');
+    Route::post('/meetings/{meeting}/invite', [\App\Http\Controllers\Admin\MeetingController::class, 'invite'])->name('meetings.invite');
+    Route::patch('/meetings/{meeting}/respond', [\App\Http\Controllers\Admin\MeetingController::class, 'respond'])->name('meetings.respond');
+    Route::resource('meetings', \App\Http\Controllers\Admin\MeetingController::class);
 });
+

@@ -14,6 +14,8 @@ use App\Models\DocumentCategory;
 use App\Models\ProjectMember;
 use App\Models\Milestone;
 use App\Models\Comment;
+use App\Models\Meeting;
+use App\Services\CalendarService;
 
 class DashboardService
 {
@@ -24,6 +26,20 @@ class DashboardService
     {
         $stats = $this->getGeneralStats();
         $widgets = $this->getWidgetsData();
+        $charts = $this->getChartData();
+
+        // Add calendar events to stats (from CalendarService)
+        $calendarService = app(CalendarService::class);
+        $userId = auth()->id();
+        $companyId = auth()->user()->hasRole('Super Admin') ? null : auth()->user()->company_id;
+        
+        $stats['events_this_week'] = $calendarService->getWeekEvents($userId, $companyId)->count();
+        $widgets['todaysSchedule'] = $calendarService->getTodaysSchedule($userId, $companyId);
+        $widgets['upcomingMeetings'] = Meeting::upcoming()
+            ->when($companyId, fn($q) => $q->where('company_id', $companyId))
+            ->forUser($userId)
+            ->take(5)
+            ->get();
         $charts = $this->getChartData();
 
         return array_merge(['stats' => $stats, 'chartData' => $charts], $widgets);
@@ -83,6 +99,11 @@ class DashboardService
             'my_mentions' => Comment::where('body', 'like', '%@' . auth()->user()->first_name . '%')->count(),
             'active_threads' => Comment::whereNull('parent_id')->has('replies')->count(),
             'internal_notes' => Comment::where('is_internal', true)->count(),
+
+            // Meeting Stats
+            'meetings_today' => Meeting::today()->count(),
+            'upcoming_meetings' => Meeting::upcoming()->count(),
+            'schedule_conflicts' => 0, // Calculated dynamically when needed
         ];
     }
 
@@ -147,6 +168,11 @@ class DashboardService
             'dailyDiscussions' => [5, 10, 15, 8, 12, 20, 25],
             'monthlyDiscussions' => [50, 60, 45, 70, 90, 80],
             'mentionsPerMonth' => [10, 15, 5, 20, 25, 30],
+            
+            // Meeting Charts (Placeholders)
+            'meetingsPerMonth' => [4, 8, 15, 12, 20, 18, 25],
+            'meetingsByType' => [10, 5, 8, 3, 2, 4],
+            'attendanceRate' => [95, 92, 88, 96, 90],
         ];
     }
 }

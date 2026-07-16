@@ -193,4 +193,22 @@ class User extends Authenticatable
                     ->withPivot('project_role', 'allocation_percentage', 'status')
                     ->withTimestamps();
     }
+
+    /**
+     * Get all meetings where the user is an attendee.
+     */
+    public function meetings(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Meeting::class, 'meeting_attendees')
+                    ->withPivot('attendance_status', 'response_at')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Get all meetings organized (created) by this user.
+     */
+    public function organizedMeetings(): HasMany
+    {
+        return $this->hasMany(Meeting::class, 'created_by');
+    }
 }

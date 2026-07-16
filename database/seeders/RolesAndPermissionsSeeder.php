@@ -78,6 +78,19 @@ class RolesAndPermissionsSeeder extends Seeder
             // Report (Future)
             'report.view', 'report.create', 'report.update', 'report.delete',
             
+            'comments.restore',
+            'comments.pin',
+            'comments.reply',
+
+            // Meetings
+            'meeting.view',
+            'meeting.create',
+            'meeting.update',
+            'meeting.delete',
+            'meeting.restore',
+            'meeting.invite',
+            'meeting.cancel',
+            
             // Settings
             'settings.manage',
         ];
@@ -109,6 +122,35 @@ class RolesAndPermissionsSeeder extends Seeder
             if ($roleName === 'Super Admin') {
                 $role->syncPermissions(Permission::all());
             }
+        }
+
+        // Assign specific permissions to roles (examples)
+        $companyAdmin = Role::where('name', 'Company Admin')->first();
+        if ($companyAdmin) {
+            $companyAdmin->givePermissionTo(Permission::all());
+        }
+
+        $projectManager = Role::where('name', 'Project Manager')->first();
+        if ($projectManager) {
+            $projectManager->givePermissionTo([
+                'project.view', 'project.create', 'project.update',
+                'view-tasks', 'create-tasks', 'edit-tasks', 'delete-tasks',
+                'view-milestones', 'create-milestones', 'edit-milestones',
+                'document.view', 'document.create', 'document.update',
+                'comment.view', 'comment.create', 'comment.update', 'comments.reply',
+                'meeting.view', 'meeting.create', 'meeting.update', 'meeting.invite', 'meeting.cancel',
+            ]);
+        }
+
+        $employee = Role::where('name', 'Employee')->first();
+        if ($employee) {
+            $employee->givePermissionTo([
+                'project.view',
+                'view-tasks', 'edit-tasks',
+                'document.view', 'document.create',
+                'comment.view', 'comment.create', 'comments.reply',
+                'meeting.view', 'meeting.create', 'meeting.invite',
+            ]);
         }
     }
 }

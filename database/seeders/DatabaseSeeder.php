@@ -24,6 +24,8 @@ class DatabaseSeeder extends Seeder
             TaskSeeder::class,
             MilestoneSeeder::class,
             DocumentSeeder::class,
+            CommentSeeder::class,
+            MeetingSeeder::class,
         ]);
     }
 }

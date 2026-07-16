@@ -218,6 +218,25 @@
         </x-stats-card>
     </div>
 
+    {{-- Seventh Row Stats: Calendar & Meetings --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <x-stats-card title="Meetings Today" value="{{ number_format($stats['meetings_today']) }}" color="blue">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+        </x-stats-card>
+
+        <x-stats-card title="Upcoming Meetings" value="{{ number_format($stats['upcoming_meetings']) }}" color="emerald">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </x-stats-card>
+
+        <x-stats-card title="Events This Week" value="{{ number_format($stats['events_this_week']) }}" color="purple">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+        </x-stats-card>
+        
+        <x-stats-card title="Schedule Conflicts" value="{{ number_format($stats['schedule_conflicts']) }}" color="rose">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        </x-stats-card>
+    </div>
+
     {{-- Bottom Section: Recent Projects + Quick Actions --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
@@ -342,8 +361,62 @@
             </x-card>
         </div>
 
-        {{-- Quick Actions & Project Summary --}}
+        {{-- Right Column: Calendar, Quick Actions & Project Summary --}}
         <div class="space-y-6">
+            {{-- Today's Schedule --}}
+            <x-card>
+                <x-slot:header>
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900">Today's Schedule</h3>
+                        <a href="{{ route('admin.calendar.agenda') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">Agenda</a>
+                    </div>
+                </x-slot:header>
+
+                <div class="space-y-3">
+                    @forelse($todaysSchedule as $event)
+                        <a href="{{ $event->url }}" class="block p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors" style="border-left: 3px solid {{ $event->color }};">
+                            <h4 class="text-sm font-medium text-gray-900 truncate">{{ $event->title }}</h4>
+                            <p class="text-xs text-gray-500 mt-1">
+                                @if(!$event->allDay)
+                                    {{ $event->start->format('g:i A') }} — {{ $event->end?->format('g:i A') }}
+                                @else
+                                    All Day
+                                @endif
+                            </p>
+                        </a>
+                    @empty
+                        <p class="text-sm text-gray-500 py-4 text-center">Nothing scheduled for today.</p>
+                    @endforelse
+                </div>
+            </x-card>
+
+            {{-- Upcoming Meetings --}}
+            <x-card>
+                <x-slot:header>
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900">Upcoming Meetings</h3>
+                        <a href="{{ route('admin.meetings.index') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">View All</a>
+                    </div>
+                </x-slot:header>
+
+                <div class="space-y-4">
+                    @forelse($upcomingMeetings as $meeting)
+                        <div class="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                            <div class="flex-shrink-0 w-10 h-10 bg-blue-50 rounded-lg flex flex-col items-center justify-center border border-blue-100">
+                                <span class="text-[10px] font-bold text-blue-600 uppercase">{{ $meeting->start_at->format('M') }}</span>
+                                <span class="text-sm font-bold text-blue-700 leading-none">{{ $meeting->start_at->format('j') }}</span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <a href="{{ route('admin.meetings.show', $meeting) }}" class="text-sm font-medium text-gray-900 hover:text-blue-600 truncate block">{{ $meeting->title }}</a>
+                                <p class="text-xs text-gray-500 mt-1">{{ $meeting->start_at->format('g:i A') }} • {{ $meeting->formatted_duration }}</p>
+                            </div>
+                        </div>
+                    @empty
+                        <p class="text-sm text-gray-500 py-4 text-center">No upcoming meetings.</p>
+                    @endforelse
+                </div>
+            </x-card>
+
             {{-- Quick Actions --}}
             <x-card>
                 <x-slot:header>
@@ -390,6 +463,14 @@
                             </svg>
                         </div>
                         <span class="text-xs font-medium">New Company</span>
+                    </a>
+                    <a href="{{ route('admin.meetings.create') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-rose-50 hover:text-rose-700 text-gray-600 transition-all duration-200 group">
+                        <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <span class="text-xs font-medium">New Meeting</span>
                     </a>
                 </div>
             </x-card>
