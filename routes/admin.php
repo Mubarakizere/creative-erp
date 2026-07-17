@@ -32,6 +32,18 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
     // Global Search
     Route::get('/search', [\App\Http\Controllers\Admin\SearchController::class, 'index'])->name('search');
 
+    // Notifications
+    Route::prefix('notifications')->name('notifications.')->group(function () {
+        Route::patch('/mark-all-read', [\App\Http\Controllers\Admin\NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
+        Route::post('/bulk-action', [\App\Http\Controllers\Admin\NotificationController::class, 'bulkAction'])->name('bulk-action');
+        Route::get('/preferences', [\App\Http\Controllers\Admin\NotificationPreferenceController::class, 'index'])->name('preferences');
+        Route::put('/preferences', [\App\Http\Controllers\Admin\NotificationPreferenceController::class, 'update'])->name('preferences.update');
+        Route::patch('/{notification}/mark-read', [\App\Http\Controllers\Admin\NotificationController::class, 'markAsRead'])->name('mark-read');
+        Route::patch('/{notification}/mark-unread', [\App\Http\Controllers\Admin\NotificationController::class, 'markAsUnread'])->name('mark-unread');
+    });
+    Route::resource('notifications', \App\Http\Controllers\Admin\NotificationController::class)->only(['index', 'show', 'destroy']);
+
+
     // Companies
     Route::patch('/companies/{company}/restore', [CompanyController::class, 'restore'])->name('companies.restore')->withTrashed();
     Route::patch('/companies/{company}/activate', [CompanyController::class, 'activate'])->name('companies.activate');

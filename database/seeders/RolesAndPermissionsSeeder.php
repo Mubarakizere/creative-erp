@@ -114,6 +114,10 @@ class RolesAndPermissionsSeeder extends Seeder
             
             // Settings
             'settings.manage',
+
+            // Notifications
+            'notification.view', 'notification.manage', 'notification.delete',
+            'notification.send', 'notification.announcement', 'notification.system',
         ];
 
         // 2. Create Permissions
@@ -172,7 +176,8 @@ class RolesAndPermissionsSeeder extends Seeder
                 'meeting.view', 'meeting.create', 'meeting.update', 'meeting.invite', 'meeting.cancel',
                 'calendar.view',
                 'time.view', 'time.create', 'time.update', 'time.delete', 'time.export', 'time.approve',
-                'approval.view', 'approval.submit', 'approval.approve', 'approval.reject', 'approval.return', 'approval.cancel'
+                'approval.view', 'approval.submit', 'approval.approve', 'approval.reject', 'approval.return', 'approval.cancel',
+                'notification.view', 'notification.manage', 'notification.delete', 'notification.send'
             ]);
         }
 
@@ -186,7 +191,8 @@ class RolesAndPermissionsSeeder extends Seeder
                 'meeting.view', 'meeting.create', 'meeting.invite',
                 'calendar.view',
                 'time.view', 'time.create', 'time.update',
-                'approval.view', 'approval.submit'
+                'approval.view', 'approval.submit',
+                'notification.view', 'notification.manage'
             ]);
         }
     }

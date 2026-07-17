@@ -485,6 +485,14 @@
             </x-card>
         @endcan
 
+            {{-- Recent Notifications --}}
+            @can('notification.view')
+                @php
+                    $dashboardNotifications = app(\App\Services\NotificationService::class)->getRecentNotifications(auth()->user(), 5);
+                @endphp
+                <x-notification-widget :notifications="$dashboardNotifications" />
+            @endcan
+
             {{-- Quick Actions --}}
             <x-card>
                 <x-slot:header>
