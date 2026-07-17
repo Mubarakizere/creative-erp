@@ -1,19 +1,20 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Metrics;
 
+use App\Contracts\MetricProvider;
 use App\Models\TimeEntry;
-use App\Models\User;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 
-class MetricsService
+class TimeMetrics implements MetricProvider
 {
-    /**
-     * Get time statistics for dashboard cards
-     */
-    public function getDashboardTimeStats($companyId)
+    public function cards(): array
     {
+        $companyId = auth()->user()?->hasRole('Super Admin') ? null : auth()->user()?->company_id;
+
+        if (!$companyId) {
+            return [];
+        }
+
         $today = now()->startOfDay();
         $startOfWeek = now()->startOfWeek();
         $startOfMonth = now()->startOfMonth();
@@ -55,6 +56,21 @@ class MetricsService
             'non_billable_hours_month' => round($nonBillableHours, 2),
             'running_timers_count' => $runningTimersCount,
             'users_tracking_time' => $activeUsersCount,
+        ];
+    }
+
+    public function widgets(): array
+    {
+        return [
+            'runningTimersList' => TimeEntry::with(['user', 'project'])->where('status', 'running')->latest()->take(5)->get(),
+            'myTimesheetToday' => TimeEntry::with('project')->where('user_id', auth()->id())->whereDate('start_time', now()->toDateString())->latest()->take(5)->get(),
+        ];
+    }
+
+    public function reports(): array
+    {
+        return [
+            // Time Summary data
         ];
     }
 }
