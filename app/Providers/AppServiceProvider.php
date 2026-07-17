@@ -76,7 +76,31 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(\App\Events\MeetingInvitationSent::class, \App\Listeners\NotifyMeetingAttendeesListener::class);
 
         Event::listen(\App\Events\MeetingAccepted::class, \App\Listeners\LogMeetingActivityListener::class);
-        Event::listen(\App\Events\MeetingDeclined::class, \App\Listeners\LogMeetingActivityListener::class);
+        // Workflow Events
+        Event::listen(\App\Events\WorkflowSubmitted::class, \App\Listeners\LogWorkflowActivity::class);
+        Event::listen(\App\Events\WorkflowSubmitted::class, \App\Listeners\RefreshWorkflowMetrics::class);
+        Event::listen(\App\Events\WorkflowSubmitted::class, \App\Listeners\UpdateDashboardMetrics::class);
+
+        Event::listen(\App\Events\WorkflowApproved::class, \App\Listeners\LogWorkflowActivity::class);
+        Event::listen(\App\Events\WorkflowApproved::class, \App\Listeners\NotifyRequester::class);
+        Event::listen(\App\Events\WorkflowApproved::class, \App\Listeners\RefreshWorkflowMetrics::class);
+        Event::listen(\App\Events\WorkflowApproved::class, \App\Listeners\UpdateDashboardMetrics::class);
+
+        Event::listen(\App\Events\WorkflowRejected::class, \App\Listeners\LogWorkflowActivity::class);
+        Event::listen(\App\Events\WorkflowRejected::class, \App\Listeners\NotifyRequester::class);
+        Event::listen(\App\Events\WorkflowRejected::class, \App\Listeners\RefreshWorkflowMetrics::class);
+        Event::listen(\App\Events\WorkflowRejected::class, \App\Listeners\UpdateDashboardMetrics::class);
+
+        Event::listen(\App\Events\WorkflowReturned::class, \App\Listeners\LogWorkflowActivity::class);
+        Event::listen(\App\Events\WorkflowReturned::class, \App\Listeners\NotifyRequester::class);
+        Event::listen(\App\Events\WorkflowReturned::class, \App\Listeners\RefreshWorkflowMetrics::class);
+        Event::listen(\App\Events\WorkflowReturned::class, \App\Listeners\UpdateDashboardMetrics::class);
+
+        Event::listen(\App\Events\WorkflowCancelled::class, \App\Listeners\LogWorkflowActivity::class);
+        Event::listen(\App\Events\WorkflowCancelled::class, \App\Listeners\RefreshWorkflowMetrics::class);
+        Event::listen(\App\Events\WorkflowCancelled::class, \App\Listeners\UpdateDashboardMetrics::class);
+
+        Event::listen(\App\Events\ApprovalAssigned::class, \App\Listeners\NotifyNextApprover::class);
     }
 }
 

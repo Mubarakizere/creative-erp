@@ -146,5 +146,11 @@ Route::middleware(['auth', 'check.status', 'track.activity'])->prefix('admin')->
     Route::post('/meetings/{meeting}/invite', [\App\Http\Controllers\Admin\MeetingController::class, 'invite'])->name('meetings.invite');
     Route::patch('/meetings/{meeting}/respond', [\App\Http\Controllers\Admin\MeetingController::class, 'respond'])->name('meetings.respond');
     Route::resource('meetings', \App\Http\Controllers\Admin\MeetingController::class);
+
+    // Workflows & Approvals
+    Route::resource('workflows', \App\Http\Controllers\Admin\WorkflowController::class);
+    Route::get('approvals', [\App\Http\Controllers\Admin\ApprovalController::class, 'index'])->name('approvals.index');
+    Route::get('approvals/{approval}', [\App\Http\Controllers\Admin\ApprovalController::class, 'show'])->name('approvals.show');
+    Route::post('approvals/{approval}/action', [\App\Http\Controllers\Admin\ApprovalController::class, 'action'])->name('approvals.action');
 });
 

@@ -256,6 +256,25 @@
         </x-stats-card>
     </div>
 
+    {{-- Workflow & Approvals Stats --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <x-stats-card title="Pending Approvals" value="{{ number_format($stats['pending_approvals'] ?? 0) }}" color="amber">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </x-stats-card>
+
+        <x-stats-card title="Approved Today" value="{{ number_format($stats['approved_today'] ?? 0) }}" color="emerald">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </x-stats-card>
+
+        <x-stats-card title="Rejected Today" value="{{ number_format($stats['rejected_today'] ?? 0) }}" color="rose">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </x-stats-card>
+
+        <x-stats-card title="My Pending Requests" value="{{ number_format($stats['my_pending_requests'] ?? 0) }}" color="blue">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+        </x-stats-card>
+    </div>
+
     {{-- Bottom Section: Recent Projects + Quick Actions --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 

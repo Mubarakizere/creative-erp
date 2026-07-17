@@ -101,6 +101,40 @@
 
         {{-- Divider --}}
         <div x-show="sidebarOpen" class="pt-4 pb-2">
+            <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Workflow</p>
+        </div>
+
+        {{-- My Approvals --}}
+        <a href="{{ route('admin.approvals.index') }}"
+           @class([
+               'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
+               'bg-sidebar-active text-white' => request()->routeIs('admin.approvals.*'),
+               'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.approvals.*'),
+           ])>
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+            </svg>
+            <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">My Approvals</span>
+        </a>
+
+        {{-- Approval Workflows --}}
+        @can('viewAny', \App\Models\ApprovalWorkflow::class)
+        <a href="{{ route('admin.workflows.index') }}"
+           @class([
+               'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
+               'bg-sidebar-active text-white' => request()->routeIs('admin.workflows.*'),
+               'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.workflows.*'),
+           ])>
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Workflow Builder</span>
+        </a>
+        @endcan
+
+        {{-- Divider --}}
+        <div x-show="sidebarOpen" class="pt-4 pb-2">
             <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Organization</p>
         </div>
 
@@ -472,6 +506,35 @@
             </svg>
             Departments
         </a>
+
+        <div class="pt-4 pb-2">
+            <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Workflow</p>
+        </div>
+
+        <a href="{{ route('admin.approvals.index') }}" @class([
+            'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+            'bg-sidebar-active text-white' => request()->routeIs('admin.approvals.*'),
+            'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.approvals.*'),
+        ])>
+            <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+            </svg>
+            My Approvals
+        </a>
+
+        @can('viewAny', \App\Models\ApprovalWorkflow::class)
+        <a href="{{ route('admin.workflows.index') }}" @class([
+            'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+            'bg-sidebar-active text-white' => request()->routeIs('admin.workflows.*'),
+            'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.workflows.*'),
+        ])>
+            <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            Workflow Builder
+        </a>
+        @endcan
 
         <div class="pt-4 pb-2">
             <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Security</p>

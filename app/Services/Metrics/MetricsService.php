@@ -21,7 +21,8 @@ class MetricsService
         MeetingMetrics $meetingMetrics,
         TimeMetrics $timeMetrics,
         DocumentMetrics $documentMetrics,
-        DiscussionMetrics $discussionMetrics
+        DiscussionMetrics $discussionMetrics,
+        WorkflowMetrics $workflowMetrics
     ) {
         $this->providers = [
             $dashboardMetrics,
@@ -33,7 +34,8 @@ class MetricsService
             $meetingMetrics,
             $timeMetrics,
             $documentMetrics,
-            $discussionMetrics
+            $discussionMetrics,
+            $workflowMetrics
         ];
     }
 
