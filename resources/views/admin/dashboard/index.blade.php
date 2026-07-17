@@ -15,6 +15,7 @@
     {{-- Stats Grid --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {{-- Total Projects --}}
+        @can('project.view')
         <x-stats-card
             title="Total Projects"
             value="{{ number_format($stats['projects']) }}"
@@ -26,8 +27,10 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
             </svg>
         </x-stats-card>
+        @endcan
 
         {{-- Active Projects --}}
+        @can('project.view')
         <x-stats-card
             title="Active Projects"
             value="{{ number_format($stats['active_projects']) }}"
@@ -39,8 +42,10 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
             </svg>
         </x-stats-card>
+        @endcan
 
         {{-- Clients --}}
+        @can('client.view')
         <x-stats-card
             title="Total Clients"
             value="{{ number_format($stats['clients']) }}"
@@ -52,8 +57,10 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
             </svg>
         </x-stats-card>
+        @endcan
 
         {{-- Users --}}
+        @can('user.view')
         <x-stats-card
             title="Total Users"
             value="{{ number_format($stats['users']) }}"
@@ -65,11 +72,13 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
             </svg>
         </x-stats-card>
+        @endcan
     </div>
 
     {{-- Second Row Stats --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
         {{-- Companies --}}
+        @can('company.view')
         <x-stats-card
             title="Companies"
             value="{{ number_format($stats['companies']) }}"
@@ -79,8 +88,10 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
             </svg>
         </x-stats-card>
+        @endcan
 
         {{-- Branches --}}
+        @can('branch.view')
         <x-stats-card
             title="Branches"
             value="{{ number_format($stats['branches']) }}"
@@ -91,8 +102,10 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
             </svg>
         </x-stats-card>
+        @endcan
 
         {{-- Departments --}}
+        @can('department.view')
         <x-stats-card
             title="Departments"
             value="{{ number_format($stats['departments']) }}"
@@ -102,8 +115,10 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
             </svg>
         </x-stats-card>
+        @endcan
 
         {{-- Est Budget --}}
+        @can('project.view-budget')
         <x-stats-card
             title="Total Est. Budget"
             value="{{ format_currency($stats['total_estimated_budget']) }}"
@@ -113,8 +128,10 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
         </x-stats-card>
+        @endcan
 
         {{-- Act Budget --}}
+        @can('project.view-budget')
         <x-stats-card
             title="Total Act. Budget"
             value="{{ format_currency($stats['total_actual_budget']) }}"
@@ -124,6 +141,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
         </x-stats-card>
+        @endcan
     </div>
 
     {{-- Third Row Stats: Project Teams --}}
@@ -280,7 +298,8 @@
 
         {{-- Latest Projects --}}
         <div class="lg:col-span-2 space-y-6">
-            <x-card>
+            @can('project.view')
+        <x-card>
                 <x-slot:header>
                     <div class="flex items-center justify-between">
                         <h3 class="text-lg font-semibold text-gray-900">Latest Projects</h3>
@@ -309,9 +328,11 @@
                     @endforelse
                 </div>
             </x-card>
+        @endcan
 
             {{-- Recent Activity Feed (Sample Data) --}}
-            <x-card>
+            @can('view-tasks')
+        <x-card>
                 <x-slot:header>
                     <div class="flex items-center justify-between">
                         <h3 class="text-lg font-semibold text-gray-900">My Latest Tasks</h3>
@@ -340,9 +361,11 @@
                     @endforelse
                 </div>
             </x-card>
+        @endcan
             
             {{-- Latest Documents Feed --}}
-            <x-card>
+            @can('document.view')
+        <x-card>
                 <x-slot:header>
                     <div class="flex items-center justify-between">
                         <h3 class="text-lg font-semibold text-gray-900">Recently Uploaded Documents</h3>
@@ -369,9 +392,11 @@
                     @endforelse
                 </div>
             </x-card>
+        @endcan
 
             {{-- Recent Discussions Feed --}}
-            <x-card>
+            @can('comment.view')
+        <x-card>
                 <x-slot:header>
                     <div class="flex items-center justify-between">
                         <h3 class="text-lg font-semibold text-gray-900">Recent Discussions</h3>
@@ -397,12 +422,14 @@
                     @endforelse
                 </div>
             </x-card>
+        @endcan
         </div>
 
         {{-- Right Column: Calendar, Quick Actions & Project Summary --}}
         <div class="space-y-6">
             {{-- Today's Schedule --}}
-            <x-card>
+            @can('calendar.view')
+        <x-card>
                 <x-slot:header>
                     <div class="flex items-center justify-between">
                         <h3 class="text-lg font-semibold text-gray-900">Today's Schedule</h3>
@@ -427,9 +454,11 @@
                     @endforelse
                 </div>
             </x-card>
+        @endcan
 
             {{-- Upcoming Meetings --}}
-            <x-card>
+            @can('meeting.view')
+        <x-card>
                 <x-slot:header>
                     <div class="flex items-center justify-between">
                         <h3 class="text-lg font-semibold text-gray-900">Upcoming Meetings</h3>
@@ -454,6 +483,7 @@
                     @endforelse
                 </div>
             </x-card>
+        @endcan
 
             {{-- Quick Actions --}}
             <x-card>
@@ -462,7 +492,8 @@
                 </x-slot:header>
 
                 <div class="grid grid-cols-2 gap-3">
-                    <a href="{{ route('admin.projects.create') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-blue-50 hover:text-blue-700 text-gray-600 transition-all duration-200 group">
+                    @can('project.create')
+        <a href="{{ route('admin.projects.create') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-blue-50 hover:text-blue-700 text-gray-600 transition-all duration-200 group">
                         <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
@@ -470,7 +501,9 @@
                         </div>
                         <span class="text-xs font-medium">New Project</span>
                     </a>
-                    <a href="{{ route('admin.projects.team.create') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-blue-50 hover:text-blue-700 text-gray-600 transition-all duration-200 group">
+        @endcan
+                    @can('project-team.create')
+        <a href="{{ route('admin.projects.team.create') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-blue-50 hover:text-blue-700 text-gray-600 transition-all duration-200 group">
                         <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -478,7 +511,9 @@
                         </div>
                         <span class="text-xs font-medium">Assign Member</span>
                     </a>
-                    <a href="{{ route('admin.clients.create') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-emerald-50 hover:text-emerald-700 text-gray-600 transition-all duration-200 group">
+        @endcan
+                    @can('client.create')
+        <a href="{{ route('admin.clients.create') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-emerald-50 hover:text-emerald-700 text-gray-600 transition-all duration-200 group">
                         <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
@@ -486,7 +521,9 @@
                         </div>
                         <span class="text-xs font-medium">New Client</span>
                     </a>
-                    <a href="{{ route('admin.users.create') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-purple-50 hover:text-purple-700 text-gray-600 transition-all duration-200 group">
+        @endcan
+                    @can('user.create')
+        <a href="{{ route('admin.users.create') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-purple-50 hover:text-purple-700 text-gray-600 transition-all duration-200 group">
                         <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
@@ -494,7 +531,9 @@
                         </div>
                         <span class="text-xs font-medium">Add User</span>
                     </a>
-                    <a href="{{ route('admin.companies.create') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-amber-50 hover:text-amber-700 text-gray-600 transition-all duration-200 group">
+        @endcan
+                    @can('company.create')
+        <a href="{{ route('admin.companies.create') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-amber-50 hover:text-amber-700 text-gray-600 transition-all duration-200 group">
                         <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
@@ -502,7 +541,9 @@
                         </div>
                         <span class="text-xs font-medium">New Company</span>
                     </a>
-                    <a href="{{ route('admin.meetings.create') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-rose-50 hover:text-rose-700 text-gray-600 transition-all duration-200 group">
+        @endcan
+                    @can('meeting.create')
+        <a href="{{ route('admin.meetings.create') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-rose-50 hover:text-rose-700 text-gray-600 transition-all duration-200 group">
                         <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -510,11 +551,13 @@
                         </div>
                         <span class="text-xs font-medium">New Meeting</span>
                     </a>
+        @endcan
                 </div>
             </x-card>
 
             {{-- Project Status Summary --}}
-            <x-card>
+            @can('project.view')
+        <x-card>
                 <x-slot:header>
                     <h3 class="text-lg font-semibold text-gray-900">Projects by Status</h3>
                 </x-slot:header>
@@ -573,11 +616,13 @@
                     </div>
                 </div>
             </x-card>
+        @endcan
         </div>
     </div>
 
     {{-- Latest Team Members --}}
     <div class="mt-8">
+        @can('project-team.view')
         <x-card>
             <x-slot:header>
                 <div class="flex items-center justify-between">
@@ -637,5 +682,6 @@
                 </table>
             </div>
         </x-card>
+        @endcan
     </div>
 </x-layouts.admin>

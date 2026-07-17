@@ -20,6 +20,13 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware(['auth', 'check.status', 'track.activity'])->prefix('admin')->name('admin.')->group(function () {
+    // Access Pending page — accessible to authenticated users without a role
+    Route::get('/access-pending', function () {
+        return view('admin.access-pending');
+    })->name('access-pending');
+});
+
+Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
     // Global Search

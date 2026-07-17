@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use App\Models\Traits\CompanyScoped;
 
 class ApprovalWorkflow extends Model
 {
-    use HasFactory, SoftDeletes;
+    use CompanyScoped, HasFactory, SoftDeletes;
 
     protected $fillable = [
         'uuid',

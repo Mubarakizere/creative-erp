@@ -9,10 +9,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Str;
+use App\Models\Traits\CompanyScoped;
 
 class Meeting extends Model
 {
-    use HasFactory, SoftDeletes;
+    use CompanyScoped, HasFactory, SoftDeletes;
 
     /**
      * Meeting types.

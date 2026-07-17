@@ -14,18 +14,26 @@ class CompanyPolicy
      */
     public function viewAny(User $user): bool
     {
-        // TODO: Check permission 'company.view' when Roles/Permissions module is built
-        return true;
+        return $user->hasPermissionTo('company.view');
     }
 
     /**
      * Determine whether the user can view the company.
      *
      * Permission: company.view
+     * Multi-tenant: User must belong to the company or have global access.
      */
     public function view(User $user, Company $company): bool
     {
-        // TODO: Check permission 'company.view' when Roles/Permissions module is built
+        if (!$user->hasPermissionTo('company.view')) {
+            return false;
+        }
+
+        // Users can only view their own company unless they are Super Admin (handled by Gate::before)
+        if ($user->company_id && $user->company_id !== $company->id) {
+            return false;
+        }
+
         return true;
     }
 
@@ -36,8 +44,7 @@ class CompanyPolicy
      */
     public function create(User $user): bool
     {
-        // TODO: Check permission 'company.create' when Roles/Permissions module is built
-        return true;
+        return $user->hasPermissionTo('company.create');
     }
 
     /**
@@ -47,7 +54,15 @@ class CompanyPolicy
      */
     public function update(User $user, Company $company): bool
     {
-        // TODO: Check permission 'company.update' when Roles/Permissions module is built
+        if (!$user->hasPermissionTo('company.update')) {
+            return false;
+        }
+
+        // Company-scoped users can only update their own company
+        if ($user->company_id && $user->company_id !== $company->id) {
+            return false;
+        }
+
         return true;
     }
 
@@ -58,7 +73,14 @@ class CompanyPolicy
      */
     public function delete(User $user, Company $company): bool
     {
-        // TODO: Check permission 'company.delete' when Roles/Permissions module is built
+        if (!$user->hasPermissionTo('company.delete')) {
+            return false;
+        }
+
+        if ($user->company_id && $user->company_id !== $company->id) {
+            return false;
+        }
+
         return true;
     }
 
@@ -69,7 +91,14 @@ class CompanyPolicy
      */
     public function restore(User $user, Company $company): bool
     {
-        // TODO: Check permission 'company.restore' when Roles/Permissions module is built
+        if (!$user->hasPermissionTo('company.restore')) {
+            return false;
+        }
+
+        if ($user->company_id && $user->company_id !== $company->id) {
+            return false;
+        }
+
         return true;
     }
 
@@ -80,7 +109,14 @@ class CompanyPolicy
      */
     public function activate(User $user, Company $company): bool
     {
-        // TODO: Check permission 'company.activate' when Roles/Permissions module is built
+        if (!$user->hasPermissionTo('company.activate')) {
+            return false;
+        }
+
+        if ($user->company_id && $user->company_id !== $company->id) {
+            return false;
+        }
+
         return true;
     }
 
@@ -91,7 +127,14 @@ class CompanyPolicy
      */
     public function deactivate(User $user, Company $company): bool
     {
-        // TODO: Check permission 'company.deactivate' when Roles/Permissions module is built
+        if (!$user->hasPermissionTo('company.deactivate')) {
+            return false;
+        }
+
+        if ($user->company_id && $user->company_id !== $company->id) {
+            return false;
+        }
+
         return true;
     }
 }

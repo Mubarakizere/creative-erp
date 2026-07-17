@@ -14,18 +14,26 @@ class BranchPolicy
      */
     public function viewAny(User $user): bool
     {
-        // TODO: Check permission 'branch.view' when Roles/Permissions module is built
-        return true;
+        return $user->hasPermissionTo('branch.view');
     }
 
     /**
      * Determine whether the user can view the branch.
      *
      * Permission: branch.view
+     * Multi-tenant: User must belong to the same company as the branch.
      */
     public function view(User $user, Branch $branch): bool
     {
-        // TODO: Check permission 'branch.view' when Roles/Permissions module is built
+        if (!$user->hasPermissionTo('branch.view')) {
+            return false;
+        }
+
+        // Company-scoped isolation
+        if ($user->company_id && $branch->company_id !== $user->company_id) {
+            return false;
+        }
+
         return true;
     }
 
@@ -36,8 +44,7 @@ class BranchPolicy
      */
     public function create(User $user): bool
     {
-        // TODO: Check permission 'branch.create' when Roles/Permissions module is built
-        return true;
+        return $user->hasPermissionTo('branch.create');
     }
 
     /**
@@ -47,7 +54,14 @@ class BranchPolicy
      */
     public function update(User $user, Branch $branch): bool
     {
-        // TODO: Check permission 'branch.update' when Roles/Permissions module is built
+        if (!$user->hasPermissionTo('branch.update')) {
+            return false;
+        }
+
+        if ($user->company_id && $branch->company_id !== $user->company_id) {
+            return false;
+        }
+
         return true;
     }
 
@@ -58,7 +72,14 @@ class BranchPolicy
      */
     public function delete(User $user, Branch $branch): bool
     {
-        // TODO: Check permission 'branch.delete' when Roles/Permissions module is built
+        if (!$user->hasPermissionTo('branch.delete')) {
+            return false;
+        }
+
+        if ($user->company_id && $branch->company_id !== $user->company_id) {
+            return false;
+        }
+
         return true;
     }
 
@@ -69,7 +90,14 @@ class BranchPolicy
      */
     public function restore(User $user, Branch $branch): bool
     {
-        // TODO: Check permission 'branch.restore' when Roles/Permissions module is built
+        if (!$user->hasPermissionTo('branch.restore')) {
+            return false;
+        }
+
+        if ($user->company_id && $branch->company_id !== $user->company_id) {
+            return false;
+        }
+
         return true;
     }
 
@@ -80,7 +108,14 @@ class BranchPolicy
      */
     public function activate(User $user, Branch $branch): bool
     {
-        // TODO: Check permission 'branch.activate' when Roles/Permissions module is built
+        if (!$user->hasPermissionTo('branch.activate')) {
+            return false;
+        }
+
+        if ($user->company_id && $branch->company_id !== $user->company_id) {
+            return false;
+        }
+
         return true;
     }
 
@@ -91,7 +126,14 @@ class BranchPolicy
      */
     public function deactivate(User $user, Branch $branch): bool
     {
-        // TODO: Check permission 'branch.deactivate' when Roles/Permissions module is built
+        if (!$user->hasPermissionTo('branch.deactivate')) {
+            return false;
+        }
+
+        if ($user->company_id && $branch->company_id !== $user->company_id) {
+            return false;
+        }
+
         return true;
     }
 }

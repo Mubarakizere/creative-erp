@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
+use App\Models\Traits\CompanyScoped;
 
 class TimeEntry extends Model
 {
     /** @use HasFactory<\Database\Factories\TimeEntryFactory> */
-    use HasFactory, SoftDeletes;
+    use CompanyScoped, HasFactory, SoftDeletes;
 
     protected $fillable = [
         'company_id',

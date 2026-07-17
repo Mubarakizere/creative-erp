@@ -14,18 +14,26 @@ class DepartmentPolicy
      */
     public function viewAny(User $user): bool
     {
-        // TODO: Check permission 'department.view' when Roles/Permissions module is built
-        return true;
+        return $user->hasPermissionTo('department.view');
     }
 
     /**
      * Determine whether the user can view the department.
      *
      * Permission: department.view
+     * Multi-tenant: User must belong to the same company.
      */
     public function view(User $user, Department $department): bool
     {
-        // TODO: Check permission 'department.view' when Roles/Permissions module is built
+        if (!$user->hasPermissionTo('department.view')) {
+            return false;
+        }
+
+        // Company-scoped isolation via branch
+        if ($user->company_id && $department->branch && $department->branch->company_id !== $user->company_id) {
+            return false;
+        }
+
         return true;
     }
 
@@ -36,8 +44,7 @@ class DepartmentPolicy
      */
     public function create(User $user): bool
     {
-        // TODO: Check permission 'department.create' when Roles/Permissions module is built
-        return true;
+        return $user->hasPermissionTo('department.create');
     }
 
     /**
@@ -47,7 +54,14 @@ class DepartmentPolicy
      */
     public function update(User $user, Department $department): bool
     {
-        // TODO: Check permission 'department.update' when Roles/Permissions module is built
+        if (!$user->hasPermissionTo('department.update')) {
+            return false;
+        }
+
+        if ($user->company_id && $department->branch && $department->branch->company_id !== $user->company_id) {
+            return false;
+        }
+
         return true;
     }
 
@@ -58,7 +72,14 @@ class DepartmentPolicy
      */
     public function delete(User $user, Department $department): bool
     {
-        // TODO: Check permission 'department.delete' when Roles/Permissions module is built
+        if (!$user->hasPermissionTo('department.delete')) {
+            return false;
+        }
+
+        if ($user->company_id && $department->branch && $department->branch->company_id !== $user->company_id) {
+            return false;
+        }
+
         return true;
     }
 
@@ -69,7 +90,14 @@ class DepartmentPolicy
      */
     public function restore(User $user, Department $department): bool
     {
-        // TODO: Check permission 'department.restore' when Roles/Permissions module is built
+        if (!$user->hasPermissionTo('department.restore')) {
+            return false;
+        }
+
+        if ($user->company_id && $department->branch && $department->branch->company_id !== $user->company_id) {
+            return false;
+        }
+
         return true;
     }
 
@@ -80,7 +108,14 @@ class DepartmentPolicy
      */
     public function activate(User $user, Department $department): bool
     {
-        // TODO: Check permission 'department.activate' when Roles/Permissions module is built
+        if (!$user->hasPermissionTo('department.activate')) {
+            return false;
+        }
+
+        if ($user->company_id && $department->branch && $department->branch->company_id !== $user->company_id) {
+            return false;
+        }
+
         return true;
     }
 
@@ -91,7 +126,14 @@ class DepartmentPolicy
      */
     public function deactivate(User $user, Department $department): bool
     {
-        // TODO: Check permission 'department.deactivate' when Roles/Permissions module is built
+        if (!$user->hasPermissionTo('department.deactivate')) {
+            return false;
+        }
+
+        if ($user->company_id && $department->branch && $department->branch->company_id !== $user->company_id) {
+            return false;
+        }
+
         return true;
     }
 }

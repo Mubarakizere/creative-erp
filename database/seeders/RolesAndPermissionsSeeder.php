@@ -21,12 +21,15 @@ class RolesAndPermissionsSeeder extends Seeder
         $permissions = [
             // Company
             'company.view', 'company.create', 'company.update', 'company.delete',
+            'company.restore', 'company.activate', 'company.deactivate',
             
             // Branch
             'branch.view', 'branch.create', 'branch.update', 'branch.delete',
+            'branch.restore', 'branch.activate', 'branch.deactivate',
             
             // Department
             'department.view', 'department.create', 'department.update', 'department.delete',
+            'department.restore', 'department.activate', 'department.deactivate',
             
             // Role
             'role.view', 'role.create', 'role.update', 'role.delete',
@@ -91,6 +94,15 @@ class RolesAndPermissionsSeeder extends Seeder
             'meeting.invite',
             'meeting.cancel',
             
+            // Calendar
+            'calendar.view',
+            
+            // Workflows
+            'workflow.view', 'workflow.create', 'workflow.update', 'workflow.delete',
+            
+            // Approvals
+            'approval.view', 'approval.approve', 'approval.reject', 'approval.return', 'approval.cancel', 'approval.submit',
+            
             // Time Tracking
             'time.view',
             'time.create',
@@ -133,34 +145,48 @@ class RolesAndPermissionsSeeder extends Seeder
             }
         }
 
-        // Assign specific permissions to roles (examples)
+        // Assign specific permissions to roles
         $companyAdmin = Role::where('name', 'Company Admin')->first();
         if ($companyAdmin) {
-            $companyAdmin->givePermissionTo(Permission::all());
+            // Give all permissions EXCEPT global creation/deletion of companies, roles, permissions, settings
+            $allPermissions = Permission::all()->pluck('name')->toArray();
+            $excludedPermissions = [
+                'company.create', 'company.delete', 'company.restore', 
+                'role.create', 'role.delete', 
+                'permission.create', 'permission.update', 'permission.delete',
+                'settings.manage'
+            ];
+            
+            $companyAdminPermissions = array_diff($allPermissions, $excludedPermissions);
+            $companyAdmin->syncPermissions($companyAdminPermissions);
         }
 
         $projectManager = Role::where('name', 'Project Manager')->first();
         if ($projectManager) {
-            $projectManager->givePermissionTo([
+            $projectManager->syncPermissions([
                 'project.view', 'project.create', 'project.update',
                 'view-tasks', 'create-tasks', 'edit-tasks', 'delete-tasks',
                 'view-milestones', 'create-milestones', 'edit-milestones',
                 'document.view', 'document.create', 'document.update',
                 'comment.view', 'comment.create', 'comment.update', 'comments.reply',
                 'meeting.view', 'meeting.create', 'meeting.update', 'meeting.invite', 'meeting.cancel',
+                'calendar.view',
                 'time.view', 'time.create', 'time.update', 'time.delete', 'time.export', 'time.approve',
+                'approval.view', 'approval.submit', 'approval.approve', 'approval.reject', 'approval.return', 'approval.cancel'
             ]);
         }
 
         $employee = Role::where('name', 'Employee')->first();
         if ($employee) {
-            $employee->givePermissionTo([
+            $employee->syncPermissions([
                 'project.view',
                 'view-tasks', 'edit-tasks',
                 'document.view', 'document.create',
                 'comment.view', 'comment.create', 'comments.reply',
                 'meeting.view', 'meeting.create', 'meeting.invite',
+                'calendar.view',
                 'time.view', 'time.create', 'time.update',
+                'approval.view', 'approval.submit'
             ]);
         }
     }

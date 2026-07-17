@@ -27,8 +27,15 @@ class TimeEntryPolicy
 
     public function view(User $user, TimeEntry $timeEntry): bool
     {
-        return $user->can('time.view') && 
-               ($user->id === $timeEntry->user_id || $user->can('time.approve'));
+        if (!$user->can('time.view')) {
+            return false;
+        }
+
+        if ($user->company_id && $user->company_id !== $timeEntry->company_id) {
+            return false;
+        }
+
+        return $user->id === $timeEntry->user_id || $user->can('time.approve');
     }
 
     public function create(User $user): bool
@@ -38,19 +45,41 @@ class TimeEntryPolicy
 
     public function update(User $user, TimeEntry $timeEntry): bool
     {
-        return $user->can('time.update') && 
-               ($user->id === $timeEntry->user_id || $user->can('time.approve'));
+        if (!$user->can('time.update')) {
+            return false;
+        }
+
+        if ($user->company_id && $user->company_id !== $timeEntry->company_id) {
+            return false;
+        }
+
+        return $user->id === $timeEntry->user_id || $user->can('time.approve');
     }
 
     public function delete(User $user, TimeEntry $timeEntry): bool
     {
-        return $user->can('time.delete') && 
-               ($user->id === $timeEntry->user_id || $user->can('time.approve'));
+        if (!$user->can('time.delete')) {
+            return false;
+        }
+
+        if ($user->company_id && $user->company_id !== $timeEntry->company_id) {
+            return false;
+        }
+
+        return $user->id === $timeEntry->user_id || $user->can('time.approve');
     }
 
     public function restore(User $user, TimeEntry $timeEntry): bool
     {
-        return $user->can('time.restore');
+        if (!$user->can('time.restore')) {
+            return false;
+        }
+
+        if ($user->company_id && $user->company_id !== $timeEntry->company_id) {
+            return false;
+        }
+
+        return true;
     }
 
     public function export(User $user): bool

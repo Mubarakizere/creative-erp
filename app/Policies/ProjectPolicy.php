@@ -14,8 +14,7 @@ class ProjectPolicy
 
     public function view(User $user, Project $project): bool
     {
-        // Add company restriction if user is not Super Admin
-        if (!$user->hasRole('Super Admin') && !$user->companies->contains('id', $project->company_id)) {
+        if ($user->company_id && $user->company_id !== $project->company_id) {
             return false;
         }
 
@@ -29,12 +28,12 @@ class ProjectPolicy
 
     public function update(User $user, Project $project): bool
     {
-        // Closed projects are read-only except for Super Admin
-        if ($project->status === 'Closed' && !$user->hasRole('Super Admin')) {
+        // Closed projects are read-only (Super Admin bypasses via Gate::before)
+        if ($project->status === 'Closed') {
             return false;
         }
 
-        if (!$user->hasRole('Super Admin') && !$user->companies->contains('id', $project->company_id)) {
+        if ($user->company_id && $user->company_id !== $project->company_id) {
             return false;
         }
 
@@ -43,11 +42,11 @@ class ProjectPolicy
 
     public function delete(User $user, Project $project): bool
     {
-        if ($project->status === 'Closed' && !$user->hasRole('Super Admin')) {
+        if ($project->status === 'Closed') {
             return false;
         }
 
-        if (!$user->hasRole('Super Admin') && !$user->companies->contains('id', $project->company_id)) {
+        if ($user->company_id && $user->company_id !== $project->company_id) {
             return false;
         }
 
@@ -56,7 +55,7 @@ class ProjectPolicy
 
     public function restore(User $user, Project $project): bool
     {
-        if (!$user->hasRole('Super Admin') && !$user->companies->contains('id', $project->company_id)) {
+        if ($user->company_id && $user->company_id !== $project->company_id) {
             return false;
         }
 
@@ -66,11 +65,6 @@ class ProjectPolicy
     public function forceDelete(User $user, Project $project): bool
     {
         // Business Rule: Projects with financial records cannot be permanently deleted.
-        // For now, only Super Admin can force delete, and maybe we check if actual_budget/cost is set.
-        if (!$user->hasRole('Super Admin')) {
-            return false;
-        }
-
         if ($project->actual_budget > 0 || $project->actual_cost > 0) {
             return false;
         }
@@ -80,7 +74,7 @@ class ProjectPolicy
     
     public function close(User $user, Project $project): bool
     {
-        if (!$user->hasRole('Super Admin') && !$user->companies->contains('id', $project->company_id)) {
+        if ($user->company_id && $user->company_id !== $project->company_id) {
             return false;
         }
 
@@ -89,7 +83,7 @@ class ProjectPolicy
     
     public function reopen(User $user, Project $project): bool
     {
-        if (!$user->hasRole('Super Admin') && !$user->companies->contains('id', $project->company_id)) {
+        if ($user->company_id && $user->company_id !== $project->company_id) {
             return false;
         }
 

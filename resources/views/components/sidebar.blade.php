@@ -30,6 +30,7 @@
             <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Dashboard</span>
         </a>
         {{-- Calendar --}}
+        @can('calendar.view')
         <a href="{{ route('admin.calendar.index') }}"
            @class([
                'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
@@ -41,8 +42,10 @@
             </svg>
             <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Calendar</span>
         </a>
+        @endcan
 
         {{-- Meetings --}}
+        @can('viewAny', \App\Models\Meeting::class)
         <a href="{{ route('admin.meetings.index') }}"
            @class([
                'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
@@ -55,12 +58,14 @@
             </svg>
             <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Meetings</span>
         </a>
+        @endcan
         {{-- Divider --}}
         <div x-show="sidebarOpen" class="pt-4 pb-2">
             <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Productivity</p>
         </div>
 
         {{-- Time Tracking --}}
+        @can('viewAny', \App\Models\TimeEntry::class)
         <a href="{{ route('admin.time-tracking.index') }}"
            @class([
                'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
@@ -72,8 +77,10 @@
             </svg>
             <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Time Tracking</span>
         </a>
+        @endcan
 
         {{-- Timesheets --}}
+        @can('time.view')
         <a href="{{ route('admin.time-tracking.timesheet') }}"
            @class([
                'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
@@ -85,8 +92,10 @@
             </svg>
             <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">My Timesheet</span>
         </a>
+        @endcan
 
         {{-- Reports --}}
+        @can('time.view')
         <a href="{{ route('admin.time-tracking.reports') }}"
            @class([
                'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
@@ -98,6 +107,7 @@
             </svg>
             <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Reports</span>
         </a>
+        @endcan
 
         {{-- Divider --}}
         <div x-show="sidebarOpen" class="pt-4 pb-2">
@@ -105,6 +115,7 @@
         </div>
 
         {{-- My Approvals --}}
+        @can('viewAny', \App\Models\Approval::class)
         <a href="{{ route('admin.approvals.index') }}"
            @class([
                'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
@@ -116,6 +127,7 @@
             </svg>
             <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">My Approvals</span>
         </a>
+        @endcan
 
         {{-- Approval Workflows --}}
         @can('viewAny', \App\Models\ApprovalWorkflow::class)
@@ -139,6 +151,7 @@
         </div>
 
         {{-- Companies --}}
+        @can('viewAny', \App\Models\Company::class)
         <a href="{{ route('admin.companies.index') }}"
            @class([
                'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
@@ -150,8 +163,10 @@
             </svg>
             <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Companies</span>
         </a>
+        @endcan
 
         {{-- Branches --}}
+        @can('viewAny', \App\Models\Branch::class)
         <a href="{{ route('admin.branches.index') }}"
            @class([
                'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
@@ -164,8 +179,10 @@
             </svg>
             <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Branches</span>
         </a>
+        @endcan
 
         {{-- Departments --}}
+        @can('viewAny', \App\Models\Department::class)
         <a href="{{ route('admin.departments.index') }}"
            @class([
                'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
@@ -177,6 +194,7 @@
             </svg>
             <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Departments</span>
         </a>
+        @endcan
 
         {{-- Divider --}}
         <div x-show="sidebarOpen" class="pt-4 pb-2">
@@ -184,6 +202,7 @@
         </div>
 
         {{-- Roles --}}
+        @can('role.view')
         <a href="{{ route('admin.roles.index') }}"
            @class([
                'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
@@ -195,8 +214,10 @@
             </svg>
             <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Roles</span>
         </a>
+        @endcan
 
         {{-- Permissions --}}
+        @can('permission.view')
         <a href="{{ route('admin.permissions.index') }}"
            @class([
                'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
@@ -208,8 +229,10 @@
             </svg>
             <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Permissions</span>
         </a>
+        @endcan
 
         {{-- Users --}}
+        @can('viewAny', \App\Models\User::class)
         <a href="{{ route('admin.users.index') }}"
            @class([
                'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
@@ -221,6 +244,7 @@
             </svg>
             <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Users</span>
         </a>
+        @endcan
 
         {{-- Divider --}}
         <div x-show="sidebarOpen" class="pt-4 pb-2">
@@ -228,6 +252,7 @@
         </div>
 
         {{-- Clients --}}
+        @can('viewAny', \App\Models\Client::class)
         <a href="{{ route('admin.clients.index') }}"
            @class([
                'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
@@ -239,8 +264,10 @@
             </svg>
             <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Clients</span>
         </a>
+        @endcan
 
         {{-- Projects --}}
+        @can('viewAny', \App\Models\Project::class)
         <a href="{{ route('admin.projects.index') }}"
            @class([
                'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
@@ -252,8 +279,10 @@
             </svg>
             <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Projects</span>
         </a>
+        @endcan
 
         {{-- Project Teams --}}
+        @can('viewAny', \App\Models\ProjectMember::class)
         <a href="{{ route('admin.projects.team.index') }}"
            @class([
                'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
@@ -265,8 +294,10 @@
             </svg>
             <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Project Teams</span>
         </a>
+        @endcan
 
         {{-- Tasks --}}
+        @can('viewAny', \App\Models\Task::class)
         <a href="{{ route('admin.projects.tasks.index') }}"
            @class([
                'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
@@ -278,8 +309,10 @@
             </svg>
             <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Tasks</span>
         </a>
+        @endcan
 
         {{-- Milestones --}}
+        @can('viewAny', \App\Models\Milestone::class)
         <a href="{{ route('admin.milestones.index') }}"
            @class([
                'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
@@ -291,6 +324,7 @@
             </svg>
             <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Milestones</span>
         </a>
+        @endcan
 
         {{-- Divider --}}
         <div x-show="sidebarOpen" class="pt-4 pb-2">
@@ -298,6 +332,7 @@
         </div>
 
         {{-- Document Categories --}}
+        @can('viewAny', \App\Models\DocumentCategory::class)
         <a href="{{ route('admin.document-categories.index') }}"
            @class([
                'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
@@ -309,8 +344,10 @@
             </svg>
             <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Doc Categories</span>
         </a>
+        @endcan
 
         {{-- Documents --}}
+        @can('viewAny', \App\Models\Document::class)
         <a href="{{ route('admin.documents.index') }}"
            @class([
                'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
@@ -322,6 +359,7 @@
             </svg>
             <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Documents</span>
         </a>
+        @endcan
 
         {{-- Discussions --}}
         <a href="#" class="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-gray-400 cursor-not-allowed group justify-between">
@@ -442,6 +480,7 @@
             </svg>
             Dashboard
         </a>
+        @can('calendar.view')
         <a href="{{ route('admin.calendar.index') }}" @class([
             'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
             'bg-sidebar-active text-white' => request()->routeIs('admin.calendar.*'),
@@ -452,6 +491,8 @@
             </svg>
             Calendar
         </a>
+        @endcan
+        @can('viewAny', \App\Models\Meeting::class)
         <a href="{{ route('admin.meetings.index') }}" @class([
             'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
             'bg-sidebar-active text-white' => request()->routeIs('admin.meetings.*'),
@@ -463,6 +504,8 @@
             </svg>
             Meetings
         </a>
+        @endcan
+        @can('viewAny', \App\Models\TimeEntry::class)
         <a href="{{ route('admin.time-tracking.index') }}" @class([
             'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
             'bg-sidebar-active text-white' => request()->routeIs('admin.time-tracking.*'),
@@ -473,6 +516,8 @@
             </svg>
             Time Tracking
         </a>
+        @endcan
+        @can('viewAny', \App\Models\Company::class)
         <a href="{{ route('admin.companies.index') }}" @class([
             'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
             'bg-sidebar-active text-white' => request()->routeIs('admin.companies.*'),
@@ -483,6 +528,8 @@
             </svg>
             Companies
         </a>
+        @endcan
+        @can('viewAny', \App\Models\Branch::class)
         <a href="{{ route('admin.branches.index') }}" @class([
             'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
             'bg-sidebar-active text-white' => request()->routeIs('admin.branches.*'),
@@ -494,8 +541,10 @@
             </svg>
             Branches
         </a>
+        @endcan
 
         {{-- Departments --}}
+        @can('viewAny', \App\Models\Department::class)
         <a href="{{ route('admin.departments.index') }}" @class([
             'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
             'bg-sidebar-active text-white' => request()->routeIs('admin.departments.*'),
@@ -506,11 +555,13 @@
             </svg>
             Departments
         </a>
+        @endcan
 
         <div class="pt-4 pb-2">
             <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Workflow</p>
         </div>
 
+        @can('viewAny', \App\Models\Approval::class)
         <a href="{{ route('admin.approvals.index') }}" @class([
             'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
             'bg-sidebar-active text-white' => request()->routeIs('admin.approvals.*'),
@@ -521,6 +572,7 @@
             </svg>
             My Approvals
         </a>
+        @endcan
 
         @can('viewAny', \App\Models\ApprovalWorkflow::class)
         <a href="{{ route('admin.workflows.index') }}" @class([
@@ -540,6 +592,7 @@
             <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Security</p>
         </div>
 
+        @can('role.view')
         <a href="{{ route('admin.roles.index') }}" @class([
             'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
             'bg-sidebar-active text-white' => request()->routeIs('admin.roles.*'),
@@ -550,7 +603,9 @@
             </svg>
             Roles
         </a>
+        @endcan
 
+        @can('permission.view')
         <a href="{{ route('admin.permissions.index') }}" @class([
             'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
             'bg-sidebar-active text-white' => request()->routeIs('admin.permissions.*'),
@@ -561,7 +616,9 @@
             </svg>
             Permissions
         </a>
+        @endcan
 
+        @can('viewAny', \App\Models\User::class)
         <a href="{{ route('admin.users.index') }}" @class([
             'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
             'bg-sidebar-active text-white' => request()->routeIs('admin.users.*'),
@@ -572,11 +629,13 @@
             </svg>
             Users
         </a>
+        @endcan
 
         <div class="pt-4 pb-2">
             <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Management</p>
         </div>
 
+        @can('viewAny', \App\Models\Client::class)
         <a href="{{ route('admin.clients.index') }}" @class([
             'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
             'bg-sidebar-active text-white' => request()->routeIs('admin.clients.*'),
@@ -587,7 +646,9 @@
             </svg>
             Clients
         </a>
+        @endcan
 
+        @can('viewAny', \App\Models\Project::class)
         <a href="{{ route('admin.projects.index') }}" @class([
             'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
             'bg-sidebar-active text-white' => request()->routeIs('admin.projects.*'),
@@ -598,7 +659,9 @@
             </svg>
             Projects
         </a>
+        @endcan
 
+        @can('viewAny', \App\Models\ProjectMember::class)
         <a href="{{ route('admin.projects.team.index') }}" @class([
             'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
             'bg-sidebar-active text-white' => request()->routeIs('admin.projects.team.*'),
@@ -609,7 +672,9 @@
             </svg>
             Project Teams
         </a>
+        @endcan
 
+        @can('viewAny', \App\Models\Task::class)
         <a href="{{ route('admin.projects.tasks.index') }}"
            @class([
                'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
@@ -621,8 +686,10 @@
             </svg>
             <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Tasks</span>
         </a>
+        @endcan
 
         {{-- Milestones --}}
+        @can('viewAny', \App\Models\Milestone::class)
         <a href="{{ route('admin.milestones.index') }}"
            @class([
                'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
@@ -634,11 +701,13 @@
             </svg>
             <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Milestones</span>
         </a>
+        @endcan
 
         <div class="pt-4 pb-2">
             <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Documents</p>
         </div>
 
+        @can('viewAny', \App\Models\DocumentCategory::class)
         <a href="{{ route('admin.document-categories.index') }}"
            @class([
                'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
@@ -650,7 +719,9 @@
             </svg>
             <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Doc Categories</span>
         </a>
+        @endcan
 
+        @can('viewAny', \App\Models\Document::class)
         <a href="{{ route('admin.documents.index') }}"
            @class([
                'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
@@ -662,6 +733,7 @@
             </svg>
             <span class="ml-3 whitespace-nowrap">Documents</span>
         </a>
+        @endcan
 
         <a href="#" class="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-gray-400 cursor-not-allowed group justify-between">
             <div class="flex items-center">

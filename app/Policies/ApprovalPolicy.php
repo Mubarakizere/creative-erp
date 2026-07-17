@@ -20,7 +20,6 @@ class ApprovalPolicy
      */
     public function view(User $user, Approval $approval): bool
     {
-        if ($user->hasRole('Super Admin')) return true;
         if ($approval->submitted_by === $user->id) return true;
         if ($user->hasPermissionTo('approval.view')) return true;
         
@@ -43,8 +42,6 @@ class ApprovalPolicy
         
         $currentStep = $approval->currentStep;
         if (!$currentStep) return false;
-
-        if ($user->hasRole('Super Admin')) return true;
 
         if ($currentStep->approver_user_id === $user->id) return true;
         if ($currentStep->role && $user->hasRole($currentStep->role->name)) return true;
