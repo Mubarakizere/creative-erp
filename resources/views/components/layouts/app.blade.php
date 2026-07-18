@@ -23,6 +23,9 @@
 <body class="font-sans antialiased bg-gray-50 text-gray-900">
     {{ $slot }}
 
+    @if(config('realtime.features.toast', true))
+        <x-toast />
+    @endif
     @stack('scripts')
 </body>
 </html>

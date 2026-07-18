@@ -71,6 +71,7 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
     // Users
     Route::get('/users/branches/{company}', [UserController::class, 'getBranches'])->name('users.branches');
     Route::get('/users/departments/{branch}', [UserController::class, 'getDepartments'])->name('users.departments');
+    Route::get('/users/search', [UserController::class, 'search'])->name('users.search');
     Route::patch('/users/{user}/restore', [UserController::class, 'restore'])->name('users.restore')->withTrashed();
     Route::patch('/users/{user}/activate', [UserController::class, 'activate'])->name('users.activate');
     Route::patch('/users/{user}/deactivate', [UserController::class, 'deactivate'])->name('users.deactivate');
@@ -171,5 +172,10 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
     Route::get('approvals', [\App\Http\Controllers\Admin\ApprovalController::class, 'index'])->name('approvals.index');
     Route::get('approvals/{approval}', [\App\Http\Controllers\Admin\ApprovalController::class, 'show'])->name('approvals.show');
     Route::post('approvals/{approval}/action', [\App\Http\Controllers\Admin\ApprovalController::class, 'action'])->name('approvals.action');
+
+    // Announcements
+    Route::patch('announcements/{announcement}/publish', [\App\Http\Controllers\Admin\AnnouncementController::class, 'publish'])->name('announcements.publish');
+    Route::patch('announcements/{announcement}/unpublish', [\App\Http\Controllers\Admin\AnnouncementController::class, 'unpublish'])->name('announcements.unpublish');
+    Route::resource('announcements', \App\Http\Controllers\Admin\AnnouncementController::class);
 });
 

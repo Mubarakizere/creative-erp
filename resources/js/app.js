@@ -1,4 +1,8 @@
 import './bootstrap';
+import './event-bus';
+import TomSelect from 'tom-select';
+
+window.TomSelect = TomSelect;
 
 // Alpine.js is loaded via CDN in the layout
 // This file is for custom JavaScript initialization

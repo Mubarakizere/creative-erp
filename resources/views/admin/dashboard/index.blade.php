@@ -493,6 +493,11 @@
                 <x-notification-widget :notifications="$dashboardNotifications" />
             @endcan
 
+            {{-- Announcements --}}
+            @if(config('realtime.features.announcements', true))
+                <x-dashboard-announcements />
+            @endif
+
             {{-- Quick Actions --}}
             <x-card>
                 <x-slot:header>

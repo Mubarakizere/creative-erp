@@ -106,6 +106,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Scope a query to only include active users.
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
+
+    /**
      * Check if the user account is suspended.
      */
     public function isSuspended(): bool
