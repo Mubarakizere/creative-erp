@@ -45,6 +45,9 @@ class ReportBuilderService
             'clients' => $this->buildClientsSummary($filters),
             'announcements' => $this->buildAnnouncementsSummary($filters),
             'notifications' => $this->buildNotificationsSummary($filters),
+            'crm_pipeline' => $this->buildCrmPipeline($filters),
+            'crm_leads' => $this->buildCrmLeads($filters),
+            'crm_conversions' => $this->buildCrmConversions($filters),
             default => collect([]),
         };
     }
@@ -225,6 +228,44 @@ class ReportBuilderService
         }
         
         $this->applyDateFilters($query, $filters, 'created_at');
+
+        return $query->get();
+    }
+
+    protected function buildCrmPipeline(array $filters)
+    {
+        $query = \App\Models\Opportunity::query()->with(['pipeline', 'stage', 'owner']);
+        $this->applyCommonFilters($query, $filters);
+
+        if (!empty($filters['status'])) {
+            $query->whereIn('status', (array) $filters['status']);
+        }
+
+        $this->applyDateFilters($query, $filters, 'created_at');
+
+        return $query->get();
+    }
+
+    protected function buildCrmLeads(array $filters)
+    {
+        $query = \App\Models\Lead::query()->with(['owner']);
+        $this->applyCommonFilters($query, $filters);
+
+        if (!empty($filters['status'])) {
+            $query->whereIn('status', (array) $filters['status']);
+        }
+
+        $this->applyDateFilters($query, $filters, 'created_at');
+
+        return $query->get();
+    }
+
+    protected function buildCrmConversions(array $filters)
+    {
+        $query = \App\Models\Lead::query()->whereNotNull('converted_at')->with(['convertedOpportunity']);
+        $this->applyCommonFilters($query, $filters);
+
+        $this->applyDateFilters($query, $filters, 'converted_at');
 
         return $query->get();
     }

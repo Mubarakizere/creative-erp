@@ -125,8 +125,11 @@ class MeetingController extends Controller
             $selectedProject = Project::find($request->project_id);
         }
 
+        $meetingableType = $request->query('meetingable_type');
+        $meetingableId = $request->query('meetingable_id');
+
         return view('admin.meetings.create', compact(
-            'companies', 'branches', 'projects', 'users', 'selectedProject'
+            'companies', 'branches', 'projects', 'users', 'selectedProject', 'meetingableType', 'meetingableId'
         ));
     }
 

@@ -83,6 +83,10 @@
                                 <option value="user_productivity">User Productivity</option>
                                 <option value="announcements">Announcements</option>
                                 <option value="notifications">Notifications</option>
+                                <option disabled>─── CRM ───</option>
+                                <option value="crm_pipeline">Pipeline (Opportunities)</option>
+                                <option value="crm_leads">Leads</option>
+                                <option value="crm_conversions">Conversions</option>
                             </select>
                         </div>
 
@@ -235,6 +239,9 @@
                                         <option value="status">Status</option>
                                         <option value="priority">Priority</option>
                                         <option value="month">Month</option>
+                                        <option value="pipeline_id">Pipeline (CRM)</option>
+                                        <option value="stage_id">Stage (CRM)</option>
+                                        <option value="source">Source (CRM)</option>
                                     </select>
                                 </div>
                                 <div class="flex space-x-2">
@@ -361,6 +368,9 @@
                         user_productivity: ['company_id', 'branch_id', 'department_id', 'date_from', 'date_to'],
                         announcements: ['company_id', 'priority', 'date_from', 'date_to'],
                         notifications: ['user_id', 'date_from', 'date_to'],
+                        crm_pipeline: ['company_id', 'status', 'date_from', 'date_to'],
+                        crm_leads: ['company_id', 'status', 'date_from', 'date_to'],
+                        crm_conversions: ['company_id', 'date_from', 'date_to'],
                     };
                     return schema[this.type] || ['date_from', 'date_to'];
                 },
@@ -387,6 +397,23 @@
                             {field: 'id', label: 'ID'}, {field: 'name', label: 'User Name'},
                             {field: 'assigned_tasks_count', label: 'Tasks Count'}, 
                             {field: 'time_entries_sum_duration_minutes', label: 'Total Time (mins)'}
+                        ],
+                        crm_pipeline: [
+                            {field: 'id', label: 'ID'}, {field: 'name', label: 'Deal Name'}, 
+                            {field: 'expected_revenue', label: 'Value'}, {field: 'probability', label: 'Probability (%)'}, 
+                            {field: 'status', label: 'Status'}, {field: 'pipeline.name', label: 'Pipeline'}, 
+                            {field: 'stage.name', label: 'Stage'}, {field: 'expected_close_date', label: 'Close Date'}
+                        ],
+                        crm_leads: [
+                            {field: 'id', label: 'ID'}, {field: 'first_name', label: 'First Name'}, 
+                            {field: 'last_name', label: 'Last Name'}, {field: 'email', label: 'Email'}, 
+                            {field: 'status', label: 'Status'}, {field: 'source', label: 'Source'}, 
+                            {field: 'expected_value', label: 'Expected Value'}
+                        ],
+                        crm_conversions: [
+                            {field: 'id', label: 'Lead ID'}, {field: 'first_name', label: 'First Name'}, 
+                            {field: 'last_name', label: 'Last Name'}, {field: 'converted_at', label: 'Converted Date'}, 
+                            {field: 'convertedOpportunity.name', label: 'Opportunity'}, {field: 'convertedOpportunity.expected_revenue', label: 'Revenue'}
                         ]
                         // We will dynamically render remaining columns in the backend if not specified
                     };

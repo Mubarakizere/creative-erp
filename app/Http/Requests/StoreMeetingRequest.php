@@ -31,9 +31,11 @@ class StoreMeetingRequest extends FormRequest
             'start_at' => 'required|date',
             'end_at' => 'required|date|after:start_at',
             'timezone' => 'required|string|max:50',
-            'notes' => 'nullable|string|max:10000',
-            'attendees' => 'nullable|array',
-            'attendees.*' => 'exists:users,id',
+            'notes' => ['nullable', 'string'],
+            'attendees' => ['nullable', 'array'],
+            'attendees.*' => ['exists:users,id'],
+            'meetingable_type' => ['nullable', 'string'],
+            'meetingable_id' => ['nullable', 'integer'],
         ];
     }
 

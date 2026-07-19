@@ -62,10 +62,58 @@ class SearchController extends Controller
                 ];
             });
 
+        // Search Leads
+        $leads = \App\Models\Lead::where(function($q) use ($query) {
+            $q->where('first_name', 'like', "%{$query}%")
+              ->orWhere('last_name', 'like', "%{$query}%")
+              ->orWhere('email', 'like', "%{$query}%")
+              ->orWhere('phone', 'like', "%{$query}%")
+              ->orWhere('company_name', 'like', "%{$query}%");
+        })->get()->filter(fn($model) => auth()->user()->can('view', $model))->take(5)->map(function ($lead) {
+            return [
+                'id' => $lead->id,
+                'title' => $lead->first_name . ' ' . $lead->last_name,
+                'subtitle' => $lead->email . ($lead->company_name ? ' - ' . $lead->company_name : ''),
+                'url' => route('admin.crm.leads.show', $lead)
+            ];
+        })->values();
+
+        // Search Contacts
+        $contacts = \App\Models\Contact::where(function($q) use ($query) {
+            $q->where('first_name', 'like', "%{$query}%")
+              ->orWhere('last_name', 'like', "%{$query}%")
+              ->orWhere('email', 'like', "%{$query}%")
+              ->orWhere('phone', 'like', "%{$query}%");
+        })->get()->filter(fn($model) => auth()->user()->can('view', $model))->take(5)->map(function ($contact) {
+            return [
+                'id' => $contact->id,
+                'title' => $contact->first_name . ' ' . $contact->last_name,
+                'subtitle' => $contact->email,
+                'url' => route('admin.crm.contacts.show', $contact)
+            ];
+        })->values();
+
+        // Search Accounts
+        $accounts = \App\Models\Account::where(function($q) use ($query) {
+            $q->where('name', 'like', "%{$query}%")
+              ->orWhere('email', 'like', "%{$query}%")
+              ->orWhere('phone', 'like', "%{$query}%");
+        })->get()->filter(fn($model) => auth()->user()->can('view', $model))->take(5)->map(function ($account) {
+            return [
+                'id' => $account->id,
+                'title' => $account->name,
+                'subtitle' => $account->email ?? 'No email',
+                'url' => route('admin.crm.accounts.show', $account)
+            ];
+        })->values();
+
         return response()->json([
             'projects' => $projects,
             'tasks' => $tasks,
             'time_entries' => $timeEntries,
+            'leads' => $leads,
+            'contacts' => $contacts,
+            'accounts' => $accounts,
         ]);
     }
 }

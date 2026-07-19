@@ -12,6 +12,30 @@
         </div>
     </div>
 
+    {{-- CRM Stats --}}
+    @if(auth()->user()->can('lead.view') || auth()->user()->can('opportunity.view'))
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6 mb-8">
+        <x-stats-card title="Total Leads" value="{{ number_format($stats['total_leads'] ?? 0) }}" color="blue">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        </x-stats-card>
+        <x-stats-card title="Total Opportunities" value="{{ number_format($stats['total_opportunities'] ?? 0) }}" color="indigo">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        </x-stats-card>
+        <x-stats-card title="Won Deals" value="{{ number_format($stats['won_deals'] ?? 0) }}" color="green">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </x-stats-card>
+        <x-stats-card title="Lost Deals" value="{{ number_format($stats['lost_deals'] ?? 0) }}" color="red">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </x-stats-card>
+        <x-stats-card title="Pipeline Value" value="{{ format_currency($stats['pipeline_value'] ?? 0) }}" color="emerald">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </x-stats-card>
+        <x-stats-card title="Conversion Rate" value="{{ $stats['conversion_rate'] ?? 0 }}%" color="purple">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l10-16M6 9h.01M18 15h.01"/></svg>
+        </x-stats-card>
+    </div>
+    @endif
+
     {{-- Stats Grid --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {{-- Total Projects --}}
@@ -423,6 +447,35 @@
                 </div>
             </x-card>
         @endcan
+
+            {{-- Recent Deals --}}
+            @can('opportunity.view')
+            <x-card>
+                <x-slot:header>
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900">Recent Opportunities</h3>
+                        <a href="{{ route('admin.crm.opportunities.index') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">View All</a>
+                    </div>
+                </x-slot:header>
+                
+                <div class="space-y-4">
+                    @forelse($recentDeals ?? [] as $deal)
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div>
+                                <a href="{{ route('admin.crm.opportunities.show', $deal) }}" class="text-sm font-medium text-gray-900 hover:text-blue-600">{{ $deal->name }}</a>
+                                <p class="text-xs text-gray-500">{{ $deal->account?->name ?? 'No Account' }}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-bold text-gray-900">{{ format_currency($deal->expected_revenue) }}</p>
+                                <x-badge type="default" class="text-xs">{{ $deal->status }}</x-badge>
+                            </div>
+                        </div>
+                    @empty
+                        <p class="text-sm text-gray-500 text-center py-4">No recent opportunities found.</p>
+                    @endforelse
+                </div>
+            </x-card>
+            @endcan
         </div>
 
         {{-- Right Column: Calendar, Quick Actions & Project Summary --}}
@@ -484,6 +537,37 @@
                 </div>
             </x-card>
         @endcan
+
+            {{-- Upcoming Activities --}}
+            @can('activity.view')
+            <x-card>
+                <x-slot:header>
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900">Upcoming Activities</h3>
+                        <a href="{{ route('admin.crm.activities.index') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">View All</a>
+                    </div>
+                </x-slot:header>
+                
+                <div class="space-y-4">
+                    @forelse($upcomingActivities ?? [] as $activity)
+                        <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div class="mt-1">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900">{{ $activity->subject }}</p>
+                                <p class="text-xs text-gray-500">{{ $activity->type }} • {{ $activity->scheduled_at->format('M j, Y g:i A') }}</p>
+                                @if($activity->activityable)
+                                    <p class="text-xs text-blue-600 mt-1">Related to: {{ class_basename($activity->activityable_type) }} #{{ $activity->activityable->id }}</p>
+                                @endif
+                            </div>
+                        </div>
+                    @empty
+                        <p class="text-sm text-gray-500 text-center py-4">No upcoming activities.</p>
+                    @endforelse
+                </div>
+            </x-card>
+            @endcan
 
             {{-- Recent Notifications --}}
             @can('notification.view')

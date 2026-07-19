@@ -58,6 +58,10 @@
                                     <option value="App\Models\Client">Client</option>
                                     <option value="App\Models\Branch">Branch</option>
                                     <option value="App\Models\Department">Department</option>
+                                    <option value="App\Models\Lead">Lead</option>
+                                    <option value="App\Models\Contact">Contact</option>
+                                    <option value="App\Models\Account">Account</option>
+                                    <option value="App\Models\Opportunity">Opportunity</option>
                                 </select>
                             </div>
 

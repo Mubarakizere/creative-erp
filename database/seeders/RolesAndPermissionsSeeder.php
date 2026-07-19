@@ -115,6 +115,10 @@ class RolesAndPermissionsSeeder extends Seeder
             // Settings
             'settings.manage',
 
+            // CRM
+            'crm.view', 'crm.create', 'crm.update', 'crm.delete',
+            'crm.convert', 'crm.manage', 'crm.pipeline', 'crm.activities',
+
             // Notifications
             'notification.view', 'notification.manage', 'notification.delete',
             'notification.send', 'notification.announcement', 'notification.system',
@@ -177,7 +181,8 @@ class RolesAndPermissionsSeeder extends Seeder
                 'calendar.view',
                 'time.view', 'time.create', 'time.update', 'time.delete', 'time.export', 'time.approve',
                 'approval.view', 'approval.submit', 'approval.approve', 'approval.reject', 'approval.return', 'approval.cancel',
-                'notification.view', 'notification.manage', 'notification.delete', 'notification.send'
+                'notification.view', 'notification.manage', 'notification.delete', 'notification.send',
+                'crm.view', 'crm.create', 'crm.update', 'crm.convert', 'crm.pipeline', 'crm.activities'
             ]);
         }
 
@@ -192,7 +197,8 @@ class RolesAndPermissionsSeeder extends Seeder
                 'calendar.view',
                 'time.view', 'time.create', 'time.update',
                 'approval.view', 'approval.submit',
-                'notification.view', 'notification.manage'
+                'notification.view', 'notification.manage',
+                'crm.view', 'crm.activities'
             ]);
         }
     }

@@ -59,6 +59,8 @@ class Meeting extends Model
         'notes',
         'created_by',
         'updated_by',
+        'meetingable_type',
+        'meetingable_id',
     ];
 
     protected $casts = [
@@ -106,6 +108,11 @@ class Meeting extends Model
     public function updater(): BelongsTo
     {
         return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    public function meetingable()
+    {
+        return $this->morphTo();
     }
 
     /**

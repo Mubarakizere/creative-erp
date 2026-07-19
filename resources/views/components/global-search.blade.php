@@ -115,6 +115,65 @@
                         </ul>
                     </li>
                 </template>
+                {{-- Leads --}}
+                <template x-if="results.leads && results.leads.length > 0">
+                    <li class="mb-2">
+                        <h2 class="bg-gray-50 px-3 py-1.5 text-xs font-semibold text-gray-900 uppercase">Leads</h2>
+                        <ul class="mt-1 text-sm text-gray-700">
+                            <template x-for="item in results.leads" :key="item.id">
+                                <li class="group cursor-default select-none rounded-md px-3 py-2 hover:bg-blue-600 hover:text-white" @click="goTo(item.url)">
+                                    <div class="flex items-center gap-3">
+                                        <svg class="h-5 w-5 flex-none text-gray-400 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                        <div class="flex flex-col">
+                                            <span x-text="item.title"></span>
+                                            <span class="text-xs text-gray-500 group-hover:text-blue-100" x-text="item.subtitle"></span>
+                                        </div>
+                                    </div>
+                                </li>
+                            </template>
+                        </ul>
+                    </li>
+                </template>
+
+                {{-- Contacts --}}
+                <template x-if="results.contacts && results.contacts.length > 0">
+                    <li class="mb-2">
+                        <h2 class="bg-gray-50 px-3 py-1.5 text-xs font-semibold text-gray-900 uppercase">Contacts</h2>
+                        <ul class="mt-1 text-sm text-gray-700">
+                            <template x-for="item in results.contacts" :key="item.id">
+                                <li class="group cursor-default select-none rounded-md px-3 py-2 hover:bg-blue-600 hover:text-white" @click="goTo(item.url)">
+                                    <div class="flex items-center gap-3">
+                                        <svg class="h-5 w-5 flex-none text-gray-400 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                        <div class="flex flex-col">
+                                            <span x-text="item.title"></span>
+                                            <span class="text-xs text-gray-500 group-hover:text-blue-100" x-text="item.subtitle"></span>
+                                        </div>
+                                    </div>
+                                </li>
+                            </template>
+                        </ul>
+                    </li>
+                </template>
+
+                {{-- Accounts --}}
+                <template x-if="results.accounts && results.accounts.length > 0">
+                    <li class="mb-2">
+                        <h2 class="bg-gray-50 px-3 py-1.5 text-xs font-semibold text-gray-900 uppercase">Accounts</h2>
+                        <ul class="mt-1 text-sm text-gray-700">
+                            <template x-for="item in results.accounts" :key="item.id">
+                                <li class="group cursor-default select-none rounded-md px-3 py-2 hover:bg-blue-600 hover:text-white" @click="goTo(item.url)">
+                                    <div class="flex items-center gap-3">
+                                        <svg class="h-5 w-5 flex-none text-gray-400 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                        <div class="flex flex-col">
+                                            <span x-text="item.title"></span>
+                                            <span class="text-xs text-gray-500 group-hover:text-blue-100" x-text="item.subtitle"></span>
+                                        </div>
+                                    </div>
+                                </li>
+                            </template>
+                        </ul>
+                    </li>
+                </template>
             </ul>
 
             {{-- Empty State --}}
@@ -144,7 +203,10 @@
             results: {
                 projects: [],
                 tasks: [],
-                time_entries: []
+                time_entries: [],
+                leads: [],
+                contacts: [],
+                accounts: []
             },
             open() {
                 this.isOpen = true;
@@ -156,12 +218,15 @@
                 this.clearResults();
             },
             clearResults() {
-                this.results = { projects: [], tasks: [], time_entries: [] };
+                this.results = { projects: [], tasks: [], time_entries: [], leads: [], contacts: [], accounts: [] };
             },
             hasResults() {
-                return this.results.projects.length > 0 || 
-                       this.results.tasks.length > 0 || 
-                       this.results.time_entries.length > 0;
+                return (this.results.projects && this.results.projects.length > 0) || 
+                       (this.results.tasks && this.results.tasks.length > 0) || 
+                       (this.results.time_entries && this.results.time_entries.length > 0) ||
+                       (this.results.leads && this.results.leads.length > 0) ||
+                       (this.results.contacts && this.results.contacts.length > 0) ||
+                       (this.results.accounts && this.results.accounts.length > 0);
             },
             async search() {
                 if (this.query.length < 2) {

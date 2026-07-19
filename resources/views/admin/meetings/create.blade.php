@@ -7,6 +7,14 @@
     <form method="POST" action="{{ route('admin.meetings.store') }}" class="max-w-4xl">
         @csrf
 
+        @if(isset($meetingableType) && isset($meetingableId))
+            <input type="hidden" name="meetingable_type" value="{{ $meetingableType }}">
+            <input type="hidden" name="meetingable_id" value="{{ $meetingableId }}">
+        @elseif(old('meetingable_type') && old('meetingable_id'))
+            <input type="hidden" name="meetingable_type" value="{{ old('meetingable_type') }}">
+            <input type="hidden" name="meetingable_id" value="{{ old('meetingable_id') }}">
+        @endif
+
         <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
             <div class="px-6 py-4 border-b border-gray-200">
                 <h2 class="text-lg font-semibold text-gray-900">Meeting Details</h2>

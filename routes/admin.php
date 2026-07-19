@@ -186,5 +186,30 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
         Route::post('/{reportTemplate}/export', [\App\Http\Controllers\Admin\ReportController::class, 'export'])->name('export');
     });
     Route::resource('reports', \App\Http\Controllers\Admin\ReportController::class)->parameters(['reports' => 'reportTemplate']);
+
+    // CRM
+    Route::prefix('crm')->name('crm.')->group(function () {
+        Route::patch('/leads/{lead}/restore', [\App\Http\Controllers\Admin\LeadController::class, 'restore'])->name('leads.restore')->withTrashed();
+        Route::post('/leads/{lead}/convert', [\App\Http\Controllers\Admin\LeadController::class, 'convert'])->name('leads.convert');
+        Route::get('/leads/{lead}/timeline', [\App\Http\Controllers\Admin\LeadController::class, 'timeline'])->name('leads.timeline');
+        Route::resource('leads', \App\Http\Controllers\Admin\LeadController::class);
+
+        Route::patch('/accounts/{account}/restore', [\App\Http\Controllers\Admin\AccountController::class, 'restore'])->name('accounts.restore')->withTrashed();
+        Route::get('/accounts/{account}/timeline', [\App\Http\Controllers\Admin\AccountController::class, 'timeline'])->name('accounts.timeline');
+        Route::resource('accounts', \App\Http\Controllers\Admin\AccountController::class);
+
+        Route::patch('/contacts/{contact}/restore', [\App\Http\Controllers\Admin\ContactController::class, 'restore'])->name('contacts.restore')->withTrashed();
+        Route::get('/contacts/{contact}/timeline', [\App\Http\Controllers\Admin\ContactController::class, 'timeline'])->name('contacts.timeline');
+        Route::resource('contacts', \App\Http\Controllers\Admin\ContactController::class);
+
+        Route::patch('/opportunities/{opportunity}/restore', [\App\Http\Controllers\Admin\OpportunityController::class, 'restore'])->name('opportunities.restore')->withTrashed();
+        Route::get('/opportunities/kanban', [\App\Http\Controllers\Admin\OpportunityController::class, 'kanban'])->name('opportunities.kanban');
+        Route::patch('/opportunities/{opportunity}/kanban-update', [\App\Http\Controllers\Admin\OpportunityController::class, 'updateKanbanStage'])->name('opportunities.kanban.update');
+        Route::resource('opportunities', \App\Http\Controllers\Admin\OpportunityController::class);
+
+        Route::resource('pipelines', \App\Http\Controllers\Admin\PipelineController::class);
+        
+        Route::resource('activities', \App\Http\Controllers\Admin\ActivityController::class);
+    });
 });
 

@@ -87,6 +87,10 @@ class DocumentController extends Controller
             'Company' => 'admin.companies.show',
             'Branch' => 'admin.branches.show',
             'Department' => 'admin.departments.show',
+            'Lead' => 'admin.crm.leads.show',
+            'Contact' => 'admin.crm.contacts.show',
+            'Account' => 'admin.crm.accounts.show',
+            'Opportunity' => 'admin.crm.opportunities.show',
             default => null,
         };
 
@@ -184,7 +188,11 @@ class DocumentController extends Controller
             'App\Models\Milestone',
             'App\Models\Client',
             'App\Models\Branch',
-            'App\Models\Department'
+            'App\Models\Department',
+            'App\Models\Lead',
+            'App\Models\Contact',
+            'App\Models\Account',
+            'App\Models\Opportunity'
         ];
 
         if (!in_array($module, $allowedModules)) {
@@ -197,7 +205,7 @@ class DocumentController extends Controller
         
         // Handle search based on module type
         if (!empty($search)) {
-            if ($module === 'App\Models\Client') {
+            if (in_array($module, ['App\Models\Client', 'App\Models\Lead', 'App\Models\Contact'])) {
                 $query->where('first_name', 'like', "%{$search}%")
                       ->orWhere('last_name', 'like', "%{$search}%")
                       ->orWhere('company_name', 'like', "%{$search}%");
@@ -209,7 +217,7 @@ class DocumentController extends Controller
         $records = $query->take(50)->get()->map(function ($record) use ($module) {
             $name = $record->name ?? $record->title ?? '';
             
-            if ($module === 'App\Models\Client') {
+            if (in_array($module, ['App\Models\Client', 'App\Models\Lead', 'App\Models\Contact'])) {
                 $name = $record->company_name ?? ($record->first_name . ' ' . $record->last_name);
             }
             
