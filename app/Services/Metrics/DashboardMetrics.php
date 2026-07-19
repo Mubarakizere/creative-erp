@@ -2,29 +2,33 @@
 
 namespace App\Services\Metrics;
 
+use App\Services\Metrics\Traits\FiltersMetrics;
+
 use App\Contracts\MetricProvider;
 use App\Models\Milestone;
 
 class DashboardMetrics implements MetricProvider
 {
-    public function cards(): array
+    use FiltersMetrics;
+
+    public function cards(array $filters = []): array
     {
         return [
             // Milestone Stats
-            'total_milestones' => Milestone::count(),
-            'active_milestones' => Milestone::whereIn('status', ['Pending', 'In Progress'])->count(),
-            'completed_milestones' => Milestone::where('status', 'Completed')->count(),
+            'total_milestones' => $this->applyFilters(Milestone::query(), $filters)->count(),
+            'active_milestones' => $this->applyFilters(Milestone::query(), $filters)->whereIn('status', ['Pending', 'In Progress'])->count(),
+            'completed_milestones' => $this->applyFilters(Milestone::query(), $filters)->where('status', 'Completed')->count(),
         ];
     }
 
-    public function widgets(): array
+    public function widgets(array $filters = []): array
     {
         return [
-            'latestMilestones' => Milestone::with('project')->latest()->take(5)->get(),
+            'latestMilestones' => $this->applyFilters(Milestone::query(), $filters)->with('project')->latest()->take(5)->get(),
         ];
     }
 
-    public function reports(): array
+    public function reports(array $filters = []): array
     {
         return [];
     }

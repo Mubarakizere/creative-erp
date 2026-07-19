@@ -2,14 +2,18 @@
 
 namespace App\Services\Metrics;
 
+use App\Services\Metrics\Traits\FiltersMetrics;
+
 use App\Contracts\MetricProvider;
 use App\Services\NotificationService;
 
 class NotificationMetrics implements MetricProvider
 {
+    use FiltersMetrics;
+
     public function __construct(protected NotificationService $notificationService) {}
 
-    public function cards(): array
+    public function cards(array $filters = []): array
     {
         $user = auth()->user();
         if (!$user) {
@@ -28,7 +32,7 @@ class NotificationMetrics implements MetricProvider
         ];
     }
 
-    public function widgets(): array
+    public function widgets(array $filters = []): array
     {
         $user = auth()->user();
         if (!$user) {
@@ -40,7 +44,7 @@ class NotificationMetrics implements MetricProvider
         ];
     }
 
-    public function reports(): array
+    public function reports(array $filters = []): array
     {
         return [];
     }

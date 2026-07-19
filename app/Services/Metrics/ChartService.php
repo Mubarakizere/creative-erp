@@ -16,26 +16,22 @@ class ChartService
     /**
      * Get all datasets required for dashboard charts.
      */
-    public function getChartData(): array
+    public function getChartData(array $filters = []): array
     {
         $userId = auth()->id() ?? 'guest';
         $companyId = auth()->user()?->company_id ?? 'all';
-        $cacheKey = "metrics_charts_{$userId}_{$companyId}";
-        $ttl = config('metrics.cache_ttl.charts', 600);
+        $filterHash = !empty($filters) ? '_' . md5(json_encode($filters)) : '';
+        $cacheKey = "metrics_charts_{$userId}_{$companyId}{$filterHash}";
+        
+        $ttl = !empty($filters) ? 60 : config('metrics.cache_ttl.charts', 600);
 
-        return Cache::remember($cacheKey, $ttl, function () {
-            // Note: ChartService consumes data from MetricsService 
-            // or calculates based on already fetched metrics to prevent duplicate queries.
-            // Since we need chart specific aggregations, we'll implement them here
-            // but rely on cached queries or aggregated data where possible.
-            // For now, implementing the same placeholder logic as before but organized.
-
+        return Cache::remember($cacheKey, $ttl, function () use ($filters) {
             return [
-                'tasksByStatus' => $this->tasksByStatus(),
-                'tasksByPriority' => $this->tasksByPriority(),
-                'projectProgress' => $this->projectProgress(),
+                'tasksByStatus' => $this->tasksByStatus($filters),
+                'tasksByPriority' => $this->tasksByPriority($filters),
+                'projectProgress' => $this->projectProgress($filters),
                 
-                // Historical placeholders
+                // Historical placeholders (would ideally be filtered queries as well)
                 'tasksPerProject' => [12, 19, 3, 5, 2, 3],
                 'monthlyTaskCompletion' => [65, 59, 80, 81, 56, 55, 40],
                 'commentsPerModule' => [30, 40, 15, 15],
@@ -52,32 +48,62 @@ class ChartService
         });
     }
 
-    private function tasksByStatus(): array
+    private function applyFilters($query, array $filters, string $relation = null)
     {
-        // Ideally, this can consume from $this->metricsService->cards() if those were broken down,
-        // but since we need a specific array format for charts, we query it. 
-        // We use Eloquent but these could be further optimized.
+        $prefix = $relation ? $relation . '.' : '';
+
+        if (!empty($filters['company_id'])) {
+            $query->whereIn($prefix . 'company_id', (array) $filters['company_id']);
+        }
+        if (!empty($filters['branch_id'])) {
+            $query->whereIn($prefix . 'branch_id', (array) $filters['branch_id']);
+        }
+        if (!empty($filters['department_id'])) {
+            $query->whereIn($prefix . 'department_id', (array) $filters['department_id']);
+        }
+        if (!empty($filters['date_from'])) {
+            $query->whereDate($prefix . 'created_at', '>=', $filters['date_from']);
+        }
+        if (!empty($filters['date_to'])) {
+            $query->whereDate($prefix . 'created_at', '<=', $filters['date_to']);
+        }
+        if (!empty($filters['project_id'])) {
+            $query->whereIn($prefix . 'project_id', (array) $filters['project_id']);
+        }
+        if (!empty($filters['assigned_to'])) {
+            $query->whereIn($prefix . 'assigned_to', (array) $filters['assigned_to']);
+        }
+        
+        return $query;
+    }
+
+    private function tasksByStatus(array $filters = []): array
+    {
         return [
-            \App\Models\Task::where('status', 'Pending')->count(),
-            \App\Models\Task::where('status', 'In Progress')->count(),
-            \App\Models\Task::where('status', 'Waiting Review')->count(),
-            \App\Models\Task::where('status', 'Completed')->count(),
-            \App\Models\Task::where('status', 'On Hold')->count(),
+            'Pending' => $this->applyFilters(\App\Models\Task::where('status', 'Pending'), $filters)->count(),
+            'In Progress' => $this->applyFilters(\App\Models\Task::where('status', 'In Progress'), $filters)->count(),
+            'Waiting Review' => $this->applyFilters(\App\Models\Task::where('status', 'Waiting Review'), $filters)->count(),
+            'Completed' => $this->applyFilters(\App\Models\Task::where('status', 'Completed'), $filters)->count(),
+            'On Hold' => $this->applyFilters(\App\Models\Task::where('status', 'On Hold'), $filters)->count(),
         ];
     }
 
-    private function tasksByPriority(): array
+    private function tasksByPriority(array $filters = []): array
     {
         return [
-            \App\Models\Task::where('priority', 'Low')->count(),
-            \App\Models\Task::where('priority', 'Medium')->count(),
-            \App\Models\Task::where('priority', 'High')->count(),
-            \App\Models\Task::where('priority', 'Critical')->count(),
+            'Low' => $this->applyFilters(\App\Models\Task::where('priority', 'Low'), $filters)->count(),
+            'Medium' => $this->applyFilters(\App\Models\Task::where('priority', 'Medium'), $filters)->count(),
+            'High' => $this->applyFilters(\App\Models\Task::where('priority', 'High'), $filters)->count(),
+            'Critical' => $this->applyFilters(\App\Models\Task::where('priority', 'Critical'), $filters)->count(),
         ];
     }
 
-    private function projectProgress(): array
+    private function projectProgress(array $filters = []): array
     {
-        return \App\Models\Project::whereIn('status', ['Planning', 'In Progress'])->take(5)->pluck('progress')->toArray() ?: [0];
+        $query = \App\Models\Project::whereIn('status', ['Planning', 'In Progress'])->take(5);
+        $this->applyFilters($query, $filters);
+        
+        $projects = $query->pluck('progress', 'name')->toArray();
+        return !empty($projects) ? $projects : ['No Active Projects' => 0];
     }
 }

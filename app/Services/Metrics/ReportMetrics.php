@@ -16,17 +16,19 @@ class ReportMetrics
     /**
      * Get datasets for various report summaries.
      */
-    public function getReportSummaries(): array
+    public function getReportSummaries(array $filters = []): array
     {
         $userId = auth()->id() ?? 'guest';
         $companyId = auth()->user()?->company_id ?? 'all';
-        $cacheKey = "metrics_report_summaries_{$userId}_{$companyId}";
-        $ttl = config('metrics.cache_ttl.reports', 900);
+        $filterHash = !empty($filters) ? '_' . md5(json_encode($filters)) : '';
+        $cacheKey = "metrics_report_summaries_{$userId}_{$companyId}{$filterHash}";
+        
+        $ttl = !empty($filters) ? 60 : config('metrics.cache_ttl.reports', 900);
 
-        return Cache::remember($cacheKey, $ttl, function () {
+        return Cache::remember($cacheKey, $ttl, function () use ($filters) {
             // Consume data from MetricsService to avoid duplicated calculations
-            $cards = $this->metricsService->cards();
-            $reports = $this->metricsService->reports();
+            $cards = $this->metricsService->cards($filters);
+            $reports = $this->metricsService->reports($filters);
 
             return [
                 'project_summary' => [

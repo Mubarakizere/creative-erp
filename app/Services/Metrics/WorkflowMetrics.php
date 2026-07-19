@@ -2,6 +2,8 @@
 
 namespace App\Services\Metrics;
 
+use App\Services\Metrics\Traits\FiltersMetrics;
+
 use App\Contracts\MetricProvider;
 use App\Models\Approval;
 use Carbon\Carbon;
@@ -9,7 +11,9 @@ use Illuminate\Support\Facades\DB;
 
 class WorkflowMetrics implements MetricProvider
 {
-    public function cards(): array
+    use FiltersMetrics;
+
+    public function cards(array $filters = []): array
     {
         return [
             'pending_approvals' => Approval::where('status', 'Pending Approval')->count(),
@@ -21,7 +25,7 @@ class WorkflowMetrics implements MetricProvider
         ];
     }
 
-    public function widgets(): array
+    public function widgets(array $filters = []): array
     {
         return [
             'myPendingApprovals' => Approval::with('workflow')->where('submitted_by', auth()->id())->where('status', 'Pending Approval')->latest('submitted_at')->take(5)->get(),
@@ -32,7 +36,7 @@ class WorkflowMetrics implements MetricProvider
         ];
     }
 
-    public function reports(): array
+    public function reports(array $filters = []): array
     {
         return [
             'approvals_by_module' => Approval::join('approval_workflows', 'approvals.approval_workflow_id', '=', 'approval_workflows.id')

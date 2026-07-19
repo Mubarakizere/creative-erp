@@ -46,17 +46,20 @@ class MetricsService
     /**
      * Get aggregated dashboard statistics (cards).
      */
-    public function cards(): array
+    public function cards(array $filters = []): array
     {
         $userId = auth()->id() ?? 'guest';
         $companyId = auth()->user()?->company_id ?? 'all';
-        $cacheKey = "metrics_cards_{$userId}_{$companyId}";
-        $ttl = config('metrics.cache_ttl.dashboard', 300);
+        $filterHash = !empty($filters) ? '_' . md5(json_encode($filters)) : '';
+        $cacheKey = "metrics_cards_{$userId}_{$companyId}{$filterHash}";
+        
+        // Use a shorter TTL (60s) for heavily filtered requests, else standard dashboard TTL
+        $ttl = !empty($filters) ? 60 : config('metrics.cache_ttl.dashboard', 300);
 
-        return Cache::remember($cacheKey, $ttl, function () {
+        return Cache::remember($cacheKey, $ttl, function () use ($filters) {
             $cards = [];
             foreach ($this->providers as $provider) {
-                $cards = array_merge($cards, $provider->cards());
+                $cards = array_merge($cards, $provider->cards($filters));
             }
             return $cards;
         });
@@ -65,17 +68,19 @@ class MetricsService
     /**
      * Get aggregated dashboard widgets data.
      */
-    public function widgets(): array
+    public function widgets(array $filters = []): array
     {
         $userId = auth()->id() ?? 'guest';
         $companyId = auth()->user()?->company_id ?? 'all';
-        $cacheKey = "metrics_widgets_{$userId}_{$companyId}";
-        $ttl = config('metrics.cache_ttl.dashboard', 300);
+        $filterHash = !empty($filters) ? '_' . md5(json_encode($filters)) : '';
+        $cacheKey = "metrics_widgets_{$userId}_{$companyId}{$filterHash}";
+        
+        $ttl = !empty($filters) ? 60 : config('metrics.cache_ttl.dashboard', 300);
 
-        return Cache::remember($cacheKey, $ttl, function () {
+        return Cache::remember($cacheKey, $ttl, function () use ($filters) {
             $widgets = [];
             foreach ($this->providers as $provider) {
-                $widgets = array_merge($widgets, $provider->widgets());
+                $widgets = array_merge($widgets, $provider->widgets($filters));
             }
             return $widgets;
         });
@@ -84,17 +89,19 @@ class MetricsService
     /**
      * Get aggregated report data.
      */
-    public function reports(): array
+    public function reports(array $filters = []): array
     {
         $userId = auth()->id() ?? 'guest';
         $companyId = auth()->user()?->company_id ?? 'all';
-        $cacheKey = "metrics_reports_{$userId}_{$companyId}";
-        $ttl = config('metrics.cache_ttl.reports', 900);
+        $filterHash = !empty($filters) ? '_' . md5(json_encode($filters)) : '';
+        $cacheKey = "metrics_reports_{$userId}_{$companyId}{$filterHash}";
+        
+        $ttl = !empty($filters) ? 60 : config('metrics.cache_ttl.reports', 900);
 
-        return Cache::remember($cacheKey, $ttl, function () {
+        return Cache::remember($cacheKey, $ttl, function () use ($filters) {
             $reports = [];
             foreach ($this->providers as $provider) {
-                $reports = array_merge($reports, $provider->reports());
+                $reports = array_merge($reports, $provider->reports($filters));
             }
             return $reports;
         });

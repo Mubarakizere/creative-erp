@@ -2,12 +2,16 @@
 
 namespace App\Services\Metrics;
 
+use App\Services\Metrics\Traits\FiltersMetrics;
+
 use App\Contracts\MetricProvider;
 use App\Models\TimeEntry;
 
 class TimeMetrics implements MetricProvider
 {
-    public function cards(): array
+    use FiltersMetrics;
+
+    public function cards(array $filters = []): array
     {
         $companyId = auth()->user()?->hasRole('Super Admin') ? null : auth()->user()?->company_id;
 
@@ -19,7 +23,7 @@ class TimeMetrics implements MetricProvider
         $startOfWeek = now()->startOfWeek();
         $startOfMonth = now()->startOfMonth();
 
-        $baseQuery = TimeEntry::where('company_id', $companyId)
+        $baseQuery = $this->applyFilters(TimeEntry::query(), $filters)->where('company_id', $companyId)
             ->where('status', 'completed');
 
         $hoursToday = (clone $baseQuery)
@@ -40,11 +44,11 @@ class TimeMetrics implements MetricProvider
             ->where('billable', false)
             ->sum('duration_minutes') / 60;
 
-        $runningTimersCount = TimeEntry::where('company_id', $companyId)
+        $runningTimersCount = $this->applyFilters(TimeEntry::query(), $filters)->where('company_id', $companyId)
             ->where('status', 'running')
             ->count();
 
-        $activeUsersCount = TimeEntry::where('company_id', $companyId)
+        $activeUsersCount = $this->applyFilters(TimeEntry::query(), $filters)->where('company_id', $companyId)
             ->where('status', 'running')
             ->distinct('user_id')
             ->count();
@@ -59,15 +63,15 @@ class TimeMetrics implements MetricProvider
         ];
     }
 
-    public function widgets(): array
+    public function widgets(array $filters = []): array
     {
         return [
-            'runningTimersList' => TimeEntry::with(['user', 'project'])->where('status', 'running')->latest()->take(5)->get(),
-            'myTimesheetToday' => TimeEntry::with('project')->where('user_id', auth()->id())->whereDate('start_time', now()->toDateString())->latest()->take(5)->get(),
+            'runningTimersList' => $this->applyFilters(TimeEntry::query(), $filters)->with(['user', 'project'])->where('status', 'running')->latest()->take(5)->get(),
+            'myTimesheetToday' => $this->applyFilters(TimeEntry::query(), $filters)->with('project')->where('user_id', auth()->id())->whereDate('start_time', now()->toDateString())->latest()->take(5)->get(),
         ];
     }
 
-    public function reports(): array
+    public function reports(array $filters = []): array
     {
         return [
             // Time Summary data

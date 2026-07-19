@@ -79,7 +79,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'inventory.view', 'inventory.create', 'inventory.update', 'inventory.delete',
             
             // Report (Future)
-            'report.view', 'report.create', 'report.update', 'report.delete',
+            'report.view', 'report.create', 'report.update', 'report.delete', 'report.export',
             
             'comments.restore',
             'comments.pin',

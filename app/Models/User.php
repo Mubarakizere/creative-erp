@@ -230,6 +230,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the tasks assigned to the user.
+     */
+    public function assignedTasks(): HasMany
+    {
+        return $this->hasMany(Task::class, 'assigned_to');
+    }
+
+    /**
      * Get the user's notification preferences.
      */
     public function notificationPreference(): \Illuminate\Database\Eloquent\Relations\HasOne

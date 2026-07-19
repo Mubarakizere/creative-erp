@@ -2,6 +2,8 @@
 
 namespace App\Services\Metrics;
 
+use App\Services\Metrics\Traits\FiltersMetrics;
+
 use App\Contracts\MetricProvider;
 use App\Models\Company;
 use App\Models\Branch;
@@ -9,6 +11,8 @@ use App\Models\Department;
 
 class OrganizationMetrics implements MetricProvider
 {
+    use FiltersMetrics;
+
     protected ?string $companyId;
 
     public function __construct()
@@ -16,19 +20,19 @@ class OrganizationMetrics implements MetricProvider
         $this->companyId = auth()->user()?->company_id;
     }
 
-    public function cards(): array
+    public function cards(array $filters = []): array
     {
-        $companyQuery = Company::query();
+        $companyQuery = $this->applyFilters(Company::query(), $filters);
         if ($this->companyId) {
             $companyQuery->where('id', $this->companyId);
         }
 
-        $branchQuery = Branch::query();
+        $branchQuery = $this->applyFilters(Branch::query(), $filters);
         if ($this->companyId) {
             $branchQuery->where('company_id', $this->companyId);
         }
 
-        $deptQuery = Department::query();
+        $deptQuery = $this->applyFilters(Department::query(), $filters);
         if ($this->companyId) {
             $deptQuery->whereHas('branch', function($q) {
                 $q->where('company_id', $this->companyId);
@@ -42,12 +46,12 @@ class OrganizationMetrics implements MetricProvider
         ];
     }
 
-    public function widgets(): array
+    public function widgets(array $filters = []): array
     {
         return [];
     }
 
-    public function reports(): array
+    public function reports(array $filters = []): array
     {
         return [];
     }

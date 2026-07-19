@@ -2,12 +2,16 @@
 
 namespace App\Services\Metrics;
 
+use App\Services\Metrics\Traits\FiltersMetrics;
+
 use App\Contracts\MetricProvider;
 use App\Models\Project;
 use App\Models\ProjectMember;
 
 class ProjectMetrics implements MetricProvider
 {
+    use FiltersMetrics;
+
     protected ?string $companyId;
     protected ?int $userId;
 
@@ -17,13 +21,13 @@ class ProjectMetrics implements MetricProvider
         $this->companyId = auth()->user()?->company_id;
     }
 
-    public function cards(): array
+    public function cards(array $filters = []): array
     {
         if (!auth()->user()?->can('project.view')) {
             return [];
         }
 
-        $projectQuery = Project::query();
+        $projectQuery = $this->applyFilters(Project::query(), $filters);
         if ($this->companyId) {
             $projectQuery->where('company_id', $this->companyId);
         }
@@ -53,13 +57,13 @@ class ProjectMetrics implements MetricProvider
         ];
     }
 
-    public function widgets(): array
+    public function widgets(array $filters = []): array
     {
         if (!auth()->user()?->can('project.view')) {
             return [];
         }
 
-        $projectQuery = Project::with('company');
+        $projectQuery = $this->applyFilters(Project::query(), $filters)->with('company');
         if ($this->companyId) {
             $projectQuery->where('company_id', $this->companyId);
         }
@@ -77,7 +81,7 @@ class ProjectMetrics implements MetricProvider
         ];
     }
 
-    public function reports(): array
+    public function reports(array $filters = []): array
     {
         return [];
     }

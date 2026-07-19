@@ -177,5 +177,14 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
     Route::patch('announcements/{announcement}/publish', [\App\Http\Controllers\Admin\AnnouncementController::class, 'publish'])->name('announcements.publish');
     Route::patch('announcements/{announcement}/unpublish', [\App\Http\Controllers\Admin\AnnouncementController::class, 'unpublish'])->name('announcements.unpublish');
     Route::resource('announcements', \App\Http\Controllers\Admin\AnnouncementController::class);
+
+    // Reports
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/builder', [\App\Http\Controllers\Admin\ReportController::class, 'builder'])->name('builder');
+        Route::post('/preview', [\App\Http\Controllers\Admin\ReportController::class, 'preview'])->name('preview');
+        Route::post('/{reportTemplate}/favorite', [\App\Http\Controllers\Admin\ReportController::class, 'favorite'])->name('favorite');
+        Route::post('/{reportTemplate}/export', [\App\Http\Controllers\Admin\ReportController::class, 'export'])->name('export');
+    });
+    Route::resource('reports', \App\Http\Controllers\Admin\ReportController::class)->parameters(['reports' => 'reportTemplate']);
 });
 
