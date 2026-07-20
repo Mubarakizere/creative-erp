@@ -107,6 +107,22 @@ class SearchController extends Controller
             ];
         })->values();
 
+        // Search Quotations
+        $quotations = \App\Models\Quotation::where(function($q) use ($query) {
+            $q->where('quotation_number', 'like', "%{$query}%")
+              ->orWhere('reference', 'like', "%{$query}%")
+              ->orWhereHas('account', function($sq) use ($query) {
+                  $sq->where('name', 'like', "%{$query}%");
+              });
+        })->get()->filter(fn($model) => auth()->user()->can('view', $model))->take(5)->map(function ($quotation) {
+            return [
+                'id' => $quotation->id,
+                'title' => $quotation->quotation_number . ($quotation->reference ? ' (' . $quotation->reference . ')' : ''),
+                'subtitle' => 'Customer: ' . ($quotation->account->name ?? 'Unknown') . ' | Total: ' . format_currency($quotation->grand_total),
+                'url' => route('admin.crm.quotations.show', $quotation)
+            ];
+        })->values();
+
         return response()->json([
             'projects' => $projects,
             'tasks' => $tasks,
@@ -114,6 +130,7 @@ class SearchController extends Controller
             'leads' => $leads,
             'contacts' => $contacts,
             'accounts' => $accounts,
+            'quotations' => $quotations,
         ]);
     }
 }

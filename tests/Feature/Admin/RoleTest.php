@@ -37,6 +37,8 @@ class RoleTest extends TestCase
 
         // Create Regular User
         $this->regularUser = User::factory()->create(['status' => 'active']);
+        $employeeRole = Role::firstOrCreate(['name' => 'Employee']);
+        $this->regularUser->assignRole($employeeRole);
     }
 
     public function test_super_admin_can_view_roles_list(): void

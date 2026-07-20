@@ -23,6 +23,7 @@ class BranchTest extends TestCase
         $this->user = User::factory()->create([
             'status' => 'active',
         ]);
+        $this->user->assignRole('Super Admin');
 
         $this->company = Company::factory()->create();
     }

@@ -12,7 +12,7 @@ class CrmMetrics implements \App\Contracts\MetricProvider
 {
     public function cards(array $filters = []): array
     {
-        $companyId = auth()->user()->company_id;
+        $companyId = auth()->user()?->company_id;
         
         $leadsQuery = Lead::query();
         $opportunitiesQuery = Opportunity::query();
@@ -22,9 +22,13 @@ class CrmMetrics implements \App\Contracts\MetricProvider
             $opportunitiesQuery->where('company_id', $companyId);
         }
         
-        if (isset($filters['date_from']) && isset($filters['date_to'])) {
-            $leadsQuery->whereBetween('created_at', [$filters['date_from'], $filters['date_to']]);
-            $opportunitiesQuery->whereBetween('created_at', [$filters['date_from'], $filters['date_to']]);
+        if (!empty($filters['date_from'])) {
+            $leadsQuery->whereDate('created_at', '>=', $filters['date_from']);
+            $opportunitiesQuery->whereDate('created_at', '>=', $filters['date_from']);
+        }
+        if (!empty($filters['date_to'])) {
+            $leadsQuery->whereDate('created_at', '<=', $filters['date_to']);
+            $opportunitiesQuery->whereDate('created_at', '<=', $filters['date_to']);
         }
 
         $totalLeads = (clone $leadsQuery)->count();
@@ -49,7 +53,7 @@ class CrmMetrics implements \App\Contracts\MetricProvider
 
     public function widgets(array $filters = []): array
     {
-        $companyId = auth()->user()->company_id;
+        $companyId = auth()->user()?->company_id;
         
         $recentDealsQuery = Opportunity::with(['account', 'owner'])->latest()->take(5);
         $upcomingActivitiesQuery = Activity::where('status', 'Pending')

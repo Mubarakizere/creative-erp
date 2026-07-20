@@ -25,7 +25,8 @@ class MetricsService
         WorkflowMetrics $workflowMetrics,
         NotificationMetrics $notificationMetrics,
         AnnouncementMetrics $announcementMetrics,
-        CrmMetrics $crmMetrics
+        CrmMetrics $crmMetrics,
+        QuotationMetrics $quotationMetrics
     ) {
         $this->providers = [
             $dashboardMetrics,
@@ -41,7 +42,8 @@ class MetricsService
             $workflowMetrics,
             $notificationMetrics,
             $announcementMetrics,
-            $crmMetrics
+            $crmMetrics,
+            $quotationMetrics
         ];
     }
 

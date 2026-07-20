@@ -28,19 +28,8 @@ class MilestoneTest extends TestCase
         $this->admin->company_id = $this->company->id;
         $this->admin->save();
 
-        // Assign permissions to admin for the test
-        $permissions = [
-            'view-milestones',
-            'create-milestones',
-            'edit-milestones',
-            'delete-milestones',
-            'restore-milestones',
-        ];
-        
-        foreach ($permissions as $permission) {
-            \Spatie\Permission\Models\Permission::firstOrCreate(['name' => $permission]);
-            $this->admin->givePermissionTo($permission);
-        }
+        $role = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Super Admin']);
+        $this->admin->assignRole($role);
 
         $this->project = Project::factory()->create([
             'company_id' => $this->company->id,

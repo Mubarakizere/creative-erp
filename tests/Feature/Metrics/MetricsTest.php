@@ -11,6 +11,16 @@ class MetricsTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function setUp(): void
+    {
+        parent::setUp();
+        
+        $role = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Super Admin']);
+        $user = \App\Models\User::factory()->create(['status' => 'active']);
+        $user->assignRole($role);
+        $this->actingAs($user);
+    }
+
     public function test_metrics_service_aggregates_cards()
     {
         $metricsService = app(MetricsService::class);
@@ -24,7 +34,8 @@ class MetricsTest extends TestCase
 
     public function test_metrics_service_caches_results()
     {
-        $cacheKey = "metrics_cards_guest_all"; // default for no auth
+        $user = auth()->user();
+        $cacheKey = "metrics_cards_" . $user->id . "_all";
         Cache::shouldReceive('remember')
             ->once()
             ->with($cacheKey, \Mockery::any(), \Mockery::type('Closure'))

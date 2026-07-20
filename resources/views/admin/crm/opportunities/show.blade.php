@@ -8,6 +8,12 @@
             <h1 class="text-2xl font-bold text-gray-900">{{ $opportunity->name }}</h1>
         </div>
         <div class="flex items-center gap-2">
+            @can('create', App\Models\Quotation::class)
+                <x-button type="primary" href="{{ route('admin.crm.quotations.create', ['opportunity_id' => $opportunity->id]) }}">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                    Create Quotation
+                </x-button>
+            @endcan
             @can('update', $opportunity)
                 <x-button type="ghost" href="{{ route('admin.crm.opportunities.edit', $opportunity) }}">Edit</x-button>
             @endcan

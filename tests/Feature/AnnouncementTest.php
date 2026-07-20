@@ -16,18 +16,20 @@ class AnnouncementTest extends TestCase
     {
         parent::setUp();
         
-        $role = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'super-admin']);
+        $role = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Super Admin']);
         
-        $permissions = ['create_announcements', 'view_announcements', 'edit_announcements', 'delete_announcements', 'publish_announcements'];
+        $permissions = ['notification.announcement', 'create_announcements', 'view_announcements', 'edit_announcements', 'delete_announcements', 'publish_announcements'];
         foreach ($permissions as $permission) {
             \Spatie\Permission\Models\Permission::firstOrCreate(['name' => $permission]);
         }
         $role->syncPermissions($permissions);
         
         $this->admin = User::factory()->create();
-        $this->admin->assignRole('super-admin');
+        $this->admin->assignRole('Super Admin');
         
         $this->user = User::factory()->create();
+        $userRole = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Employee']);
+        $this->user->assignRole('Employee');
     }
 
     public function test_admin_can_create_announcement()
@@ -54,7 +56,6 @@ class AnnouncementTest extends TestCase
 
     public function test_regular_user_cannot_create_announcement()
     {
-        $this->withoutExceptionHandling();
         $this->actingAs($this->user);
 
         $data = [
@@ -76,7 +77,6 @@ class AnnouncementTest extends TestCase
 
     public function test_user_can_view_published_announcement()
     {
-        $this->withoutExceptionHandling();
         $announcement = Announcement::create([
             'title' => 'System Update',
             'content' => 'The system will be updated tonight.',
@@ -85,7 +85,7 @@ class AnnouncementTest extends TestCase
             'audience_type' => 'entire_system',
             'is_published' => true,
             'published_at' => now(),
-            'creator_id' => $this->admin->id,
+            'created_by' => $this->admin->id,
         ]);
 
         $this->actingAs($this->user);

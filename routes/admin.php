@@ -210,6 +210,15 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
         Route::resource('pipelines', \App\Http\Controllers\Admin\PipelineController::class);
         
         Route::resource('activities', \App\Http\Controllers\Admin\ActivityController::class);
+
+        // Sales Documents (Quotations)
+        Route::patch('/quotations/{quotation}/restore', [\App\Http\Controllers\QuotationController::class, 'restore'])->name('quotations.restore')->withTrashed();
+        Route::post('/quotations/{quotation}/duplicate', [\App\Http\Controllers\QuotationController::class, 'duplicate'])->name('quotations.duplicate');
+        Route::post('/quotations/{quotation}/submit', [\App\Http\Controllers\QuotationController::class, 'submit'])->name('quotations.submit');
+        Route::post('/quotations/{quotation}/approve', [\App\Http\Controllers\QuotationController::class, 'approve'])->name('quotations.approve');
+        Route::post('/quotations/{quotation}/reject', [\App\Http\Controllers\QuotationController::class, 'reject'])->name('quotations.reject');
+        Route::post('/quotations/{quotation}/export', [\App\Http\Controllers\QuotationController::class, 'export'])->name('quotations.export');
+        Route::resource('quotations', \App\Http\Controllers\QuotationController::class);
     });
 });
 

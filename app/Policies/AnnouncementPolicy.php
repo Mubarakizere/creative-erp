@@ -12,7 +12,7 @@ class AnnouncementPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasPermissionTo('view_announcements');
+        return $user->hasPermissionTo('notification.announcement');
     }
 
     /**
@@ -30,7 +30,7 @@ class AnnouncementPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasPermissionTo('create_announcements');
+        return $user->hasPermissionTo('notification.announcement');
     }
 
     /**
@@ -38,7 +38,7 @@ class AnnouncementPolicy
      */
     public function update(User $user, Announcement $announcement): bool
     {
-        return $user->hasPermissionTo('edit_announcements');
+        return $user->hasPermissionTo('notification.announcement');
     }
 
     /**
@@ -46,7 +46,7 @@ class AnnouncementPolicy
      */
     public function delete(User $user, Announcement $announcement): bool
     {
-        return $user->hasPermissionTo('delete_announcements');
+        return $user->hasPermissionTo('notification.announcement');
     }
 
     /**
@@ -54,6 +54,6 @@ class AnnouncementPolicy
      */
     public function publish(User $user, Announcement $announcement): bool
     {
-        return $user->hasPermissionTo('publish_announcements');
+        return $user->hasPermissionTo('notification.announcement');
     }
 }

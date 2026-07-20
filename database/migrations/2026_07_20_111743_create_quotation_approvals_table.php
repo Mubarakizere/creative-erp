@@ -1,0 +1,34 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('quotation_approvals', function (Blueprint $table) {
+            $table->id();
+            $table->uuid('uuid')->unique();
+            $table->foreignId('quotation_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('approval_id')->nullable()->constrained('approvals')->nullOnDelete();
+            $table->string('status'); // e.g. pending, approved, rejected
+            $table->text('comments')->nullable();
+            $table->foreignId('acted_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->timestamp('acted_at')->nullable();
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('quotation_approvals');
+    }
+};

@@ -48,6 +48,9 @@ class ReportBuilderService
             'crm_pipeline' => $this->buildCrmPipeline($filters),
             'crm_leads' => $this->buildCrmLeads($filters),
             'crm_conversions' => $this->buildCrmConversions($filters),
+            'quotation_summary' => $this->buildQuotationSummary($filters),
+            'sales_forecast' => $this->buildSalesForecast($filters),
+            'approval_summary' => $this->buildWorkflowSummary($filters),
             default => collect([]),
         };
     }
@@ -266,6 +269,36 @@ class ReportBuilderService
         $this->applyCommonFilters($query, $filters);
 
         $this->applyDateFilters($query, $filters, 'converted_at');
+
+        return $query->get();
+    }
+
+    protected function buildQuotationSummary(array $filters)
+    {
+        $query = \App\Models\Quotation::query()->with(['account', 'status', 'owner']);
+        $this->applyCommonFilters($query, $filters);
+        
+        if (!empty($filters['status'])) {
+            $query->whereHas('status', function($q) use ($filters) {
+                $q->whereIn('name', (array) $filters['status']);
+            });
+        }
+        
+        $this->applyDateFilters($query, $filters, 'created_at');
+
+        return $query->get();
+    }
+
+    protected function buildSalesForecast(array $filters)
+    {
+        $query = \App\Models\Opportunity::query()->with(['account', 'owner', 'stage']);
+        $this->applyCommonFilters($query, $filters);
+        
+        if (!empty($filters['status'])) {
+            $query->whereIn('status', (array) $filters['status']);
+        }
+        
+        $this->applyDateFilters($query, $filters, 'expected_close_date');
 
         return $query->get();
     }

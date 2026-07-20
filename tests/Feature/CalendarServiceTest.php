@@ -38,6 +38,7 @@ class CalendarServiceTest extends TestCase
             'company_id' => $this->company->id,
             'start_at' => now()->startOfMonth()->addDays(2)->setHour(10),
             'end_at' => now()->startOfMonth()->addDays(2)->setHour(11),
+            'status' => Meeting::STATUS_SCHEDULED,
         ])->attendees()->attach($this->user->id, ['attendance_status' => 'accepted']);
 
         // Create a task
@@ -65,6 +66,7 @@ class CalendarServiceTest extends TestCase
             'company_id' => $this->company->id,
             'start_at' => now()->setHour(14),
             'end_at' => now()->setHour(15),
+            'status' => Meeting::STATUS_SCHEDULED,
         ])->attendees()->attach($this->user->id, ['attendance_status' => 'accepted']);
 
         // Tomorrow meeting (should not be included)
@@ -72,6 +74,7 @@ class CalendarServiceTest extends TestCase
             'company_id' => $this->company->id,
             'start_at' => now()->addDay()->setHour(14),
             'end_at' => now()->addDay()->setHour(15),
+            'status' => Meeting::STATUS_SCHEDULED,
         ])->attendees()->attach($this->user->id, ['attendance_status' => 'accepted']);
 
         $schedule = $this->service->getTodaysSchedule($this->user->id, $this->company->id);

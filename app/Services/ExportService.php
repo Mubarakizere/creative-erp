@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\GenericReportExport;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\Quotation;
+use App\Exports\QuotationExport;
 
 class ExportService
 {
@@ -73,5 +75,24 @@ class ExportService
             ]);
             throw $e;
         }
+    }
+
+    public function exportQuotation(Quotation $quotation, string $format = 'pdf')
+    {
+        $fileName = 'exports/' . uniqid('quotation_') . '_' . time() . '.' . $format;
+        $disk = 'local';
+        
+        if (in_array($format, ['xlsx', 'csv'])) {
+            Excel::store(new QuotationExport($quotation), $fileName, $disk);
+        } elseif ($format === 'pdf') {
+            $pdf = Pdf::loadView('admin.crm.quotations.pdf', [
+                'quotation' => $quotation,
+            ]);
+            Storage::disk($disk)->put($fileName, $pdf->output());
+        } else {
+            throw new \Exception("Unsupported format: {$format}");
+        }
+
+        return Storage::disk($disk)->path($fileName);
     }
 }

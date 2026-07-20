@@ -60,6 +60,9 @@ class ReportService
             'project_summary' => $summaries['project_summary'] ?? [],
             'task_summary' => $summaries['task_summary'] ?? [],
             'time_summary' => $summaries['time_summary'] ?? [],
+            'quotation_summary' => $summaries['quotation_summary'] ?? [],
+            'sales_forecast' => $summaries['sales_forecast'] ?? [],
+            'approval_summary' => $summaries['approval_summary'] ?? [],
             default => [],
         };
     }

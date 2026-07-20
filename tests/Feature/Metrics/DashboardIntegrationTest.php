@@ -21,6 +21,7 @@ class DashboardIntegrationTest extends TestCase
         $this->user = User::factory()->create([
             'company_id' => $company->id,
         ]);
+        $this->user->assignRole('Super Admin');
     }
 
     public function test_dashboard_integration_loads_successfully()

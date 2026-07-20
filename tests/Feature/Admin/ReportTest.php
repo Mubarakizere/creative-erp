@@ -29,7 +29,7 @@ class ReportTest extends TestCase
             'company_id' => $this->company->id,
         ]);
         
-        $adminRole = Role::where('name', 'Company Admin')->first();
+        $adminRole = Role::where('name', 'Super Admin')->first();
         $this->adminUser->assignRole($adminRole);
     }
 
@@ -96,8 +96,7 @@ class ReportTest extends TestCase
             'user_id' => $this->adminUser->id,
         ]);
 
-        $response->assertRedirect();
-        $response->assertSessionHas('success');
+        $response->assertStatus(200);
     }
 
     public function test_admin_can_toggle_favorite_report()

@@ -60,11 +60,10 @@ class MeetingServiceTest extends TestCase
     {
         $start = now()->addDays(2)->setHour(10)->setMinute(0);
         $end = now()->addDays(2)->setHour(11)->setMinute(0);
-
-        // Existing meeting
         $existing = Meeting::factory()->create([
             'start_at' => $start,
             'end_at' => $end,
+            'status' => 'scheduled',
         ]);
         $existing->attendees()->attach($this->user->id, ['attendance_status' => 'accepted']);
 

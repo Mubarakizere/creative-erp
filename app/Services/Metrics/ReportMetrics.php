@@ -57,6 +57,25 @@ class ReportMetrics
                     'branches' => $cards['branches'] ?? 0,
                     'departments' => $cards['departments'] ?? 0,
                 ],
+                'quotation_summary' => [
+                    'total' => $cards['total_quotations'] ?? 0,
+                    'draft' => $cards['draft_quotations'] ?? 0,
+                    'pending' => $cards['pending_quotations'] ?? 0,
+                    'approved' => $cards['approved_quotations'] ?? 0,
+                    'accepted' => $cards['accepted_quotations'] ?? 0,
+                ],
+                'sales_forecast' => [
+                    'revenue_forecast' => $cards['revenue_forecast'] ?? 0,
+                    'pipeline_value' => $cards['pipeline_value'] ?? 0,
+                    'won_deals' => $cards['won_deals'] ?? 0,
+                    'lost_deals' => $cards['lost_deals'] ?? 0,
+                ],
+                'approval_summary' => [
+                    'pending_approvals' => $cards['pending_approvals'] ?? 0,
+                    'approved_today' => $cards['approved_today'] ?? 0,
+                    'rejected_today' => $cards['rejected_today'] ?? 0,
+                    'my_pending_requests' => $cards['my_pending_requests'] ?? 0,
+                ],
             ];
         });
     }

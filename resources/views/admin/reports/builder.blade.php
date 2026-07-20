@@ -75,7 +75,7 @@
                                 <option value="task_summary">Tasks</option>
                                 <option value="time_summary">Time Tracking</option>
                                 <option value="meetings">Meetings</option>
-                                <option value="workflow">Approvals & Workflows</option>
+                                <option value="approval_summary">Approvals & Workflows</option>
                                 <option value="documents">Documents</option>
                                 <option value="discussions">Discussions & Comments</option>
                                 <option value="clients">Clients</option>
@@ -83,7 +83,9 @@
                                 <option value="user_productivity">User Productivity</option>
                                 <option value="announcements">Announcements</option>
                                 <option value="notifications">Notifications</option>
-                                <option disabled>─── CRM ───</option>
+                                <option disabled>─── CRM & Sales ───</option>
+                                <option value="quotation_summary">Quotations Summary</option>
+                                <option value="sales_forecast">Sales Forecast</option>
                                 <option value="crm_pipeline">Pipeline (Opportunities)</option>
                                 <option value="crm_leads">Leads</option>
                                 <option value="crm_conversions">Conversions</option>
@@ -360,7 +362,7 @@
                         task_summary: ['project_id', 'user_id', 'status', 'priority', 'date_from', 'date_to'],
                         time_summary: ['user_id', 'project_id', 'date_from', 'date_to'],
                         meetings: ['user_id', 'status', 'date_from', 'date_to'],
-                        workflow: ['status', 'company_id', 'date_from', 'date_to'],
+                        approval_summary: ['status', 'company_id', 'date_from', 'date_to'],
                         documents: ['company_id', 'date_from', 'date_to'],
                         discussions: ['user_id', 'date_from', 'date_to'],
                         clients: ['company_id', 'date_from', 'date_to'],
@@ -368,6 +370,8 @@
                         user_productivity: ['company_id', 'branch_id', 'department_id', 'date_from', 'date_to'],
                         announcements: ['company_id', 'priority', 'date_from', 'date_to'],
                         notifications: ['user_id', 'date_from', 'date_to'],
+                        quotation_summary: ['company_id', 'status', 'date_from', 'date_to'],
+                        sales_forecast: ['company_id', 'status', 'date_from', 'date_to'],
                         crm_pipeline: ['company_id', 'status', 'date_from', 'date_to'],
                         crm_leads: ['company_id', 'status', 'date_from', 'date_to'],
                         crm_conversions: ['company_id', 'date_from', 'date_to'],
@@ -414,6 +418,21 @@
                             {field: 'id', label: 'Lead ID'}, {field: 'first_name', label: 'First Name'}, 
                             {field: 'last_name', label: 'Last Name'}, {field: 'converted_at', label: 'Converted Date'}, 
                             {field: 'convertedOpportunity.name', label: 'Opportunity'}, {field: 'convertedOpportunity.expected_revenue', label: 'Revenue'}
+                        ],
+                        quotation_summary: [
+                            {field: 'id', label: 'ID'}, {field: 'quotation_number', label: 'Quotation #'},
+                            {field: 'account.name', label: 'Account'}, {field: 'status.name', label: 'Status'},
+                            {field: 'grand_total', label: 'Grand Total'}, {field: 'created_at', label: 'Date'}
+                        ],
+                        sales_forecast: [
+                            {field: 'id', label: 'ID'}, {field: 'name', label: 'Opportunity'},
+                            {field: 'account.name', label: 'Account'}, {field: 'stage.name', label: 'Stage'},
+                            {field: 'expected_revenue', label: 'Expected Revenue'}, {field: 'expected_close_date', label: 'Close Date'}
+                        ],
+                        approval_summary: [
+                            {field: 'id', label: 'ID'}, {field: 'workflow.name', label: 'Workflow'},
+                            {field: 'requester.name', label: 'Requester'}, {field: 'approver.name', label: 'Approver'},
+                            {field: 'status', label: 'Status'}, {field: 'created_at', label: 'Date'}
                         ]
                         // We will dynamically render remaining columns in the backend if not specified
                     };
