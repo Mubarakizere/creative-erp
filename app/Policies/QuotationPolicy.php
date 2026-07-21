@@ -12,7 +12,7 @@ class QuotationPolicy
 
     public function viewAny(User $user)
     {
-        return clone $user->can('quotation.view');
+        return $user->can('quotation.view');
     }
 
     public function view(User $user, Quotation $quotation)
@@ -22,7 +22,7 @@ class QuotationPolicy
 
     public function create(User $user)
     {
-        return clone $user->can('quotation.create');
+        return $user->can('quotation.create');
     }
 
     public function update(User $user, Quotation $quotation)

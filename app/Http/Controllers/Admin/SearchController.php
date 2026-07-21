@@ -123,6 +123,68 @@ class SearchController extends Controller
             ];
         })->values();
 
+        // Search Invoices
+        $invoices = \App\Models\Invoice::where(function($q) use ($query) {
+            $q->where('invoice_number', 'like', "%{$query}%")
+              ->orWhereHas('client', function($sq) use ($query) {
+                  $sq->where('company_name', 'like', "%{$query}%")
+                     ->orWhere('first_name', 'like', "%{$query}%")
+                     ->orWhere('last_name', 'like', "%{$query}%");
+              });
+        })->get()->filter(fn($model) => auth()->user()->can('view', $model))->take(5)->map(function ($invoice) {
+            return [
+                'id' => $invoice->id,
+                'title' => $invoice->invoice_number,
+                'subtitle' => 'Customer: ' . ($invoice->client->name ?? 'Unknown') . ' | Total: ' . format_currency($invoice->total_amount),
+                'url' => route('admin.finance.invoices.show', $invoice)
+            ];
+        })->values();
+
+        // Search Receipts
+        $receipts = \App\Models\Receipt::where(function($q) use ($query) {
+            $q->where('receipt_number', 'like', "%{$query}%");
+        })->get()->filter(fn($model) => auth()->user()->can('view', $model))->take(5)->map(function ($receipt) {
+            return [
+                'id' => $receipt->id,
+                'title' => $receipt->receipt_number,
+                'subtitle' => 'Generated on ' . $receipt->generated_at->format('M d, Y'),
+                'url' => route('admin.finance.receipts.show', $receipt)
+            ];
+        })->values();
+
+        // Search Payments
+        $payments = \App\Models\Payment::where(function($q) use ($query) {
+            $q->where('payment_number', 'like', "%{$query}%")
+              ->orWhere('reference_number', 'like', "%{$query}%")
+              ->orWhereHas('client', function($sq) use ($query) {
+                  $sq->where('company_name', 'like', "%{$query}%")
+                     ->orWhere('first_name', 'like', "%{$query}%")
+                     ->orWhere('last_name', 'like', "%{$query}%");
+              });
+        })->get()->filter(fn($model) => auth()->user()->can('view', $model))->take(5)->map(function ($payment) {
+            return [
+                'id' => $payment->id,
+                'title' => $payment->payment_number . ($payment->reference_number ? ' (' . $payment->reference_number . ')' : ''),
+                'subtitle' => 'Customer: ' . ($payment->client->name ?? 'Unknown') . ' | Amount: ' . format_currency($payment->amount),
+                'url' => route('admin.finance.payments.show', $payment)
+            ];
+        })->values();
+
+        // Search Clients
+        $clients = \App\Models\Client::where(function($q) use ($query) {
+            $q->where('company_name', 'like', "%{$query}%")
+              ->orWhere('first_name', 'like', "%{$query}%")
+              ->orWhere('last_name', 'like', "%{$query}%")
+              ->orWhere('email', 'like', "%{$query}%");
+        })->get()->filter(fn($model) => auth()->user()->can('view', $model))->take(5)->map(function ($client) {
+            return [
+                'id' => $client->id,
+                'title' => $client->name,
+                'subtitle' => $client->email ?? 'No email',
+                'url' => route('admin.clients.show', $client)
+            ];
+        })->values();
+
         return response()->json([
             'projects' => $projects,
             'tasks' => $tasks,
@@ -131,6 +193,10 @@ class SearchController extends Controller
             'contacts' => $contacts,
             'accounts' => $accounts,
             'quotations' => $quotations,
+            'invoices' => $invoices,
+            'receipts' => $receipts,
+            'payments' => $payments,
+            'clients' => $clients,
         ]);
     }
 }

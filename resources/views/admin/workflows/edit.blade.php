@@ -21,6 +21,9 @@
                         <option value="Documents" {{ $workflow->module == 'Documents' ? 'selected' : '' }}>Documents</option>
                         <option value="Expenses" {{ $workflow->module == 'Expenses' ? 'selected' : '' }}>Expenses</option>
                         <option value="Leaves" {{ $workflow->module == 'Leaves' ? 'selected' : '' }}>Leaves</option>
+                        <option value="Invoice" {{ $workflow->module == 'Invoice' ? 'selected' : '' }}>Invoice</option>
+                        <option value="Refund" {{ $workflow->module == 'Refund' ? 'selected' : '' }}>Refund</option>
+                        <option value="CreditNote" {{ $workflow->module == 'CreditNote' ? 'selected' : '' }}>Credit Note</option>
                     </select>
                 </div>
                 <div class="md:col-span-2">

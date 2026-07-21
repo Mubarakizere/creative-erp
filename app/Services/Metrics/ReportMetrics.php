@@ -76,6 +76,21 @@ class ReportMetrics
                     'rejected_today' => $cards['rejected_today'] ?? 0,
                     'my_pending_requests' => $cards['my_pending_requests'] ?? 0,
                 ],
+                'invoice_summary' => [
+                    'total' => $cards['total_invoices']['value'] ?? 0,
+                    'draft' => $cards['draft_invoices']['value'] ?? 0,
+                    'unpaid' => $cards['unpaid_invoices']['value'] ?? 0,
+                    'overdue' => $cards['overdue_invoices']['value'] ?? 0,
+                ],
+                'payment_summary' => [
+                    'total_revenue' => $cards['total_payments']['value'] ?? 0,
+                    'revenue_this_month' => $cards['revenue_this_month']['value'] ?? 0,
+                ],
+                'receivable_summary' => [
+                    'total_receivables' => $cards['total_receivables']['value'] ?? 0,
+                    'overdue_receivables' => $cards['overdue_receivables']['value'] ?? 0,
+                    'collection_rate' => $cards['collection_rate']['value'] ?? 0,
+                ],
             ];
         });
     }

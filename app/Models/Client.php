@@ -86,6 +86,14 @@ class Client extends Model
         return asset('storage/' . $this->logo);
     }
 
+    /**
+     * Get the client's computed name.
+     */
+    public function getNameAttribute(): string
+    {
+        return $this->display_name ?: $this->company_name ?: trim("{$this->first_name} {$this->last_name}") ?: 'Unknown Client';
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Status Helpers
@@ -134,10 +142,20 @@ class Client extends Model
     |--------------------------------------------------------------------------
     */
 
-    // public function projects(): HasMany
-    // {
-    //     return $this->hasMany(Project::class);
-    // }
+    public function projects(): HasMany
+    {
+        return $this->hasMany(Project::class);
+    }
+
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
 
     // public function contacts(): HasMany
     // {

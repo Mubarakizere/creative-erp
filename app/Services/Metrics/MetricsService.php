@@ -26,7 +26,10 @@ class MetricsService
         NotificationMetrics $notificationMetrics,
         AnnouncementMetrics $announcementMetrics,
         CrmMetrics $crmMetrics,
-        QuotationMetrics $quotationMetrics
+        QuotationMetrics $quotationMetrics,
+        InvoiceMetrics $invoiceMetrics,
+        PaymentMetrics $paymentMetrics,
+        ReceivableMetrics $receivableMetrics
     ) {
         $this->providers = [
             $dashboardMetrics,
@@ -43,7 +46,10 @@ class MetricsService
             $notificationMetrics,
             $announcementMetrics,
             $crmMetrics,
-            $quotationMetrics
+            $quotationMetrics,
+            $invoiceMetrics,
+            $paymentMetrics,
+            $receivableMetrics
         ];
     }
 

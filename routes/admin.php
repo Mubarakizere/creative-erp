@@ -220,5 +220,28 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
         Route::post('/quotations/{quotation}/export', [\App\Http\Controllers\QuotationController::class, 'export'])->name('quotations.export');
         Route::resource('quotations', \App\Http\Controllers\QuotationController::class);
     });
-});
 
+    // Finance (Payments & Receivables)
+    Route::prefix('finance')->name('finance.')->group(function () {
+        // Finance Settings
+        Route::get('settings', [\App\Http\Controllers\Finance\FinanceSettingsController::class, 'index'])->name('settings');
+        Route::post('settings/payment-methods', [\App\Http\Controllers\Finance\FinanceSettingsController::class, 'storePaymentMethod'])->name('payment-methods.store');
+        Route::delete('settings/payment-methods/{id}', [\App\Http\Controllers\Finance\FinanceSettingsController::class, 'destroyPaymentMethod'])->name('payment-methods.destroy');
+        Route::post('settings/bank-accounts', [\App\Http\Controllers\Finance\FinanceSettingsController::class, 'storeBankAccount'])->name('bank-accounts.store');
+        Route::delete('settings/bank-accounts/{id}', [\App\Http\Controllers\Finance\FinanceSettingsController::class, 'destroyBankAccount'])->name('bank-accounts.destroy');
+
+        Route::patch('/invoices/{invoice}/issue', [\App\Http\Controllers\Finance\InvoiceController::class, 'issue'])->name('invoices.issue');
+        Route::patch('/invoices/{invoice}/cancel', [\App\Http\Controllers\Finance\InvoiceController::class, 'cancel'])->name('invoices.cancel');
+        Route::resource('invoices', \App\Http\Controllers\Finance\InvoiceController::class);
+        
+        Route::resource('payments', \App\Http\Controllers\Finance\PaymentController::class)->except(['edit', 'update']);
+        
+        Route::post('/credit-notes/{creditNote}/apply', [\App\Http\Controllers\Finance\CreditNoteController::class, 'apply'])->name('credit-notes.apply');
+        Route::resource('credit-notes', \App\Http\Controllers\Finance\CreditNoteController::class)->except(['edit', 'update']);
+        
+        Route::resource('refunds', \App\Http\Controllers\Finance\RefundController::class)->except(['edit', 'update']);
+        Route::resource('bank-accounts', \App\Http\Controllers\Finance\BankAccountController::class);
+        
+        Route::get('/statements/{client}', [\App\Http\Controllers\Finance\CustomerStatementController::class, 'show'])->name('statements.show');
+    });
+});

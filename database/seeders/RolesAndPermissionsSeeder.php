@@ -115,7 +115,19 @@ class RolesAndPermissionsSeeder extends Seeder
             // Settings
             'settings.manage',
 
-            // CRM
+            // Sales (CRM)
+            'lead.view', 'lead.create', 'lead.update', 'lead.delete',
+            'opportunity.view', 'opportunity.create', 'opportunity.update', 'opportunity.delete',
+            'quotation.view', 'quotation.create', 'quotation.update', 'quotation.delete', 'quotation.approve', 'quotation.export',
+            
+            // Finance
+            'invoice.view', 'invoice.create', 'invoice.update', 'invoice.delete',
+            'payment.view', 'payment.create', 'payment.update', 'payment.delete',
+            'credit_note.view', 'credit_note.create', 'credit_note.update', 'credit_note.delete',
+            'receipt.view', 'receipt.create', 'receipt.update', 'receipt.delete',
+            'refund.view', 'refund.create', 'refund.update', 'refund.delete',
+
+            // CRM Base
             'crm.view', 'crm.create', 'crm.update', 'crm.delete',
             'crm.convert', 'crm.manage', 'crm.pipeline', 'crm.activities',
 
@@ -182,7 +194,15 @@ class RolesAndPermissionsSeeder extends Seeder
                 'time.view', 'time.create', 'time.update', 'time.delete', 'time.export', 'time.approve',
                 'approval.view', 'approval.submit', 'approval.approve', 'approval.reject', 'approval.return', 'approval.cancel',
                 'notification.view', 'notification.manage', 'notification.delete', 'notification.send',
-                'crm.view', 'crm.create', 'crm.update', 'crm.convert', 'crm.pipeline', 'crm.activities'
+                'crm.view', 'crm.create', 'crm.update', 'crm.convert', 'crm.pipeline', 'crm.activities',
+                'lead.view', 'lead.create', 'lead.update', 'lead.delete',
+                'opportunity.view', 'opportunity.create', 'opportunity.update', 'opportunity.delete',
+                'quotation.view', 'quotation.create', 'quotation.update', 'quotation.delete', 'quotation.approve', 'quotation.export',
+                'invoice.view', 'invoice.create', 'invoice.update', 'invoice.delete',
+                'payment.view', 'payment.create', 'payment.update', 'payment.delete',
+                'credit_note.view', 'credit_note.create', 'credit_note.update', 'credit_note.delete',
+                'receipt.view', 'receipt.create', 'receipt.update', 'receipt.delete',
+                'refund.view', 'refund.create', 'refund.update', 'refund.delete',
             ]);
         }
 

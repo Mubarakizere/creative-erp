@@ -63,6 +63,11 @@ class ReportService
             'quotation_summary' => $summaries['quotation_summary'] ?? [],
             'sales_forecast' => $summaries['sales_forecast'] ?? [],
             'approval_summary' => $summaries['approval_summary'] ?? [],
+            'invoice_summary' => $summaries['invoice_summary'] ?? [],
+            'payment_summary' => $summaries['payment_summary'] ?? [],
+            'aging_report' => $summaries['receivable_summary'] ?? [],
+            'revenue_report' => $summaries['payment_summary'] ?? [],
+            'customer_statements' => $summaries['receivable_summary'] ?? [],
             default => [],
         };
     }
@@ -80,6 +85,8 @@ class ReportService
                 'tasksByStatus' => $charts['tasksByStatus'] ?? [],
                 'tasksByPriority' => $charts['tasksByPriority'] ?? []
             ],
+            'revenue_report' => ['revenueTrends' => $charts['revenueTrends'] ?? []],
+            'payment_summary' => ['paymentMethods' => $charts['paymentMethods'] ?? []],
             default => [],
         };
     }

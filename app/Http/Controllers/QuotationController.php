@@ -194,9 +194,17 @@ class QuotationController extends Controller
                          ->with('success', 'Quotation updated successfully.');
     }
 
-    public function destroy(Quotation $quotation)
+    public function destroy(Request $request, Quotation $quotation)
     {
         Gate::authorize('delete', $quotation);
+        
+        if ($request->has('force')) {
+            $this->logActivity($quotation, 'Quotation Deleted', "Quotation {$quotation->quotation_number} was permanently deleted.");
+            $quotation->forceDelete();
+            return redirect()->route('admin.crm.quotations.index')
+                             ->with('success', 'Quotation permanently deleted.');
+        }
+
         $this->logActivity($quotation, 'Quotation Archived', "Quotation {$quotation->quotation_number} was archived.");
         $quotation->delete();
         

@@ -498,16 +498,86 @@
             <span x-show="sidebarOpen" class="text-[10px] uppercase font-bold bg-gray-700 text-gray-300 px-1.5 py-0.5 rounded">Soon</span>
         </a>
 
-        {{-- Finance --}}
-        <a href="#" class="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-gray-400 cursor-not-allowed group justify-between">
-            <div class="flex items-center">
-                <svg class="w-5 h-5 flex-shrink-0 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Finance</span>
-            </div>
-            <span x-show="sidebarOpen" class="text-[10px] uppercase font-bold bg-gray-700 text-gray-300 px-1.5 py-0.5 rounded">Soon</span>
+        {{-- Finance Divider --}}
+        <div x-show="sidebarOpen" class="pt-4 pb-2">
+            <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Finance</p>
+        </div>
+
+        {{-- Invoices --}}
+        @can('viewAny', \App\Models\Invoice::class)
+        <a href="{{ route('admin.finance.invoices.index') }}"
+           @class([
+               'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
+               'bg-sidebar-active text-white' => request()->routeIs('admin.finance.invoices.*'),
+               'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.finance.invoices.*'),
+           ])>
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Invoices</span>
         </a>
+        @endcan
+
+        {{-- Payments --}}
+        @can('viewAny', \App\Models\Payment::class)
+        <a href="{{ route('admin.finance.payments.index') }}"
+           @class([
+               'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
+               'bg-sidebar-active text-white' => request()->routeIs('admin.finance.payments.*'),
+               'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.finance.payments.*'),
+           ])>
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Payments</span>
+        </a>
+        @endcan
+
+        {{-- Credit Notes --}}
+        @can('viewAny', \App\Models\CreditNote::class)
+        <a href="{{ route('admin.finance.credit-notes.index') }}"
+           @class([
+               'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
+               'bg-sidebar-active text-white' => request()->routeIs('admin.finance.credit-notes.*'),
+               'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.finance.credit-notes.*'),
+           ])>
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+            </svg>
+            <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Credit Notes</span>
+        </a>
+        @endcan
+
+        {{-- Refunds --}}
+        @can('viewAny', \App\Models\Refund::class)
+        <a href="{{ route('admin.finance.refunds.index') }}"
+           @class([
+               'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
+               'bg-sidebar-active text-white' => request()->routeIs('admin.finance.refunds.*'),
+               'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.finance.refunds.*'),
+           ])>
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 15v-1a4 4 0 00-4-4H8m0 0l3 3m-3-3l3-3m9 14V5a2 2 0 00-2-2H6a2 2 0 00-2 2v16l4-2 4 2 4-2 4 2z"/>
+            </svg>
+            <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Refunds</span>
+        </a>
+        @endcan
+
+        {{-- Finance Settings --}}
+        @can('create', \App\Models\Payment::class)
+        <a href="{{ route('admin.finance.settings') }}"
+           @class([
+               'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
+               'bg-sidebar-active text-white' => request()->routeIs('admin.finance.settings'),
+               'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.finance.settings'),
+           ])>
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Finance Settings</span>
+        </a>
+        @endcan
 
         {{-- Reports --}}
         @can('report.view')
@@ -952,6 +1022,62 @@
             </div>
             <span class="text-[10px] uppercase font-bold bg-gray-700 text-gray-300 px-1.5 py-0.5 rounded">Soon</span>
         </a>
+
+        <div class="pt-4 pb-2">
+            <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Finance</p>
+        </div>
+
+        @can('viewAny', \App\Models\Invoice::class)
+        <a href="{{ route('admin.finance.invoices.index') }}" @class([
+            'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+            'bg-sidebar-active text-white' => request()->routeIs('admin.finance.invoices.*'),
+            'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.finance.invoices.*'),
+        ])>
+            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            Invoices
+        </a>
+        @endcan
+
+        @can('viewAny', \App\Models\Payment::class)
+        <a href="{{ route('admin.finance.payments.index') }}" @class([
+            'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+            'bg-sidebar-active text-white' => request()->routeIs('admin.finance.payments.*'),
+            'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.finance.payments.*'),
+        ])>
+            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Payments
+        </a>
+        @endcan
+
+        @can('viewAny', \App\Models\CreditNote::class)
+        <a href="{{ route('admin.finance.credit-notes.index') }}" @class([
+            'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+            'bg-sidebar-active text-white' => request()->routeIs('admin.finance.credit-notes.*'),
+            'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.finance.credit-notes.*'),
+        ])>
+            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+            </svg>
+            Credit Notes
+        </a>
+        @endcan
+
+        @can('viewAny', \App\Models\Refund::class)
+        <a href="{{ route('admin.finance.refunds.index') }}" @class([
+            'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+            'bg-sidebar-active text-white' => request()->routeIs('admin.finance.refunds.*'),
+            'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.finance.refunds.*'),
+        ])>
+            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 15v-1a4 4 0 00-4-4H8m0 0l3 3m-3-3l3-3m9 14V5a2 2 0 00-2-2H6a2 2 0 00-2 2v16l4-2 4 2 4-2 4 2z"/>
+            </svg>
+            Refunds
+        </a>
+        @endcan
         {{-- Reports --}}
         @can('report.view')
         <a href="{{ route('admin.reports.index') }}"

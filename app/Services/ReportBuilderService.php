@@ -14,6 +14,8 @@ use App\Models\Company;
 use App\Models\Client;
 use App\Models\Announcement;
 use App\Models\Notification;
+use App\Models\Invoice;
+use App\Models\Payment;
 use App\Services\Metrics\ReportMetrics;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -51,6 +53,11 @@ class ReportBuilderService
             'quotation_summary' => $this->buildQuotationSummary($filters),
             'sales_forecast' => $this->buildSalesForecast($filters),
             'approval_summary' => $this->buildWorkflowSummary($filters),
+            'invoice_summary' => $this->buildInvoiceSummary($filters),
+            'payment_summary' => $this->buildPaymentSummary($filters),
+            'aging_report' => $this->buildAgingReport($filters),
+            'revenue_report' => $this->buildRevenueReport($filters),
+            'customer_statements' => $this->buildCustomerStatements($filters),
             default => collect([]),
         };
     }
@@ -300,6 +307,92 @@ class ReportBuilderService
         
         $this->applyDateFilters($query, $filters, 'expected_close_date');
 
+        return $query->get();
+    }
+
+    protected function buildInvoiceSummary(array $filters)
+    {
+        $query = Invoice::query()->with(['client', 'project']);
+        $this->applyCommonFilters($query, $filters);
+        
+        if (!empty($filters['status'])) {
+            $query->whereIn('status', (array) $filters['status']);
+        }
+        if (!empty($filters['client_id'])) {
+            $query->whereIn('client_id', (array) $filters['client_id']);
+        }
+        
+        $this->applyDateFilters($query, $filters, 'issue_date');
+
+        return $query->get();
+    }
+
+    protected function buildPaymentSummary(array $filters)
+    {
+        $query = Payment::query()->with(['client', 'paymentMethod']);
+        $this->applyCommonFilters($query, $filters);
+        
+        if (!empty($filters['status'])) {
+            $query->whereIn('status', (array) $filters['status']);
+        }
+        if (!empty($filters['client_id'])) {
+            $query->whereIn('client_id', (array) $filters['client_id']);
+        }
+        
+        $this->applyDateFilters($query, $filters, 'payment_date');
+
+        return $query->get();
+    }
+
+    protected function buildAgingReport(array $filters)
+    {
+        $query = Invoice::query()->with(['client'])->where('status', 'Overdue');
+        $this->applyCommonFilters($query, $filters);
+        
+        if (!empty($filters['client_id'])) {
+            $query->whereIn('client_id', (array) $filters['client_id']);
+        }
+        
+        $invoices = $query->get();
+        // Decorate with aging buckets for easy table display
+        $invoices->each(function ($invoice) {
+            $days = $invoice->due_date ? $invoice->due_date->diffInDays(now(), false) : 0;
+            $invoice->aging_days = max(0, $days);
+            
+            if ($invoice->aging_days <= 30) {
+                $invoice->aging_bucket = '1-30 Days';
+            } elseif ($invoice->aging_days <= 60) {
+                $invoice->aging_bucket = '31-60 Days';
+            } elseif ($invoice->aging_days <= 90) {
+                $invoice->aging_bucket = '61-90 Days';
+            } else {
+                $invoice->aging_bucket = '90+ Days';
+            }
+        });
+        
+        return $invoices;
+    }
+
+    protected function buildRevenueReport(array $filters)
+    {
+        $query = Payment::query()->with(['client'])->where('status', 'Completed');
+        $this->applyCommonFilters($query, $filters);
+        
+        $this->applyDateFilters($query, $filters, 'payment_date');
+        
+        // Return raw payments, which can be grouped by month in the view or export
+        return $query->get();
+    }
+
+    protected function buildCustomerStatements(array $filters)
+    {
+        $query = Client::query()->with(['invoices', 'payments']);
+        $this->applyCommonFilters($query, $filters);
+        
+        if (!empty($filters['client_id'])) {
+            $query->whereIn('id', (array) $filters['client_id']);
+        }
+        
         return $query->get();
     }
 

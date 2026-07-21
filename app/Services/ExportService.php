@@ -95,4 +95,56 @@ class ExportService
 
         return Storage::disk($disk)->path($fileName);
     }
+    
+    public function exportInvoice(\App\Models\Invoice $invoice, string $format = 'pdf')
+    {
+        $fileName = 'exports/' . uniqid('invoice_') . '_' . time() . '.' . $format;
+        $disk = 'local';
+        
+        if ($format === 'pdf') {
+            $pdf = Pdf::loadView('admin.finance.invoices.pdf', [
+                'invoice' => $invoice,
+            ]);
+            Storage::disk($disk)->put($fileName, $pdf->output());
+        } else {
+            throw new \Exception("Unsupported format for invoice: {$format}");
+        }
+
+        return Storage::disk($disk)->path($fileName);
+    }
+
+    public function exportReceipt(\App\Models\Receipt $receipt, string $format = 'pdf')
+    {
+        $fileName = 'exports/' . uniqid('receipt_') . '_' . time() . '.' . $format;
+        $disk = 'local';
+        
+        if ($format === 'pdf') {
+            $pdf = Pdf::loadView('admin.finance.receipts.pdf', [
+                'receipt' => $receipt,
+            ]);
+            Storage::disk($disk)->put($fileName, $pdf->output());
+        } else {
+            throw new \Exception("Unsupported format for receipt: {$format}");
+        }
+
+        return Storage::disk($disk)->path($fileName);
+    }
+
+    public function exportStatement(\App\Models\Client $client, array $statementData, string $format = 'pdf')
+    {
+        $fileName = 'exports/' . uniqid('statement_') . '_' . time() . '.' . $format;
+        $disk = 'local';
+        
+        if ($format === 'pdf') {
+            $pdf = Pdf::loadView('admin.finance.statements.pdf', [
+                'client' => $client,
+                'statement' => $statementData,
+            ]);
+            Storage::disk($disk)->put($fileName, $pdf->output());
+        } else {
+            throw new \Exception("Unsupported format for statement: {$format}");
+        }
+
+        return Storage::disk($disk)->path($fileName);
+    }
 }

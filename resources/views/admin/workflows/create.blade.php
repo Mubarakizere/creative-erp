@@ -20,6 +20,9 @@
                         <option value="Documents">Documents</option>
                         <option value="Expenses">Expenses</option>
                         <option value="Leaves">Leaves</option>
+                        <option value="Invoice">Invoice</option>
+                        <option value="Refund">Refund</option>
+                        <option value="CreditNote">Credit Note</option>
                     </select>
                 </div>
                 <div class="md:col-span-2">

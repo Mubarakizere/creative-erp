@@ -111,7 +111,7 @@
                 {{-- Status --}}
                 <td class="px-4 py-3">
                     @php
-                        $statusType = match($quotation->status) {
+                        $statusType = match($quotation->status?->name) {
                             'Draft' => 'default',
                             'Pending Approval' => 'warning',
                             'Approved' => 'success',
@@ -124,7 +124,7 @@
                             default => 'default',
                         };
                     @endphp
-                    <x-badge :type="$statusType">{{ $quotation->status ?? 'Draft' }}</x-badge>
+                    <x-badge :type="$statusType">{{ $quotation->status?->name ?? 'Draft' }}</x-badge>
                     @if($quotation->trashed())
                         <x-badge type="danger" class="ml-1">Archived</x-badge>
                     @endif
@@ -181,6 +181,35 @@
                                     </form>
                                 @endcan
 
+                                @if($quotation->status?->name === 'Pending Approval')
+                                    @can('approve', $quotation)
+                                        <div class="border-t border-gray-100 my-1"></div>
+                                        <form method="POST" action="{{ route('admin.crm.quotations.approve', $quotation) }}" class="inline">
+                                            @csrf
+                                            <button type="submit" class="flex items-center w-full px-4 py-2 text-sm text-green-700 hover:bg-green-50 transition-colors">
+                                                <svg class="w-4 h-4 mr-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                                Approve
+                                            </button>
+                                        </form>
+                                        <form method="POST" action="{{ route('admin.crm.quotations.reject', $quotation) }}" class="inline">
+                                            @csrf
+                                            <button type="submit" class="flex items-center w-full px-4 py-2 text-sm text-red-700 hover:bg-red-50 transition-colors">
+                                                <svg class="w-4 h-4 mr-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                Reject
+                                            </button>
+                                        </form>
+                                    @endcan
+                                @endif
+
+                                @can('create', App\Models\Invoice::class)
+                                    @if($quotation->status?->name === 'Approved')
+                                        <a href="{{ route('admin.finance.invoices.create', ['quotation_id' => $quotation->id]) }}" class="flex items-center w-full px-4 py-2 text-sm text-green-700 hover:bg-green-50 transition-colors">
+                                            <svg class="w-4 h-4 mr-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                            Generate Invoice
+                                        </a>
+                                    @endif
+                                @endcan
+
                                 @can('create', App\Models\Quotation::class)
                                     <form method="POST" action="{{ route('admin.crm.quotations.duplicate', $quotation) }}">
                                         @csrf
@@ -201,6 +230,13 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                         </svg>
                                         Archive
+                                    </button>
+                                    <button @click="open = false; $dispatch('open-modal', 'delete-quotation-{{ $quotation->id }}')"
+                                            class="flex items-center w-full px-4 py-2 text-sm text-red-700 hover:bg-red-100 transition-colors font-bold">
+                                        <svg class="w-4 h-4 mr-3 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                        </svg>
+                                        Delete
                                     </button>
                                 @endcan
                             @endif
@@ -230,6 +266,29 @@
                             @csrf
                             @method('DELETE')
                             <x-button type="danger" submit>Archive Quotation</x-button>
+                        </form>
+                    </x-slot:footer>
+                </x-modal>
+
+                <x-modal id="delete-quotation-{{ $quotation->id }}" maxWidth="md">
+                    <x-slot:header>Delete Quotation</x-slot:header>
+
+                    <div class="text-center py-4">
+                        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                            <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Delete Quotation {{ $quotation->quotation_number }}?</h3>
+                        <p class="text-sm text-gray-500">This action will permanently delete the quotation. This cannot be undone.</p>
+                    </div>
+
+                    <x-slot:footer>
+                        <x-button type="ghost" @click="open = false">Cancel</x-button>
+                        <form method="POST" action="{{ route('admin.crm.quotations.destroy', ['quotation' => $quotation->id, 'force' => 1]) }}" class="inline">
+                            @csrf
+                            @method('DELETE')
+                            <x-button type="danger" submit>Delete Quotation</x-button>
                         </form>
                     </x-slot:footer>
                 </x-modal>
