@@ -85,6 +85,8 @@ class ReportController extends Controller
         $filters = $request->except(['_token', 'page']);
         $reportData = $this->reportService->getReportData($reportTemplate, $filters);
 
+        $this->reportService->logActivity('report_generated', $reportTemplate);
+
         return view('admin.reports.viewer', $reportData);
     }
 

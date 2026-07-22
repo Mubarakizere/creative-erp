@@ -22,4 +22,20 @@ Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+    
+    // Financial Reporting
+    Route::prefix('finance')->group(function () {
+        Route::get('reports/profit-and-loss', [\App\Http\Controllers\Finance\FinancialReportController::class, 'profitAndLoss']);
+        Route::get('reports/balance-sheet', [\App\Http\Controllers\Finance\FinancialReportController::class, 'balanceSheet']);
+        Route::get('reports/cash-flow', [\App\Http\Controllers\Finance\FinancialReportController::class, 'cashFlow']);
+        
+        Route::apiResource('budgets', \App\Http\Controllers\Finance\BudgetController::class)->only(['index', 'show']);
+        
+        Route::get('analytics', [\App\Http\Controllers\Finance\AnalyticsController::class, 'index']);
+    });
+    
+    // Dashboards
+    Route::prefix('dashboard')->group(function () {
+        Route::get('executive', [\App\Http\Controllers\Dashboard\ExecutiveDashboardController::class, 'index']);
+    });
 });

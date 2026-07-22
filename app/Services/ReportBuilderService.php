@@ -19,13 +19,25 @@ use App\Models\Payment;
 use App\Services\Metrics\ReportMetrics;
 use Illuminate\Database\Eloquent\Builder;
 
+use App\Services\Finance\FinancialStatementService;
+use App\Services\Finance\AccountingReportService;
+use Illuminate\Support\Facades\DB;
+use App\Models\GeneralLedger;
+
 class ReportBuilderService
 {
     protected ReportMetrics $reportMetrics;
+    protected FinancialStatementService $financialService;
+    protected AccountingReportService $accountingService;
 
-    public function __construct(ReportMetrics $reportMetrics)
-    {
+    public function __construct(
+        ReportMetrics $reportMetrics,
+        FinancialStatementService $financialService,
+        AccountingReportService $accountingService
+    ) {
         $this->reportMetrics = $reportMetrics;
+        $this->financialService = $financialService;
+        $this->accountingService = $accountingService;
     }
 
     /**
@@ -58,6 +70,13 @@ class ReportBuilderService
             'aging_report' => $this->buildAgingReport($filters),
             'revenue_report' => $this->buildRevenueReport($filters),
             'customer_statements' => $this->buildCustomerStatements($filters),
+            'profit_and_loss' => $this->buildProfitAndLoss($filters),
+            'balance_sheet' => $this->buildBalanceSheet($filters),
+            'cash_flow' => $this->buildCashFlow($filters),
+            'expense_analysis' => $this->buildExpenseAnalysis($filters),
+            'budget_analysis' => $this->buildBudgetAnalysis($filters),
+            'customer_profitability' => $this->buildCustomerProfitability($filters),
+            'project_profitability' => $this->buildProjectProfitability($filters),
             default => collect([]),
         };
     }
@@ -423,5 +442,170 @@ class ReportBuilderService
         if (!empty($filters[$toKey])) {
             $query->whereDate($column, '<=', $filters[$toKey]);
         }
+    }
+
+    protected function buildProfitAndLoss(array $filters)
+    {
+        $companyId = $filters['company_id'] ?? auth()->user()->company_id ?? 1;
+        $data = $this->financialService->generateProfitAndLoss(
+            $companyId, 
+            $filters['date_from'] ?? null, 
+            $filters['date_to'] ?? null, 
+            $filters
+        );
+        return collect([$data]); // Wrap in collection
+    }
+
+    protected function buildBalanceSheet(array $filters)
+    {
+        $companyId = $filters['company_id'] ?? auth()->user()->company_id ?? 1;
+        $data = $this->financialService->generateBalanceSheet(
+            $companyId, 
+            $filters['date_to'] ?? null, 
+            $filters
+        );
+        return collect([$data]);
+    }
+
+    protected function buildCashFlow(array $filters)
+    {
+        $companyId = $filters['company_id'] ?? auth()->user()->company_id ?? 1;
+        $data = $this->financialService->generateCashFlowStatement(
+            $companyId, 
+            $filters['date_from'] ?? null, 
+            $filters['date_to'] ?? null, 
+            $filters
+        );
+        return collect([$data]);
+    }
+
+    protected function buildExpenseAnalysis(array $filters)
+    {
+        $companyId = $filters['company_id'] ?? auth()->user()->company_id ?? 1;
+        $query = GeneralLedger::with(['chartOfAccount.accountType', 'department', 'branch'])
+            ->where('company_id', $companyId)
+            ->whereHas('chartOfAccount.accountType', function($q) {
+                $q->where('category', 'Expense');
+            });
+
+        if (!empty($filters['branch_id'])) {
+            $query->whereIn('branch_id', (array) $filters['branch_id']);
+        }
+        if (!empty($filters['department_id'])) {
+            $query->whereIn('department_id', (array) $filters['department_id']);
+        }
+        $this->applyDateFilters($query, $filters, 'date');
+
+        // Group by account to get totals
+        $expenses = $query->select(
+            'chart_of_account_id',
+            'department_id',
+            'branch_id',
+            DB::raw('SUM(debit) as total_expense')
+        )
+        ->groupBy('chart_of_account_id', 'department_id', 'branch_id')
+        ->orderByDesc('total_expense')
+        ->get();
+
+        return collect([
+            'expenses' => $expenses,
+            'total' => $expenses->sum('total_expense')
+        ]);
+    }
+
+    protected function buildBudgetAnalysis(array $filters)
+    {
+        $companyId = $filters['company_id'] ?? auth()->user()->company_id ?? 1;
+        $query = \App\Models\Budget::with(['department', 'branch'])
+            ->where('company_id', $companyId);
+
+        if (!empty($filters['fiscal_year_id'])) {
+            $query->where('fiscal_year_id', $filters['fiscal_year_id']);
+        }
+        if (!empty($filters['department_id'])) {
+            $query->whereIn('department_id', (array) $filters['department_id']);
+        }
+
+        $budgets = $query->get();
+        // Decorate with actuals (this requires querying GeneralLedger based on budget's dimension)
+        $budgets->each(function($budget) {
+            $actual = GeneralLedger::where('company_id', $budget->company_id)
+                ->where('fiscal_year_id', $budget->fiscal_year_id)
+                ->where('department_id', $budget->department_id)
+                ->whereHas('chartOfAccount.accountType', function($q) {
+                    $q->where('category', 'Expense');
+                })->sum('debit');
+
+            $budget->actual_amount = $actual;
+            $budget->variance = $budget->amount - $actual;
+            $budget->variance_percentage = $budget->amount > 0 ? ($budget->variance / $budget->amount) * 100 : 0;
+        });
+
+        return $budgets;
+    }
+
+    protected function buildCustomerProfitability(array $filters)
+    {
+        $companyId = $filters['company_id'] ?? auth()->user()->company_id ?? 1;
+        
+        $query = Client::where('company_id', $companyId);
+        if (!empty($filters['client_id'])) {
+            $query->whereIn('id', (array) $filters['client_id']);
+        }
+
+        $clients = $query->get();
+
+        // For each client, calculate revenue and expenses associated with their client_id in GL
+        $clients->each(function($client) use ($filters) {
+            $glQuery = GeneralLedger::where('client_id', $client->id)
+                ->join('chart_of_accounts', 'general_ledgers.chart_of_account_id', '=', 'chart_of_accounts.id')
+                ->join('account_types', 'chart_of_accounts.account_type_id', '=', 'account_types.id')
+                ->select(
+                    DB::raw("SUM(CASE WHEN account_types.category = 'Revenue' THEN general_ledgers.credit - general_ledgers.debit ELSE 0 END) as total_revenue"),
+                    DB::raw("SUM(CASE WHEN account_types.category = 'Expense' THEN general_ledgers.debit - general_ledgers.credit ELSE 0 END) as total_expense")
+                );
+
+            $this->applyDateFilters($glQuery, $filters, 'date');
+            
+            $totals = $glQuery->first();
+            $client->total_revenue = $totals->total_revenue ?? 0;
+            $client->total_expense = $totals->total_expense ?? 0;
+            $client->profit = $client->total_revenue - $client->total_expense;
+            $client->profit_margin = $client->total_revenue > 0 ? ($client->profit / $client->total_revenue) * 100 : 0;
+        });
+
+        return $clients->sortByDesc('profit')->values();
+    }
+
+    protected function buildProjectProfitability(array $filters)
+    {
+        $companyId = $filters['company_id'] ?? auth()->user()->company_id ?? 1;
+        
+        $query = Project::with('client')->where('company_id', $companyId);
+        if (!empty($filters['project_id'])) {
+            $query->whereIn('id', (array) $filters['project_id']);
+        }
+
+        $projects = $query->get();
+
+        $projects->each(function($project) use ($filters) {
+            $glQuery = GeneralLedger::where('project_id', $project->id)
+                ->join('chart_of_accounts', 'general_ledgers.chart_of_account_id', '=', 'chart_of_accounts.id')
+                ->join('account_types', 'chart_of_accounts.account_type_id', '=', 'account_types.id')
+                ->select(
+                    DB::raw("SUM(CASE WHEN account_types.category = 'Revenue' THEN general_ledgers.credit - general_ledgers.debit ELSE 0 END) as total_revenue"),
+                    DB::raw("SUM(CASE WHEN account_types.category = 'Expense' THEN general_ledgers.debit - general_ledgers.credit ELSE 0 END) as total_expense")
+                );
+
+            $this->applyDateFilters($glQuery, $filters, 'date');
+            
+            $totals = $glQuery->first();
+            $project->total_revenue = $totals->total_revenue ?? 0;
+            $project->total_expense = $totals->total_expense ?? 0;
+            $project->profit = $project->total_revenue - $project->total_expense;
+            $project->profit_margin = $project->total_revenue > 0 ? ($project->profit / $project->total_revenue) * 100 : 0;
+        });
+
+        return $projects->sortByDesc('profit')->values();
     }
 }

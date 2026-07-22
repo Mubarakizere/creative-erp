@@ -44,6 +44,11 @@ class ChartService
                 'meetingsPerMonth' => [4, 8, 15, 12, 20, 18, 25],
                 'meetingsByType' => [10, 5, 8, 3, 2, 4],
                 'attendanceRate' => [95, 92, 88, 96, 90],
+                
+                // Financial Charts
+                'revenueTrends' => $this->revenueTrends($filters),
+                'expenseTrends' => $this->expenseTrends($filters),
+                'profitTrends' => $this->profitTrends($filters),
             ];
         });
     }
@@ -105,5 +110,115 @@ class ChartService
         
         $projects = $query->pluck('progress', 'name')->toArray();
         return !empty($projects) ? $projects : ['No Active Projects' => 0];
+    }
+
+    private function revenueTrends(array $filters = []): array
+    {
+        return $this->getMonthlyTrend('Revenue', $filters);
+    }
+
+    private function expenseTrends(array $filters = []): array
+    {
+        return $this->getMonthlyTrend('Expense', $filters);
+    }
+
+    private function profitTrends(array $filters = []): array
+    {
+        $revenue = $this->revenueTrends($filters);
+        $expense = $this->expenseTrends($filters);
+        $profit = [];
+        for ($i = 0; $i < 6; $i++) {
+            $profit[] = ($revenue[$i] ?? 0) - ($expense[$i] ?? 0);
+        }
+        return $profit;
+    }
+
+    private function getMonthlyTrend(string $category, array $filters = []): array
+    {
+        $query = \App\Models\GeneralLedger::select(
+            \Illuminate\Support\Facades\DB::raw("strftime('%m', date) as month"),
+            \Illuminate\Support\Facades\DB::raw("SUM(credit - debit) as net_credit"),
+            \Illuminate\Support\Facades\DB::raw("SUM(debit - credit) as net_debit")
+        )
+        ->whereHas('chartOfAccount.accountType', function($q) use ($category) {
+            $q->where('category', $category);
+        })
+        ->whereDate('date', '>=', now()->subMonths(5)->startOfMonth())
+        ->whereDate('date', '<=', now()->endOfMonth())
+        ->groupBy('month')
+        ->orderBy('month');
+
+        $this->applyFilters($query, $filters);
+        $results = $query->get()->keyBy('month');
+
+        $trend = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $monthObj = now()->subMonths($i);
+            $monthNum = $monthObj->format('m');
+            $row = $results->get($monthNum);
+            
+            // Revenues have natural credit balance, Expenses have natural debit balance
+            $value = 0;
+            if ($row) {
+                $value = $category === 'Revenue' ? $row->net_credit : $row->net_debit;
+            }
+            $trend[] = max(0, (float) $value);
+        }
+        return $trend;
+    }
+
+    public function departmentPerformance(array $filters = []): array
+    {
+        return $this->getPerformanceBy('department_id', $filters);
+    }
+
+    public function branchPerformance(array $filters = []): array
+    {
+        return $this->getPerformanceBy('branch_id', $filters);
+    }
+
+    private function getPerformanceBy(string $groupBy, array $filters = []): array
+    {
+        // Calculate Net Profit = Revenue - Expense grouped by $groupBy
+        $query = \App\Models\GeneralLedger::select(
+            "journals.{$groupBy}",
+            \Illuminate\Support\Facades\DB::raw("SUM(CASE WHEN account_types.category = 'Revenue' THEN general_ledgers.credit - general_ledgers.debit ELSE 0 END) as revenue"),
+            \Illuminate\Support\Facades\DB::raw("SUM(CASE WHEN account_types.category = 'Expense' THEN general_ledgers.debit - general_ledgers.credit ELSE 0 END) as expenses")
+        )
+        ->join('journal_entries', 'general_ledgers.journal_entry_id', '=', 'journal_entries.id')
+        ->join('journals', 'journal_entries.journal_id', '=', 'journals.id')
+        ->join('chart_of_accounts', 'general_ledgers.chart_of_account_id', '=', 'chart_of_accounts.id')
+        ->join('account_types', 'chart_of_accounts.account_type_id', '=', 'account_types.id')
+        ->whereIn('account_types.category', ['Revenue', 'Expense'])
+        ->whereNotNull("journals.{$groupBy}")
+        ->groupBy("journals.{$groupBy}");
+
+        $this->applyFilters($query, $filters, 'journals');
+        
+        $results = $query->get()->map(function($row) {
+            return [
+                'id' => $row->department_id ?? $row->branch_id,
+                'revenue' => (float) $row->revenue,
+                'expenses' => (float) $row->expenses,
+                'net_profit' => (float) ($row->revenue - $row->expenses)
+            ];
+        });
+
+        // Resolve names
+        if ($groupBy === 'department_id') {
+            $results = $results->map(function($row) {
+                $dept = \App\Models\Department::find($row['id']);
+                $row['name'] = $dept ? $dept->name : 'Unknown';
+                return $row;
+            });
+        } else {
+            $results = $results->map(function($row) {
+                $branch = \App\Models\Branch::find($row['id']);
+                $row['name'] = $branch ? $branch->name : 'Unknown';
+                return $row;
+            });
+        }
+
+        return $results->sortByDesc('net_profit')->values()->toArray();
     }
 }

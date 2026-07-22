@@ -28,6 +28,7 @@ Route::middleware(['auth', 'check.status', 'track.activity'])->prefix('admin')->
 
 Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/executive', [\App\Http\Controllers\Dashboard\ExecutiveDashboardController::class, 'index'])->name('dashboard.executive');
     
     // Global Search
     Route::get('/search', [\App\Http\Controllers\Admin\SearchController::class, 'index'])->name('search');
@@ -259,5 +260,16 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
         Route::resource('bank-accounts', \App\Http\Controllers\Finance\BankAccountController::class);
         
         Route::get('/statements/{client}', [\App\Http\Controllers\Finance\CustomerStatementController::class, 'show'])->name('statements.show');
+        
+        // Financial Reporting & Analytics
+        Route::prefix('reports')->name('reports.')->group(function () {
+            Route::get('profit-and-loss', [\App\Http\Controllers\Finance\FinancialReportController::class, 'profitAndLoss'])->name('profit-and-loss');
+            Route::get('balance-sheet', [\App\Http\Controllers\Finance\FinancialReportController::class, 'balanceSheet'])->name('balance-sheet');
+            Route::get('cash-flow', [\App\Http\Controllers\Finance\FinancialReportController::class, 'cashFlow'])->name('cash-flow');
+        });
+        
+        Route::resource('budgets', \App\Http\Controllers\Finance\BudgetController::class);
+        
+        Route::get('analytics', [\App\Http\Controllers\Finance\AnalyticsController::class, 'index'])->name('analytics');
     });
 });

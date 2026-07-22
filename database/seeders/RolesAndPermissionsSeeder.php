@@ -127,6 +127,11 @@ class RolesAndPermissionsSeeder extends Seeder
             'receipt.view', 'receipt.create', 'receipt.update', 'receipt.delete',
             'refund.view', 'refund.create', 'refund.update', 'refund.delete',
 
+            // Financial Reporting & Analytics
+            'financial.view', 'financial.dashboard', 'financial.report', 'financial.export',
+            'budget.view', 'budget.manage',
+            'analytics.view', 'executive.dashboard',
+
             // CRM Base
             'crm.view', 'crm.create', 'crm.update', 'crm.delete',
             'crm.convert', 'crm.manage', 'crm.pipeline', 'crm.activities',

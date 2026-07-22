@@ -21,38 +21,32 @@ class SearchController extends Controller
         // Search Projects
         $projects = Project::where('name', 'like', "%{$query}%")
             ->orWhere('project_code', 'like', "%{$query}%")
-            ->take(5)
-            ->get()
-            ->map(function ($project) {
+            ->get()->filter(fn($model) => auth()->user()->can('view', $model))->take(5)->map(function ($project) {
                 return [
                     'id' => $project->id,
                     'title' => $project->name,
                     'subtitle' => $project->project_code,
                     'url' => route('admin.projects.show', $project)
                 ];
-            });
+            })->values();
 
         // Search Tasks
         $tasks = Task::with('project')
             ->where('name', 'like', "%{$query}%")
             ->orWhere('task_code', 'like', "%{$query}%")
-            ->take(5)
-            ->get()
-            ->map(function ($task) {
+            ->get()->filter(fn($model) => auth()->user()->can('view', $model))->take(5)->map(function ($task) {
                 return [
                     'id' => $task->id,
                     'title' => $task->name,
                     'subtitle' => $task->project ? $task->project->name : '',
                     'url' => route('admin.projects.tasks.show', $task)
                 ];
-            });
+            })->values();
 
         // Search Time Entries
         $timeEntries = TimeEntry::with(['project', 'task'])
             ->where('description', 'like', "%{$query}%")
-            ->take(5)
-            ->get()
-            ->map(function ($entry) {
+            ->get()->filter(fn($model) => auth()->user()->can('view', $model))->take(5)->map(function ($entry) {
                 $durationStr = intdiv($entry->duration_minutes, 60) . 'h ' . ($entry->duration_minutes % 60) . 'm';
                 return [
                     'id' => $entry->id,
@@ -60,7 +54,7 @@ class SearchController extends Controller
                     'subtitle' => ($entry->task ? $entry->task->name : ($entry->project ? $entry->project->name : '')) . ' - ' . $durationStr,
                     'url' => route('admin.time-tracking.timesheet')
                 ];
-            });
+            })->values();
 
         // Search Leads
         $leads = \App\Models\Lead::where(function($q) use ($query) {
@@ -223,6 +217,31 @@ class SearchController extends Controller
             ];
         })->values();
 
+        // Search Budgets
+        $budgets = \App\Models\Budget::where(function($q) use ($query) {
+            $q->where('name', 'like', "%{$query}%");
+        })->get()->filter(fn($model) => auth()->user()->can('view', $model))->take(5)->map(function ($budget) {
+            return [
+                'id' => $budget->id,
+                'title' => 'Budget: ' . $budget->name,
+                'subtitle' => 'Amount: ' . format_currency($budget->amount),
+                'url' => route('admin.finance.budgets.index') . '?id=' . $budget->id // using index since show might not exist based on earlier bugs
+            ];
+        })->values();
+
+        // Search Reports
+        $reports = \App\Models\ReportTemplate::where(function($q) use ($query) {
+            $q->where('name', 'like', "%{$query}%")
+              ->orWhere('description', 'like', "%{$query}%");
+        })->get()->filter(fn($model) => auth()->user()->can('view', $model))->take(5)->map(function ($report) {
+            return [
+                'id' => $report->id,
+                'title' => 'Report: ' . $report->name,
+                'subtitle' => $report->description ?? 'No description',
+                'url' => route('admin.reports.index') . '?id=' . $report->id // generic link to reports
+            ];
+        })->values();
+
         return response()->json([
             'projects' => $projects,
             'tasks' => $tasks,
@@ -238,6 +257,8 @@ class SearchController extends Controller
             'journals' => $journals,
             'chart_of_accounts' => $chartOfAccounts,
             'general_ledger' => $generalLedger,
+            'budgets' => $budgets,
+            'reports' => $reports,
         ]);
     }
 }

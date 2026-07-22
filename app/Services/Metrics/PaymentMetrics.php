@@ -58,6 +58,37 @@ class PaymentMetrics implements MetricProvider
 
     public function reports(array $filters = []): array
     {
-        return [];
+        return [
+            'paymentTrends' => $this->paymentTrends($filters)
+        ];
+    }
+
+    public function paymentTrends(array $filters = []): array
+    {
+        $companyId = $filters['company_id'] ?? (auth()->user() ? auth()->user()->company_id : null);
+        if (!$companyId) return [];
+
+        $query = Payment::select(
+            \Illuminate\Support\Facades\DB::raw("strftime('%m', payment_date) as month"),
+            \Illuminate\Support\Facades\DB::raw("SUM(amount) as total")
+        )
+        ->where('company_id', $companyId)
+        ->where('status', 'Completed')
+        ->whereDate('payment_date', '>=', now()->subMonths(5)->startOfMonth())
+        ->whereDate('payment_date', '<=', now()->endOfMonth())
+        ->groupBy('month')
+        ->orderBy('month');
+
+        $results = $query->get()->keyBy('month');
+
+        $trend = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $monthObj = now()->subMonths($i);
+            $monthNum = $monthObj->format('m');
+            $row = $results->get($monthNum);
+            $trend[] = max(0, (float) ($row->total ?? 0));
+        }
+
+        return $trend;
     }
 }

@@ -30,7 +30,10 @@ class MetricsService
         InvoiceMetrics $invoiceMetrics,
         PaymentMetrics $paymentMetrics,
         ReceivableMetrics $receivableMetrics,
-        AccountingMetrics $accountingMetrics
+        AccountingMetrics $accountingMetrics,
+        FinancialMetrics $financialMetrics,
+        BudgetMetrics $budgetMetrics,
+        ExecutiveMetrics $executiveMetrics
     ) {
         $this->providers = [
             $dashboardMetrics,
@@ -51,7 +54,10 @@ class MetricsService
             $invoiceMetrics,
             $paymentMetrics,
             $receivableMetrics,
-            $accountingMetrics
+            $accountingMetrics,
+            $financialMetrics,
+            $budgetMetrics,
+            $executiveMetrics
         ];
     }
 
@@ -119,18 +125,15 @@ class MetricsService
         });
     }
 
-    /**
-     * Get the full dashboard data structure.
-     */
-    public function dashboard(): array
+    public function dashboard(array $filters = []): array
     {
         // Inject ChartService here to avoid circular dependency in constructor if any,
         // though ChartService will depend on MetricsService, not the other way around.
         $chartService = app(ChartService::class);
 
         return array_merge([
-            'stats' => $this->cards(),
-            'chartData' => $chartService->getChartData(),
-        ], $this->widgets());
+            'stats' => $this->cards($filters),
+            'chartData' => $chartService->getChartData($filters),
+        ], $this->widgets($filters));
     }
 }

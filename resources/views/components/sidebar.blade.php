@@ -561,6 +561,22 @@
             <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Finance</p>
         </div>
 
+        {{-- Budgets --}}
+        @can('viewAny', \App\Models\Budget::class)
+        <a href="{{ route('admin.finance.budgets.index') }}"
+           @class([
+               'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
+               'bg-sidebar-active text-white' => request()->routeIs('admin.finance.budgets.*'),
+               'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.finance.budgets.*'),
+           ])>
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+            </svg>
+            <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Budgets</span>
+        </a>
+        @endcan
+
         {{-- Invoices --}}
         @can('viewAny', \App\Models\Invoice::class)
         <a href="{{ route('admin.finance.invoices.index') }}"
@@ -1133,6 +1149,20 @@
         <div class="pt-4 pb-2">
             <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Finance</p>
         </div>
+
+        @can('viewAny', \App\Models\Budget::class)
+        <a href="{{ route('admin.finance.budgets.index') }}" @class([
+            'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+            'bg-sidebar-active text-white' => request()->routeIs('admin.finance.budgets.*'),
+            'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.finance.budgets.*'),
+        ])>
+            <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+            </svg>
+            Budgets
+        </a>
+        @endcan
 
         @can('viewAny', \App\Models\Invoice::class)
         <a href="{{ route('admin.finance.invoices.index') }}" @class([

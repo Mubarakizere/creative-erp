@@ -12,6 +12,20 @@
         </div>
     </div>
 
+    {{-- Filter Bar --}}
+    @if(isset($filters))
+        <x-financial-filter-bar 
+            action="{{ route('dashboard') }}"
+            :fiscalYears="$fiscalYears ?? []"
+            :fiscalYearId="$fiscalYearId ?? null"
+            :branches="$branches ?? []"
+            :departments="$departments ?? []"
+            :projects="$projects ?? []"
+            :clients="$clients ?? []"
+            :filters="$filters"
+        />
+    @endif
+
     {{-- CRM Stats --}}
     @if(auth()->user()->can('lead.view') || auth()->user()->can('opportunity.view'))
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6 mb-8">

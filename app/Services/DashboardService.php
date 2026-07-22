@@ -27,8 +27,8 @@ class DashboardService
      *
      * @return array
      */
-    public function getDashboardData(): array
+    public function getDashboardData(array $filters = []): array
     {
-        return $this->metricsService->dashboard();
+        return $this->metricsService->dashboard($filters);
     }
 }

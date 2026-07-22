@@ -109,6 +109,9 @@ class JournalService
                 'company_id' => $journal->company_id,
                 'branch_id' => $journal->branch_id,
                 'department_id' => $journal->department_id,
+                'project_id' => $journal->project_id,
+                'client_id' => $journal->client_id,
+                'currency_code' => $journal->currency_code,
                 'fiscal_year_id' => $journal->fiscal_year_id,
                 'accounting_period_id' => $journal->accounting_period_id,
                 'journal_number' => $this->generateJournalNumber(),
@@ -129,6 +132,11 @@ class JournalService
                     'description' => 'Reversal of: ' . $entry->description,
                     'debit' => $entry->credit, // Swap debit/credit
                     'credit' => $entry->debit,
+                    'branch_id' => $entry->branch_id,
+                    'department_id' => $entry->department_id,
+                    'project_id' => $entry->project_id,
+                    'client_id' => $entry->client_id,
+                    'currency_code' => $entry->currency_code,
                 ]);
 
                 $totalDebit += $reversalEntry->debit;

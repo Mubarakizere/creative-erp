@@ -50,10 +50,20 @@ class ExportService
             $fileName = 'exports/' . uniqid('report_') . '_' . time() . '.' . $exportHistory->format;
             $disk = 'local'; // Should be 's3' or 'public' based on configuration
 
+            $financialTypes = [
+                'profit_and_loss', 'balance_sheet', 'cash_flow',
+                'expense_analysis', 'budget_analysis', 'customer_profitability', 'project_profitability'
+            ];
+
             if (in_array($exportHistory->format, ['xlsx', 'csv'])) {
-                Excel::store(new GenericReportExport($data, $template->type), $fileName, $disk);
+                if (in_array($template->type, $financialTypes)) {
+                    Excel::store(new \App\Exports\FinancialStatementExport($data, $template->type, $filters), $fileName, $disk);
+                } else {
+                    Excel::store(new GenericReportExport($data, $template->type), $fileName, $disk);
+                }
             } elseif ($exportHistory->format === 'pdf') {
-                $pdf = Pdf::loadView('admin.reports.exports.pdf', [
+                $viewName = in_array($template->type, $financialTypes) ? 'admin.reports.exports.pdf-financial' : 'admin.reports.exports.pdf';
+                $pdf = Pdf::loadView($viewName, [
                     'template' => $template,
                     'data' => $data,
                     'filters' => $filters,

@@ -25,20 +25,16 @@
     </div>
 
     {{-- Filter/Search --}}
-    <x-card class="mb-6 print:hidden">
-        <form method="GET" action="{{ route('admin.finance.accounting.ledger.index') }}" class="flex flex-wrap items-end gap-4">
-            <div class="w-full sm:w-auto flex-1 max-w-xs">
-                <label for="fiscal_year_id" class="block text-sm font-medium text-gray-700 mb-1">Fiscal Year</label>
-                <select name="fiscal_year_id" id="fiscal_year_id" class="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm" onchange="this.form.submit()">
-                    @foreach($fiscalYears as $year)
-                        <option value="{{ $year->id }}" {{ $fiscalYearId == $year->id ? 'selected' : '' }}>
-                            {{ $year->name }} ({{ $year->start_date->format('M Y') }} - {{ $year->end_date->format('M Y') }})
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-        </form>
-    </x-card>
+    <x-financial-filter-bar 
+        action="{{ route('admin.finance.accounting.ledger.index') }}"
+        :fiscalYears="$fiscalYears"
+        :fiscalYearId="$fiscalYearId"
+        :branches="$branches"
+        :departments="$departments"
+        :projects="$projects"
+        :clients="$clients"
+        :filters="$filters"
+    />
 
     {{-- Data Table --}}
     <x-card class="p-0">

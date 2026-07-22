@@ -83,6 +83,36 @@ class ProjectMetrics implements MetricProvider
 
     public function reports(array $filters = []): array
     {
-        return [];
+        return [
+            'projectProfitability' => $this->projectProfitability($filters)
+        ];
+    }
+
+    public function projectProfitability(array $filters = []): array
+    {
+        $companyId = $filters['company_id'] ?? (auth()->user() ? auth()->user()->company_id : null);
+        if (!$companyId) return [];
+
+        $projects = Project::where('company_id', $companyId)->get();
+        
+        $profitability = [];
+        foreach ($projects as $project) {
+            $revenue = \App\Models\Invoice::where('project_id', $project->id)
+                ->where('status', '!=', 'Cancelled')
+                ->where('status', '!=', 'Voided')
+                ->sum('total_amount');
+
+            if ($revenue > 0) {
+                $profitability[] = [
+                    'id' => $project->id,
+                    'name' => $project->name,
+                    'revenue' => (float) $revenue,
+                    'expenses' => 0,
+                    'net_profit' => (float) $revenue
+                ];
+            }
+        }
+
+        return collect($profitability)->sortByDesc('net_profit')->values()->toArray();
     }
 }

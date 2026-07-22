@@ -27,8 +27,22 @@ class LedgerController extends Controller
             $fiscalYearId = $fiscalYears->where('is_closed', false)->first()->id;
         }
 
-        $trialBalance = $this->reportService->generateTrialBalance($companyId, $fiscalYearId);
+        $filters = $request->only([
+            'branch_id',
+            'department_id',
+            'project_id',
+            'client_id',
+            'currency_code'
+        ]);
 
-        return view('admin.finance.accounting.ledger.index', compact('trialBalance', 'fiscalYears', 'fiscalYearId'));
+        $trialBalance = $this->reportService->generateTrialBalance($companyId, $fiscalYearId, $filters);
+
+        // Fetch dimension lists for the filter bar
+        $branches = \App\Models\Branch::where('company_id', $companyId)->get();
+        $departments = \App\Models\Department::where('company_id', $companyId)->get();
+        $projects = \App\Models\Project::where('company_id', $companyId)->get();
+        $clients = \App\Models\Client::where('company_id', $companyId)->get();
+
+        return view('admin.finance.accounting.ledger.index', compact('trialBalance', 'fiscalYears', 'fiscalYearId', 'filters', 'branches', 'departments', 'projects', 'clients'));
     }
 }

@@ -73,6 +73,11 @@ class LedgerPostingService
                     'reference' => $journal->reference_number,
                     'source_type' => Journal::class,
                     'source_id' => $journal->id,
+                    'branch_id' => $entry->branch_id ?? $journal->branch_id,
+                    'department_id' => $entry->department_id ?? $journal->department_id,
+                    'project_id' => $entry->project_id ?? $journal->project_id,
+                    'client_id' => $entry->client_id ?? $journal->client_id,
+                    'currency_code' => $entry->currency_code ?? $journal->currency_code,
                 ]);
             }
 

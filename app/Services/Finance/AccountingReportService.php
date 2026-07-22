@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 
 class AccountingReportService
 {
-    public function generateTrialBalance(int $companyId, ?int $fiscalYearId = null): Collection
+    public function generateTrialBalance(int $companyId, ?int $fiscalYearId = null, array $filters = []): array
     {
         // A simple trial balance sums all debits and credits per account for a given fiscal year or company.
         $query = GeneralLedger::select(
@@ -24,9 +24,14 @@ class AccountingReportService
             $query->where('fiscal_year_id', $fiscalYearId);
         }
 
+        $this->applyFilters($query, $filters);
+
         $ledgers = $query->groupBy('chart_of_account_id')->with('chartOfAccount')->get();
 
         $trialBalance = collect();
+        $totalDebits = 0;
+        $totalCredits = 0;
+
         foreach ($ledgers as $ledger) {
             $account = $ledger->chartOfAccount;
             $isDebitBalance = in_array(strtolower($account->accountType->name ?? ''), ['asset', 'expense', 'current asset', 'fixed asset', 'bank', 'cash', 'accounts receivable']);
@@ -34,20 +39,27 @@ class AccountingReportService
             $balance = $isDebitBalance ? ($ledger->total_debit - $ledger->total_credit) : ($ledger->total_credit - $ledger->total_debit);
 
             $trialBalance->push([
-                'account_code' => $account->code,
-                'account_name' => $account->name,
+                'code' => $account->code,
+                'name' => $account->name,
                 'account_type' => $account->accountType->name ?? 'Unknown',
                 'total_debit' => $ledger->total_debit,
                 'total_credit' => $ledger->total_credit,
                 'balance' => $balance,
                 'balance_type' => $isDebitBalance ? 'Debit' : 'Credit',
             ]);
+
+            $totalDebits += $ledger->total_debit;
+            $totalCredits += $ledger->total_credit;
         }
 
-        return $trialBalance->sortBy('account_code')->values();
+        return [
+            'accounts' => $trialBalance->sortBy('code')->values()->toArray(),
+            'total_debits' => $totalDebits,
+            'total_credits' => $totalCredits,
+        ];
     }
 
-    public function generateGeneralLedgerReport(int $companyId, int $accountId, ?string $startDate = null, ?string $endDate = null): Collection
+    public function generateGeneralLedgerReport(int $companyId, int $accountId, ?string $startDate = null, ?string $endDate = null, array $filters = []): Collection
     {
         $query = GeneralLedger::where('company_id', $companyId)
             ->where('chart_of_account_id', $accountId)
@@ -59,6 +71,8 @@ class AccountingReportService
         if ($endDate) {
             $query->where('date', '<=', $endDate);
         }
+
+        $this->applyFilters($query, $filters);
 
         return $query->orderBy('date')->orderBy('id')->get()->map(function ($ledger) {
             return [
@@ -73,7 +87,7 @@ class AccountingReportService
         });
     }
 
-    public function generateJournalReport(int $companyId, ?string $startDate = null, ?string $endDate = null): Collection
+    public function generateJournalReport(int $companyId, ?string $startDate = null, ?string $endDate = null, array $filters = []): Collection
     {
         $query = JournalEntry::where('company_id', $companyId)->with(['journal', 'chartOfAccount']);
 
@@ -87,6 +101,8 @@ class AccountingReportService
                 $q->where('date', '<=', $endDate);
             });
         }
+
+        $this->applyFilters($query, $filters);
 
         return $query->get()->groupBy('journal_id')->map(function ($entries) {
             $journal = $entries->first()->journal;
@@ -112,7 +128,8 @@ class AccountingReportService
 
     public function generateFiscalYearSummary(int $companyId, int $fiscalYearId): array
     {
-        $trialBalance = $this->generateTrialBalance($companyId, $fiscalYearId);
+        $trialBalanceData = $this->generateTrialBalance($companyId, $fiscalYearId);
+        $trialBalance = $trialBalanceData['accounts'];
         
         $revenue = 0;
         $expenses = 0;
@@ -143,5 +160,27 @@ class AccountingReportService
             'total_liabilities' => $liabilities,
             'total_equity' => $equity,
         ];
+    }
+
+    private function applyFilters($query, array $filters): void
+    {
+        if (!empty($filters['branch_id'])) {
+            $query->where('branch_id', $filters['branch_id']);
+        }
+        if (!empty($filters['department_id'])) {
+            $query->where('department_id', $filters['department_id']);
+        }
+        if (!empty($filters['project_id'])) {
+            $query->where('project_id', $filters['project_id']);
+        }
+        if (!empty($filters['client_id'])) {
+            $query->where('client_id', $filters['client_id']);
+        }
+        if (!empty($filters['currency_code'])) {
+            $query->where('currency_code', $filters['currency_code']);
+        }
+        if (!empty($filters['accounting_period_id'])) {
+            $query->where('accounting_period_id', $filters['accounting_period_id']);
+        }
     }
 }
