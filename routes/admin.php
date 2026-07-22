@@ -223,6 +223,22 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
 
     // Finance (Payments & Receivables)
     Route::prefix('finance')->name('finance.')->group(function () {
+        // Accounting Foundation
+        Route::prefix('accounting')->name('accounting.')->group(function () {
+            Route::resource('chart-of-accounts', \App\Http\Controllers\Finance\Accounting\ChartOfAccountController::class);
+            
+            Route::post('journals/{journal}/post', [\App\Http\Controllers\Finance\Accounting\JournalController::class, 'post'])->name('journals.post');
+            Route::resource('journals', \App\Http\Controllers\Finance\Accounting\JournalController::class)->except(['edit', 'update', 'destroy']);
+            
+            Route::get('ledger', [\App\Http\Controllers\Finance\Accounting\LedgerController::class, 'index'])->name('ledger.index');
+            
+            Route::post('fiscal-periods/years', [\App\Http\Controllers\Finance\Accounting\FiscalPeriodController::class, 'storeYear'])->name('fiscal-periods.years.store');
+            Route::patch('fiscal-periods/years/{year}/close', [\App\Http\Controllers\Finance\Accounting\FiscalPeriodController::class, 'closeYear'])->name('fiscal-periods.years.close');
+            Route::post('fiscal-periods/periods', [\App\Http\Controllers\Finance\Accounting\FiscalPeriodController::class, 'storePeriod'])->name('fiscal-periods.periods.store');
+            Route::patch('fiscal-periods/periods/{period}/close', [\App\Http\Controllers\Finance\Accounting\FiscalPeriodController::class, 'closePeriod'])->name('fiscal-periods.periods.close');
+            Route::get('fiscal-periods', [\App\Http\Controllers\Finance\Accounting\FiscalPeriodController::class, 'index'])->name('fiscal-periods.index');
+        });
+
         // Finance Settings
         Route::get('settings', [\App\Http\Controllers\Finance\FinanceSettingsController::class, 'index'])->name('settings');
         Route::post('settings/payment-methods', [\App\Http\Controllers\Finance\FinanceSettingsController::class, 'storePaymentMethod'])->name('payment-methods.store');

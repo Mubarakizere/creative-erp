@@ -185,6 +185,44 @@ class SearchController extends Controller
             ];
         })->values();
 
+        // Search Journals
+        $journals = \App\Models\Journal::where(function($q) use ($query) {
+            $q->where('journal_number', 'like', "%{$query}%")
+              ->orWhere('reference_number', 'like', "%{$query}%");
+        })->get()->filter(fn($model) => auth()->user()->can('view', $model))->take(5)->map(function ($journal) {
+            return [
+                'id' => $journal->id,
+                'title' => 'Journal: ' . $journal->journal_number,
+                'subtitle' => 'Status: ' . $journal->status . ' | Total: ' . $journal->total_debit,
+                'url' => route('admin.finance.accounting.journals.show', $journal)
+            ];
+        })->values();
+
+        // Search Chart of Accounts
+        $chartOfAccounts = \App\Models\ChartOfAccount::where(function($q) use ($query) {
+            $q->where('code', 'like', "%{$query}%")
+              ->orWhere('name', 'like', "%{$query}%");
+        })->get()->filter(fn($model) => auth()->user()->can('view', $model))->take(5)->map(function ($account) {
+            return [
+                'id' => $account->id,
+                'title' => $account->code . ' - ' . $account->name,
+                'subtitle' => 'Type: ' . ($account->accountType->name ?? 'Unknown'),
+                'url' => route('admin.finance.accounting.chart-of-accounts.show', $account)
+            ];
+        })->values();
+
+        // Search General Ledger
+        $generalLedger = \App\Models\GeneralLedger::where(function($q) use ($query) {
+            $q->where('reference', 'like', "%{$query}%");
+        })->get()->filter(fn($model) => auth()->user()->can('view', $model))->take(5)->map(function ($ledger) {
+            return [
+                'id' => $ledger->id,
+                'title' => 'Ledger Entry: ' . $ledger->reference,
+                'subtitle' => 'Account: ' . ($ledger->chartOfAccount->name ?? 'Unknown') . ' | Dr: ' . $ledger->debit . ' Cr: ' . $ledger->credit,
+                'url' => route('admin.finance.accounting.ledger.index') . '?account_id=' . $ledger->chart_of_account_id
+            ];
+        })->values();
+
         return response()->json([
             'projects' => $projects,
             'tasks' => $tasks,
@@ -197,6 +235,9 @@ class SearchController extends Controller
             'receipts' => $receipts,
             'payments' => $payments,
             'clients' => $clients,
+            'journals' => $journals,
+            'chart_of_accounts' => $chartOfAccounts,
+            'general_ledger' => $generalLedger,
         ]);
     }
 }

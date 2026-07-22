@@ -8,10 +8,18 @@ use App\Models\ApprovalWorkflow;
 use App\Services\ApprovalService;
 use Illuminate\Support\Facades\DB;
 use App\Traits\LogsActivity;
+use App\Services\Finance\JournalService;
+use App\Models\ChartOfAccount;
 
 class RefundService
 {
     use LogsActivity;
+    protected ?JournalService $journalService;
+
+    public function __construct(JournalService $journalService = null)
+    {
+        $this->journalService = $journalService ?? app(JournalService::class);
+    }
     public function processRefund(array $data): Refund
     {
         return DB::transaction(function () use ($data) {
@@ -41,6 +49,9 @@ class RefundService
                 'status' => $refund->status
             ]);
             
+            // Auto Post to Ledger
+            $this->autoPostRefundToLedger($refund);
+            
             return $refund;
         });
     }
@@ -48,5 +59,35 @@ class RefundService
     private function generateRefundNumber(): string
     {
         return 'REF-' . strtoupper(uniqid());
+    }
+
+    private function autoPostRefundToLedger(Refund $refund): void
+    {
+        // Simple logic to find system accounts (in real app this comes from settings)
+        $bankAccount = ChartOfAccount::where('company_id', $refund->company_id)->where('is_system', true)->where('name', 'like', '%Bank%')->first();
+        $arAccount = ChartOfAccount::where('company_id', $refund->company_id)->where('is_system', true)->where('name', 'like', '%Accounts Receivable%')->first();
+
+        if ($bankAccount && $arAccount && $refund->amount > 0) {
+            $this->journalService->createAutomaticJournal([
+                'company_id' => $refund->company_id,
+                'reference_number' => $refund->refund_number,
+                'date' => $refund->date ?? now(),
+                'memo' => 'Auto-generated journal for Refund ' . $refund->refund_number,
+                'status' => 'Pending Approval'
+            ], [
+                [
+                    'chart_of_account_id' => $arAccount->id,
+                    'description' => 'Refund ' . $refund->refund_number,
+                    'debit' => $refund->amount,
+                    'credit' => 0,
+                ],
+                [
+                    'chart_of_account_id' => $bankAccount->id,
+                    'description' => 'Refund ' . $refund->refund_number,
+                    'debit' => 0,
+                    'credit' => $refund->amount,
+                ]
+            ]);
+        }
     }
 }

@@ -8,9 +8,18 @@ use Illuminate\Support\Facades\DB;
 use Exception;
 use App\Traits\LogsActivity;
 
+use App\Services\Finance\JournalService;
+use App\Models\ChartOfAccount;
+
 class InvoiceService
 {
     use LogsActivity;
+    protected ?JournalService $journalService;
+
+    public function __construct(JournalService $journalService = null)
+    {
+        $this->journalService = $journalService ?? app(JournalService::class);
+    }
     public function createInvoice(array $data, array $items = []): Invoice
     {
         return DB::transaction(function () use ($data, $items) {
@@ -24,7 +33,11 @@ class InvoiceService
                 $this->calculateTotals($invoice);
             }
             
+            
             $this->logActivity('invoice_created', $invoice, ['invoice_number' => $invoice->invoice_number, 'total_amount' => $invoice->total_amount]);
+            
+            // Auto Post to Ledger
+            $this->autoPostInvoiceToLedger($invoice);
             
             return $invoice;
         });
@@ -147,5 +160,35 @@ class InvoiceService
     private function generateInvoiceNumber(): string
     {
         return 'INV-' . strtoupper(uniqid());
+    }
+
+    private function autoPostInvoiceToLedger(Invoice $invoice): void
+    {
+        // Simple logic to find system accounts (in real app this comes from settings)
+        $arAccount = ChartOfAccount::where('company_id', $invoice->company_id)->where('is_system', true)->where('name', 'like', '%Accounts Receivable%')->first();
+        $revenueAccount = ChartOfAccount::where('company_id', $invoice->company_id)->where('is_system', true)->where('name', 'like', '%Sales%')->first();
+
+        if ($arAccount && $revenueAccount && $invoice->total_amount > 0) {
+            $this->journalService->createAutomaticJournal([
+                'company_id' => $invoice->company_id,
+                'reference_number' => $invoice->invoice_number,
+                'date' => $invoice->issue_date ?? now(),
+                'memo' => 'Auto-generated journal for Invoice ' . $invoice->invoice_number,
+                'status' => 'Pending Approval' // or 'Posted' depending on settings
+            ], [
+                [
+                    'chart_of_account_id' => $arAccount->id,
+                    'description' => 'Invoice ' . $invoice->invoice_number,
+                    'debit' => $invoice->total_amount,
+                    'credit' => 0,
+                ],
+                [
+                    'chart_of_account_id' => $revenueAccount->id,
+                    'description' => 'Invoice ' . $invoice->invoice_number,
+                    'debit' => 0,
+                    'credit' => $invoice->total_amount,
+                ]
+            ]);
+        }
     }
 }

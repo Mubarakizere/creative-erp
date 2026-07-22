@@ -8,15 +8,19 @@ use App\Models\Receipt;
 use Illuminate\Support\Facades\DB;
 use Exception;
 use App\Traits\LogsActivity;
+use App\Services\Finance\JournalService;
+use App\Models\ChartOfAccount;
 
 class PaymentService
 {
     use LogsActivity;
     protected InvoiceService $invoiceService;
+    protected ?JournalService $journalService;
 
-    public function __construct(InvoiceService $invoiceService)
+    public function __construct(InvoiceService $invoiceService, JournalService $journalService = null)
     {
         $this->invoiceService = $invoiceService;
+        $this->journalService = $journalService ?? app(JournalService::class);
     }
 
     public function processPayment(array $data, array $allocations = []): Payment
@@ -36,6 +40,9 @@ class PaymentService
                 'payment_number' => $payment->payment_number,
                 'method_id' => $payment->payment_method_id
             ]);
+            
+            // Auto Post to Ledger
+            $this->autoPostPaymentToLedger($payment);
             
             return $payment;
         });
@@ -86,5 +93,35 @@ class PaymentService
     private function generatePaymentNumber(): string
     {
         return 'PAY-' . strtoupper(uniqid());
+    }
+
+    private function autoPostPaymentToLedger(Payment $payment): void
+    {
+        // Simple logic to find system accounts (in real app this comes from settings)
+        $bankAccount = ChartOfAccount::where('company_id', $payment->company_id)->where('is_system', true)->where('name', 'like', '%Bank%')->first();
+        $arAccount = ChartOfAccount::where('company_id', $payment->company_id)->where('is_system', true)->where('name', 'like', '%Accounts Receivable%')->first();
+
+        if ($bankAccount && $arAccount && $payment->amount > 0) {
+            $this->journalService->createAutomaticJournal([
+                'company_id' => $payment->company_id,
+                'reference_number' => $payment->payment_number,
+                'date' => $payment->payment_date ?? now(),
+                'memo' => 'Auto-generated journal for Payment ' . $payment->payment_number,
+                'status' => 'Pending Approval'
+            ], [
+                [
+                    'chart_of_account_id' => $bankAccount->id,
+                    'description' => 'Payment ' . $payment->payment_number,
+                    'debit' => $payment->amount,
+                    'credit' => 0,
+                ],
+                [
+                    'chart_of_account_id' => $arAccount->id,
+                    'description' => 'Payment ' . $payment->payment_number,
+                    'debit' => 0,
+                    'credit' => $payment->amount,
+                ]
+            ]);
+        }
     }
 }

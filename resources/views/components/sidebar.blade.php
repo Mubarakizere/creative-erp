@@ -498,6 +498,64 @@
             <span x-show="sidebarOpen" class="text-[10px] uppercase font-bold bg-gray-700 text-gray-300 px-1.5 py-0.5 rounded">Soon</span>
         </a>
 
+        {{-- Accounting Divider --}}
+        <div x-show="sidebarOpen" class="pt-4 pb-2">
+            <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Accounting</p>
+        </div>
+
+        {{-- Chart of Accounts --}}
+        <a href="{{ route('admin.finance.accounting.chart-of-accounts.index') }}"
+           @class([
+               'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
+               'bg-sidebar-active text-white' => request()->routeIs('admin.finance.accounting.chart-of-accounts.*'),
+               'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.finance.accounting.chart-of-accounts.*'),
+           ])>
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+            </svg>
+            <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Chart of Accounts</span>
+        </a>
+
+        {{-- Journal Entries --}}
+        <a href="{{ route('admin.finance.accounting.journals.index') }}"
+           @class([
+               'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
+               'bg-sidebar-active text-white' => request()->routeIs('admin.finance.accounting.journals.*'),
+               'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.finance.accounting.journals.*'),
+           ])>
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Journal Entries</span>
+        </a>
+
+        {{-- Ledger --}}
+        <a href="{{ route('admin.finance.accounting.ledger.index') }}"
+           @class([
+               'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
+               'bg-sidebar-active text-white' => request()->routeIs('admin.finance.accounting.ledger.*'),
+               'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.finance.accounting.ledger.*'),
+           ])>
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">General Ledger</span>
+        </a>
+
+        {{-- Fiscal Settings --}}
+        <a href="{{ route('admin.finance.accounting.fiscal-periods.index') }}"
+           @class([
+               'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
+               'bg-sidebar-active text-white' => request()->routeIs('admin.finance.accounting.fiscal-periods.*'),
+               'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.finance.accounting.fiscal-periods.*'),
+           ])>
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Fiscal Settings</span>
+        </a>
+
         {{-- Finance Divider --}}
         <div x-show="sidebarOpen" class="pt-4 pb-2">
             <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Finance</p>
@@ -1021,6 +1079,55 @@
                 <span class="ml-3 whitespace-nowrap">Discussions</span>
             </div>
             <span class="text-[10px] uppercase font-bold bg-gray-700 text-gray-300 px-1.5 py-0.5 rounded">Soon</span>
+        </a>
+
+        <div class="pt-4 pb-2">
+            <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Accounting</p>
+        </div>
+
+        <a href="{{ route('admin.finance.accounting.chart-of-accounts.index') }}" @class([
+            'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+            'bg-sidebar-active text-white' => request()->routeIs('admin.finance.accounting.chart-of-accounts.*'),
+            'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.finance.accounting.chart-of-accounts.*'),
+        ])>
+            <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+            </svg>
+            Chart of Accounts
+        </a>
+
+        <a href="{{ route('admin.finance.accounting.journals.index') }}" @class([
+            'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+            'bg-sidebar-active text-white' => request()->routeIs('admin.finance.accounting.journals.*'),
+            'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.finance.accounting.journals.*'),
+        ])>
+            <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            Journal Entries
+        </a>
+
+        <a href="{{ route('admin.finance.accounting.ledger.index') }}" @class([
+            'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+            'bg-sidebar-active text-white' => request()->routeIs('admin.finance.accounting.ledger.*'),
+            'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.finance.accounting.ledger.*'),
+        ])>
+            <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            General Ledger
+        </a>
+
+        <a href="{{ route('admin.finance.accounting.fiscal-periods.index') }}" @class([
+            'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+            'bg-sidebar-active text-white' => request()->routeIs('admin.finance.accounting.fiscal-periods.*'),
+            'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.finance.accounting.fiscal-periods.*'),
+        ])>
+            <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            Fiscal Settings
         </a>
 
         <div class="pt-4 pb-2">
