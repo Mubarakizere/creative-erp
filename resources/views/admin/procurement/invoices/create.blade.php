@@ -1,8 +1,4 @@
-@extends('layouts.admin')
-
-@section('title', 'Record Purchase Invoice')
-
-@section('content')
+<x-layouts.admin title="Record Purchase Invoice">
 <div class="p-6 max-w-4xl mx-auto">
     <div class="mb-6 flex items-center justify-between">
         <h1 class="text-2xl font-semibold text-gray-900">Record Purchase Invoice</h1>
@@ -114,4 +110,4 @@
         </div>
     </form>
 </div>
-@endsection
+</x-layouts.admin>

@@ -1,8 +1,4 @@
-@extends('layouts.admin')
-
-@section('title', 'Supplier Payments')
-
-@section('content')
+<x-layouts.admin title="Supplier Payments">
 <div class="p-6">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-semibold text-gray-900">Supplier Payments</h1>
@@ -57,4 +53,4 @@
         </div>
     </div>
 </div>
-@endsection
+</x-layouts.admin>

@@ -25,7 +25,7 @@ class SupplierPayment extends Model
 
     public function company() { return $this->belongsTo(Company::class); }
     public function supplier() { return $this->belongsTo(Supplier::class); }
-    public function purchaseInvoice() { return $this->belongsTo(PurchaseInvoice::class); }
+    public function invoice() { return $this->belongsTo(PurchaseInvoice::class, 'purchase_invoice_id'); }
     public function bankAccount() { return $this->belongsTo(BankAccount::class); }
     public function creator() { return $this->belongsTo(User::class, 'created_by'); }
     public function updater() { return $this->belongsTo(User::class, 'updated_by'); }

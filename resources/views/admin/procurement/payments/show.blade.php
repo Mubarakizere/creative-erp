@@ -1,8 +1,4 @@
-@extends('layouts.admin')
-
-@section('title', 'Payment ' . $payment->payment_number)
-
-@section('content')
+<x-layouts.admin :title="'Payment ' . $payment->payment_number">
 <div class="p-6 max-w-4xl mx-auto">
     <div class="mb-6 flex justify-between items-center">
         <div>
@@ -48,4 +44,4 @@
         </div>
     </div>
 </div>
-@endsection
+</x-layouts.admin>
