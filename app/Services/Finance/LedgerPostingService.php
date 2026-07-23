@@ -87,7 +87,7 @@ class LedgerPostingService
                 'posted_at' => now(),
             ]);
 
-            $this->logActivity('journal_posted', $journal, ['journal_number' => $journal->journal_number]);
+            $this->logActivity('journal_posted', ['journal_id' => $journal->id, 'journal_number' => $journal->journal_number]);
         });
     }
 }

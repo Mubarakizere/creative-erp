@@ -83,6 +83,13 @@ class ReportBuilderService
             'warehouse_summary' => $this->buildWarehouseSummary($filters),
             'inventory_transactions' => $this->buildInventoryTransactions($filters),
             'inventory_adjustments' => $this->buildInventoryAdjustments($filters),
+            'purchase_orders' => $this->buildPurchaseOrders($filters),
+            'supplier_spend' => $this->buildSupplierSpend($filters),
+            'supplier_performance' => $this->buildSupplierPerformance($filters),
+            'goods_receipts' => $this->buildGoodsReceipts($filters),
+            'purchase_invoices' => $this->buildPurchaseInvoices($filters),
+            'outstanding_supplier_payments' => $this->buildOutstandingSupplierPayments($filters),
+            'lead_time_report' => $this->buildLeadTimeReport($filters),
             default => collect([]),
         };
     }
@@ -663,5 +670,178 @@ class ReportBuilderService
         $query = \App\Models\InventoryAdjustment::with(['warehouse', 'approvedBy']);
         // If company_id was added to adjustments, we can filter
         return $query->get();
+    }
+
+    protected function buildPurchaseOrders(array $filters)
+    {
+        $query = \App\Models\PurchaseOrder::with(['supplier', 'creator']);
+        $this->applyCommonFilters($query, $filters);
+        
+        if (!empty($filters['supplier_id'])) {
+            $query->whereIn('supplier_id', (array) $filters['supplier_id']);
+        }
+        if (!empty($filters['status'])) {
+            $query->whereIn('status', (array) $filters['status']);
+        }
+        
+        $this->applyDateFilters($query, $filters, 'order_date');
+
+        return $query->get();
+    }
+
+    protected function buildSupplierSpend(array $filters)
+    {
+        $query = \App\Models\Supplier::query();
+        $this->applyCommonFilters($query, $filters);
+        
+        if (!empty($filters['supplier_id'])) {
+            $query->whereIn('id', (array) $filters['supplier_id']);
+        }
+
+        $suppliers = $query->get();
+
+        $suppliers->each(function($supplier) use ($filters) {
+            $paymentQuery = \App\Models\SupplierPayment::where('supplier_id', $supplier->id);
+            $this->applyDateFilters($paymentQuery, $filters, 'payment_date');
+            
+            $supplier->total_spend = $paymentQuery->sum('amount');
+        });
+
+        return $suppliers->sortByDesc('total_spend')->values();
+    }
+
+    protected function buildSupplierPerformance(array $filters)
+    {
+        $query = \App\Models\Supplier::query();
+        $this->applyCommonFilters($query, $filters);
+        
+        if (!empty($filters['supplier_id'])) {
+            $query->whereIn('id', (array) $filters['supplier_id']);
+        }
+
+        $suppliers = $query->get();
+
+        $suppliers->each(function($supplier) use ($filters) {
+            $poQuery = \App\Models\PurchaseOrder::where('supplier_id', $supplier->id);
+            $this->applyDateFilters($poQuery, $filters, 'order_date');
+            
+            $totalOrders = $poQuery->count();
+            $completedOrders = (clone $poQuery)->where('status', 'completed')->count();
+            
+            $supplier->total_orders = $totalOrders;
+            $supplier->completed_orders = $completedOrders;
+            $supplier->fulfillment_rate = $totalOrders > 0 ? ($completedOrders / $totalOrders) * 100 : 0;
+            // Additional performance metrics can be computed here (e.g. defect rate)
+        });
+
+        return $suppliers;
+    }
+
+    protected function buildGoodsReceipts(array $filters)
+    {
+        $query = \App\Models\GoodsReceipt::with(['purchaseOrder.supplier']);
+        $this->applyCommonFilters($query, $filters);
+        
+        $this->applyDateFilters($query, $filters, 'receipt_date');
+
+        return $query->get();
+    }
+
+    protected function buildPurchaseInvoices(array $filters)
+    {
+        $query = \App\Models\PurchaseInvoice::with(['supplier', 'purchaseOrder']);
+        $this->applyCommonFilters($query, $filters);
+        
+        if (!empty($filters['supplier_id'])) {
+            $query->whereIn('supplier_id', (array) $filters['supplier_id']);
+        }
+        if (!empty($filters['status'])) {
+            $query->whereIn('status', (array) $filters['status']);
+        }
+        
+        $this->applyDateFilters($query, $filters, 'invoice_date');
+
+        return $query->get();
+    }
+
+    protected function buildOutstandingSupplierPayments(array $filters)
+    {
+        $query = \App\Models\PurchaseInvoice::with(['supplier'])
+            ->whereIn('status', ['draft', 'partially_paid']);
+        $this->applyCommonFilters($query, $filters);
+        
+        if (!empty($filters['supplier_id'])) {
+            $query->whereIn('supplier_id', (array) $filters['supplier_id']);
+        }
+        
+        $invoices = $query->get();
+        
+        $invoices->each(function ($invoice) {
+            $days = $invoice->due_date ? $invoice->due_date->diffInDays(now(), false) : 0;
+            $invoice->aging_days = max(0, $days);
+            $invoice->outstanding_amount = $invoice->grand_total - $invoice->paid_amount;
+            
+            if ($invoice->aging_days <= 0) {
+                $invoice->aging_bucket = 'Current';
+            } elseif ($invoice->aging_days <= 30) {
+                $invoice->aging_bucket = '1-30 Days';
+            } elseif ($invoice->aging_days <= 60) {
+                $invoice->aging_bucket = '31-60 Days';
+            } elseif ($invoice->aging_days <= 90) {
+                $invoice->aging_bucket = '61-90 Days';
+            } else {
+                $invoice->aging_bucket = '90+ Days';
+            }
+        });
+        
+        return $invoices;
+    }
+
+    protected function buildLeadTimeReport(array $filters)
+    {
+        $query = \App\Models\PurchaseOrder::with(['supplier', 'goodsReceipts'])
+            ->where('status', 'completed')
+            ->whereHas('goodsReceipts');
+            
+        $this->applyCommonFilters($query, $filters);
+        $this->applyDateFilters($query, $filters, 'order_date');
+        
+        $orders = $query->get();
+        
+        // Group by supplier and calculate average lead time
+        $suppliers = [];
+        
+        foreach ($orders as $order) {
+            $supplierId = $order->supplier_id;
+            
+            if (!isset($suppliers[$supplierId])) {
+                $suppliers[$supplierId] = [
+                    'supplier' => $order->supplier,
+                    'total_lead_time_days' => 0,
+                    'order_count' => 0,
+                ];
+            }
+            
+            // Get first goods receipt date
+            $firstReceipt = $order->goodsReceipts->sortBy('receipt_date')->first();
+            if ($firstReceipt && $order->order_date) {
+                $days = $order->order_date->diffInDays($firstReceipt->receipt_date);
+                $suppliers[$supplierId]['total_lead_time_days'] += max(0, $days);
+                $suppliers[$supplierId]['order_count']++;
+            }
+        }
+        
+        $results = collect();
+        foreach ($suppliers as $data) {
+            if ($data['order_count'] > 0) {
+                $results->push((object)[
+                    'supplier' => $data['supplier'],
+                    'average_lead_time' => round($data['total_lead_time_days'] / $data['order_count'], 2),
+                    'order_count' => $data['order_count']
+                ]);
+            }
+        }
+        
+        return $results->sortBy('average_lead_time')->values();
     }
 }

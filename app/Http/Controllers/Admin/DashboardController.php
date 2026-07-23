@@ -50,7 +50,7 @@ class DashboardController extends Controller
         $data['projects'] = \App\Models\Project::where('company_id', $companyId)->get();
         $data['clients'] = \App\Models\Client::where('company_id', $companyId)->get();
 
-        $this->logActivity('dashboard_accessed', auth()->user());
+        $this->logActivity('dashboard_accessed', ['user_id' => auth()->id()]);
 
         return view('admin.dashboard.index', $data);
     }

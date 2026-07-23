@@ -102,6 +102,15 @@ class ReportMetrics
                     'pending_transfers' => $cards['pending_transfers'] ?? 0,
                     'pending_adjustments' => $cards['pending_adjustments'] ?? 0,
                 ],
+                'procurement_summary' => [
+                    'pending_requisitions' => $cards['pending_requisitions']['value'] ?? 0,
+                    'pending_pos' => $cards['pending_pos']['value'] ?? 0,
+                    'total_purchase_value' => $cards['total_purchase_value']['value'] ?? 0,
+                ],
+                'supplier_summary' => [
+                    'total_suppliers' => $cards['total_suppliers']['value'] ?? 0,
+                    'outstanding_payments' => $cards['outstanding_supplier_payments']['value'] ?? 0,
+                ],
             ];
         });
     }

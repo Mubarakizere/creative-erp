@@ -48,4 +48,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('transfer', [\App\Http\Controllers\Api\Inventory\InventoryController::class, 'transfer']);
         Route::post('adjust', [\App\Http\Controllers\Api\Inventory\InventoryController::class, 'adjust']);
     });
+
+    // Procurement
+    Route::prefix('procurement')->group(function () {
+        Route::apiResource('suppliers', \App\Http\Controllers\Api\Procurement\SupplierController::class);
+        Route::apiResource('purchase-requisitions', \App\Http\Controllers\Api\Procurement\PurchaseRequisitionController::class)->only(['index', 'store', 'show']);
+        Route::post('purchase-requisitions/{purchaseRequisition}/approve', [\App\Http\Controllers\Api\Procurement\PurchaseRequisitionController::class, 'approve']);
+        Route::apiResource('purchase-orders', \App\Http\Controllers\Api\Procurement\PurchaseOrderController::class)->only(['index', 'store', 'show']);
+        Route::post('purchase-orders/{purchaseOrder}/approve', [\App\Http\Controllers\Api\Procurement\PurchaseOrderController::class, 'approve']);
+        Route::apiResource('goods-receipts', \App\Http\Controllers\Api\Procurement\GoodsReceiptController::class)->only(['store', 'show']);
+        Route::apiResource('purchase-invoices', \App\Http\Controllers\Api\Procurement\PurchaseInvoiceController::class)->only(['store', 'show']);
+        Route::apiResource('supplier-payments', \App\Http\Controllers\Api\Procurement\SupplierPaymentController::class)->only(['store', 'show']);
+    });
 });

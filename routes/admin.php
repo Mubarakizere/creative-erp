@@ -311,4 +311,21 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
         Route::post('stock-counts/{stockCount}/approve', [\App\Http\Controllers\Admin\Inventory\StockCountController::class, 'approve'])->name('stock-counts.approve');
         Route::get('valuation', [\App\Http\Controllers\Admin\Inventory\InventoryValuationController::class, 'index'])->name('valuation.index');
     });
+
+    // Procurement
+    Route::prefix('procurement')->name('procurement.')->group(function () {
+        Route::resource('suppliers', \App\Http\Controllers\Admin\Procurement\SupplierController::class);
+        Route::post('requisitions/{requisition}/approve', [\App\Http\Controllers\Admin\Procurement\PurchaseRequisitionController::class, 'approve'])->name('requisitions.approve');
+                Route::get('requisitions/{requisition}/compare', [\App\Http\Controllers\Admin\Procurement\PurchaseRequisitionController::class, 'compare'])->name('requisitions.compare');
+        Route::post('requisitions/{requisition}/accept/{quotation}', [\App\Http\Controllers\Admin\Procurement\PurchaseRequisitionController::class, 'acceptQuotation'])->name('requisitions.accept');
+        
+        Route::post('pos/{po}/approve', [\App\Http\Controllers\Admin\Procurement\PurchaseOrderController::class, 'approve'])->name('pos.approve');
+        Route::resource('pos', \App\Http\Controllers\Admin\Procurement\PurchaseOrderController::class);
+        
+        Route::resource('receipts', \App\Http\Controllers\Admin\Procurement\GoodsReceiptController::class);
+        Route::resource('invoices', \App\Http\Controllers\Admin\Procurement\PurchaseInvoiceController::class);
+        Route::resource('payments', \App\Http\Controllers\Admin\Procurement\SupplierPaymentController::class);
+        Route::resource('requisitions', \App\Http\Controllers\Admin\Procurement\PurchaseRequisitionController::class);
+        Route::resource('rfqs', \App\Http\Controllers\Admin\Procurement\SupplierQuotationController::class);
+    });
 });

@@ -55,6 +55,11 @@ class ChartService
                 'warehouseDistribution' => $this->warehouseDistribution($filters),
                 'categoryDistribution' => $this->categoryDistribution($filters),
                 'stockMovement' => [20, 35, 10, 40, 50, 15], // Placeholder
+
+                // Procurement Charts
+                'purchaseTrends' => $this->purchaseTrends($filters),
+                'supplierSpendChart' => $this->supplierSpendChart($filters),
+                'leadTimeChart' => $this->leadTimeChart($filters),
             ];
         });
     }
@@ -258,5 +263,92 @@ class ChartService
         });
         
         return empty($data) ? ['General' => 0] : $data->toArray();
+    }
+
+    private function purchaseTrends(array $filters = []): array
+    {
+        $query = \App\Models\PurchaseOrder::select(
+            \Illuminate\Support\Facades\DB::raw("strftime('%m', order_date) as month"),
+            \Illuminate\Support\Facades\DB::raw("SUM(grand_total) as total_value")
+        )
+        ->whereNotIn('status', ['draft', 'cancelled'])
+        ->whereDate('order_date', '>=', now()->subMonths(5)->startOfMonth())
+        ->whereDate('order_date', '<=', now()->endOfMonth())
+        ->groupBy('month')
+        ->orderBy('month');
+
+        $this->applyFilters($query, $filters);
+        $results = $query->get()->keyBy('month');
+
+        $trend = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $monthObj = now()->subMonths($i);
+            $monthNum = $monthObj->format('m');
+            $row = $results->get($monthNum);
+            $trend[] = $row ? (float) $row->total_value : 0;
+        }
+        return $trend;
+    }
+
+    private function supplierSpendChart(array $filters = []): array
+    {
+        $query = \App\Models\SupplierPayment::select(
+            'supplier_id',
+            \Illuminate\Support\Facades\DB::raw("SUM(amount) as total_spend")
+        )
+        ->groupBy('supplier_id')
+        ->orderByDesc('total_spend')
+        ->take(5);
+
+        $this->applyFilters($query, $filters);
+        $results = $query->with('supplier')->get();
+
+        $data = [];
+        foreach ($results as $row) {
+            $name = $row->supplier ? $row->supplier->name : 'Unknown';
+            $data[$name] = (float) $row->total_spend;
+        }
+        return empty($data) ? ['No Data' => 0] : $data;
+    }
+
+    private function leadTimeChart(array $filters = []): array
+    {
+        $query = \App\Models\PurchaseOrder::with(['supplier', 'goodsReceipts'])
+            ->where('status', 'completed')
+            ->whereHas('goodsReceipts');
+            
+        $this->applyFilters($query, $filters);
+        $orders = $query->get();
+        
+        $suppliers = [];
+        foreach ($orders as $order) {
+            $supplierId = $order->supplier_id;
+            
+            if (!isset($suppliers[$supplierId])) {
+                $suppliers[$supplierId] = [
+                    'name' => $order->supplier ? $order->supplier->name : 'Unknown',
+                    'total_days' => 0,
+                    'count' => 0,
+                ];
+            }
+            
+            $firstReceipt = $order->goodsReceipts->sortBy('receipt_date')->first();
+            if ($firstReceipt && $order->order_date) {
+                $days = $order->order_date->diffInDays($firstReceipt->receipt_date);
+                $suppliers[$supplierId]['total_days'] += max(0, $days);
+                $suppliers[$supplierId]['count']++;
+            }
+        }
+        
+        $data = [];
+        foreach ($suppliers as $s) {
+            if ($s['count'] > 0) {
+                $data[$s['name']] = round($s['total_days'] / $s['count'], 2);
+            }
+        }
+        
+        arsort($data);
+        $data = array_slice($data, 0, 5, true); // Top 5
+        return empty($data) ? ['No Data' => 0] : $data;
     }
 }

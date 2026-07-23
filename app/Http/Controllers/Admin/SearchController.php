@@ -282,6 +282,80 @@ class SearchController extends Controller
             ];
         })->values();
 
+        // Search Suppliers
+        $suppliers = \App\Models\Supplier::where(function($q) use ($query) {
+            $q->where('name', 'like', "%{$query}%")
+              ->orWhere('code', 'like', "%{$query}%")
+              ->orWhere('email', 'like', "%{$query}%");
+        })->get()->filter(fn($model) => auth()->user()->can('view', $model))->take(5)->map(function ($supplier) {
+            return [
+                'id' => $supplier->id,
+                'title' => 'Supplier: ' . $supplier->name,
+                'subtitle' => 'Code: ' . $supplier->code,
+                'url' => route('admin.procurement.suppliers.show', $supplier)
+            ];
+        })->values();
+
+        // Search Purchase Orders
+        $purchaseOrders = \App\Models\PurchaseOrder::with('supplier')->where(function($q) use ($query) {
+            $q->where('code', 'like', "%{$query}%")
+              ->orWhereHas('supplier', function($sq) use ($query) {
+                  $sq->where('name', 'like', "%{$query}%");
+              });
+        })->get()->filter(fn($model) => auth()->user()->can('view', $model))->take(5)->map(function ($po) {
+            return [
+                'id' => $po->id,
+                'title' => 'Purchase Order: ' . $po->code,
+                'subtitle' => 'Supplier: ' . ($po->supplier->name ?? 'Unknown') . ' | Total: ' . format_currency($po->grand_total),
+                'url' => route('admin.procurement.pos.show', $po)
+            ];
+        })->values();
+
+        // Search RFQs (Supplier Quotations)
+        $rfqs = \App\Models\SupplierQuotation::with('supplier')->where(function($q) use ($query) {
+            $q->where('code', 'like', "%{$query}%")
+              ->orWhereHas('supplier', function($sq) use ($query) {
+                  $sq->where('name', 'like', "%{$query}%");
+              });
+        })->get()->filter(fn($model) => auth()->user()->can('view', $model))->take(5)->map(function ($rfq) {
+            return [
+                'id' => $rfq->id,
+                'title' => 'RFQ: ' . $rfq->code,
+                'subtitle' => 'Supplier: ' . ($rfq->supplier->name ?? 'Unknown'),
+                'url' => route('admin.procurement.rfqs.show', $rfq)
+            ];
+        })->values();
+
+        // Search Goods Receipts
+        $goodsReceipts = \App\Models\GoodsReceipt::with('supplier')->where(function($q) use ($query) {
+            $q->where('code', 'like', "%{$query}%")
+              ->orWhereHas('supplier', function($sq) use ($query) {
+                  $sq->where('name', 'like', "%{$query}%");
+              });
+        })->get()->filter(fn($model) => auth()->user()->can('view', $model))->take(5)->map(function ($gr) {
+            return [
+                'id' => $gr->id,
+                'title' => 'Goods Receipt: ' . $gr->code,
+                'subtitle' => 'Supplier: ' . ($gr->supplier->name ?? 'Unknown') . ' | Status: ' . ucfirst($gr->status),
+                'url' => route('admin.procurement.receipts.show', $gr)
+            ];
+        })->values();
+
+        // Search Purchase Invoices
+        $purchaseInvoices = \App\Models\PurchaseInvoice::with('supplier')->where(function($q) use ($query) {
+            $q->where('invoice_number', 'like', "%{$query}%")
+              ->orWhereHas('supplier', function($sq) use ($query) {
+                  $sq->where('name', 'like', "%{$query}%");
+              });
+        })->get()->filter(fn($model) => auth()->user()->can('view', $model))->take(5)->map(function ($invoice) {
+            return [
+                'id' => $invoice->id,
+                'title' => 'Purchase Invoice: ' . $invoice->invoice_number,
+                'subtitle' => 'Supplier: ' . ($invoice->supplier->name ?? 'Unknown') . ' | Total: ' . format_currency($invoice->grand_total),
+                'url' => route('admin.procurement.invoices.show', $invoice)
+            ];
+        })->values();
+
         return response()->json([
             'projects' => $projects,
             'tasks' => $tasks,
@@ -301,6 +375,11 @@ class SearchController extends Controller
             'reports' => $reports,
             'products' => $products,
             'warehouses' => $warehouses,
+            'suppliers' => $suppliers,
+            'purchase_orders' => $purchaseOrders,
+            'rfqs' => $rfqs,
+            'goods_receipts' => $goodsReceipts,
+            'purchase_invoices' => $purchaseInvoices,
         ]);
     }
 }

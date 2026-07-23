@@ -72,6 +72,13 @@ class ReportService
             'stock_on_hand' => $summaries['inventory_summary'] ?? [],
             'low_stock' => $summaries['inventory_summary'] ?? [],
             'warehouse_summary' => $summaries['warehouse_summary'] ?? [],
+            'purchase_orders' => $summaries['procurement_summary'] ?? [],
+            'goods_receipts' => $summaries['procurement_summary'] ?? [],
+            'purchase_invoices' => $summaries['supplier_summary'] ?? [],
+            'outstanding_supplier_payments' => $summaries['supplier_summary'] ?? [],
+            'supplier_spend' => $summaries['supplier_summary'] ?? [],
+            'supplier_performance' => $summaries['supplier_summary'] ?? [],
+            'lead_time_report' => $summaries['supplier_summary'] ?? [],
             default => [],
         };
     }
@@ -94,6 +101,9 @@ class ReportService
             'inventory_valuation' => ['inventoryValueTrend' => $charts['inventoryValueTrend'] ?? []],
             'stock_on_hand' => ['warehouseDistribution' => $charts['warehouseDistribution'] ?? [], 'categoryDistribution' => $charts['categoryDistribution'] ?? []],
             'inventory_transactions' => ['stockMovement' => $charts['stockMovement'] ?? []],
+            'purchase_orders' => ['purchaseTrends' => $charts['purchaseTrends'] ?? []],
+            'supplier_spend' => ['supplierSpendChart' => $charts['supplierSpendChart'] ?? []],
+            'lead_time_report' => ['leadTimeChart' => $charts['leadTimeChart'] ?? []],
             default => [],
         };
     }

@@ -62,7 +62,7 @@ class JournalService
                 'total_credit' => $totalCredit,
             ]);
 
-            $this->logActivity('journal_created', $journal, ['journal_number' => $journal->journal_number]);
+            $this->logActivity('journal_created', ['journal_id' => $journal->id, 'journal_number' => $journal->journal_number]);
 
             return $journal;
         });
@@ -88,7 +88,7 @@ class JournalService
             'approved_at' => now(),
         ]);
 
-        $this->logActivity('journal_approved', $journal, ['journal_number' => $journal->journal_number]);
+        $this->logActivity('journal_approved', ['journal_id' => $journal->id, 'journal_number' => $journal->journal_number]);
         
         return $journal;
     }
@@ -149,7 +149,7 @@ class JournalService
             ]);
 
             $journal->update(['status' => 'Reversed']);
-            $this->logActivity('journal_reversed', $journal, ['reversal_journal' => $reversal->journal_number]);
+            $this->logActivity('journal_reversed', ['journal_id' => $journal->id, 'reversal_journal' => $reversal->journal_number]);
 
             return $reversal;
         });
@@ -162,7 +162,7 @@ class JournalService
         }
 
         $journal->update(['status' => 'Cancelled']);
-        $this->logActivity('journal_cancelled', $journal, ['journal_number' => $journal->journal_number]);
+        $this->logActivity('journal_cancelled', ['journal_id' => $journal->id, 'journal_number' => $journal->journal_number]);
 
         return $journal;
     }

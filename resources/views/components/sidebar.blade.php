@@ -376,6 +376,70 @@
         </a>
         @endcan
 
+        
+        {{-- Procurement --}}
+        @canany(['supplier.view', 'procurement.view'])
+        <div class="px-4 mt-6 mb-2">
+            <h3 class="text-xs uppercase font-semibold text-gray-500 tracking-wider">Procurement</h3>
+        </div>
+        @endcanany
+
+        @can('viewAny', \App\Models\Supplier::class)
+        <a href="{{ route('admin.procurement.suppliers.index') }}"
+           class="flex items-center px-4 py-2 mt-1 rounded-md transition-colors {{ request()->routeIs('admin.procurement.suppliers.*') ? 'bg-sidebar-active text-white' : 'text-gray-300 hover:bg-sidebar-hover hover:text-white' }}">
+            <i data-lucide="truck" class="w-5 h-5 mr-3"></i>
+            <span>Suppliers</span>
+        </a>
+        @endcan
+
+        @can('viewAny', \App\Models\PurchaseRequisition::class)
+        <a href="{{ route('admin.procurement.requisitions.index') }}"
+           class="flex items-center px-4 py-2 mt-1 rounded-md transition-colors {{ request()->routeIs('admin.procurement.requisitions.*') ? 'bg-sidebar-active text-white' : 'text-gray-300 hover:bg-sidebar-hover hover:text-white' }}">
+            <i data-lucide="file-text" class="w-5 h-5 mr-3"></i>
+            <span>Requisitions</span>
+        </a>
+        @endcan
+
+        @can('viewAny', \App\Models\SupplierQuotation::class)
+        <a href="{{ route('admin.procurement.rfqs.index') }}"
+           class="flex items-center px-4 py-2 mt-1 rounded-md transition-colors {{ request()->routeIs('admin.procurement.rfqs.*') ? 'bg-sidebar-active text-white' : 'text-gray-300 hover:bg-sidebar-hover hover:text-white' }}">
+            <i data-lucide="file-question" class="w-5 h-5 mr-3"></i>
+            <span>RFQs</span>
+        </a>
+        @endcan
+
+        @can('viewAny', \App\Models\PurchaseOrder::class)
+        <a href="{{ route('admin.procurement.pos.index') }}"
+           class="flex items-center px-4 py-2 mt-1 rounded-md transition-colors {{ request()->routeIs('admin.procurement.pos.*') ? 'bg-sidebar-active text-white' : 'text-gray-300 hover:bg-sidebar-hover hover:text-white' }}">
+            <i data-lucide="shopping-cart" class="w-5 h-5 mr-3"></i>
+            <span>Purchase Orders</span>
+        </a>
+        @endcan
+
+        @can('viewAny', \App\Models\GoodsReceipt::class)
+        <a href="{{ route('admin.procurement.receipts.index') }}"
+           class="flex items-center px-4 py-2 mt-1 rounded-md transition-colors {{ request()->routeIs('admin.procurement.receipts.*') ? 'bg-sidebar-active text-white' : 'text-gray-300 hover:bg-sidebar-hover hover:text-white' }}">
+            <i data-lucide="package-check" class="w-5 h-5 mr-3"></i>
+            <span>Goods Receipts</span>
+        </a>
+        @endcan
+
+        @can('viewAny', \App\Models\PurchaseInvoice::class)
+        <a href="{{ route('admin.procurement.invoices.index') }}"
+           class="flex items-center px-4 py-2 mt-1 rounded-md transition-colors {{ request()->routeIs('admin.procurement.invoices.*') ? 'bg-sidebar-active text-white' : 'text-gray-300 hover:bg-sidebar-hover hover:text-white' }}">
+            <i data-lucide="file-spreadsheet" class="w-5 h-5 mr-3"></i>
+            <span>Purchase Invoices</span>
+        </a>
+        @endcan
+
+        @can('viewAny', \App\Models\SupplierPayment::class)
+        <a href="{{ route('admin.procurement.payments.index') }}"
+           class="flex items-center px-4 py-2 mt-1 rounded-md transition-colors {{ request()->routeIs('admin.procurement.payments.*') ? 'bg-sidebar-active text-white' : 'text-gray-300 hover:bg-sidebar-hover hover:text-white' }}">
+            <i data-lucide="banknote" class="w-5 h-5 mr-3"></i>
+            <span>Supplier Payments</span>
+        </a>
+        @endcan
+
         {{-- Projects --}}
         @can('viewAny', \App\Models\Project::class)
         <a href="{{ route('admin.projects.index') }}"
