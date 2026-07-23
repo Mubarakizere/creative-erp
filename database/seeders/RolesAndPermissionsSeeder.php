@@ -84,6 +84,8 @@ class RolesAndPermissionsSeeder extends Seeder
             
             // Warehouses
             'warehouse.view', 'warehouse.create', 'warehouse.update', 'warehouse.delete',
+            'warehouse.manage', 'warehouse.bin', 'warehouse.pick', 'warehouse.pack',
+            'warehouse.ship', 'warehouse.return', 'warehouse.count', 'warehouse.report',
             
             // Report (Future)
             'report.view', 'report.create', 'report.update', 'report.delete', 'report.export',
@@ -225,6 +227,8 @@ class RolesAndPermissionsSeeder extends Seeder
                 'inventory.transfer', 'inventory.adjust', 'inventory.count', 'inventory.approve',
                 'product.view', 'product.create', 'product.update', 'product.delete',
                 'warehouse.view', 'warehouse.create', 'warehouse.update', 'warehouse.delete',
+                'warehouse.manage', 'warehouse.bin', 'warehouse.pick', 'warehouse.pack',
+                'warehouse.ship', 'warehouse.return', 'warehouse.count', 'warehouse.report',
                 'document.view', 'document.create', 'document.update',
                 'comment.view', 'comment.create', 'comment.update', 'comments.reply',
                 'meeting.view', 'meeting.create', 'meeting.invite',

@@ -708,6 +708,115 @@
             <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Valuation</span>
         </a>
 
+        {{-- Warehouse Operations Divider --}}
+        <div x-show="sidebarOpen" class="pt-4 pb-2">
+            <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Warehouse Ops</p>
+        </div>
+
+        {{-- Warehouse Tasks --}}
+        @can('viewAny', \App\Models\WarehouseTask::class)
+        <a href="{{ route('admin.warehouse.tasks.index') }}"
+           @class([
+               'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
+               'bg-sidebar-active text-white' => request()->routeIs('admin.warehouse.tasks.*'),
+               'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.warehouse.tasks.*'),
+           ])>
+            <i data-lucide="clipboard-list" class="w-5 h-5 flex-shrink-0"></i>
+            <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Tasks</span>
+        </a>
+        @endcan
+
+        {{-- Put Away --}}
+        @can('viewAny', \App\Models\WarehouseTask::class)
+        <a href="{{ route('admin.warehouse.put-aways.index') }}"
+           @class([
+               'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
+               'bg-sidebar-active text-white' => request()->routeIs('admin.warehouse.put-aways.*'),
+               'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.warehouse.put-aways.*'),
+           ])>
+            <i data-lucide="arrow-down-to-line" class="w-5 h-5 flex-shrink-0"></i>
+            <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Put Away</span>
+        </a>
+        @endcan
+
+        {{-- Picking --}}
+        @can('viewAny', \App\Models\WarehousePicking::class)
+        <a href="{{ route('admin.warehouse.pickings.index') }}"
+           @class([
+               'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
+               'bg-sidebar-active text-white' => request()->routeIs('admin.warehouse.pickings.*'),
+               'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.warehouse.pickings.*'),
+           ])>
+            <i data-lucide="hand" class="w-5 h-5 flex-shrink-0"></i>
+            <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Picking</span>
+        </a>
+        @endcan
+
+        {{-- Packing --}}
+        @can('viewAny', \App\Models\WarehousePacking::class)
+        <a href="{{ route('admin.warehouse.packings.index') }}"
+           @class([
+               'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
+               'bg-sidebar-active text-white' => request()->routeIs('admin.warehouse.packings.*'),
+               'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.warehouse.packings.*'),
+           ])>
+            <i data-lucide="box" class="w-5 h-5 flex-shrink-0"></i>
+            <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Packing</span>
+        </a>
+        @endcan
+
+        {{-- Shipments --}}
+        @can('viewAny', \App\Models\WarehouseShipment::class)
+        <a href="{{ route('admin.warehouse.shipments.index') }}"
+           @class([
+               'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
+               'bg-sidebar-active text-white' => request()->routeIs('admin.warehouse.shipments.*'),
+               'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.warehouse.shipments.*'),
+           ])>
+            <i data-lucide="truck-fast" class="w-5 h-5 flex-shrink-0"></i>
+            <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Shipments</span>
+        </a>
+        @endcan
+
+        {{-- Movements --}}
+        @can('viewAny', \App\Models\WarehouseMovement::class)
+        <a href="{{ route('admin.warehouse.movements.index') }}"
+           @class([
+               'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
+               'bg-sidebar-active text-white' => request()->routeIs('admin.warehouse.movements.*'),
+               'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.warehouse.movements.*'),
+           ])>
+            <i data-lucide="arrow-right-left" class="w-5 h-5 flex-shrink-0"></i>
+            <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Movements</span>
+        </a>
+        @endcan
+
+        {{-- Returns --}}
+        @can('viewAny', \App\Models\WarehouseReturn::class)
+        <a href="{{ route('admin.warehouse.returns.index') }}"
+           @class([
+               'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
+               'bg-sidebar-active text-white' => request()->routeIs('admin.warehouse.returns.*'),
+               'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.warehouse.returns.*'),
+           ])>
+            <i data-lucide="corner-up-left" class="w-5 h-5 flex-shrink-0"></i>
+            <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Returns</span>
+        </a>
+        @endcan
+
+        {{-- Cycle Counts --}}
+        @can('viewAny', \App\Models\WarehouseCycleCount::class)
+        <a href="{{ route('admin.warehouse.cycle-counts.index') }}"
+           @class([
+               'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
+               'bg-sidebar-active text-white' => request()->routeIs('admin.warehouse.cycle-counts.*'),
+               'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.warehouse.cycle-counts.*'),
+           ])>
+            <i data-lucide="calculator" class="w-5 h-5 flex-shrink-0"></i>
+            <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Cycle Counts</span>
+        </a>
+        @endcan
+
         {{-- Accounting Divider --}}
         <div x-show="sidebarOpen" class="pt-4 pb-2">
             <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Accounting</p>
@@ -1306,6 +1415,98 @@
             </div>
             <span class="text-[10px] uppercase font-bold bg-gray-700 text-gray-300 px-1.5 py-0.5 rounded">Soon</span>
         </a>
+
+        <div class="pt-4 pb-2">
+            <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Warehouse Ops</p>
+        </div>
+
+        @can('viewAny', \App\Models\WarehouseTask::class)
+        <a href="{{ route('admin.warehouse.tasks.index') }}" @class([
+            'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+            'bg-sidebar-active text-white' => request()->routeIs('admin.warehouse.tasks.*'),
+            'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.warehouse.tasks.*'),
+        ])>
+            <i data-lucide="clipboard-list" class="w-5 h-5 mr-3 flex-shrink-0"></i>
+            Tasks
+        </a>
+        @endcan
+
+        @can('viewAny', \App\Models\WarehouseTask::class)
+        <a href="{{ route('admin.warehouse.put-aways.index') }}" @class([
+            'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+            'bg-sidebar-active text-white' => request()->routeIs('admin.warehouse.put-aways.*'),
+            'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.warehouse.put-aways.*'),
+        ])>
+            <i data-lucide="arrow-down-to-line" class="w-5 h-5 mr-3 flex-shrink-0"></i>
+            Put Away
+        </a>
+        @endcan
+
+        @can('viewAny', \App\Models\WarehousePicking::class)
+        <a href="{{ route('admin.warehouse.pickings.index') }}" @class([
+            'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+            'bg-sidebar-active text-white' => request()->routeIs('admin.warehouse.pickings.*'),
+            'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.warehouse.pickings.*'),
+        ])>
+            <i data-lucide="hand" class="w-5 h-5 mr-3 flex-shrink-0"></i>
+            Picking
+        </a>
+        @endcan
+
+        @can('viewAny', \App\Models\WarehousePacking::class)
+        <a href="{{ route('admin.warehouse.packings.index') }}" @class([
+            'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+            'bg-sidebar-active text-white' => request()->routeIs('admin.warehouse.packings.*'),
+            'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.warehouse.packings.*'),
+        ])>
+            <i data-lucide="box" class="w-5 h-5 mr-3 flex-shrink-0"></i>
+            Packing
+        </a>
+        @endcan
+
+        @can('viewAny', \App\Models\WarehouseShipment::class)
+        <a href="{{ route('admin.warehouse.shipments.index') }}" @class([
+            'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+            'bg-sidebar-active text-white' => request()->routeIs('admin.warehouse.shipments.*'),
+            'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.warehouse.shipments.*'),
+        ])>
+            <i data-lucide="truck-fast" class="w-5 h-5 mr-3 flex-shrink-0"></i>
+            Shipments
+        </a>
+        @endcan
+
+        @can('viewAny', \App\Models\WarehouseMovement::class)
+        <a href="{{ route('admin.warehouse.movements.index') }}" @class([
+            'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+            'bg-sidebar-active text-white' => request()->routeIs('admin.warehouse.movements.*'),
+            'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.warehouse.movements.*'),
+        ])>
+            <i data-lucide="arrow-right-left" class="w-5 h-5 mr-3 flex-shrink-0"></i>
+            Movements
+        </a>
+        @endcan
+
+        @can('viewAny', \App\Models\WarehouseReturn::class)
+        <a href="{{ route('admin.warehouse.returns.index') }}" @class([
+            'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+            'bg-sidebar-active text-white' => request()->routeIs('admin.warehouse.returns.*'),
+            'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.warehouse.returns.*'),
+        ])>
+            <i data-lucide="corner-up-left" class="w-5 h-5 mr-3 flex-shrink-0"></i>
+            Returns
+        </a>
+        @endcan
+
+        @can('viewAny', \App\Models\WarehouseCycleCount::class)
+        <a href="{{ route('admin.warehouse.cycle-counts.index') }}" @class([
+            'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+            'bg-sidebar-active text-white' => request()->routeIs('admin.warehouse.cycle-counts.*'),
+            'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.warehouse.cycle-counts.*'),
+        ])>
+            <i data-lucide="calculator" class="w-5 h-5 mr-3 flex-shrink-0"></i>
+            Cycle Counts
+        </a>
+        @endcan
 
         <div class="pt-4 pb-2">
             <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Accounting</p>

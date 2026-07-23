@@ -90,6 +90,13 @@ class ReportBuilderService
             'purchase_invoices' => $this->buildPurchaseInvoices($filters),
             'outstanding_supplier_payments' => $this->buildOutstandingSupplierPayments($filters),
             'lead_time_report' => $this->buildLeadTimeReport($filters),
+            'bin_utilization' => $this->buildBinUtilization($filters),
+            'movement_report' => $this->buildMovementReport($filters),
+            'picking_report' => $this->buildPickingReport($filters),
+            'packing_report' => $this->buildPackingReport($filters),
+            'returns_report' => $this->buildReturnsReport($filters),
+            'cycle_count_report' => $this->buildCycleCountReport($filters),
+            'warehouse_productivity' => $this->buildWarehouseProductivity($filters),
             default => collect([]),
         };
     }
@@ -843,5 +850,92 @@ class ReportBuilderService
         }
         
         return $results->sortBy('average_lead_time')->values();
+    }
+
+    protected function buildBinUtilization(array $filters)
+    {
+        $query = \App\Models\WarehouseBin::with(['warehouse', 'zone']);
+        $this->applyCommonFilters($query, $filters);
+        
+        if (!empty($filters['warehouse_id'])) {
+            $query->whereIn('warehouse_id', (array) $filters['warehouse_id']);
+        }
+
+        $bins = $query->get();
+        $bins->each(function($bin) {
+            $bin->utilization_percentage = $bin->capacity > 0 ? round(($bin->current_quantity / $bin->capacity) * 100, 2) : 0;
+        });
+
+        return $bins;
+    }
+
+    protected function buildMovementReport(array $filters)
+    {
+        $query = \App\Models\WarehouseMovement::with(['sourceWarehouse', 'destinationWarehouse', 'creator']);
+        $this->applyCommonFilters($query, $filters);
+        $this->applyDateFilters($query, $filters, 'created_at');
+        return $query->get();
+    }
+
+    protected function buildPickingReport(array $filters)
+    {
+        $query = \App\Models\WarehousePicking::with(['warehouse', 'tasks']);
+        $this->applyCommonFilters($query, $filters);
+        $this->applyDateFilters($query, $filters, 'created_at');
+        return $query->get();
+    }
+
+    protected function buildPackingReport(array $filters)
+    {
+        $query = \App\Models\WarehousePacking::with(['warehouse', 'picking', 'packer']);
+        $this->applyCommonFilters($query, $filters);
+        $this->applyDateFilters($query, $filters, 'created_at');
+        return $query->get();
+    }
+
+    protected function buildReturnsReport(array $filters)
+    {
+        $query = \App\Models\WarehouseReturn::with(['warehouse', 'inspector']);
+        $this->applyCommonFilters($query, $filters);
+        $this->applyDateFilters($query, $filters, 'created_at');
+        return $query->get();
+    }
+
+    protected function buildCycleCountReport(array $filters)
+    {
+        $query = \App\Models\WarehouseCycleCount::with(['warehouse', 'stockCount.items']);
+        $this->applyCommonFilters($query, $filters);
+        $this->applyDateFilters($query, $filters, 'created_at');
+        return $query->get();
+    }
+
+    protected function buildWarehouseProductivity(array $filters)
+    {
+        $query = \App\Models\WarehouseTask::with(['assignee', 'warehouse'])
+            ->where('status', 'completed');
+        $this->applyCommonFilters($query, $filters);
+        $this->applyDateFilters($query, $filters, 'completed_at');
+        
+        $tasks = $query->get();
+        $users = [];
+        
+        foreach ($tasks as $task) {
+            $userId = $task->taskable->created_by ?? $task->company_id; // Approximation based on task associations if needed, or if task has assigned_to
+            // For now, let's group by warehouse
+            $warehouseId = $task->warehouse_id;
+            if (!isset($users[$warehouseId])) {
+                $users[$warehouseId] = [
+                    'warehouse' => $task->warehouse,
+                    'total_tasks' => 0,
+                    'picking_tasks' => 0,
+                    'put_away_tasks' => 0,
+                ];
+            }
+            $users[$warehouseId]['total_tasks']++;
+            if ($task->type === 'picking') $users[$warehouseId]['picking_tasks']++;
+            if ($task->type === 'put_away') $users[$warehouseId]['put_away_tasks']++;
+        }
+        
+        return collect(array_values($users));
     }
 }

@@ -328,4 +328,16 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
         Route::resource('requisitions', \App\Http\Controllers\Admin\Procurement\PurchaseRequisitionController::class);
         Route::resource('rfqs', \App\Http\Controllers\Admin\Procurement\SupplierQuotationController::class);
     });
+
+    // Warehouse Management (WMS)
+    Route::prefix('warehouse')->name('warehouse.')->group(function () {
+        Route::resource('bins', \App\Http\Controllers\Admin\Warehouse\WarehouseBinController::class);
+        Route::resource('put-away', \App\Http\Controllers\Admin\Warehouse\PutAwayController::class);
+        Route::resource('picking', \App\Http\Controllers\Admin\Warehouse\PickingController::class);
+        Route::resource('packing', \App\Http\Controllers\Admin\Warehouse\PackingController::class);
+        Route::resource('shipments', \App\Http\Controllers\Admin\Warehouse\ShipmentController::class);
+        Route::resource('movements', \App\Http\Controllers\Admin\Warehouse\MovementController::class);
+        Route::resource('returns', \App\Http\Controllers\Admin\Warehouse\ReturnController::class);
+        Route::resource('cycle-counts', \App\Http\Controllers\Admin\Warehouse\CycleCountController::class);
+    });
 });

@@ -60,6 +60,14 @@ class ChartService
                 'purchaseTrends' => $this->purchaseTrends($filters),
                 'supplierSpendChart' => $this->supplierSpendChart($filters),
                 'leadTimeChart' => $this->leadTimeChart($filters),
+
+                // Warehouse Management (WMS) Charts
+                'warehouseCapacity' => $this->warehouseCapacity($filters),
+                'storageUtilization' => $this->storageUtilization($filters),
+                'movementTrends' => $this->movementTrends($filters),
+                'pickingTrends' => $this->pickingTrends($filters),
+                'packingTrends' => $this->packingTrends($filters),
+                'returnTrends' => $this->returnTrends($filters),
             ];
         });
     }
@@ -350,5 +358,89 @@ class ChartService
         arsort($data);
         $data = array_slice($data, 0, 5, true); // Top 5
         return empty($data) ? ['No Data' => 0] : $data;
+    }
+
+    private function warehouseCapacity(array $filters = []): array
+    {
+        $companyId = auth()->user()?->company_id;
+        $warehouses = \App\Models\Warehouse::query();
+        if ($companyId) {
+            $warehouses->where('company_id', $companyId);
+        }
+        
+        $warehouses = $warehouses->get();
+        $data = [];
+        
+        foreach ($warehouses as $warehouse) {
+            $totalCapacity = \App\Models\WarehouseBin::where('warehouse_id', $warehouse->id)->sum('capacity');
+            $data[$warehouse->name] = (float) $totalCapacity;
+        }
+        
+        return empty($data) ? ['No Data' => 0] : $data;
+    }
+
+    private function storageUtilization(array $filters = []): array
+    {
+        $companyId = auth()->user()?->company_id;
+        $warehouses = \App\Models\Warehouse::query();
+        if ($companyId) {
+            $warehouses->where('company_id', $companyId);
+        }
+        
+        $warehouses = $warehouses->get();
+        $data = [];
+        
+        foreach ($warehouses as $warehouse) {
+            $totalCapacity = \App\Models\WarehouseBin::where('warehouse_id', $warehouse->id)->sum('capacity');
+            $currentQuantity = \App\Models\WarehouseBin::where('warehouse_id', $warehouse->id)->sum('current_quantity');
+            $utilization = $totalCapacity > 0 ? ($currentQuantity / $totalCapacity) * 100 : 0;
+            $data[$warehouse->name] = round($utilization, 2);
+        }
+        
+        return empty($data) ? ['No Data' => 0] : $data;
+    }
+
+    private function movementTrends(array $filters = []): array
+    {
+        return $this->getWmsMonthlyTrend(\App\Models\WarehouseMovement::class, 'created_at', $filters);
+    }
+
+    private function pickingTrends(array $filters = []): array
+    {
+        return $this->getWmsMonthlyTrend(\App\Models\WarehousePicking::class, 'created_at', $filters);
+    }
+
+    private function packingTrends(array $filters = []): array
+    {
+        return $this->getWmsMonthlyTrend(\App\Models\WarehousePacking::class, 'created_at', $filters);
+    }
+
+    private function returnTrends(array $filters = []): array
+    {
+        return $this->getWmsMonthlyTrend(\App\Models\WarehouseReturn::class, 'created_at', $filters);
+    }
+
+    private function getWmsMonthlyTrend(string $modelClass, string $dateColumn, array $filters = []): array
+    {
+        $query = $modelClass::select(
+            \Illuminate\Support\Facades\DB::raw("strftime('%m', {$dateColumn}) as month"),
+            \Illuminate\Support\Facades\DB::raw("COUNT(*) as total_count")
+        )
+        ->whereDate($dateColumn, '>=', now()->subMonths(5)->startOfMonth())
+        ->whereDate($dateColumn, '<=', now()->endOfMonth())
+        ->groupBy('month')
+        ->orderBy('month');
+
+        $this->applyFilters($query, $filters);
+        $results = $query->get()->keyBy('month');
+
+        $trend = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $monthObj = now()->subMonths($i);
+            $monthNum = $monthObj->format('m');
+            $row = $results->get($monthNum);
+            $trend[] = $row ? (int) $row->total_count : 0;
+        }
+        return $trend;
     }
 }
