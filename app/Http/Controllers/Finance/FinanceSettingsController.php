@@ -17,12 +17,13 @@ class FinanceSettingsController extends Controller
     {
         Gate::authorize('create', \App\Models\Payment::class); // Or whichever permission is appropriate for finance settings
         
-        $companyId = auth()->user()->company_id ?? 1;
+        $companyId = session('company_id') ?? 1;
 
         $paymentMethods = PaymentMethod::where('company_id', $companyId)->get();
         $bankAccounts = BankAccount::where('company_id', $companyId)->get();
+        $taxes = \App\Models\Tax::where('company_id', $companyId)->get();
 
-        return view('admin.finance.settings.index', compact('paymentMethods', 'bankAccounts'));
+        return view('admin.finance.settings.index', compact('paymentMethods', 'bankAccounts', 'taxes'));
     }
 
     public function storePaymentMethod(Request $request)
@@ -34,7 +35,7 @@ class FinanceSettingsController extends Controller
         ]);
 
         PaymentMethod::create([
-            'company_id' => auth()->user()->company_id ?? 1,
+            'company_id' => session('company_id') ?? 1,
             'name' => $request->name,
             'is_active' => true,
         ]);
@@ -49,7 +50,7 @@ class FinanceSettingsController extends Controller
         $method = PaymentMethod::findOrFail($id);
         
         // Ensure it belongs to the user's company
-        if ($method->company_id !== (auth()->user()->company_id ?? 1)) {
+        if ($method->company_id !== (session('company_id') ?? 1)) {
             abort(403);
         }
 
@@ -71,7 +72,7 @@ class FinanceSettingsController extends Controller
         ]);
 
         BankAccount::create([
-            'company_id' => auth()->user()->company_id ?? 1,
+            'company_id' => session('company_id') ?? 1,
             'account_name' => $request->account_name,
             'bank_name' => $request->bank_name,
             'account_number' => $request->account_number,
@@ -89,12 +90,48 @@ class FinanceSettingsController extends Controller
 
         $account = BankAccount::findOrFail($id);
 
-        if ($account->company_id !== (auth()->user()->company_id ?? 1)) {
+        if ($account->company_id !== (session('company_id') ?? 1)) {
             abort(403);
         }
 
         $account->delete();
 
         return redirect()->route('admin.finance.settings')->with('success', 'Bank Account deleted successfully.');
+    }
+
+    public function storeTax(Request $request)
+    {
+        Gate::authorize('create', \App\Models\Payment::class);
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'rate' => 'required|numeric|min:0|max:100',
+            'type' => 'required|in:percentage,fixed',
+        ]);
+
+        \App\Models\Tax::create([
+            'company_id' => session('company_id') ?? 1,
+            'name' => $request->name,
+            'rate' => $request->rate,
+            'type' => $request->type,
+            'is_active' => true,
+        ]);
+
+        return redirect()->route('admin.finance.settings')->with('success', 'Tax added successfully.');
+    }
+
+    public function destroyTax($id)
+    {
+        Gate::authorize('create', \App\Models\Payment::class);
+
+        $tax = \App\Models\Tax::findOrFail($id);
+
+        if ($tax->company_id !== (session('company_id') ?? 1)) {
+            abort(403);
+        }
+
+        $tax->delete();
+
+        return redirect()->route('admin.finance.settings')->with('success', 'Tax deleted successfully.');
     }
 }

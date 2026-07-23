@@ -91,6 +91,17 @@ class ReportMetrics
                     'overdue_receivables' => $cards['overdue_receivables']['value'] ?? 0,
                     'collection_rate' => $cards['collection_rate']['value'] ?? 0,
                 ],
+                'inventory_summary' => [
+                    'total_value' => $cards['total_inventory_value'] ?? 0,
+                    'low_stock' => $cards['low_stock_products'] ?? 0,
+                    'out_of_stock' => $cards['out_of_stock_products'] ?? 0,
+                    'total_products' => $cards['total_products'] ?? 0,
+                ],
+                'warehouse_summary' => [
+                    'total_warehouses' => $cards['total_warehouses'] ?? 0,
+                    'pending_transfers' => $cards['pending_transfers'] ?? 0,
+                    'pending_adjustments' => $cards['pending_adjustments'] ?? 0,
+                ],
             ];
         });
     }

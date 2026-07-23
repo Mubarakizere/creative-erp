@@ -6,6 +6,8 @@ use App\Events\WorkflowApproved;
 use App\Events\WorkflowRejected;
 use App\Models\Invoice;
 use App\Models\Refund;
+use App\Models\InventoryTransfer;
+use App\Models\InventoryAdjustment;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
@@ -41,6 +43,26 @@ class UpdateApprovableStatus
             $approvable->update([
                 'status' => $isApproved ? 'Approved' : 'Rejected'
             ]);
+        } elseif ($approvable instanceof InventoryTransfer) {
+            $approvable->update([
+                'status' => $isApproved ? 'approved' : 'rejected'
+            ]);
+            
+            if ($isApproved) {
+                // Execute transfer
+                $engine = app(\App\Services\Inventory\InventoryEngine::class);
+                $engine->transfer($approvable, $approvable->created_by);
+            }
+        } elseif ($approvable instanceof InventoryAdjustment) {
+            $approvable->update([
+                'status' => $isApproved ? 'approved' : 'rejected'
+            ]);
+            
+            if ($isApproved) {
+                // Execute adjustment
+                $engine = app(\App\Services\Inventory\InventoryEngine::class);
+                $engine->applyAdjustment($approvable, $approvable->created_by);
+            }
         }
     }
 }

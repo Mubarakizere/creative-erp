@@ -246,6 +246,8 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
         Route::delete('settings/payment-methods/{id}', [\App\Http\Controllers\Finance\FinanceSettingsController::class, 'destroyPaymentMethod'])->name('payment-methods.destroy');
         Route::post('settings/bank-accounts', [\App\Http\Controllers\Finance\FinanceSettingsController::class, 'storeBankAccount'])->name('bank-accounts.store');
         Route::delete('settings/bank-accounts/{id}', [\App\Http\Controllers\Finance\FinanceSettingsController::class, 'destroyBankAccount'])->name('bank-accounts.destroy');
+        Route::post('settings/taxes', [\App\Http\Controllers\Finance\FinanceSettingsController::class, 'storeTax'])->name('taxes.store');
+        Route::delete('settings/taxes/{id}', [\App\Http\Controllers\Finance\FinanceSettingsController::class, 'destroyTax'])->name('taxes.destroy');
 
         Route::patch('/invoices/{invoice}/issue', [\App\Http\Controllers\Finance\InvoiceController::class, 'issue'])->name('invoices.issue');
         Route::patch('/invoices/{invoice}/cancel', [\App\Http\Controllers\Finance\InvoiceController::class, 'cancel'])->name('invoices.cancel');
@@ -271,5 +273,42 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
         Route::resource('budgets', \App\Http\Controllers\Finance\BudgetController::class);
         
         Route::get('analytics', [\App\Http\Controllers\Finance\AnalyticsController::class, 'index'])->name('analytics');
+    });
+
+    // Inventory & Products
+    Route::prefix('inventory')->name('inventory.')->group(function () {
+        Route::get('dashboard', [\App\Http\Controllers\Admin\Inventory\InventoryDashboardController::class, 'index'])->name('dashboard');
+        
+        // Reports
+        Route::prefix('reports')->name('reports.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\Inventory\InventoryReportController::class, 'index'])->name('index');
+            Route::get('{type}', [\App\Http\Controllers\Admin\Inventory\InventoryReportController::class, 'show'])->name('show');
+        });
+
+        Route::resource('products', \App\Http\Controllers\Admin\Inventory\ProductController::class);
+        
+        // Product Variants
+        Route::get('products/{product}/variants', [\App\Http\Controllers\Admin\Inventory\ProductVariantController::class, 'index'])->name('products.variants.index');
+        Route::post('products/{product}/variants', [\App\Http\Controllers\Admin\Inventory\ProductVariantController::class, 'store'])->name('products.variants.store');
+        Route::delete('products/{product}/variants/{variant}', [\App\Http\Controllers\Admin\Inventory\ProductVariantController::class, 'destroy'])->name('products.variants.destroy');
+
+        Route::resource('categories', \App\Http\Controllers\Admin\Inventory\ProductCategoryController::class);
+        Route::resource('brands', \App\Http\Controllers\Admin\Inventory\BrandController::class);
+        Route::resource('units', \App\Http\Controllers\Admin\Inventory\UnitOfMeasureController::class);
+        
+        // Warehouses & Zones
+        Route::resource('warehouses', \App\Http\Controllers\Admin\Inventory\WarehouseController::class);
+        Route::post('warehouses/{warehouse}/zones', [\App\Http\Controllers\Admin\Inventory\WarehouseZoneController::class, 'store'])->name('warehouses.zones.store');
+        Route::put('warehouses/{warehouse}/zones/{zone}', [\App\Http\Controllers\Admin\Inventory\WarehouseZoneController::class, 'update'])->name('warehouses.zones.update');
+        Route::delete('warehouses/{warehouse}/zones/{zone}', [\App\Http\Controllers\Admin\Inventory\WarehouseZoneController::class, 'destroy'])->name('warehouses.zones.destroy');
+
+        // Adjustments
+        Route::resource('adjustments', \App\Http\Controllers\Admin\Inventory\InventoryAdjustmentController::class);
+        Route::resource('transfers', \App\Http\Controllers\Admin\Inventory\InventoryTransferController::class);
+        Route::resource('reservations', \App\Http\Controllers\Admin\Inventory\InventoryReservationController::class);
+        Route::post('reservations/{reservation}/release', [\App\Http\Controllers\Admin\Inventory\InventoryReservationController::class, 'release'])->name('reservations.release');
+        Route::resource('stock-counts', \App\Http\Controllers\Admin\Inventory\StockCountController::class);
+        Route::post('stock-counts/{stockCount}/approve', [\App\Http\Controllers\Admin\Inventory\StockCountController::class, 'approve'])->name('stock-counts.approve');
+        Route::get('valuation', [\App\Http\Controllers\Admin\Inventory\InventoryValuationController::class, 'index'])->name('valuation.index');
     });
 });

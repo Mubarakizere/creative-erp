@@ -77,6 +77,12 @@ class ReportBuilderService
             'budget_analysis' => $this->buildBudgetAnalysis($filters),
             'customer_profitability' => $this->buildCustomerProfitability($filters),
             'project_profitability' => $this->buildProjectProfitability($filters),
+            'inventory_valuation' => $this->buildInventoryValuation($filters),
+            'stock_on_hand' => $this->buildStockOnHand($filters),
+            'low_stock' => $this->buildLowStock($filters),
+            'warehouse_summary' => $this->buildWarehouseSummary($filters),
+            'inventory_transactions' => $this->buildInventoryTransactions($filters),
+            'inventory_adjustments' => $this->buildInventoryAdjustments($filters),
             default => collect([]),
         };
     }
@@ -607,5 +613,55 @@ class ReportBuilderService
         });
 
         return $projects->sortByDesc('profit')->values();
+    }
+
+    protected function buildInventoryValuation(array $filters)
+    {
+        $query = \App\Models\InventoryValuation::with(['product', 'warehouse']);
+        $this->applyCommonFilters($query, $filters, 'products'); // Needs join if filtering by company_id, or just use warehouse
+        return $query->get();
+    }
+
+    protected function buildStockOnHand(array $filters)
+    {
+        $query = \App\Models\Inventory::with(['product', 'warehouse', 'zone']);
+        $this->applyCommonFilters($query, $filters);
+        return $query->get();
+    }
+
+    protected function buildLowStock(array $filters)
+    {
+        $companyId = $filters['company_id'] ?? auth()->user()?->company_id;
+        
+        $query = \App\Models\Product::whereHas('inventory', function ($q) {
+            $q->whereColumn('available_quantity', '<=', 'products.minimum_stock');
+        })->with('inventory.warehouse');
+        
+        if ($companyId) {
+            $query->where('company_id', $companyId);
+        }
+        
+        return $query->get();
+    }
+
+    protected function buildWarehouseSummary(array $filters)
+    {
+        $query = \App\Models\Warehouse::withCount('inventories')->withSum('inventories', 'available_quantity');
+        return $query->get();
+    }
+
+    protected function buildInventoryTransactions(array $filters)
+    {
+        $query = \App\Models\InventoryTransaction::with(['inventory.product', 'inventory.warehouse', 'user', 'reference']);
+        $this->applyCommonFilters($query, $filters);
+        $this->applyDateFilters($query, $filters, 'date');
+        return $query->get();
+    }
+
+    protected function buildInventoryAdjustments(array $filters)
+    {
+        $query = \App\Models\InventoryAdjustment::with(['warehouse', 'approvedBy']);
+        // If company_id was added to adjustments, we can filter
+        return $query->get();
     }
 }

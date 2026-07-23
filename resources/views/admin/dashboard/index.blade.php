@@ -15,7 +15,7 @@
     {{-- Filter Bar --}}
     @if(isset($filters))
         <x-financial-filter-bar 
-            action="{{ route('dashboard') }}"
+            action="{{ route('admin.dashboard') }}"
             :fiscalYears="$fiscalYears ?? []"
             :fiscalYearId="$fiscalYearId ?? null"
             :branches="$branches ?? []"

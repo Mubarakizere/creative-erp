@@ -68,6 +68,10 @@ class ReportService
             'aging_report' => $summaries['receivable_summary'] ?? [],
             'revenue_report' => $summaries['payment_summary'] ?? [],
             'customer_statements' => $summaries['receivable_summary'] ?? [],
+            'inventory_valuation' => $summaries['inventory_summary'] ?? [],
+            'stock_on_hand' => $summaries['inventory_summary'] ?? [],
+            'low_stock' => $summaries['inventory_summary'] ?? [],
+            'warehouse_summary' => $summaries['warehouse_summary'] ?? [],
             default => [],
         };
     }
@@ -87,6 +91,9 @@ class ReportService
             ],
             'revenue_report' => ['revenueTrends' => $charts['revenueTrends'] ?? []],
             'payment_summary' => ['paymentMethods' => $charts['paymentMethods'] ?? []],
+            'inventory_valuation' => ['inventoryValueTrend' => $charts['inventoryValueTrend'] ?? []],
+            'stock_on_hand' => ['warehouseDistribution' => $charts['warehouseDistribution'] ?? [], 'categoryDistribution' => $charts['categoryDistribution'] ?? []],
+            'inventory_transactions' => ['stockMovement' => $charts['stockMovement'] ?? []],
             default => [],
         };
     }

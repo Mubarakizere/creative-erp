@@ -238,7 +238,47 @@ class SearchController extends Controller
                 'id' => $report->id,
                 'title' => 'Report: ' . $report->name,
                 'subtitle' => $report->description ?? 'No description',
-                'url' => route('admin.reports.index') . '?id=' . $report->id // generic link to reports
+                'url' => route('admin.reports.index') . '?id=' . $report->id
+            ];
+        })->values();
+
+        // Search Products
+        $products = \App\Models\Product::with(['brand', 'category'])->where(function($q) use ($query) {
+            $q->where('name', 'like', "%{$query}%")
+              ->orWhere('sku', 'like', "%{$query}%")
+              ->orWhere('barcode', 'like', "%{$query}%")
+              ->orWhereHas('brand', function($sq) use ($query) {
+                  $sq->where('name', 'like', "%{$query}%");
+              })
+              ->orWhereHas('category', function($sq) use ($query) {
+                  $sq->where('name', 'like', "%{$query}%");
+              })
+              ->orWhereHas('inventory.warehouse', function($sq) use ($query) {
+                  $sq->where('name', 'like', "%{$query}%");
+              });
+        })->get()->filter(fn($model) => auth()->user()->can('view', $model))->take(5)->map(function ($product) {
+            $subtitle = 'SKU: ' . $product->sku;
+            if ($product->brand) $subtitle .= ' | Brand: ' . $product->brand->name;
+            if ($product->category) $subtitle .= ' | Category: ' . $product->category->name;
+            
+            return [
+                'id' => $product->id,
+                'title' => 'Product: ' . $product->name,
+                'subtitle' => $subtitle,
+                'url' => route('admin.inventory.products.show', $product) // Assuming this route
+            ];
+        })->values();
+
+        // Search Warehouses
+        $warehouses = \App\Models\Warehouse::where(function($q) use ($query) {
+            $q->where('name', 'like', "%{$query}%")
+              ->orWhere('location', 'like', "%{$query}%");
+        })->get()->filter(fn($model) => auth()->user()->can('view', $model))->take(5)->map(function ($warehouse) {
+            return [
+                'id' => $warehouse->id,
+                'title' => 'Warehouse: ' . $warehouse->name,
+                'subtitle' => 'Location: ' . $warehouse->location,
+                'url' => route('admin.inventory.warehouses.show', $warehouse) // Assuming this route
             ];
         })->values();
 
@@ -259,6 +299,8 @@ class SearchController extends Controller
             'general_ledger' => $generalLedger,
             'budgets' => $budgets,
             'reports' => $reports,
+            'products' => $products,
+            'warehouses' => $warehouses,
         ]);
     }
 }

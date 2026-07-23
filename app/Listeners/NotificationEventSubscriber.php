@@ -20,38 +20,47 @@ class NotificationEventSubscriber
 
     public function handleApprovalAssigned(ApprovalAssigned $event): void
     {
-        $this->notificationService->send($event->user, new AppNotification(
-            title: 'Approval Required',
-            message: "You have a new approval request.",
-            category: 'workflow',
-            priority: 'High',
-            actionUrl: route('admin.approvals.index', ['id' => $event->approval->id]),
-            actionText: 'View Approval',
-            icon: 'check-circle'
-        ));
+        $approver = $event->step->user;
+        if ($approver) {
+            $this->notificationService->send($approver, new AppNotification(
+                title: 'Approval Required',
+                message: "You have a new approval request.",
+                category: 'workflow',
+                priority: 'High',
+                actionUrl: route('admin.approvals.index', ['id' => $event->approval->id]),
+                actionText: 'View Approval',
+                icon: 'check-circle'
+            ));
+        }
     }
 
     public function handleWorkflowApproved(WorkflowApproved $event): void
     {
-        $this->notificationService->send($event->user, new AppNotification(
-            title: 'Workflow Approved',
-            message: "Your workflow request has been approved.",
-            category: 'workflow',
-            priority: 'Normal',
-            icon: 'check'
-        ));
+        $submitter = $event->approval->submitter;
+        if ($submitter) {
+            $this->notificationService->send($submitter, new AppNotification(
+                title: 'Workflow Approved',
+                message: "Your workflow request has been approved.",
+                category: 'workflow',
+                priority: 'Normal',
+                icon: 'check'
+            ));
+        }
     }
 
     public function handleWorkflowRejected(WorkflowRejected $event): void
     {
-        $this->notificationService->send($event->user, new AppNotification(
-            title: 'Workflow Rejected',
-            message: "Your workflow request has been rejected.",
-            category: 'workflow',
-            priority: 'High',
-            icon: 'x-circle',
-            color: 'red'
-        ));
+        $submitter = $event->approval->submitter;
+        if ($submitter) {
+            $this->notificationService->send($submitter, new AppNotification(
+                title: 'Workflow Rejected',
+                message: "Your workflow request has been rejected.",
+                category: 'workflow',
+                priority: 'High',
+                icon: 'x-circle',
+                color: 'red'
+            ));
+        }
     }
 
     public function handleMeetingInvitationSent(MeetingInvitationSent $event): void

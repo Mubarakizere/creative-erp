@@ -119,6 +119,51 @@
                 </div>
             </x-card>
         </div>
+
+        {{-- Taxes --}}
+        <div class="lg:col-span-2">
+            <div class="flex justify-between items-center mb-4 mt-8 lg:mt-4">
+                <h2 class="text-lg font-semibold text-gray-900">Taxes</h2>
+                <x-button type="primary" size="sm" @click="$dispatch('open-modal', 'add-tax')">
+                    Add Tax
+                </x-button>
+            </div>
+            
+            <x-card class="p-0 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50 border-b border-gray-200">
+                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase">Tax Name</th>
+                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase">Rate</th>
+                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase">Type</th>
+                                <th class="py-3 px-4 text-xs font-semibold text-gray-500 uppercase text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            @forelse($taxes ?? [] as $tax)
+                                <tr>
+                                    <td class="py-3 px-4 text-sm font-medium text-gray-900">{{ $tax->name }}</td>
+                                    <td class="py-3 px-4 text-sm text-gray-700">{{ $tax->rate }}{{ $tax->type === 'percentage' ? '%' : '' }}</td>
+                                    <td class="py-3 px-4 text-sm text-gray-700 capitalize">{{ $tax->type }}</td>
+                                    <td class="py-3 px-4 text-sm text-right">
+                                        <form method="POST" action="{{ route('admin.finance.taxes.destroy', $tax->id) }}" class="inline" onsubmit="return confirm('Are you sure you want to delete this tax?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-red-600 hover:text-red-900 text-sm font-medium">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="py-4 px-4 text-center text-sm text-gray-500">No taxes configured.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </x-card>
+        </div>
     </div>
 
     {{-- Add Payment Method Modal --}}
@@ -166,6 +211,37 @@
                 <div>
                     <label for="currency" class="block text-sm font-medium text-gray-700">Currency</label>
                     <input type="text" name="currency" id="currency" value="USD" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                </div>
+            </div>
+            
+            <div class="mt-6 flex justify-end gap-3">
+                <x-button type="default" @click="open = false">Cancel</x-button>
+                <x-button type="primary" submit>Save</x-button>
+            </div>
+        </form>
+    </x-modal>
+
+    {{-- Add Tax Modal --}}
+    <x-modal id="add-tax" maxWidth="md">
+        <x-slot:header>Add Tax Rate</x-slot:header>
+        <form method="POST" action="{{ route('admin.finance.taxes.store') }}" class="p-4 space-y-4">
+            @csrf
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700">Tax Name <span class="text-red-500">*</span></label>
+                <input type="text" name="name" id="name" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="e.g. VAT, Sales Tax">
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="rate" class="block text-sm font-medium text-gray-700">Rate <span class="text-red-500">*</span></label>
+                    <input type="number" step="0.01" name="rate" id="rate" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="e.g. 10">
+                </div>
+                <div>
+                    <label for="type" class="block text-sm font-medium text-gray-700">Type <span class="text-red-500">*</span></label>
+                    <select name="type" id="type" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                        <option value="percentage">Percentage (%)</option>
+                        <option value="fixed">Fixed Amount</option>
+                    </select>
                 </div>
             </div>
             

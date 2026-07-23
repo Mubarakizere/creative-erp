@@ -49,6 +49,12 @@ class ChartService
                 'revenueTrends' => $this->revenueTrends($filters),
                 'expenseTrends' => $this->expenseTrends($filters),
                 'profitTrends' => $this->profitTrends($filters),
+
+                // Inventory Charts
+                'inventoryValueTrend' => [1000, 1500, 1200, 1800, 2000, 1900], // Placeholder
+                'warehouseDistribution' => $this->warehouseDistribution($filters),
+                'categoryDistribution' => $this->categoryDistribution($filters),
+                'stockMovement' => [20, 35, 10, 40, 50, 15], // Placeholder
             ];
         });
     }
@@ -220,5 +226,37 @@ class ChartService
         }
 
         return $results->sortByDesc('net_profit')->values()->toArray();
+    }
+
+    private function warehouseDistribution(array $filters = []): array
+    {
+        $companyId = auth()->user()?->company_id;
+        $warehouses = \App\Models\Warehouse::withSum('inventories', 'available_quantity');
+        
+        if ($companyId) {
+            $warehouses->where('company_id', $companyId);
+        }
+        
+        $data = $warehouses->get()->mapWithKeys(function ($w) {
+            return [$w->name => $w->inventories_sum_available_quantity ?? 0];
+        });
+        
+        return empty($data) ? ['Main Warehouse' => 0] : $data->toArray();
+    }
+
+    private function categoryDistribution(array $filters = []): array
+    {
+        $companyId = auth()->user()?->company_id;
+        $categories = \App\Models\ProductCategory::withCount('products');
+        
+        if ($companyId) {
+            $categories->where('company_id', $companyId);
+        }
+        
+        $data = $categories->get()->mapWithKeys(function ($c) {
+            return [$c->name => $c->products_count ?? 0];
+        });
+        
+        return empty($data) ? ['General' => 0] : $data->toArray();
     }
 }

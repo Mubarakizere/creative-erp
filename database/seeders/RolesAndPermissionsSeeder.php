@@ -75,8 +75,15 @@ class RolesAndPermissionsSeeder extends Seeder
             'comment.view', 'comment.create', 'comment.update', 'comment.delete',
             'comment.pin', 'comment.internal',
             
-            // Inventory (Future)
+            // Inventory
             'inventory.view', 'inventory.create', 'inventory.update', 'inventory.delete',
+            'inventory.transfer', 'inventory.adjust', 'inventory.count', 'inventory.approve',
+            
+            // Products
+            'product.view', 'product.create', 'product.update', 'product.delete',
+            
+            // Warehouses
+            'warehouse.view', 'warehouse.create', 'warehouse.update', 'warehouse.delete',
             
             // Report (Future)
             'report.view', 'report.create', 'report.update', 'report.delete', 'report.export',
@@ -208,6 +215,23 @@ class RolesAndPermissionsSeeder extends Seeder
                 'credit_note.view', 'credit_note.create', 'credit_note.update', 'credit_note.delete',
                 'receipt.view', 'receipt.create', 'receipt.update', 'receipt.delete',
                 'refund.view', 'refund.create', 'refund.update', 'refund.delete',
+            ]);
+        }
+
+        $warehouseManager = Role::where('name', 'Warehouse Manager')->first();
+        if ($warehouseManager) {
+            $warehouseManager->syncPermissions([
+                'inventory.view', 'inventory.create', 'inventory.update', 'inventory.delete',
+                'inventory.transfer', 'inventory.adjust', 'inventory.count', 'inventory.approve',
+                'product.view', 'product.create', 'product.update', 'product.delete',
+                'warehouse.view', 'warehouse.create', 'warehouse.update', 'warehouse.delete',
+                'document.view', 'document.create', 'document.update',
+                'comment.view', 'comment.create', 'comment.update', 'comments.reply',
+                'meeting.view', 'meeting.create', 'meeting.invite',
+                'calendar.view',
+                'approval.view', 'approval.submit', 'approval.approve', 'approval.reject', 'approval.return',
+                'report.view', 'report.export',
+                'analytics.view'
             ]);
         }
 

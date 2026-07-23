@@ -38,4 +38,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('dashboard')->group(function () {
         Route::get('executive', [\App\Http\Controllers\Dashboard\ExecutiveDashboardController::class, 'index']);
     });
+    
+    // Inventory
+    Route::prefix('inventory')->group(function () {
+        Route::apiResource('products', \App\Http\Controllers\Api\Inventory\ProductController::class);
+        Route::apiResource('warehouses', \App\Http\Controllers\Api\Inventory\WarehouseController::class);
+        
+        Route::get('stock', [\App\Http\Controllers\Api\Inventory\InventoryController::class, 'index']);
+        Route::post('transfer', [\App\Http\Controllers\Api\Inventory\InventoryController::class, 'transfer']);
+        Route::post('adjust', [\App\Http\Controllers\Api\Inventory\InventoryController::class, 'adjust']);
+    });
 });

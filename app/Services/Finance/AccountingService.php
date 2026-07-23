@@ -309,4 +309,88 @@ class AccountingService
             return $closingEntry ?? new \App\Models\ClosingEntry(); // Or throw/handle
         });
     }
+
+    public function recordInventoryTransaction(\App\Models\Inventory $inventory, \App\Models\InventoryTransaction $transaction)
+    {
+        $companyId = $inventory->company_id;
+        
+        $inventoryAccount = \App\Models\ChartOfAccount::where('company_id', $companyId)
+            ->where('name', 'like', '%Inventory%')
+            ->first();
+            
+        // Look up specific accounts based on transaction direction
+        $offsetAccount = null;
+        if ($transaction->quantity > 0) {
+            // Gain / Stock In -> Inventory Gain or general Adjustment
+            $offsetAccount = \App\Models\ChartOfAccount::where('company_id', $companyId)
+                ->where('name', 'like', '%Inventory Gain%')
+                ->first() ?? \App\Models\ChartOfAccount::where('company_id', $companyId)
+                ->where('name', 'like', '%Inventory Adjustment%')
+                ->first();
+        } else {
+            // Loss / Stock Out -> Inventory Loss or general Adjustment
+            $offsetAccount = \App\Models\ChartOfAccount::where('company_id', $companyId)
+                ->where('name', 'like', '%Inventory Loss%')
+                ->first() ?? \App\Models\ChartOfAccount::where('company_id', $companyId)
+                ->where('name', 'like', '%Inventory Adjustment%')
+                ->first();
+        }
+
+        // Fallback to COGS if neither is found
+        if (!$offsetAccount) {
+            $offsetAccount = \App\Models\ChartOfAccount::where('company_id', $companyId)
+                ->where('name', 'like', '%Cost of Goods%')
+                ->first();
+        }
+
+        if (!$inventoryAccount || !$offsetAccount) {
+            return; // Silent return if accounts are not mapped yet
+        }
+
+        // Use the actual recorded unit cost, or fallback to product cost price
+        $unitCost = $transaction->unit_cost ?? $inventory->product->cost_price ?? 0;
+        $value = abs($transaction->quantity) * $unitCost;
+        
+        if ($value <= 0) {
+            return;
+        }
+
+        $journalEntries = [];
+
+        if ($transaction->quantity > 0) {
+            // Increase inventory
+            $journalEntries[] = [
+                'chart_of_account_id' => $inventoryAccount->id,
+                'debit' => $value,
+                'credit' => 0,
+            ];
+            // Credit Gain/Adjustment
+            $journalEntries[] = [
+                'chart_of_account_id' => $offsetAccount->id,
+                'debit' => 0,
+                'credit' => $value,
+            ];
+        } else {
+            // Debit Loss/Adjustment
+            $journalEntries[] = [
+                'chart_of_account_id' => $offsetAccount->id,
+                'debit' => $value,
+                'credit' => 0,
+            ];
+            // Decrease inventory
+            $journalEntries[] = [
+                'chart_of_account_id' => $inventoryAccount->id,
+                'debit' => 0,
+                'credit' => $value,
+            ];
+        }
+
+        $journalService = app(\App\Services\Finance\JournalService::class);
+        $journalService->createAutomaticJournal([
+            'company_id' => $companyId,
+            'date' => $transaction->date->toDateString(),
+            'memo' => 'Inventory ' . ucfirst(str_replace('_', ' ', $transaction->type)) . ' - ' . $inventory->product->name,
+            'reference_number' => 'INV-' . substr($transaction->id, 0, 8),
+        ], $journalEntries);
+    }
 }

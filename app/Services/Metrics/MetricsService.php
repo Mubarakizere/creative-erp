@@ -33,7 +33,9 @@ class MetricsService
         AccountingMetrics $accountingMetrics,
         FinancialMetrics $financialMetrics,
         BudgetMetrics $budgetMetrics,
-        ExecutiveMetrics $executiveMetrics
+        ExecutiveMetrics $executiveMetrics,
+        InventoryMetrics $inventoryMetrics,
+        WarehouseMetrics $warehouseMetrics
     ) {
         $this->providers = [
             $dashboardMetrics,
@@ -57,7 +59,9 @@ class MetricsService
             $accountingMetrics,
             $financialMetrics,
             $budgetMetrics,
-            $executiveMetrics
+            $executiveMetrics,
+            $inventoryMetrics,
+            $warehouseMetrics
         ];
     }
 

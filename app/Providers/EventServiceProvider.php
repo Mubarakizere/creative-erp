@@ -24,5 +24,6 @@ class EventServiceProvider extends ServiceProvider
         Event::subscribe(NotificationEventSubscriber::class);
         Event::listen(\App\Events\WorkflowApproved::class, \App\Listeners\UpdateApprovableStatus::class);
         Event::listen(\App\Events\WorkflowRejected::class, \App\Listeners\UpdateApprovableStatus::class);
+        Event::listen(\App\Events\InventoryUpdated::class, \App\Listeners\GenerateInventoryJournalEntry::class);
     }
 }
