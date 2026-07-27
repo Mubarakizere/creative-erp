@@ -1,38 +1,27 @@
-<x-layouts.admin title="Edit Movements">
+<x-layouts.admin title="Edit Movement">
     <x-slot:breadcrumbs>
         @php
             $breadcrumbs = [
                 ['label' => 'Warehouse Ops', 'url' => '#'],
                 ['label' => 'Movements', 'url' => route('admin.warehouse.movements.index')],
+                ['label' => $movement->movement_number, 'url' => route('admin.warehouse.movements.show', $movement)],
                 ['label' => 'Edit'],
             ];
         @endphp
     </x-slot:breadcrumbs>
 
     <div class="mb-8">
-        <h1 class="text-2xl font-bold text-gray-900">Edit Movements</h1>
+        <h1 class="text-2xl font-bold text-gray-900">Edit Movement: {{ $movement->movement_number }}</h1>
+        <p class="mt-1 text-sm text-gray-500">Note: Core movement details (locations and quantities) cannot be changed once requested. Cancel and recreate if needed.</p>
     </div>
 
     <x-card>
-        <form action="{{ route('admin.warehouse.movements.update', $item) }}" method="POST" class="p-6">
-            @csrf
-            @method('PUT')
+        <div class="p-6">
+            <div class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <p class="text-sm text-gray-700">Currently, only the status can be modified via workflow actions on the <a href="{{ route('admin.warehouse.movements.show', $movement) }}" class="text-blue-600 hover:underline">View page</a>.</p>
+            </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Example Field -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Status</label>
-                    <select name="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
-                        <option value="pending" {{ ($item->status ?? '') == 'pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="completed" {{ ($item->status ?? '') == 'completed' ? 'selected' : '' }}>Completed</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="mt-6 flex justify-end gap-3">
-                <x-button type="button" href="{{ route('admin.warehouse.movements.index') }}">Cancel</x-button>
-                <x-button type="submit" class="bg-blue-600 text-white hover:bg-blue-700">Update</x-button>
-            </div>
-        </form>
+            <x-button type="button" href="{{ route('admin.warehouse.movements.show', $movement) }}">Back to Details</x-button>
+        </div>
     </x-card>
 </x-layouts.admin>

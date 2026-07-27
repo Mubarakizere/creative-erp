@@ -331,6 +331,8 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
 
     // Warehouse Management (WMS)
     Route::prefix('warehouse')->name('warehouse.')->group(function () {
+        Route::get('dashboard', [\App\Http\Controllers\Admin\Warehouse\DashboardController::class, 'index'])->name('dashboard');
+        Route::resource('tasks', \App\Http\Controllers\Admin\Warehouse\TaskController::class);
         Route::resource('bins', \App\Http\Controllers\Admin\Warehouse\WarehouseBinController::class);
         Route::resource('put-away', \App\Http\Controllers\Admin\Warehouse\PutAwayController::class);
         Route::resource('picking', \App\Http\Controllers\Admin\Warehouse\PickingController::class);
@@ -339,5 +341,6 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
         Route::resource('movements', \App\Http\Controllers\Admin\Warehouse\MovementController::class);
         Route::resource('returns', \App\Http\Controllers\Admin\Warehouse\ReturnController::class);
         Route::resource('cycle-counts', \App\Http\Controllers\Admin\Warehouse\CycleCountController::class);
+
     });
 });

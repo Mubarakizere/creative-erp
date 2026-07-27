@@ -17,5 +17,6 @@ class Inventory extends Model
     public function variant() { return $this->belongsTo(ProductVariant::class, 'product_variant_id'); }
     public function warehouse() { return $this->belongsTo(Warehouse::class); }
     public function zone() { return $this->belongsTo(WarehouseZone::class, 'warehouse_zone_id'); }
+    public function warehouseBin() { return $this->belongsTo(WarehouseBin::class, 'warehouse_bin_id'); }
     public function transactions() { return $this->hasMany(InventoryTransaction::class); }
 }

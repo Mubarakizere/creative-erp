@@ -7,7 +7,7 @@ use App\Models\WarehouseCycleCount;
 use App\Models\StockCount;
 use App\Models\StockCountItem;
 use Illuminate\Support\Facades\DB;
-use App\Services\Finance\AccountingEngine;
+use App\Services\Finance\AccountingService;
 use App\Models\InventoryAdjustment;
 
 class CycleCountService
@@ -22,9 +22,9 @@ class CycleCountService
             $stockCount = StockCount::create([
                 'company_id' => $data['company_id'],
                 'warehouse_id' => $data['warehouse_id'],
+                'type' => 'cycle_count',
                 'status' => 'pending',
                 'created_by' => $userId,
-                'date' => now(),
             ]);
 
             return WarehouseCycleCount::create([
@@ -50,12 +50,12 @@ class CycleCountService
 
             foreach ($items as $item) {
                 $inventory = Inventory::findOrFail($item['inventory_id']);
-                $variance = $item['counted_quantity'] - $inventory->quantity;
+                $variance = $item['counted_quantity'] - $inventory->available_quantity;
 
                 StockCountItem::create([
                     'stock_count_id' => $cycleCount->stock_count_id,
                     'inventory_id' => $inventory->id,
-                    'expected_quantity' => $inventory->quantity,
+                    'expected_quantity' => $inventory->available_quantity,
                     'counted_quantity' => $item['counted_quantity'],
                     'variance' => $variance,
                 ]);
@@ -93,19 +93,21 @@ class CycleCountService
                 if ($item->variance != 0) {
                     $inventory = $item->inventory;
                     
-                    // Create Adjustment
-                    InventoryAdjustment::create([
+                    // Create Transaction
+                    \App\Models\InventoryTransaction::create([
                         'company_id' => $cycleCount->company_id,
                         'inventory_id' => $inventory->id,
-                        'type' => $item->variance > 0 ? 'addition' : 'deduction',
+                        'type' => $item->variance > 0 ? 'cycle_count_addition' : 'cycle_count_deduction',
                         'quantity' => abs($item->variance),
-                        'reason' => 'Cycle count variance approved: ' . $cycleCount->count_number,
+                        'unit_cost' => $inventory->unit_cost,
+                        'reference_type' => WarehouseCycleCount::class,
+                        'reference_id' => $cycleCount->id,
                         'date' => now(),
                         'created_by' => $userId,
                     ]);
 
                     // Update Inventory
-                    $inventory->update(['quantity' => $item->counted_quantity]);
+                    $inventory->update(['available_quantity' => $item->counted_quantity]);
 
                     // Also update bin if applicable
                     if ($inventory->warehouse_bin_id) {
@@ -116,7 +118,7 @@ class CycleCountService
                     }
 
                     // Accounting integration
-                    app(AccountingEngine::class)->recordInventoryAdjustment($inventory, $item->variance);
+                    app(AccountingService::class)->recordInventoryAdjustment($inventory, (float)$item->variance);
                 }
             }
 

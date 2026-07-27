@@ -15,4 +15,5 @@ class WarehouseZone extends Model
 
     public function warehouse() { return $this->belongsTo(Warehouse::class); }
     public function inventories() { return $this->hasMany(Inventory::class); }
+    public function bins() { return $this->hasMany(WarehouseBin::class); }
 }

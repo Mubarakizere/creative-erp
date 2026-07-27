@@ -89,6 +89,15 @@
                                 <option value="crm_pipeline">Pipeline (Opportunities)</option>
                                 <option value="crm_leads">Leads</option>
                                 <option value="crm_conversions">Conversions</option>
+                                <option disabled>─── Warehouse & Operations ───</option>
+                                <option value="warehouse_utilization">Warehouse Utilization</option>
+                                <option value="bin_utilization">Bin Utilization</option>
+                                <option value="movement_report">Warehouse Movements</option>
+                                <option value="picking_report">Picking Report</option>
+                                <option value="packing_report">Packing Report</option>
+                                <option value="returns_report">Returns Report</option>
+                                <option value="cycle_count_report">Cycle Count Report</option>
+                                <option value="warehouse_productivity">Warehouse Productivity</option>
                             </select>
                         </div>
 
@@ -375,6 +384,14 @@
                         crm_pipeline: ['company_id', 'status', 'date_from', 'date_to'],
                         crm_leads: ['company_id', 'status', 'date_from', 'date_to'],
                         crm_conversions: ['company_id', 'date_from', 'date_to'],
+                        warehouse_utilization: ['company_id'],
+                        bin_utilization: ['company_id', 'warehouse_id'],
+                        movement_report: ['company_id', 'date_from', 'date_to'],
+                        picking_report: ['company_id', 'date_from', 'date_to'],
+                        packing_report: ['company_id', 'date_from', 'date_to'],
+                        returns_report: ['company_id', 'date_from', 'date_to'],
+                        cycle_count_report: ['company_id', 'date_from', 'date_to'],
+                        warehouse_productivity: ['company_id', 'date_from', 'date_to'],
                     };
                     return schema[this.type] || ['date_from', 'date_to'];
                 },
@@ -433,6 +450,47 @@
                             {field: 'id', label: 'ID'}, {field: 'workflow.name', label: 'Workflow'},
                             {field: 'requester.name', label: 'Requester'}, {field: 'approver.name', label: 'Approver'},
                             {field: 'status', label: 'Status'}, {field: 'created_at', label: 'Date'}
+                        ],
+                        warehouse_utilization: [
+                            {field: 'name', label: 'Warehouse'}, {field: 'total_bins', label: 'Total Bins'},
+                            {field: 'active_bins', label: 'Active Bins'}, {field: 'total_capacity', label: 'Total Capacity'},
+                            {field: 'current_quantity', label: 'Current Quantity'}, {field: 'utilization_percentage', label: 'Utilization %'}
+                        ],
+                        bin_utilization: [
+                            {field: 'warehouse.name', label: 'Warehouse'}, {field: 'zone.name', label: 'Zone'},
+                            {field: 'code', label: 'Bin Code'}, {field: 'status', label: 'Status'},
+                            {field: 'capacity', label: 'Capacity'}, {field: 'current_quantity', label: 'Current Qty'},
+                            {field: 'utilization_percentage', label: 'Utilization %'}
+                        ],
+                        movement_report: [
+                            {field: 'created_at', label: 'Date'}, {field: 'movement_number', label: 'Movement #'},
+                            {field: 'type', label: 'Type'}, {field: 'quantity', label: 'Quantity'},
+                            {field: 'sourceWarehouse.name', label: 'From'}, {field: 'destinationWarehouse.name', label: 'To'},
+                            {field: 'status', label: 'Status'}
+                        ],
+                        picking_report: [
+                            {field: 'created_at', label: 'Date'}, {field: 'picking_number', label: 'Picking #'},
+                            {field: 'warehouse.name', label: 'Warehouse'}, {field: 'type', label: 'Type'},
+                            {field: 'status', label: 'Status'}
+                        ],
+                        packing_report: [
+                            {field: 'created_at', label: 'Date'}, {field: 'packing_number', label: 'Packing #'},
+                            {field: 'warehouse.name', label: 'Warehouse'}, {field: 'status', label: 'Status'},
+                            {field: 'total_weight', label: 'Weight (kg)'}, {field: 'packed_by', label: 'Packed By'}
+                        ],
+                        returns_report: [
+                            {field: 'created_at', label: 'Date'}, {field: 'return_number', label: 'Return #'},
+                            {field: 'warehouse.name', label: 'Warehouse'}, {field: 'type', label: 'Type'},
+                            {field: 'status', label: 'Status'}
+                        ],
+                        cycle_count_report: [
+                            {field: 'created_at', label: 'Date'}, {field: 'count_number', label: 'Count #'},
+                            {field: 'warehouse.name', label: 'Warehouse'}, {field: 'type', label: 'Type'},
+                            {field: 'status', label: 'Status'}
+                        ],
+                        warehouse_productivity: [
+                            {field: 'warehouse.name', label: 'Warehouse'}, {field: 'total_tasks', label: 'Total Tasks Done'},
+                            {field: 'picking_tasks', label: 'Picking Tasks'}, {field: 'put_away_tasks', label: 'Put Away Tasks'}
                         ]
                         // We will dynamically render remaining columns in the backend if not specified
                     };

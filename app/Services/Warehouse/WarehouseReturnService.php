@@ -6,7 +6,7 @@ use App\Models\Inventory;
 use App\Models\WarehouseBin;
 use App\Models\WarehouseReturn;
 use Illuminate\Support\Facades\DB;
-use App\Services\Finance\AccountingEngine;
+use App\Services\Finance\AccountingService;
 use App\Models\InventoryTransaction;
 
 class WarehouseReturnService
@@ -48,7 +48,7 @@ class WarehouseReturnService
                 $this->restockItems($return, $inspectionData['items'], $userId);
             } elseif ($inspectionData['status'] === 'disposed' && $return->requires_accounting_adjustment) {
                 // Adjust accounting for inventory loss/damage
-                app(AccountingEngine::class)->recordInventoryWriteOff($return, $inspectionData['loss_amount']);
+                app(AccountingService::class)->recordInventoryWriteOff($return, $inspectionData['loss_amount']);
             }
 
             \App\Models\WarehouseAudit::create([
@@ -77,13 +77,13 @@ class WarehouseReturnService
                     'product_id' => $item['product_id'],
                 ],
                 [
-                    'quantity' => 0,
+                    'available_quantity' => 0,
                     'valuation_method' => 'FIFO',
                     'unit_cost' => $item['unit_cost'] ?? 0,
                 ]
             );
 
-            $inventory->increment('quantity', $item['quantity']);
+            $inventory->increment('available_quantity', $item['quantity']);
 
             InventoryTransaction::create([
                 'company_id' => $return->company_id,
@@ -91,7 +91,6 @@ class WarehouseReturnService
                 'type' => 'return_restock',
                 'quantity' => $item['quantity'],
                 'unit_cost' => $inventory->unit_cost,
-                'total_cost' => $inventory->unit_cost * $item['quantity'],
                 'reference_type' => WarehouseReturn::class,
                 'reference_id' => $return->id,
                 'date' => now(),

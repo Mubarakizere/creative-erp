@@ -19,7 +19,7 @@ class PutAwayService
         DB::transaction(function () use ($companyId, $warehouseId, $receiptItems) {
             foreach ($receiptItems as $item) {
                 // Determine best bin
-                $bin = $this->suggestBin($companyId, $warehouseId, $item->product_id, $item->quantity);
+                $bin = $this->suggestBin($companyId, $warehouseId, $item->product_id, $item->quantity_received);
 
                 if ($bin) {
                     WarehouseTask::create([
@@ -94,9 +94,23 @@ class PutAwayService
             $receiptItem = $task->taskable;
 
             // Update Bin quantity
-            $bin->increment('current_quantity', $receiptItem->quantity);
+            $bin->increment('current_quantity', $receiptItem->quantity_received);
             
-            // Generate Inventory entry
+            // Deduct from generic warehouse inventory (created by GoodsReceiptService)
+            $genericInventory = Inventory::where([
+                'company_id' => $task->company_id,
+                'warehouse_id' => $task->warehouse_id,
+                'product_id' => $receiptItem->product_id,
+            ])->whereNull('warehouse_zone_id')->whereNull('warehouse_bin_id')->first();
+
+            if ($genericInventory && $genericInventory->available_quantity >= $receiptItem->quantity_received) {
+                $genericInventory->decrement('available_quantity', $receiptItem->quantity_received);
+                if ($genericInventory->incoming_quantity >= $receiptItem->quantity_received) {
+                    $genericInventory->decrement('incoming_quantity', $receiptItem->quantity_received);
+                }
+            }
+            
+            // Generate/Update Bin-level Inventory entry
             $inventory = Inventory::firstOrCreate(
                 [
                     'company_id' => $task->company_id,
@@ -106,26 +120,22 @@ class PutAwayService
                     'product_id' => $receiptItem->product_id,
                 ],
                 [
-                    'quantity' => 0,
-                    'valuation_method' => 'FIFO',
-                    'unit_cost' => $receiptItem->unit_price ?? 0,
+                    'available_quantity' => 0,
+                    'created_by' => $userId,
                 ]
             );
 
-            $inventory->increment('quantity', $receiptItem->quantity);
+            $inventory->increment('available_quantity', $receiptItem->quantity_received);
 
             // Create transaction history
             InventoryTransaction::create([
                 'company_id' => $task->company_id,
                 'inventory_id' => $inventory->id,
-                'type' => 'receipt',
-                'quantity' => $receiptItem->quantity,
+                'type' => 'receipt', // Or maybe 'put_away' to avoid confusion with goods_receipt
+                'quantity' => $receiptItem->quantity_received,
                 'unit_cost' => $receiptItem->unit_price ?? 0,
-                'total_cost' => ($receiptItem->unit_price ?? 0) * $receiptItem->quantity,
-                'reference_type' => get_class($task),
-                'reference_id' => $task->id,
                 'date' => now(),
-                'created_by' => $userId,
+                'user_id' => $userId,
             ]);
 
             // Update task status
@@ -141,7 +151,7 @@ class PutAwayService
                 'action' => 'put_away',
                 'auditable_type' => WarehouseTask::class,
                 'auditable_id' => $task->id,
-                'details' => json_encode(['bin' => $bin->code, 'quantity' => $receiptItem->quantity]),
+                'details' => json_encode(['bin' => $bin->code, 'quantity' => $receiptItem->quantity_received]),
                 'user_id' => $userId,
             ]);
         });

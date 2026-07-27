@@ -728,11 +728,11 @@
 
         {{-- Put Away --}}
         @can('viewAny', \App\Models\WarehouseTask::class)
-        <a href="{{ route('admin.warehouse.put-aways.index') }}"
+        <a href="{{ route('admin.warehouse.put-away.index') }}"
            @class([
                'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
-               'bg-sidebar-active text-white' => request()->routeIs('admin.warehouse.put-aways.*'),
-               'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.warehouse.put-aways.*'),
+               'bg-sidebar-active text-white' => request()->routeIs('admin.warehouse.put-away.*'),
+               'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.warehouse.put-away.*'),
            ])>
             <i data-lucide="arrow-down-to-line" class="w-5 h-5 flex-shrink-0"></i>
             <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Put Away</span>
@@ -741,11 +741,11 @@
 
         {{-- Picking --}}
         @can('viewAny', \App\Models\WarehousePicking::class)
-        <a href="{{ route('admin.warehouse.pickings.index') }}"
+        <a href="{{ route('admin.warehouse.picking.index') }}"
            @class([
                'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
-               'bg-sidebar-active text-white' => request()->routeIs('admin.warehouse.pickings.*'),
-               'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.warehouse.pickings.*'),
+               'bg-sidebar-active text-white' => request()->routeIs('admin.warehouse.picking.*'),
+               'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.warehouse.picking.*'),
            ])>
             <i data-lucide="hand" class="w-5 h-5 flex-shrink-0"></i>
             <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Picking</span>
@@ -754,11 +754,11 @@
 
         {{-- Packing --}}
         @can('viewAny', \App\Models\WarehousePacking::class)
-        <a href="{{ route('admin.warehouse.packings.index') }}"
+        <a href="{{ route('admin.warehouse.packing.index') }}"
            @class([
                'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
-               'bg-sidebar-active text-white' => request()->routeIs('admin.warehouse.packings.*'),
-               'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.warehouse.packings.*'),
+               'bg-sidebar-active text-white' => request()->routeIs('admin.warehouse.packing.*'),
+               'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.warehouse.packing.*'),
            ])>
             <i data-lucide="box" class="w-5 h-5 flex-shrink-0"></i>
             <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Packing</span>
@@ -1432,10 +1432,10 @@
         @endcan
 
         @can('viewAny', \App\Models\WarehouseTask::class)
-        <a href="{{ route('admin.warehouse.put-aways.index') }}" @class([
+        <a href="{{ route('admin.warehouse.put-away.index') }}" @class([
             'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
-            'bg-sidebar-active text-white' => request()->routeIs('admin.warehouse.put-aways.*'),
-            'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.warehouse.put-aways.*'),
+            'bg-sidebar-active text-white' => request()->routeIs('admin.warehouse.put-away.*'),
+            'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.warehouse.put-away.*'),
         ])>
             <i data-lucide="arrow-down-to-line" class="w-5 h-5 mr-3 flex-shrink-0"></i>
             Put Away
@@ -1443,10 +1443,10 @@
         @endcan
 
         @can('viewAny', \App\Models\WarehousePicking::class)
-        <a href="{{ route('admin.warehouse.pickings.index') }}" @class([
+        <a href="{{ route('admin.warehouse.picking.index') }}" @class([
             'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
-            'bg-sidebar-active text-white' => request()->routeIs('admin.warehouse.pickings.*'),
-            'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.warehouse.pickings.*'),
+            'bg-sidebar-active text-white' => request()->routeIs('admin.warehouse.picking.*'),
+            'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.warehouse.picking.*'),
         ])>
             <i data-lucide="hand" class="w-5 h-5 mr-3 flex-shrink-0"></i>
             Picking
@@ -1454,10 +1454,10 @@
         @endcan
 
         @can('viewAny', \App\Models\WarehousePacking::class)
-        <a href="{{ route('admin.warehouse.packings.index') }}" @class([
+        <a href="{{ route('admin.warehouse.packing.index') }}" @class([
             'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
-            'bg-sidebar-active text-white' => request()->routeIs('admin.warehouse.packings.*'),
-            'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.warehouse.packings.*'),
+            'bg-sidebar-active text-white' => request()->routeIs('admin.warehouse.packing.*'),
+            'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.warehouse.packing.*'),
         ])>
             <i data-lucide="box" class="w-5 h-5 mr-3 flex-shrink-0"></i>
             Packing

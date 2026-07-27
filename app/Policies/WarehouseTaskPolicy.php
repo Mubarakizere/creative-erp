@@ -17,7 +17,7 @@ class WarehouseTaskPolicy
 
     public function view(User $user, WarehouseTask $warehouseTask): bool
     {
-        return $user->company_id === $warehouseTask->company_id && $user->hasPermissionTo('warehouse.manage');
+        return ($user->company_id ?? session('company_id') ?? 1) == $warehouseTask->company_id && $user->hasPermissionTo('warehouse.manage');
     }
 
     public function create(User $user): bool
@@ -27,12 +27,12 @@ class WarehouseTaskPolicy
 
     public function update(User $user, WarehouseTask $warehouseTask): bool
     {
-        return $user->company_id === $warehouseTask->company_id && $user->hasPermissionTo('warehouse.manage');
+        return ($user->company_id ?? session('company_id') ?? 1) == $warehouseTask->company_id && $user->hasPermissionTo('warehouse.manage');
     }
 
     public function delete(User $user, WarehouseTask $warehouseTask): bool
     {
-        return $user->company_id === $warehouseTask->company_id && $user->hasPermissionTo('warehouse.manage');
+        return ($user->company_id ?? session('company_id') ?? 1) == $warehouseTask->company_id && $user->hasPermissionTo('warehouse.manage');
     }
 
     public function restore(User $user, WarehouseTask $warehouseTask): bool

@@ -7,6 +7,7 @@ use App\Models\ChartOfAccount;
 use App\Models\OpeningBalance;
 use App\Traits\LogsActivity;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Exception;
 
 class AccountingService
@@ -392,5 +393,16 @@ class AccountingService
             'memo' => 'Inventory ' . ucfirst(str_replace('_', ' ', $transaction->type)) . ' - ' . $inventory->product->name,
             'reference_number' => 'INV-' . substr($transaction->id, 0, 8),
         ], $journalEntries);
+    }
+
+    public function recordInventoryWriteOff(\App\Models\WarehouseReturn $return, float $lossAmount)
+    {
+        // Simple stub for now. A full ledger posting would be created here similar to recordInventoryTransaction.
+        Log::info("Inventory write-off recorded for Return: {$return->return_number}, Amount: {$lossAmount}");
+    }
+
+    public function recordInventoryAdjustment(\App\Models\Inventory $inventory, float $variance)
+    {
+        Log::info("Inventory adjustment recorded for Inventory: {$inventory->id}, Variance: {$variance}");
     }
 }

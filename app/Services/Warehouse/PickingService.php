@@ -47,15 +47,15 @@ class PickingService
         $inventories = Inventory::where('company_id', $picking->company_id)
             ->where('warehouse_id', $picking->warehouse_id)
             ->where('product_id', $item->product_id)
-            ->where('quantity', '>', 0)
+            ->where('available_quantity', '>', 0)
             ->whereNotNull('warehouse_bin_id')
-            ->orderBy('quantity', 'desc')
+            ->orderBy('available_quantity', 'desc')
             ->get();
 
         foreach ($inventories as $inventory) {
             if ($remainingQuantity <= 0) break;
 
-            $allocateQty = min($remainingQuantity, $inventory->quantity);
+            $allocateQty = min($remainingQuantity, $inventory->available_quantity);
             $remainingQuantity -= $allocateQty;
 
             WarehouseTask::create([
@@ -95,7 +95,7 @@ class PickingService
                 ->where('product_id', $data['product_id'])
                 ->firstOrFail();
 
-            $inventory->decrement('quantity', $quantity);
+            $inventory->decrement('available_quantity', $quantity);
 
             // History
             InventoryTransaction::create([
@@ -124,6 +124,69 @@ class PickingService
                 'auditable_id' => $task->id,
                 'details' => json_encode(['bin' => $bin->code, 'quantity' => $quantity]),
                 'user_id' => $userId,
+            ]);
+
+            $this->checkPickingStatus($task->taskable);
+        });
+    }
+
+    /**
+     * Partially complete a picking task.
+     */
+    public function partialPickTask(WarehouseTask $task, string $userId, float $pickedQuantity): void
+    {
+        DB::transaction(function () use ($task, $userId, $pickedQuantity) {
+            $data = json_decode($task->notes, true);
+            $allocatedQuantity = $data['quantity'];
+            
+            if ($pickedQuantity >= $allocatedQuantity) {
+                // If they picked equal or more, treat it as a full pick
+                $this->completePickTask($task, $userId);
+                return;
+            }
+
+            $bin = WarehouseBin::findOrFail($data['bin_id']);
+
+            // Deduct from bin
+            $bin->decrement('current_quantity', $pickedQuantity);
+
+            // Deduct from inventory
+            $inventory = Inventory::where('company_id', $task->company_id)
+                ->where('warehouse_id', $task->warehouse_id)
+                ->where('warehouse_bin_id', $bin->id)
+                ->where('product_id', $data['product_id'])
+                ->firstOrFail();
+
+            $inventory->decrement('available_quantity', $pickedQuantity);
+
+            // History
+            InventoryTransaction::create([
+                'company_id' => $task->company_id,
+                'inventory_id' => $inventory->id,
+                'type' => 'picking',
+                'quantity' => -$pickedQuantity,
+                'unit_cost' => $inventory->unit_cost,
+                'total_cost' => -($inventory->unit_cost * $pickedQuantity),
+                'reference_type' => WarehousePicking::class,
+                'reference_id' => $task->taskable_id,
+                'date' => now(),
+                'created_by' => $userId,
+            ]);
+
+            \App\Models\WarehouseAudit::create([
+                'company_id' => $task->company_id,
+                'warehouse_id' => $task->warehouse_id,
+                'action' => 'partial_picking',
+                'auditable_type' => WarehouseTask::class,
+                'auditable_id' => $task->id,
+                'details' => json_encode(['bin' => $bin->code, 'allocated' => $allocatedQuantity, 'picked' => $pickedQuantity]),
+                'user_id' => $userId,
+            ]);
+
+            // Update task to reflect the remaining quantity
+            $data['quantity'] = $allocatedQuantity - $pickedQuantity;
+            $task->update([
+                'notes' => json_encode($data)
             ]);
 
             $this->checkPickingStatus($task->taskable);

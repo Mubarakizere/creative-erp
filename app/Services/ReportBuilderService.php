@@ -91,6 +91,7 @@ class ReportBuilderService
             'outstanding_supplier_payments' => $this->buildOutstandingSupplierPayments($filters),
             'lead_time_report' => $this->buildLeadTimeReport($filters),
             'bin_utilization' => $this->buildBinUtilization($filters),
+            'warehouse_utilization' => $this->buildWarehouseUtilization($filters),
             'movement_report' => $this->buildMovementReport($filters),
             'picking_report' => $this->buildPickingReport($filters),
             'packing_report' => $this->buildPackingReport($filters),
@@ -867,6 +868,33 @@ class ReportBuilderService
         });
 
         return $bins;
+    }
+
+    protected function buildWarehouseUtilization(array $filters)
+    {
+        $query = \App\Models\Warehouse::query();
+        $this->applyCommonFilters($query, $filters);
+        
+        if (!empty($filters['warehouse_id'])) {
+            $query->whereIn('id', (array) $filters['warehouse_id']);
+        }
+
+        $warehouses = $query->get();
+        
+        $warehouses->each(function($warehouse) {
+            $bins = \App\Models\WarehouseBin::where('warehouse_id', $warehouse->id)->get();
+            $totalCapacity = $bins->sum('capacity');
+            $currentQuantity = $bins->sum('current_quantity');
+            $activeBins = $bins->where('status', 'active')->count();
+            
+            $warehouse->total_bins = $bins->count();
+            $warehouse->active_bins = $activeBins;
+            $warehouse->total_capacity = $totalCapacity;
+            $warehouse->current_quantity = $currentQuantity;
+            $warehouse->utilization_percentage = $totalCapacity > 0 ? round(($currentQuantity / $totalCapacity) * 100, 2) : 0;
+        });
+
+        return $warehouses;
     }
 
     protected function buildMovementReport(array $filters)

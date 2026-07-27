@@ -1,4 +1,4 @@
-<x-layouts.admin title="Returns">
+<x-layouts.admin title="Warehouse Returns">
     <x-slot:breadcrumbs>
         @php
             $breadcrumbs = [
@@ -10,58 +10,89 @@
 
     <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900">Returns</h1>
-            <p class="mt-1 text-sm text-gray-500">Manage Returns.</p>
+            <h1 class="text-2xl font-bold text-gray-900">Returns Management</h1>
+            <p class="mt-1 text-sm text-gray-500">Log and inspect inbound returns from customers or suppliers.</p>
         </div>
         @can('create', App\Models\WarehouseReturn::class)
             <x-button type="primary" href="{{ route('admin.warehouse.returns.create') }}">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                 </svg>
-                Create New
+                Log New Return
             </x-button>
         @endcan
     </div>
+
+    @if(session('success'))
+        <div class="mb-6 rounded-xl bg-green-50 p-4 border border-green-200">
+            <p class="text-sm font-medium text-green-800">{{ session('success') }}</p>
+        </div>
+    @endif
 
     <x-card>
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr>
-                        <th class="py-3 px-4 bg-gray-50 border-b text-xs font-semibold text-gray-600 uppercase tracking-wider">Reference/ID</th>
+                        <th class="py-3 px-4 bg-gray-50 border-b text-xs font-semibold text-gray-600 uppercase tracking-wider">Return #</th>
+                        <th class="py-3 px-4 bg-gray-50 border-b text-xs font-semibold text-gray-600 uppercase tracking-wider">Type</th>
+                        <th class="py-3 px-4 bg-gray-50 border-b text-xs font-semibold text-gray-600 uppercase tracking-wider">Warehouse</th>
+                        <th class="py-3 px-4 bg-gray-50 border-b text-xs font-semibold text-gray-600 uppercase tracking-wider">Items Qty</th>
                         <th class="py-3 px-4 bg-gray-50 border-b text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                        <th class="py-3 px-4 bg-gray-50 border-b text-xs font-semibold text-gray-600 uppercase tracking-wider">Date Logged</th>
                         <th class="py-3 px-4 bg-gray-50 border-b text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
-                    @forelse($items as $item)
+                    @forelse($returns as $return)
                         <tr class="hover:bg-gray-50/50 transition-colors">
-                            <td class="py-3 px-4 text-sm text-gray-900">{{ $item->reference_number ?? $item->id }}</td>
+                            <td class="py-3 px-4 text-sm font-medium text-gray-900">{{ $return->return_number }}</td>
+                            <td class="py-3 px-4 text-sm text-gray-700">
+                                @php
+                                    $typeLabels = [
+                                        'customer_return' => 'Customer Return',
+                                        'supplier_return' => 'Supplier Return',
+                                        'damaged_stock' => 'Damaged Stock',
+                                    ];
+                                @endphp
+                                {{ $typeLabels[$return->type] ?? ucfirst($return->type) }}
+                            </td>
+                            <td class="py-3 px-4 text-sm text-gray-700">{{ $return->warehouse->name ?? '—' }}</td>
+                            <td class="py-3 px-4 text-sm text-gray-700">
+                                @php
+                                    $totalQty = collect($return->items)->sum('quantity');
+                                @endphp
+                                {{ number_format($totalQty, 2) }}
+                            </td>
                             <td class="py-3 px-4">
-                                <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-50 text-gray-700 ring-1 ring-gray-600/20">
-                                    {{ ucfirst($item->status ?? 'pending') }}
+                                @php
+                                    $statusColors = [
+                                        'pending' => 'bg-yellow-50 text-yellow-700 ring-yellow-600/20',
+                                        'restocked' => 'bg-green-50 text-green-700 ring-green-600/20',
+                                        'disposed' => 'bg-red-50 text-red-700 ring-red-600/20',
+                                    ];
+                                    $color = $statusColors[$return->status] ?? 'bg-gray-50 text-gray-700 ring-gray-600/20';
+                                @endphp
+                                <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium {{ $color }} ring-1 ring-inset">
+                                    {{ ucfirst($return->status) }}
                                 </span>
                             </td>
+                            <td class="py-3 px-4 text-sm text-gray-500">{{ $return->created_at->format('M d, Y') }}</td>
                             <td class="py-3 px-4 text-right">
-                                <div class="flex items-center justify-end gap-2">
-                                    <a href="{{ route('admin.warehouse.returns.show', $item) }}" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">View</a>
-                                    <a href="{{ route('admin.warehouse.returns.edit', $item) }}" class="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">Edit</a>
-                                </div>
+                                <a href="{{ route('admin.warehouse.returns.show', $return) }}" class="px-3 py-1.5 text-xs font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors">Inspect</a>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="3" class="py-8 text-center text-gray-500">
-                                No records found.
-                            </td>
+                            <td colspan="7" class="py-8 text-center text-gray-500">No returns logged yet.</td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
         <div class="mt-4 p-4 border-t border-gray-50">
-            @if(method_exists($items, 'links'))
-                {{ $items->links('components.pagination') }}
+            @if(method_exists($returns, 'links'))
+                {{ $returns->links('components.pagination') }}
             @endif
         </div>
     </x-card>

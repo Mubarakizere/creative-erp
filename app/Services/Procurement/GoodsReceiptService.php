@@ -5,17 +5,20 @@ use App\Models\GoodsReceipt;
 use App\Models\PurchaseOrder;
 use App\Services\Inventory\InventoryEngine;
 use App\Services\Finance\JournalService;
+use App\Services\Warehouse\PutAwayService;
 use Illuminate\Support\Facades\DB;
 
 class GoodsReceiptService
 {
     protected InventoryEngine $inventoryEngine;
     protected JournalService $journalService;
+    protected PutAwayService $putAwayService;
 
-    public function __construct(InventoryEngine $inventoryEngine, JournalService $journalService)
+    public function __construct(InventoryEngine $inventoryEngine, JournalService $journalService, PutAwayService $putAwayService)
     {
         $this->inventoryEngine = $inventoryEngine;
         $this->journalService = $journalService;
+        $this->putAwayService = $putAwayService;
     }
 
     public function create(array $data, array $items): GoodsReceipt
@@ -84,6 +87,15 @@ class GoodsReceiptService
                         ]
                     ]);
                 }
+            }
+            
+            // Trigger WMS Put Away Tasks
+            if ($gr->warehouse_id) {
+                $this->putAwayService->generateTasksForReceipt(
+                    $gr->company_id,
+                    $gr->warehouse_id,
+                    $gr->items
+                );
             }
             
             return $gr;
