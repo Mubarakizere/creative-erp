@@ -123,6 +123,9 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
     });
     Route::resource('material-requests', \App\Http\Controllers\Admin\Project\ProjectMaterialRequestController::class)->parameters(['material-requests' => 'materialRequest']);
 
+    // Project Material Issues
+    Route::resource('project-material-issues', \App\Http\Controllers\Admin\Project\ProjectMaterialIssueController::class)->only(['index', 'create', 'store', 'show']);
+
     // Milestones
     Route::prefix('milestones')->name('milestones.')->group(function () {
         Route::patch('/{milestone}/restore', [\App\Http\Controllers\Admin\MilestoneController::class, 'restore'])->name('restore')->withTrashed();

@@ -82,6 +82,9 @@
                 <button @click="activeTab = 'time_tracking'" :class="{ 'border-blue-500 text-blue-600': activeTab === 'time_tracking', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'time_tracking' }" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
                     Time Tracking
                 </button>
+                <button @click="activeTab = 'materials'" :class="{ 'border-blue-500 text-blue-600': activeTab === 'materials', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'materials' }" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2">
+                    Materials
+                </button>
             </nav>
         </div>
         
@@ -367,6 +370,11 @@
                         @endforelse
                     </x-table>
                 </x-card>
+            </div>
+            
+            {{-- Materials Tab --}}
+            <div x-show="activeTab === 'materials'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" style="display: none;" x-cloak>
+                @include('admin.projects.partials.materials_tab', ['project' => $project])
             </div>
             
             {{-- Other Placeholder Tabs --}}

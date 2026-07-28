@@ -155,4 +155,12 @@ class Project extends Model
     {
         return $this->hasMany(ProjectMaterialRequest::class);
     }
+
+    /**
+     * Get all of the project's material issues.
+     */
+    public function materialIssues(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ProjectMaterialIssue::class);
+    }
 }
