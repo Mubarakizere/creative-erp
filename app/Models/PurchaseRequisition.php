@@ -26,6 +26,7 @@ class PurchaseRequisition extends Model
     public function company() { return $this->belongsTo(Company::class); }
     public function department() { return $this->belongsTo(Department::class); }
     public function project() { return $this->belongsTo(Project::class); }
+    public function projectMaterialRequest() { return $this->belongsTo(ProjectMaterialRequest::class); }
     public function requestedBy() { return $this->belongsTo(User::class, 'requested_by'); }
     public function items() { return $this->hasMany(PurchaseRequisitionItem::class); }
     public function quotations() { return $this->hasMany(SupplierQuotation::class); }

@@ -18,7 +18,7 @@ class PurchaseOrderController extends Controller
 
     public function show(PurchaseOrder $po)
     {
-        $po->load(['supplier', 'items.product', 'requisition', 'receipts']);
+        $po->load(['supplier', 'items.product', 'receipts']);
         return view('admin.procurement.pos.show', compact('po'));
     }
 

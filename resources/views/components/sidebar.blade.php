@@ -500,6 +500,21 @@
         </a>
         @endcan
 
+        {{-- Material Requests --}}
+        @can('material_request.view')
+        <a href="{{ route('admin.material-requests.index') }}"
+           @class([
+               'flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
+               'bg-sidebar-active text-white' => request()->routeIs('admin.material-requests.*'),
+               'text-gray-300 hover:bg-sidebar-hover hover:text-white' => !request()->routeIs('admin.material-requests.*'),
+           ])>
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+            </svg>
+            <span x-show="sidebarOpen" x-transition class="ml-3 whitespace-nowrap">Material Requests</span>
+        </a>
+        @endcan
+
         {{-- Divider --}}
         <div x-show="sidebarOpen" class="pt-4 pb-2">
             <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Documents</p>

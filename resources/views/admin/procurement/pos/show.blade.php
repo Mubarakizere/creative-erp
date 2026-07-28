@@ -8,7 +8,7 @@
                     @csrf
                     <button class="bg-blue-600 text-white px-4 py-2 rounded">Approve PO</button>
                 </form>
-                @elseif($po->status === 'approved')
+                @elseif(in_array($po->status, ['approved', 'partially_received']))
                 <a href="{{ route('admin.procurement.receipts.create', ['po_id' => $po->id]) }}" class="bg-green-600 text-white px-4 py-2 rounded">Receive Goods</a>
                 @endif
             </div>

@@ -147,4 +147,12 @@ class Project extends Model
     {
         return $this->hasMany(TimeEntry::class);
     }
+
+    /**
+     * Get all of the project's material requests.
+     */
+    public function materialRequests(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ProjectMaterialRequest::class);
+    }
 }

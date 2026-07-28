@@ -47,8 +47,13 @@ class GoodsReceiptService
                 );
 
                 if ($po && $grItem->purchase_order_item_id) {
-                    $poItem = $po->items()->find($grItem->purchase_order_item_id);
+                    $poItem = \App\Models\PurchaseOrderItem::where('id', $grItem->purchase_order_item_id)->lockForUpdate()->first();
                     if ($poItem) {
+                        $remaining = max(0, $poItem->quantity - $poItem->received_quantity);
+                        if ($grItem->quantity_received > $remaining) {
+                            throw new \Exception("Cannot receive more than remaining quantity for product " . $grItem->product?->name);
+                        }
+                        
                         $poItem->received_quantity += $grItem->quantity_received;
                         $poItem->save();
                         $totalCost += ($grItem->quantity_received * $poItem->unit_price);

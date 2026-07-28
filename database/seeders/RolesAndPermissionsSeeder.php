@@ -60,6 +60,11 @@ class RolesAndPermissionsSeeder extends Seeder
             'view-tasks', 'create-tasks', 'edit-tasks', 'delete-tasks',
             'restore-tasks', 'assign-tasks',
             
+            // Material Requests
+            'material_request.view', 'material_request.create', 'material_request.update', 
+            'material_request.delete', 'material_request.submit', 'material_request.approve', 
+            'material_request.reject', 'material_request.cancel', 'material_request.convert_to_procurement',
+            
             // Milestones
             'view-milestones', 'create-milestones', 'edit-milestones', 'delete-milestones',
             'restore-milestones',

@@ -29,21 +29,30 @@
                     <tr>
                         <th class="text-left">Product</th>
                         <th class="text-left">Ordered Qty</th>
-                        <th class="text-left">Received (Good)</th>
-                        <th class="text-left">Rejected (Damaged)</th>
+                        <th class="text-left">Previously Received</th>
+                        <th class="text-left">Remaining</th>
+                        <th class="text-left">Receiving Now</th>
+                        <th class="text-left">Rejected</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($po->items as $index => $item)
+                    @php
+                        $remaining = max(0, $item->quantity - $item->received_quantity);
+                    @endphp
+                    @if($remaining > 0)
                     <tr>
                         <td>
                             {{ $item->product?->name }}
                             <input type="hidden" name="items[{{ $index }}][purchase_order_item_id]" value="{{ $item->id }}">
                         </td>
                         <td>{{ $item->quantity }}</td>
-                        <td><input type="number" name="items[{{ $index }}][received_quantity]" class="border p-2 w-24" value="{{ $item->quantity }}" required></td>
-                        <td><input type="number" name="items[{{ $index }}][rejected_quantity]" class="border p-2 w-24" value="0" required></td>
+                        <td>{{ $item->received_quantity }}</td>
+                        <td>{{ $remaining }}</td>
+                        <td><input type="number" name="items[{{ $index }}][received_quantity]" class="border p-2 w-24" value="{{ $remaining }}" max="{{ $remaining }}" min="0" step="any" required></td>
+                        <td><input type="number" name="items[{{ $index }}][rejected_quantity]" class="border p-2 w-24" value="0" min="0" step="any" required></td>
                     </tr>
+                    @endif
                     @endforeach
                 </tbody>
             </table>

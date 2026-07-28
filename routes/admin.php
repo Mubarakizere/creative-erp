@@ -113,6 +113,16 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
 
     Route::resource('projects', \App\Http\Controllers\Admin\ProjectController::class);
 
+    // Project Material Requests
+    Route::prefix('material-requests')->name('material-requests.')->group(function () {
+        Route::post('/{material_request}/submit', [\App\Http\Controllers\Admin\Project\ProjectMaterialRequestController::class, 'submit'])->name('submit');
+        Route::post('/{material_request}/approve', [\App\Http\Controllers\Admin\Project\ProjectMaterialRequestController::class, 'approve'])->name('approve');
+        Route::post('/{material_request}/reject', [\App\Http\Controllers\Admin\Project\ProjectMaterialRequestController::class, 'reject'])->name('reject');
+        Route::post('/{material_request}/cancel', [\App\Http\Controllers\Admin\Project\ProjectMaterialRequestController::class, 'cancel'])->name('cancel');
+        Route::post('/{material_request}/convert', [\App\Http\Controllers\Admin\Project\ProjectMaterialRequestController::class, 'convert'])->name('convert');
+    });
+    Route::resource('material-requests', \App\Http\Controllers\Admin\Project\ProjectMaterialRequestController::class)->parameters(['material-requests' => 'materialRequest']);
+
     // Milestones
     Route::prefix('milestones')->name('milestones.')->group(function () {
         Route::patch('/{milestone}/restore', [\App\Http\Controllers\Admin\MilestoneController::class, 'restore'])->name('restore')->withTrashed();
