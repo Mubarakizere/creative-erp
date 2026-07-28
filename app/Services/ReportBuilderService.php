@@ -98,6 +98,9 @@ class ReportBuilderService
             'returns_report' => $this->buildReturnsReport($filters),
             'cycle_count_report' => $this->buildCycleCountReport($filters),
             'warehouse_productivity' => $this->buildWarehouseProductivity($filters),
+            'asset_register' => $this->buildAssetRegister($filters),
+            'asset_depreciation' => $this->buildAssetDepreciation($filters),
+            'asset_maintenance' => $this->buildAssetMaintenance($filters),
             default => collect([]),
         };
     }
@@ -965,5 +968,60 @@ class ReportBuilderService
         }
         
         return collect(array_values($users));
+    }
+
+    protected function buildAssetRegister(array $filters)
+    {
+        $query = \App\Models\Asset::with(['category', 'assignedUser', 'department', 'branch', 'warehouse']);
+        $this->applyCommonFilters($query, $filters);
+        
+        if (!empty($filters['status'])) {
+            $query->whereIn('status', (array) $filters['status']);
+        }
+        if (!empty($filters['asset_category_id'])) {
+            $query->whereIn('asset_category_id', (array) $filters['asset_category_id']);
+        }
+        
+        $this->applyDateFilters($query, $filters, 'purchase_date');
+
+        return $query->get();
+    }
+
+    protected function buildAssetDepreciation(array $filters)
+    {
+        $query = \App\Models\AssetDepreciation::with(['asset.category', 'journal']);
+        
+        if (!empty($filters['company_id'])) {
+            $query->whereHas('asset', function($q) use ($filters) {
+                $q->whereIn('company_id', (array) $filters['company_id']);
+            });
+        }
+        
+        if (!empty($filters['status'])) {
+            $query->whereIn('status', (array) $filters['status']);
+        }
+        
+        $this->applyDateFilters($query, $filters, 'period_date');
+
+        return $query->get();
+    }
+
+    protected function buildAssetMaintenance(array $filters)
+    {
+        $query = \App\Models\AssetMaintenance::with(['asset.category']);
+        
+        if (!empty($filters['company_id'])) {
+            $query->whereHas('asset', function($q) use ($filters) {
+                $q->whereIn('company_id', (array) $filters['company_id']);
+            });
+        }
+        
+        if (!empty($filters['status'])) {
+            $query->whereIn('status', (array) $filters['status']);
+        }
+        
+        $this->applyDateFilters($query, $filters, 'maintenance_date');
+
+        return $query->get();
     }
 }

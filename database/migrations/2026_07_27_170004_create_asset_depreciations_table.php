@@ -1,0 +1,35 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('asset_depreciations', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('asset_id')->constrained()->cascadeOnDelete();
+            
+            $table->date('period_date');
+            $table->decimal('amount', 15, 2);
+            $table->decimal('accumulated_depreciation', 15, 2);
+            $table->decimal('book_value', 15, 2);
+            
+            $table->foreignId('journal_id')->nullable()->constrained('journals')->nullOnDelete();
+            
+            $table->string('status')->default('Preview'); // Preview, Approved, Posted, Reversed
+            
+            $table->foreignId('calculated_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('approved_by')->nullable()->constrained('users')->nullOnDelete();
+            
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('asset_depreciations');
+    }
+};

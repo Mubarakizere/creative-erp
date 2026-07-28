@@ -341,6 +341,23 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
         Route::resource('movements', \App\Http\Controllers\Admin\Warehouse\MovementController::class);
         Route::resource('returns', \App\Http\Controllers\Admin\Warehouse\ReturnController::class);
         Route::resource('cycle-counts', \App\Http\Controllers\Admin\Warehouse\CycleCountController::class);
-
     });
+
+    // Fixed Assets
+    Route::prefix('assets')->name('asset-')->group(function () {
+        Route::resource('categories', \App\Http\Controllers\Admin\Asset\AssetCategoryController::class);
+        Route::post('depreciations/generate', [\App\Http\Controllers\Admin\Asset\DepreciationController::class, 'generate'])->name('depreciations.generate');
+        Route::post('depreciations/{depreciation}/post', [\App\Http\Controllers\Admin\Asset\DepreciationController::class, 'post'])->name('depreciations.post');
+        Route::resource('depreciations', \App\Http\Controllers\Admin\Asset\DepreciationController::class)->only(['index']);
+        
+        Route::post('transfers/{assetTransfer}/approve', [\App\Http\Controllers\Admin\Asset\AssetTransferController::class, 'approve'])->name('transfers.approve');
+        Route::post('transfers/{assetTransfer}/reject', [\App\Http\Controllers\Admin\Asset\AssetTransferController::class, 'reject'])->name('transfers.reject');
+        Route::resource('transfers', \App\Http\Controllers\Admin\Asset\AssetTransferController::class)->only(['index', 'store']);
+        
+        Route::resource('maintenances', \App\Http\Controllers\Admin\Asset\AssetMaintenanceController::class)->only(['index', 'store']);
+        
+        Route::post('disposals/{assetDisposal}/approve', [\App\Http\Controllers\Admin\Asset\AssetDisposalController::class, 'approve'])->name('disposals.approve');
+        Route::resource('disposals', \App\Http\Controllers\Admin\Asset\AssetDisposalController::class)->only(['index', 'store']);
+    });
+    Route::resource('assets', \App\Http\Controllers\Admin\Asset\AssetController::class);
 });

@@ -356,7 +356,23 @@ class SearchController extends Controller
             ];
         })->values();
 
+        // Search Assets
+        $assets = \App\Models\Asset::where(function($q) use ($query) {
+            $q->where('name', 'like', "%{$query}%")
+              ->orWhere('asset_number', 'like', "%{$query}%")
+              ->orWhere('serial_number', 'like', "%{$query}%")
+              ->orWhere('barcode', 'like', "%{$query}%");
+        })->get()->filter(fn($model) => auth()->user()->can('view', $model))->take(5)->map(function ($asset) {
+            return [
+                'id' => $asset->id,
+                'title' => 'Asset: ' . $asset->name,
+                'subtitle' => 'Number: ' . $asset->asset_number . ' | Status: ' . $asset->status,
+                'url' => route('admin.asset-assets.show', $asset)
+            ];
+        })->values();
+
         return response()->json([
+            'assets' => $assets,
             'projects' => $projects,
             'tasks' => $tasks,
             'time_entries' => $timeEntries,
@@ -380,6 +396,7 @@ class SearchController extends Controller
             'rfqs' => $rfqs,
             'goods_receipts' => $goodsReceipts,
             'purchase_invoices' => $purchaseInvoices,
+            'assets' => $assets,
         ]);
     }
 }
