@@ -41,6 +41,11 @@ class ProjectMaterialRequest extends Model
         return $this->belongsTo(Project::class);
     }
 
+    public function task()
+    {
+        return $this->belongsTo(Task::class);
+    }
+
     public function requestedBy()
     {
         return $this->belongsTo(User::class, 'requested_by');

@@ -101,6 +101,24 @@ class ReportBuilderService
             'asset_register' => $this->buildAssetRegister($filters),
             'asset_depreciation' => $this->buildAssetDepreciation($filters),
             'asset_maintenance' => $this->buildAssetMaintenance($filters),
+            'material_cost_by_activity' => $this->buildMaterialCostByActivity($filters),
+            'material_quantity_by_activity' => $this->buildMaterialQuantityByActivity($filters),
+            'most_expensive_activities' => $this->buildMostExpensiveActivities($filters),
+            'most_consumed_materials' => $this->buildMostConsumedMaterials($filters),
+            'activity_material_summary' => $this->buildActivityMaterialSummary($filters),
+            
+            // Sprint 29.6 Project Cost Utilization Dashboard & Analytics
+            'project_budget_vs_actual' => $this->buildProjectBudgetVsActual($filters),
+            'project_cost_breakdown' => $this->buildProjectCostBreakdown($filters),
+            'project_material_utilization' => $this->buildProjectMaterialUtilization($filters),
+            'activity_cost_summary' => $this->buildActivityCostSummary($filters),
+            'budget_variance' => $this->buildProjectBudgetVsActual($filters), // Same underlying data
+            'top_cost_drivers' => $this->buildTopCostDrivers($filters),
+            'project_cost_summary' => $this->buildProjectCostSummary($filters),
+            'cost_by_category' => $this->buildCostByCategory($filters),
+            'material_usage_summary' => $this->buildMaterialUsageSummary($filters),
+            'project_financial_overview' => $this->buildProjectFinancialOverview($filters),
+
             default => collect([]),
         };
     }
@@ -807,7 +825,6 @@ class ReportBuilderService
         
         return $invoices;
     }
-
     protected function buildLeadTimeReport(array $filters)
     {
         $query = \App\Models\PurchaseOrder::with(['supplier', 'goodsReceipts'])
@@ -1023,5 +1040,196 @@ class ReportBuilderService
         $this->applyDateFilters($query, $filters, 'maintenance_date');
 
         return $query->get();
+    }
+
+    protected function buildMaterialCostByActivity(array $filters)
+    {
+        $query = Task::query()->with(['project'])->where('actual_material_cost', '>', 0);
+        $this->applyCommonFilters($query, $filters);
+        
+        if (!empty($filters['project_id'])) {
+            $query->whereIn('project_id', (array) $filters['project_id']);
+        }
+        
+        return $query->orderByDesc('actual_material_cost')->get();
+    }
+
+    protected function buildMaterialQuantityByActivity(array $filters)
+    {
+        $query = \App\Models\ProjectMaterialIssueItem::query()
+            ->join('project_material_issues', 'project_material_issue_items.project_material_issue_id', '=', 'project_material_issues.id')
+            ->join('tasks', 'project_material_issues.task_id', '=', 'tasks.id')
+            ->join('products', 'project_material_issue_items.product_id', '=', 'products.id')
+            ->select('tasks.id as task_id', 'tasks.name as task_name', 'products.name as product_name', DB::raw('SUM(project_material_issue_items.quantity) as total_quantity'))
+            ->whereNotNull('project_material_issues.task_id')
+            ->groupBy('tasks.id', 'tasks.name', 'products.name');
+
+        if (!empty($filters['project_id'])) {
+            $query->whereIn('project_material_issues.project_id', (array) $filters['project_id']);
+        }
+
+        return collect($query->get());
+    }
+
+    protected function buildMostExpensiveActivities(array $filters)
+    {
+        return $this->buildMaterialCostByActivity($filters)->take(10);
+    }
+
+    protected function buildMostConsumedMaterials(array $filters)
+    {
+        $query = \App\Models\ProjectMaterialIssueItem::query()
+            ->join('project_material_issues', 'project_material_issue_items.project_material_issue_id', '=', 'project_material_issues.id')
+            ->join('products', 'project_material_issue_items.product_id', '=', 'products.id')
+            ->select('products.id', 'products.name', DB::raw('SUM(project_material_issue_items.quantity) as total_quantity'), DB::raw('SUM(project_material_issue_items.total_cost) as total_cost'))
+            ->whereNotNull('project_material_issues.task_id')
+            ->groupBy('products.id', 'products.name')
+            ->orderByDesc('total_quantity');
+
+        if (!empty($filters['project_id'])) {
+            $query->whereIn('project_material_issues.project_id', (array) $filters['project_id']);
+        }
+
+        return collect($query->get())->take(10);
+    }
+
+    protected function buildActivityMaterialSummary(array $filters)
+    {
+        $query = Task::query()->with(['project', 'materialIssues.items.product'])->whereHas('materialIssues');
+        $this->applyCommonFilters($query, $filters);
+        
+        if (!empty($filters['project_id'])) {
+            $query->whereIn('project_id', (array) $filters['project_id']);
+        }
+        
+        return $query->get();
+    }
+
+    protected function buildProjectBudgetVsActual(array $filters)
+    {
+        $query = Project::query()->with(['client', 'manager']);
+        $this->applyCommonFilters($query, $filters);
+        if (!empty($filters['project_id'])) {
+            $query->whereIn('id', (array) $filters['project_id']);
+        }
+        $projects = $query->get();
+        $projects->each(function($project) {
+            $project->variance = $project->actual_budget - $project->actual_cost;
+            $project->budget_utilization_percent = $project->actual_budget > 0 ? ($project->actual_cost / $project->actual_budget) * 100 : 0;
+            if ($project->budget_utilization_percent > 100) {
+                $project->status_indicator = 'Over Budget';
+            } elseif ($project->budget_utilization_percent >= 80) {
+                $project->status_indicator = 'Warning';
+            } else {
+                $project->status_indicator = 'Healthy';
+            }
+        });
+        return $projects;
+    }
+
+    protected function buildProjectCostBreakdown(array $filters)
+    {
+        $query = Project::query()->with(['client']);
+        $this->applyCommonFilters($query, $filters);
+        if (!empty($filters['project_id'])) {
+            $query->whereIn('id', (array) $filters['project_id']);
+        }
+        $projects = $query->get();
+        $projects->each(function($project) {
+            // Reusing existing data sources without rewriting accounting engines.
+            $project->material_cost = Task::where('project_id', $project->id)->sum('actual_material_cost');
+            $project->equipment_cost = 0; // Placeholder for equipment tracking
+            $project->procurement_cost = \App\Models\PurchaseOrder::where('project_id', $project->id)->sum('grand_total') ?? 0;
+            $project->general_expenses = GeneralLedger::where('project_id', $project->id)
+                ->whereHas('chartOfAccount.accountType', function($q) {
+                    $q->where('category', 'Expense');
+                })->sum('debit');
+        });
+        return $projects;
+    }
+
+    protected function buildProjectMaterialUtilization(array $filters)
+    {
+        $query = Project::query()->withSum('tasks', 'actual_material_cost');
+        $this->applyCommonFilters($query, $filters);
+        if (!empty($filters['project_id'])) {
+            $query->whereIn('id', (array) $filters['project_id']);
+        }
+        $projects = $query->get();
+        $projects->each(function($project) {
+            $project->total_material_cost = $project->tasks_sum_actual_material_cost ?? 0;
+        });
+        return $projects->sortByDesc('total_material_cost')->values();
+    }
+
+    protected function buildActivityCostSummary(array $filters)
+    {
+        $query = Task::query()->with(['project', 'assignee']);
+        $this->applyCommonFilters($query, $filters);
+        if (!empty($filters['project_id'])) {
+            $query->whereIn('project_id', (array) $filters['project_id']);
+        }
+        $tasks = $query->get();
+        $tasks->each(function($task) {
+            $task->total_cost = $task->actual_material_cost; // Expand if labor cost exists
+            $task->cost_per_day = $task->start_date && $task->due_date ? 
+                $task->total_cost / max(1, $task->start_date->diffInDays($task->due_date)) : 0;
+        });
+        return $tasks->sortByDesc('total_cost')->values();
+    }
+
+    protected function buildTopCostDrivers(array $filters)
+    {
+        // Combined view of highest cost projects and activities
+        $projects = $this->buildProjectBudgetVsActual($filters)->sortByDesc('actual_cost')->take(5);
+        $activities = $this->buildActivityCostSummary($filters)->take(5);
+        
+        return collect([
+            'projects' => $projects,
+            'activities' => $activities
+        ]);
+    }
+
+    protected function buildProjectCostSummary(array $filters)
+    {
+        return $this->buildProjectBudgetVsActual($filters); // Uses same base dataset
+    }
+
+    protected function buildCostByCategory(array $filters)
+    {
+        $companyId = $filters['company_id'] ?? auth()->user()?->company_id ?? 1;
+        $query = GeneralLedger::where('company_id', $companyId)
+            ->whereHas('chartOfAccount.accountType', function($q) {
+                $q->where('category', 'Expense');
+            })
+            ->join('chart_of_accounts', 'general_ledgers.chart_of_account_id', '=', 'chart_of_accounts.id')
+            ->select('chart_of_accounts.name as category_name', DB::raw('SUM(general_ledgers.debit) as total_cost'))
+            ->groupBy('chart_of_accounts.name');
+            
+        if (!empty($filters['project_id'])) {
+            $query->where('project_id', $filters['project_id']);
+        }
+        
+        return $query->get()->sortByDesc('total_cost')->values();
+    }
+
+    protected function buildMaterialUsageSummary(array $filters)
+    {
+        return $this->buildMostConsumedMaterials($filters);
+    }
+
+    protected function buildProjectFinancialOverview(array $filters)
+    {
+        $projects = $this->buildProjectBudgetVsActual($filters);
+        
+        return collect([
+            'total_estimated_budget' => $projects->sum('estimated_budget'),
+            'total_actual_budget' => $projects->sum('actual_budget'),
+            'total_actual_cost' => $projects->sum('actual_cost'),
+            'total_remaining_budget' => $projects->sum('variance'),
+            'projects_count' => $projects->count(),
+            'over_budget_count' => $projects->where('status_indicator', 'Over Budget')->count(),
+            'healthy_count' => $projects->where('status_indicator', 'Healthy')->count(),
+        ]);
     }
 }

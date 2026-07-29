@@ -122,6 +122,51 @@
                 @endif
             </x-card>
 
+            {{-- Materials Used --}}
+            <x-card>
+                <x-slot:header>
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-lg font-medium text-gray-900">Materials Used</h3>
+                        <div class="text-sm text-gray-500">
+                            Actual Cost: <span class="font-bold text-gray-900">{{ format_currency($task->actual_material_cost ?? 0, $task->project->currency) }}</span>
+                        </div>
+                    </div>
+                </x-slot:header>
+                
+                @if($task->materialIssues->count() > 0)
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Issue No</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Qty</th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Cost</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @foreach($task->materialIssues as $issue)
+                                    @foreach($issue->items as $item)
+                                    <tr>
+                                        <td class="px-4 py-3 text-sm text-gray-500">{{ $issue->issue_date->format('M d, Y') }}</td>
+                                        <td class="px-4 py-3 text-sm text-blue-600 hover:underline"><a href="{{ route('admin.project-material-issues.show', $issue) }}">{{ $issue->issue_number }}</a></td>
+                                        <td class="px-4 py-3 text-sm text-gray-900">{{ $item->product->name }}</td>
+                                        <td class="px-4 py-3 text-sm text-gray-500">{{ $item->quantity }}</td>
+                                        <td class="px-4 py-3 text-sm text-gray-900 text-right">{{ format_currency($item->total_cost, $task->project->currency) }}</td>
+                                    </tr>
+                                    @endforeach
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <div class="text-center py-6">
+                        <p class="text-gray-500 text-sm">No materials have been issued for this task.</p>
+                    </div>
+                @endif
+            </x-card>
+
             {{-- Documents --}}
             <div class="mt-6">
                 @include('admin.documents.partials.document_tab', ['documentable' => $task])

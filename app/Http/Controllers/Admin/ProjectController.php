@@ -77,7 +77,13 @@ class ProjectController extends Controller
     {
         Gate::authorize('view', $project);
         
-        $project->load(['company', 'branch', 'client', 'manager', 'creator', 'updater']);
+        $project->load([
+            'company', 'branch', 'client', 'manager', 'creator', 'updater',
+            'tasks.materialRequests.items.product',
+            'tasks.materialIssues.items.product',
+            'materialRequests.items.product',
+            'materialIssues.items.product'
+        ]);
 
         return view('admin.projects.show', compact('project'));
     }

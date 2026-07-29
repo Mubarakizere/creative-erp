@@ -26,6 +26,7 @@ class Task extends Model
         'priority',
         'status',
         'progress',
+        'actual_material_cost',
         'start_date',
         'due_date',
         'completed_at',
@@ -38,6 +39,7 @@ class Task extends Model
         'due_date' => 'date',
         'completed_at' => 'datetime',
         'progress' => 'integer',
+        'actual_material_cost' => 'decimal:2',
     ];
 
     protected static function boot()
@@ -113,5 +115,21 @@ class Task extends Model
     public function timeEntries(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(TimeEntry::class);
+    }
+
+    /**
+     * Get all of the task's material requests.
+     */
+    public function materialRequests(): HasMany
+    {
+        return $this->hasMany(ProjectMaterialRequest::class);
+    }
+
+    /**
+     * Get all of the task's material issues.
+     */
+    public function materialIssues(): HasMany
+    {
+        return $this->hasMany(ProjectMaterialIssue::class);
     }
 }

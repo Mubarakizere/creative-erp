@@ -68,6 +68,14 @@ class ChartService
                 'pickingTrends' => $this->pickingTrends($filters),
                 'packingTrends' => $this->packingTrends($filters),
                 'returnTrends' => $this->returnTrends($filters),
+                
+                // Sprint 29.6 Project Cost Utilization Charts
+                'projectBudgetVsActual' => $this->projectBudgetVsActual($filters),
+                'projectCostBreakdown' => $this->projectCostBreakdown($filters),
+                'materialCostByActivity' => $this->materialCostByActivity($filters),
+                'projectCostTrend' => $this->projectCostTrend($filters),
+                'topCostProjectsChart' => $this->topCostProjectsChart($filters),
+                'topCostActivitiesChart' => $this->topCostActivitiesChart($filters),
             ];
         });
     }
@@ -442,5 +450,116 @@ class ChartService
             $trend[] = $row ? (int) $row->total_count : 0;
         }
         return $trend;
+    }
+
+    private function projectBudgetVsActual(array $filters = []): array
+    {
+        $query = \App\Models\Project::query()->take(5);
+        $this->applyFilters($query, $filters);
+        
+        $projects = $query->get();
+        $data = [
+            'labels' => [],
+            'budgets' => [],
+            'actuals' => []
+        ];
+        
+        foreach ($projects as $project) {
+            $data['labels'][] = $project->name;
+            $data['budgets'][] = (float) $project->actual_budget;
+            $data['actuals'][] = (float) $project->actual_cost;
+        }
+        
+        return $data;
+    }
+
+    private function projectCostBreakdown(array $filters = []): array
+    {
+        // Global cost breakdown across projects
+        $query = \App\Models\Project::query();
+        $this->applyFilters($query, $filters);
+        $projectIds = $query->pluck('id');
+        
+        $materialCost = \App\Models\Task::whereIn('project_id', $projectIds)->sum('actual_material_cost');
+        $procurementCost = \App\Models\PurchaseOrder::whereIn('project_id', $projectIds)->sum('grand_total') ?? 0;
+        $generalExpenses = \App\Models\GeneralLedger::whereIn('project_id', $projectIds)
+            ->whereHas('chartOfAccount.accountType', function($q) {
+                $q->where('category', 'Expense');
+            })->sum('debit');
+
+        return [
+            'Material' => (float) $materialCost,
+            'Procurement' => (float) $procurementCost,
+            'General Expenses' => (float) $generalExpenses,
+        ];
+    }
+
+    private function materialCostByActivity(array $filters = []): array
+    {
+        $query = \App\Models\Task::where('actual_material_cost', '>', 0)
+            ->orderBy('actual_material_cost', 'desc')
+            ->take(5);
+            
+        // Assuming filters don't map directly to tasks, maybe just project_id
+        if (!empty($filters['project_id'])) {
+            $query->whereIn('project_id', (array) $filters['project_id']);
+        }
+
+        $tasks = $query->get();
+        $data = [];
+        foreach ($tasks as $task) {
+            $data[$task->name] = (float) $task->actual_material_cost;
+        }
+        
+        return empty($data) ? ['No Data' => 0] : $data;
+    }
+
+    private function projectCostTrend(array $filters = []): array
+    {
+        $query = \App\Models\GeneralLedger::select(
+            \Illuminate\Support\Facades\DB::raw("strftime('%m', date) as month"),
+            \Illuminate\Support\Facades\DB::raw("SUM(debit) as total_cost")
+        )
+        ->whereHas('chartOfAccount.accountType', function($q) {
+            $q->where('category', 'Expense');
+        })
+        ->whereNotNull('project_id')
+        ->whereDate('date', '>=', now()->subMonths(5)->startOfMonth())
+        ->whereDate('date', '<=', now()->endOfMonth())
+        ->groupBy('month')
+        ->orderBy('month');
+
+        $this->applyFilters($query, $filters);
+        $results = $query->get()->keyBy('month');
+
+        $trend = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $monthObj = now()->subMonths($i);
+            $monthNum = $monthObj->format('m');
+            $row = $results->get($monthNum);
+            $trend[] = $row ? (float) $row->total_cost : 0;
+        }
+        return $trend;
+    }
+
+    private function topCostProjectsChart(array $filters = []): array
+    {
+        $query = \App\Models\Project::query()->orderBy('actual_cost', 'desc')->take(5);
+        $this->applyFilters($query, $filters);
+        
+        $projects = $query->get();
+        $data = [];
+        
+        foreach ($projects as $project) {
+            $data[$project->name] = (float) $project->actual_cost;
+        }
+        
+        return empty($data) ? ['No Data' => 0] : $data;
+    }
+
+    private function topCostActivitiesChart(array $filters = []): array
+    {
+        // Re-use materialCostByActivity for now or expand if labor exists
+        return $this->materialCostByActivity($filters);
     }
 }

@@ -28,6 +28,17 @@
                                 @error('project_id') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
                             </div>
 
+                            <div class="col-span-6 sm:col-span-4">
+                                <label for="task_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Task / Activity (Optional)</label>
+                                <select id="task_id" name="task_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    <option value="">Select a Task</option>
+                                    @foreach($tasks as $task)
+                                        <option value="{{ $task->id }}" {{ old('task_id') == $task->id ? 'selected' : '' }}>{{ $task->name }} ({{ $task->task_code }})</option>
+                                    @endforeach
+                                </select>
+                                @error('task_id') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
+                            </div>
+
                             <div class="col-span-6 sm:col-span-3">
                                 <label for="request_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Request Date <span class="text-red-500">*</span></label>
                                 <input type="date" name="request_date" id="request_date" required value="{{ old('request_date', date('Y-m-d')) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
@@ -140,6 +151,14 @@
                 }
             }
         }));
+    });
+
+    document.getElementById('project_id').addEventListener('change', function() {
+        if (this.value) {
+            window.location.href = '?project_id=' + this.value;
+        } else {
+            window.location.href = '?';
+        }
     });
 </script>
 </x-layouts.admin>

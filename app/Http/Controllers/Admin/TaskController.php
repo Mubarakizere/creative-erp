@@ -111,7 +111,11 @@ class TaskController extends Controller
     public function show(Task $task)
     {
         $this->authorize('view', $task);
-        $task->load(['project', 'assignee', 'parent', 'children', 'creator']);
+        $task->load([
+            'project', 'assignee', 'parent', 'children', 'creator',
+            'materialRequests.items.product',
+            'materialIssues.items.product'
+        ]);
 
         return view('admin.projects.tasks.show', compact('task'));
     }

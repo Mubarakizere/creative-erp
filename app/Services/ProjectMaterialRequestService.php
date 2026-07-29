@@ -25,6 +25,7 @@ class ProjectMaterialRequestService
                 'company_id' => $companyId,
                 'branch_id' => $data['branch_id'] ?? auth()->user()?->branch_id,
                 'project_id' => $data['project_id'],
+                'task_id' => $data['task_id'] ?? null,
                 'requested_by' => auth()->id(),
                 'request_number' => $requestNumber,
                 'request_date' => $data['request_date'] ?? now()->toDateString(),
@@ -59,6 +60,7 @@ class ProjectMaterialRequestService
         return DB::transaction(function () use ($request, $data) {
             $request->update([
                 'project_id' => $data['project_id'] ?? $request->project_id,
+                'task_id' => array_key_exists('task_id', $data) ? $data['task_id'] : $request->task_id,
                 'request_date' => $data['request_date'] ?? $request->request_date,
                 'required_date' => $data['required_date'] ?? $request->required_date,
                 'purpose' => $data['purpose'] ?? $request->purpose,

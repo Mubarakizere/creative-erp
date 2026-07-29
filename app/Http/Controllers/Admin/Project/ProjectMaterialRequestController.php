@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\UpdateProjectMaterialRequestRequest;
 use App\Models\ProjectMaterialRequest;
 use App\Models\Project;
 use App\Models\Product;
+use App\Models\Task;
 use App\Services\ProjectMaterialRequestService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -52,8 +53,9 @@ class ProjectMaterialRequestController extends Controller
         $products = Product::where('status', 'active')->get(); 
         
         $selectedProject = $request->project_id ? Project::find($request->project_id) : null;
+        $tasks = $selectedProject ? $selectedProject->tasks : collect();
 
-        return view('admin.projects.material-requests.create', compact('projects', 'products', 'selectedProject'));
+        return view('admin.projects.material-requests.create', compact('projects', 'products', 'selectedProject', 'tasks'));
     }
 
     public function store(StoreProjectMaterialRequestRequest $request)
@@ -82,9 +84,10 @@ class ProjectMaterialRequestController extends Controller
 
         $projects = Project::where('status', '!=', 'Closed')->get();
         $products = Product::where('status', 'active')->get(); 
-        $materialRequest->load('items');
+        $materialRequest->load('items', 'task');
+        $tasks = $materialRequest->project_id ? Task::where('project_id', $materialRequest->project_id)->get() : collect();
 
-        return view('admin.projects.material-requests.edit', compact('materialRequest', 'projects', 'products'));
+        return view('admin.projects.material-requests.edit', compact('materialRequest', 'projects', 'products', 'tasks'));
     }
 
     public function update(UpdateProjectMaterialRequestRequest $request, ProjectMaterialRequest $materialRequest)

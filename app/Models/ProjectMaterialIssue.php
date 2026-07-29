@@ -39,6 +39,11 @@ class ProjectMaterialIssue extends Model
         return $this->belongsTo(Project::class);
     }
 
+    public function task()
+    {
+        return $this->belongsTo(Task::class);
+    }
+
     public function warehouse()
     {
         return $this->belongsTo(Warehouse::class);

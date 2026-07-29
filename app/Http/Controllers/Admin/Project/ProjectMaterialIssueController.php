@@ -7,6 +7,7 @@ use App\Models\Project;
 use App\Models\Warehouse;
 use App\Models\Product;
 use App\Models\ProjectMaterialIssue;
+use App\Models\Task;
 use App\Http\Requests\Admin\StoreProjectMaterialIssueRequest;
 use App\Services\Project\ProjectMaterialIssueService;
 use App\Services\Inventory\InventoryValuationService;
@@ -55,6 +56,11 @@ class ProjectMaterialIssueController extends Controller
         $projects = Project::active()->get();
         $warehouses = Warehouse::active()->get();
         
+        $tasks = collect();
+        if ($request->filled('project_id')) {
+            $tasks = Task::where('project_id', $request->project_id)->get();
+        }
+        
         $products = collect();
         if ($request->filled('warehouse_id')) {
             // Get products with available stock in this warehouse
@@ -68,7 +74,7 @@ class ProjectMaterialIssueController extends Controller
         $issueNumber = 'PMI-' . strtoupper(substr(uniqid(), -6));
         $today = Carbon::today()->format('Y-m-d');
 
-        return view('admin.project-material-issues.create', compact('projects', 'warehouses', 'products', 'issueNumber', 'today'));
+        return view('admin.project-material-issues.create', compact('projects', 'warehouses', 'products', 'tasks', 'issueNumber', 'today'));
     }
 
     public function store(StoreProjectMaterialIssueRequest $request)

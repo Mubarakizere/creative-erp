@@ -37,10 +37,22 @@
                     <div class="sm:col-span-3">
                         <label for="project_id" class="block text-sm font-medium text-gray-700">Project</label>
                         <div class="mt-1">
-                            <select id="project_id" name="project_id" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                            <select id="project_id" name="project_id" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required x-on:change="window.location.search = '?project_id=' + $event.target.value + '&warehouse_id=' + (new URLSearchParams(window.location.search).get('warehouse_id') || '')">
                                 <option value="">Select Project</option>
                                 @foreach($projects as $project)
-                                    <option value="{{ $project->id }}" {{ old('project_id') == $project->id ? 'selected' : '' }}>{{ $project->name }} ({{ $project->project_code }})</option>
+                                    <option value="{{ $project->id }}" {{ request('project_id', old('project_id')) == $project->id ? 'selected' : '' }}>{{ $project->name }} ({{ $project->project_code }})</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="sm:col-span-3">
+                        <label for="task_id" class="block text-sm font-medium text-gray-700">Task / Activity (Optional)</label>
+                        <div class="mt-1">
+                            <select id="task_id" name="task_id" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                <option value="">Select Task</option>
+                                @foreach($tasks as $task)
+                                    <option value="{{ $task->id }}" {{ old('task_id') == $task->id ? 'selected' : '' }}>{{ $task->name }} ({{ $task->task_code }})</option>
                                 @endforeach
                             </select>
                         </div>
@@ -49,7 +61,7 @@
                     <div class="sm:col-span-3">
                         <label for="warehouse_id" class="block text-sm font-medium text-gray-700">Warehouse</label>
                         <div class="mt-1">
-                            <select id="warehouse_id" name="warehouse_id" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required x-on:change="window.location.search = '?warehouse_id=' + $event.target.value">
+                            <select id="warehouse_id" name="warehouse_id" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required x-on:change="window.location.search = '?warehouse_id=' + $event.target.value + '&project_id=' + (new URLSearchParams(window.location.search).get('project_id') || '')">
                                 <option value="">Select Warehouse (Reloads items)</option>
                                 @foreach($warehouses as $warehouse)
                                     <option value="{{ $warehouse->id }}" {{ request('warehouse_id') == $warehouse->id ? 'selected' : '' }}>{{ $warehouse->name }}</option>

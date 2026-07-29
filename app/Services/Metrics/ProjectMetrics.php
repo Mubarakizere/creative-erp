@@ -47,6 +47,12 @@ class ProjectMetrics implements MetricProvider
             'closed_projects' => (clone $projectQuery)->where('status', 'Closed')->count(),
             'total_estimated_budget' => auth()->user()?->can('project.view-budget') ? (clone $projectQuery)->sum('estimated_budget') : 0,
             'total_actual_budget' => auth()->user()?->can('project.view-budget') ? (clone $projectQuery)->sum('actual_budget') : 0,
+            'total_actual_cost' => auth()->user()?->can('project.view-budget') ? (clone $projectQuery)->sum('actual_cost') : 0,
+            'remaining_budget' => auth()->user()?->can('project.view-budget') ? (clone $projectQuery)->sum('actual_budget') - (clone $projectQuery)->sum('actual_cost') : 0,
+            'budget_utilization_percent' => auth()->user()?->can('project.view-budget') && (clone $projectQuery)->sum('actual_budget') > 0 ? ((clone $projectQuery)->sum('actual_cost') / (clone $projectQuery)->sum('actual_budget')) * 100 : 0,
+            'total_material_cost' => auth()->user()?->can('project.view-budget') ? (clone $projectQuery)->withSum('tasks', 'actual_material_cost')->get()->sum('tasks_sum_actual_material_cost') : 0,
+            'total_equipment_cost' => 0, // Pulled from GL or AssetAssignment if applicable
+            'total_procurement_cost' => 0, // Pulled from POs or GL if applicable
             
             // Team Stats
             'total_team_members' => (clone $memberQuery)->count(),
@@ -75,9 +81,28 @@ class ProjectMetrics implements MetricProvider
             });
         }
 
+        $projects = (clone $projectQuery)->get();
+        $projectsApproachingBudget = collect();
+        $projectsOverBudget = collect();
+        
+        foreach ($projects as $p) {
+            if ($p->actual_budget > 0) {
+                $utilization = ($p->actual_cost / $p->actual_budget) * 100;
+                if ($utilization >= 80 && $utilization <= 100) {
+                    $projectsApproachingBudget->push($p);
+                } elseif ($utilization > 100) {
+                    $projectsOverBudget->push($p);
+                }
+            }
+        }
+
         return [
-            'latestProjects' => $projectQuery->latest()->take(5)->get(),
+            'latestProjects' => (clone $projectQuery)->latest()->take(5)->get(),
             'latestTeamMembers' => auth()->user()?->can('project-team.view') ? $memberQuery->latest('joined_at')->take(5)->get() : collect([]),
+            'topCostProjects' => (clone $projectQuery)->orderBy('actual_cost', 'desc')->take(5)->get(),
+            'projectsApproachingBudget' => $projectsApproachingBudget->sortByDesc('actual_cost')->take(5)->values(),
+            'projectsOverBudget' => $projectsOverBudget->sortByDesc('actual_cost')->take(5)->values(),
+            'topMaterialCostActivities' => \App\Models\Task::whereIn('project_id', (clone $projectQuery)->pluck('id'))->orderBy('actual_material_cost', 'desc')->take(5)->get(),
         ];
     }
 

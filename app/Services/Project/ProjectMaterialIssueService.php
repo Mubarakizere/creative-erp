@@ -90,6 +90,18 @@ class ProjectMaterialIssueService
             $project->actual_cost = ($project->actual_cost ?? 0) + $totalIssueCost;
             $project->save();
 
+            // Update Task Cost
+            if (!empty($issue->task_id)) {
+                $task = \App\Models\Task::where('id', $issue->task_id)
+                                        ->where('project_id', $project->id)
+                                        ->first();
+                if ($task) {
+                    $task->lockForUpdate();
+                    $task->actual_material_cost = ($task->actual_material_cost ?? 0) + $totalIssueCost;
+                    $task->save();
+                }
+            }
+
             // Accounting Entry
             if ($totalIssueCost > 0) {
                 // Determine accounts - falling back to defaults if not found.
