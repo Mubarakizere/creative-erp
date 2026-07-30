@@ -400,7 +400,7 @@
                     const schema = {
                         project_summary: [
                             {field: 'id', label: 'ID'}, {field: 'name', label: 'Name'}, 
-                            {field: 'client.name', label: 'Client'}, {field: 'manager.name', label: 'Manager'}, 
+                            {field: 'customer.name', label: 'Client'}, {field: 'manager.name', label: 'Manager'}, 
                             {field: 'status', label: 'Status'}, {field: 'priority', label: 'Priority'}, 
                             {field: 'progress', label: 'Progress (%)'}, {field: 'created_at', label: 'Created Date'}
                         ],

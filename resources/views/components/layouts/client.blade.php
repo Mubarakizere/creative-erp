@@ -19,7 +19,7 @@
 
                         {{-- Client Nav Links --}}
                         <div class="hidden sm:ml-8 sm:flex sm:space-x-4">
-                            <a href="{{ route('client.dashboard') }}" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors {{ request()->routeIs('client.dashboard') ? 'bg-blue-50 text-blue-600' : '' }}">
+                            <a href="{{ route('customer.dashboard') }}" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors {{ request()->routeIs('customer.dashboard') ? 'bg-blue-50 text-blue-600' : '' }}">
                                 Dashboard
                             </a>
                         </div>

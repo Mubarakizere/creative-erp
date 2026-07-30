@@ -12,8 +12,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['auth', 'check.status', 'track.activity'])->prefix('client')->name('client.')->group(function () {
+Route::middleware(['auth', 'check.status', 'track.activity'])->prefix('client')->name('customer.')->group(function () {
     Route::get('/dashboard', function () {
-        return view('client.dashboard');
+        return view('customer.dashboard');
     })->name('dashboard');
 });

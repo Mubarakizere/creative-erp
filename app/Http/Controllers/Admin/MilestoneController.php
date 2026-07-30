@@ -127,7 +127,7 @@ class MilestoneController extends Controller
 
     public function assignTasks(Request $request, \App\Models\Milestone $milestone): \Illuminate\Http\RedirectResponse
     {
-        \Illuminate\Support\Facades\Gate::authorize('assignTasks', $milestone);
+        \Illuminate\Support\Facades\Gate::authorize('project_task.update', $milestone);
         $request->validate([
             'task_ids' => 'required|array',
             'task_ids.*' => 'exists:tasks,id'
@@ -143,7 +143,7 @@ class MilestoneController extends Controller
 
     public function removeTask(\App\Models\Milestone $milestone, int $taskId): \Illuminate\Http\RedirectResponse
     {
-        \Illuminate\Support\Facades\Gate::authorize('assignTasks', $milestone);
+        \Illuminate\Support\Facades\Gate::authorize('project_task.update', $milestone);
         
         $this->milestoneService->removeTask($milestone, $taskId);
         

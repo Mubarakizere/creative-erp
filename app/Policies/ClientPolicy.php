@@ -13,7 +13,7 @@ class ClientPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('client.view');
+        return $user->can('customer.view');
     }
 
     /**
@@ -21,7 +21,7 @@ class ClientPolicy
      */
     public function view(User $user, Client $client): bool
     {
-        return $user->can('client.view');
+        return $user->can('customer.view');
     }
 
     /**
@@ -29,7 +29,7 @@ class ClientPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('client.create');
+        return $user->can('customer.create');
     }
 
     /**
@@ -37,7 +37,7 @@ class ClientPolicy
      */
     public function update(User $user, Client $client): bool
     {
-        return $user->can('client.update');
+        return $user->can('customer.update');
     }
 
     /**
@@ -45,7 +45,7 @@ class ClientPolicy
      */
     public function delete(User $user, Client $client): bool
     {
-        return $user->can('client.delete');
+        return $user->can('customer.delete');
     }
 
     /**
@@ -53,7 +53,7 @@ class ClientPolicy
      */
     public function restore(User $user, Client $client): bool
     {
-        return $user->can('client.restore');
+        return $user->can('customer.restore');
     }
 
     /**
@@ -69,7 +69,7 @@ class ClientPolicy
      */
     public function activate(User $user, Client $client): bool
     {
-        return $user->can('client.activate');
+        return $user->can('customer.activate');
     }
 
     /**
@@ -77,6 +77,6 @@ class ClientPolicy
      */
     public function deactivate(User $user, Client $client): bool
     {
-        return $user->can('client.deactivate');
+        return $user->can('customer.deactivate');
     }
 }

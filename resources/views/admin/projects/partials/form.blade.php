@@ -46,8 +46,8 @@
             <label class="block text-sm font-medium text-gray-700 mb-1">Client <span class="text-red-500">*</span></label>
             <select name="client_id" x-model="clientId" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required :disabled="availableClients.length === 0">
                 <option value="">Select Client</option>
-                <template x-for="client in availableClients" :key="client.id">
-                    <option :value="client.id" x-text="client.display_name" :selected="client.id == clientId"></option>
+                <template x-for="client in availableClients" :key="customer.id">
+                    <option :value="customer.id" x-text="customer.display_name" :selected="customer.id == clientId"></option>
                 </template>
             </select>
             @error('client_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror

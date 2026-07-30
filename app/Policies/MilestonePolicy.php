@@ -12,7 +12,7 @@ class MilestonePolicy
 
     public function viewAny(User $user): bool
     {
-        return $user->hasPermissionTo('view-milestones');
+        return $user->hasPermissionTo('milestone.view');
     }
 
     public function view(User $user, Milestone $milestone): bool
@@ -20,12 +20,12 @@ class MilestonePolicy
         if ($user->company_id !== $milestone->company_id) {
             return false;
         }
-        return $user->hasPermissionTo('view-milestones');
+        return $user->hasPermissionTo('milestone.view');
     }
 
     public function create(User $user): bool
     {
-        return $user->hasPermissionTo('create-milestones');
+        return $user->hasPermissionTo('milestone.create');
     }
 
     public function update(User $user, Milestone $milestone): bool
@@ -33,7 +33,7 @@ class MilestonePolicy
         if ($user->company_id !== $milestone->company_id) {
             return false;
         }
-        return $user->hasPermissionTo('edit-milestones');
+        return $user->hasPermissionTo('milestone.update');
     }
 
     public function delete(User $user, Milestone $milestone): bool
@@ -41,7 +41,7 @@ class MilestonePolicy
         if ($user->company_id !== $milestone->company_id) {
             return false;
         }
-        return $user->hasPermissionTo('delete-milestones');
+        return $user->hasPermissionTo('milestone.delete');
     }
 
     public function restore(User $user, Milestone $milestone): bool
@@ -49,7 +49,7 @@ class MilestonePolicy
         if ($user->company_id !== $milestone->company_id) {
             return false;
         }
-        return $user->hasPermissionTo('restore-milestones');
+        return $user->hasPermissionTo('milestone.restore');
     }
 
     public function forceDelete(User $user, Milestone $milestone): bool
@@ -62,6 +62,6 @@ class MilestonePolicy
         if ($user->company_id !== $milestone->company_id) {
             return false;
         }
-        return $user->hasPermissionTo('edit-milestones');
+        return $user->hasPermissionTo('milestone.update');
     }
 }

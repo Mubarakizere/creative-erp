@@ -131,7 +131,7 @@
         @endcan
 
         {{-- Clients --}}
-        @can('client.view')
+        @can('customer.view')
         <x-stats-card
             title="Total Clients"
             value="{{ number_format($stats['clients']) }}"
@@ -417,7 +417,7 @@
         @endcan
 
             {{-- Recent Activity Feed (Sample Data) --}}
-            @can('view-tasks')
+            @can('project_task.view')
         <x-card>
                 <x-slot:header>
                     <div class="flex items-center justify-between">
@@ -671,7 +671,7 @@
                         <span class="text-xs font-medium">Assign Member</span>
                     </a>
         @endcan
-                    @can('client.create')
+                    @can('customer.create')
         <a href="{{ route('admin.clients.create') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-emerald-50 hover:text-emerald-700 text-gray-600 transition-all duration-200 group">
                         <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -130,7 +130,7 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
     Route::prefix('milestones')->name('milestones.')->group(function () {
         Route::patch('/{milestone}/restore', [\App\Http\Controllers\Admin\MilestoneController::class, 'restore'])->name('restore')->withTrashed();
         Route::post('/{milestone}/duplicate', [\App\Http\Controllers\Admin\MilestoneController::class, 'duplicate'])->name('duplicate');
-        Route::post('/{milestone}/assign-tasks', [\App\Http\Controllers\Admin\MilestoneController::class, 'assignTasks'])->name('assign-tasks');
+        Route::post('/{milestone}/assign-tasks', [\App\Http\Controllers\Admin\MilestoneController::class, 'project_task.update'])->name('project_task.update');
         Route::delete('/{milestone}/tasks/{task}', [\App\Http\Controllers\Admin\MilestoneController::class, 'removeTask'])->name('remove-task');
         Route::get('/{milestone}/timeline', [\App\Http\Controllers\Admin\MilestoneController::class, 'timeline'])->name('timeline');
         Route::get('/{milestone}/activity', [\App\Http\Controllers\Admin\MilestoneController::class, 'activity'])->name('activity');

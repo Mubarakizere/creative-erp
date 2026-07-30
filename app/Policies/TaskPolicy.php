@@ -15,7 +15,7 @@ class TaskPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasPermissionTo('view-tasks');
+        return $user->hasPermissionTo('project_task.view');
     }
 
     /**
@@ -26,7 +26,7 @@ class TaskPolicy
         if ($user->company_id !== $task->company_id) {
             return false;
         }
-        return $user->hasPermissionTo('view-tasks');
+        return $user->hasPermissionTo('project_task.view');
     }
 
     /**
@@ -34,7 +34,7 @@ class TaskPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasPermissionTo('create-tasks');
+        return $user->hasPermissionTo('project_task.create');
     }
 
     /**
@@ -45,7 +45,7 @@ class TaskPolicy
         if ($user->company_id !== $task->company_id) {
             return false;
         }
-        return $user->hasPermissionTo('edit-tasks');
+        return $user->hasPermissionTo('project_task.update');
     }
 
     /**
@@ -56,7 +56,7 @@ class TaskPolicy
         if ($user->company_id !== $task->company_id) {
             return false;
         }
-        return $user->hasPermissionTo('delete-tasks');
+        return $user->hasPermissionTo('project_task.delete');
     }
 
     /**
@@ -67,7 +67,7 @@ class TaskPolicy
         if ($user->company_id !== $task->company_id) {
             return false;
         }
-        return $user->hasPermissionTo('restore-tasks');
+        return $user->hasPermissionTo('project_task.restore');
     }
 
     /**
@@ -86,6 +86,6 @@ class TaskPolicy
         if ($user->company_id !== $task->company_id) {
             return false;
         }
-        return $user->hasPermissionTo('assign-tasks') || $user->hasPermissionTo('edit-tasks');
+        return $user->hasPermissionTo('project_task.update') || $user->hasPermissionTo('project_task.update');
     }
 }

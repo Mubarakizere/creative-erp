@@ -125,8 +125,8 @@
             <div x-show="activeTab === 'tasks'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" style="display: none;" x-cloak>
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-medium text-gray-900">Milestone Tasks</h3>
-                    @can('assignTasks', $milestone)
-                        <button x-data @click="$dispatch('open-modal', 'assign-tasks')" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    @can('project_task.update', $milestone)
+                        <button x-data @click="$dispatch('open-modal', 'project_task.update')" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                             Assign Tasks
                         </button>
                     @endcan
@@ -156,7 +156,7 @@
                                 <span class="text-sm text-gray-600">{{ $task->priority }}</span>
                             </td>
                             <td class="px-4 py-3 text-right">
-                                @can('assignTasks', $milestone)
+                                @can('project_task.update', $milestone)
                                     <form method="POST" action="{{ route('admin.milestones.remove-task', [$milestone, $task->id]) }}" class="inline-block">
                                         @csrf
                                         @method('DELETE')
@@ -196,8 +196,8 @@
         </div>
     </div>
 
-    @can('assignTasks', $milestone)
-        <x-modal id="assign-tasks" maxWidth="lg">
+    @can('project_task.update', $milestone)
+        <x-modal id="project_task.update" maxWidth="lg">
             <x-slot:header>Assign Tasks</x-slot:header>
             
             <form method="POST" action="{{ route('admin.milestones.assign-tasks', $milestone) }}">
@@ -222,7 +222,7 @@
                 </div>
 
                 <x-slot:footer>
-                    <x-button type="ghost" @click="$dispatch('close-modal', 'assign-tasks')">Cancel</x-button>
+                    <x-button type="ghost" @click="$dispatch('close-modal', 'project_task.update')">Cancel</x-button>
                     <x-button type="primary" submit>Assign Selected Tasks</x-button>
                 </x-slot:footer>
             </form>
