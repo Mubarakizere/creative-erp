@@ -24,7 +24,7 @@
         @if($required) required @endif
         @if($disabled) disabled @endif
         {{ $attributes->except('class')->merge([
-            'class' => 'block w-full rounded-lg border ' .
+            'class' => 'block w-full rounded-xl border ' .
                 ($errors->has($name) ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500') .
                 ' shadow-sm text-sm py-2.5 pl-3 pr-10 transition-colors duration-200 disabled:bg-gray-50 disabled:text-gray-500'
         ]) }}

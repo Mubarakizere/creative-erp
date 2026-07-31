@@ -12,6 +12,12 @@
             </div>
         </div>
         <div class="flex items-center gap-3">
+                        @can('permission.delete')
+                <x-button type="button" color="danger" @click="$dispatch('open-modal', 'delete-permission-{{ $permission->id }}')">
+                    Delete permission
+                </x-button>
+            @endcan
+            
             @can('permission.update')
                 <x-button type="a" href="{{ route('admin.permissions.edit', $permission) }}" color="secondary">Edit Permission</x-button>
             @endcan
@@ -70,4 +76,27 @@
             </dl>
         </x-card>
     </div>
+    {{-- Delete Modal --}}
+    @can('permission.delete')
+        <x-modal id="delete-permission-{{ $permission->id }}" maxWidth="md">
+            <x-slot:header>Delete permission</x-slot:header>
+            <div class="text-center py-4">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                    <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Delete "{{ $permission->name }}"?</h3>
+                <p class="text-sm text-gray-500">This action cannot be undone. Users relying on this permission might lose access.</p>
+            </div>
+            <x-slot:footer>
+                <x-button type="ghost" @click="$dispatch('close-modal', 'delete-permission-{{ $permission->id }}')">Cancel</x-button>
+                <form method="POST" action="{{ route('admin.permissions.destroy', $permission) }}" class="inline">
+                    @csrf
+                    @method('DELETE')
+                    <x-button type="danger" submit>Delete permission</x-button>
+                </form>
+            </x-slot:footer>
+        </x-modal>
+    @endcan
 </x-layouts.admin>

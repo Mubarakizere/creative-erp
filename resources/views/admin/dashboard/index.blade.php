@@ -1,846 +1,528 @@
-<x-layouts.admin title="Dashboard">
-    {{-- Page Header --}}
-    <div class="mb-8">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
-                <p class="mt-1 text-sm text-gray-500">Welcome back, {{ auth()->user()->first_name }}! Here's what's happening today.</p>
-            </div>
-            <div class="flex items-center gap-3">
-                <span class="text-sm text-gray-500">{{ now()->format('l, F j, Y') }}</span>
-            </div>
+<x-layouts.admin title="Enterprise Dashboard">
+    {{-- Global Header --}}
+    <div class="mb-6 bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Enterprise Dashboard</h1>
+            <p class="mt-1 text-sm text-gray-500 font-medium">
+                Welcome back, {{ auth()->user()->first_name }}!
+                @if(auth()->user()->company)
+                    <span class="mx-2 text-gray-300">|</span>
+                    {{ auth()->user()->company->name }}
+                @endif
+                @if(auth()->user()->branch)
+                    <span class="mx-2 text-gray-300">|</span>
+                    {{ auth()->user()->branch->name }}
+                @endif
+            </p>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+            <span class="text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 px-3 py-1.5 rounded-lg shadow-sm">
+                {{ now()->format('l, F j, Y') }}
+            </span>
+            @if(isset($fiscalYears) && count($fiscalYears) > 0)
+                <span class="text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 px-3 py-1.5 rounded-lg shadow-sm">
+                    FY {{ $fiscalYearId ? $fiscalYears->firstWhere('id', $fiscalYearId)?->name : $fiscalYears->first()->name }}
+                </span>
+            @endif
+            <button onclick="window.location.reload()" class="p-2 text-gray-500 hover:text-blue-600 bg-white border border-gray-200 rounded-lg shadow-sm transition-all hover:border-blue-200 hover:bg-blue-50" title="Refresh Dashboard">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            </button>
         </div>
     </div>
 
     {{-- Filter Bar --}}
     @if(isset($filters))
-        <x-financial-filter-bar 
-            action="{{ route('admin.dashboard') }}"
-            :fiscalYears="$fiscalYears ?? []"
-            :fiscalYearId="$fiscalYearId ?? null"
-            :branches="$branches ?? []"
-            :departments="$departments ?? []"
-            :projects="$projects ?? []"
-            :clients="$clients ?? []"
-            :filters="$filters"
-        />
-    @endif
-
-    {{-- CRM Stats --}}
-    @if(auth()->user()->can('lead.view') || auth()->user()->can('opportunity.view'))
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6 mb-8">
-        <x-stats-card title="Total Leads" value="{{ number_format($stats['total_leads'] ?? 0) }}" color="blue">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-        </x-stats-card>
-        <x-stats-card title="Total Opportunities" value="{{ number_format($stats['total_opportunities'] ?? 0) }}" color="indigo">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-        </x-stats-card>
-        <x-stats-card title="Won Deals" value="{{ number_format($stats['won_deals'] ?? 0) }}" color="green">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        </x-stats-card>
-        <x-stats-card title="Lost Deals" value="{{ number_format($stats['lost_deals'] ?? 0) }}" color="red">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        </x-stats-card>
-        <x-stats-card title="Pipeline Value" value="{{ format_currency($stats['pipeline_value'] ?? 0) }}" color="emerald">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        </x-stats-card>
-        <x-stats-card title="Conversion Rate" value="{{ $stats['conversion_rate'] ?? 0 }}%" color="purple">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l10-16M6 9h.01M18 15h.01"/></svg>
-        </x-stats-card>
-    </div>
-    @endif
-
-    {{-- Quotation Stats --}}
-    @if(auth()->user()->can('quotation.view'))
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6 mb-8">
-        <x-stats-card title="Total Quotations" value="{{ number_format($stats['total_quotations'] ?? 0) }}" color="blue">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-        </x-stats-card>
-        <x-stats-card title="Draft Quotations" value="{{ number_format($stats['draft_quotations'] ?? 0) }}" color="gray">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-        </x-stats-card>
-        <x-stats-card title="Pending Approvals" value="{{ number_format($stats['pending_quotations'] ?? 0) }}" color="amber">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        </x-stats-card>
-        <x-stats-card title="Approved" value="{{ number_format($stats['approved_quotations'] ?? 0) }}" color="emerald">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        </x-stats-card>
-        <x-stats-card title="Accepted" value="{{ number_format($stats['accepted_quotations'] ?? 0) }}" color="indigo">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-        </x-stats-card>
-        <x-stats-card title="Revenue Forecast" value="{{ format_currency($stats['revenue_forecast'] ?? 0) }}" color="purple">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        </x-stats-card>
-    </div>
-    @endif
-
-    {{-- Finance Stats --}}
-    @if(auth()->user()->can('invoice.view') || auth()->user()->can('payment.view'))
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6 mb-8">
-        <x-stats-card title="Total Revenue" value="{{ $stats['total_payments']['value'] ?? '$0.00' }}" color="green">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        </x-stats-card>
-        <x-stats-card title="Revenue Today" value="{{ $stats['revenue_today']['value'] ?? '$0.00' }}" color="teal">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        </x-stats-card>
-        <x-stats-card title="Revenue This Month" value="{{ $stats['revenue_this_month']['value'] ?? '$0.00' }}" color="emerald">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-        </x-stats-card>
-        <x-stats-card title="Total Receivables" value="{{ $stats['total_receivables']['value'] ?? '$0.00' }}" color="indigo">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-        </x-stats-card>
-        <x-stats-card title="Overdue (1-30 Days)" value="{{ $stats['aging_30_days']['value'] ?? '$0.00' }}" color="yellow">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        </x-stats-card>
-        <x-stats-card title="Collection Rate" value="{{ $stats['collection_rate']['value'] ?? '0.0%' }}" color="blue">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        </x-stats-card>
-    </div>
-    @endif
-
-    {{-- Stats Grid --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {{-- Total Projects --}}
-        @can('project.view')
-        <x-stats-card
-            title="Total Projects"
-            value="{{ number_format($stats['projects']) }}"
-            trend="+12%"
-            :trend-up="true"
-            color="blue"
-        >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-            </svg>
-        </x-stats-card>
-        @endcan
-
-        {{-- Active Projects --}}
-        @can('project.view')
-        <x-stats-card
-            title="Active Projects"
-            value="{{ number_format($stats['active_projects']) }}"
-            trend="+5%"
-            :trend-up="true"
-            color="emerald"
-        >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
-            </svg>
-        </x-stats-card>
-        @endcan
-
-        {{-- Clients --}}
-        @can('customer.view')
-        <x-stats-card
-            title="Total Clients"
-            value="{{ number_format($stats['clients']) }}"
-            trend="+8%"
-            :trend-up="true"
-            color="purple"
-        >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-            </svg>
-        </x-stats-card>
-        @endcan
-
-        {{-- Users --}}
-        @can('user.view')
-        <x-stats-card
-            title="Total Users"
-            value="{{ number_format($stats['users']) }}"
-            trend="+3%"
-            :trend-up="true"
-            color="amber"
-        >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-            </svg>
-        </x-stats-card>
-        @endcan
-    </div>
-
-    {{-- Second Row Stats --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-        {{-- Companies --}}
-        @can('company.view')
-        <x-stats-card
-            title="Companies"
-            value="{{ number_format($stats['companies']) }}"
-            color="cyan"
-        >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-            </svg>
-        </x-stats-card>
-        @endcan
-
-        {{-- Branches --}}
-        @can('branch.view')
-        <x-stats-card
-            title="Branches"
-            value="{{ number_format($stats['branches']) }}"
-            color="orange"
-        >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-            </svg>
-        </x-stats-card>
-        @endcan
-
-        {{-- Departments --}}
-        @can('department.view')
-        <x-stats-card
-            title="Departments"
-            value="{{ number_format($stats['departments']) }}"
-            color="indigo"
-        >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-            </svg>
-        </x-stats-card>
-        @endcan
-
-        {{-- Est Budget --}}
-        @can('project.view-budget')
-        <x-stats-card
-            title="Total Est. Budget"
-            value="{{ format_currency($stats['total_estimated_budget']) }}"
-            color="rose"
-        >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-        </x-stats-card>
-        @endcan
-
-        {{-- Act Budget --}}
-        @can('project.view-budget')
-        <x-stats-card
-            title="Total Act. Budget"
-            value="{{ format_currency($stats['total_actual_budget']) }}"
-            color="emerald"
-        >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-        </x-stats-card>
-        @endcan
-    </div>
-
-    {{-- Third Row Stats: Project Teams --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6 mb-8">
-        <x-stats-card title="Total Members" value="{{ number_format($stats['total_team_members']) }}" color="blue">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-        </x-stats-card>
-        
-        <x-stats-card title="Active Members" value="{{ number_format($stats['active_team_members']) }}" color="emerald">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        </x-stats-card>
-        
-        <x-stats-card title="Inactive Members" value="{{ number_format($stats['inactive_team_members']) }}" color="amber">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        </x-stats-card>
-        
-        <x-stats-card title="Project Managers" value="{{ number_format($stats['project_managers']) }}" color="purple">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-        </x-stats-card>
-        
-        <x-stats-card title="Engineers" value="{{ number_format($stats['engineers']) }}" color="cyan">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
-        </x-stats-card>
-        
-        <x-stats-card title="Team Utilization" value="{{ $stats['total_team_members'] > 0 ? round(($stats['active_team_members'] / $stats['total_team_members']) * 100) : 0 }}%" color="indigo">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-        </x-stats-card>
-    </div>
-
-    {{-- Fourth Row Stats: Tasks --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <x-stats-card title="My Assigned Tasks" value="{{ number_format($stats['my_tasks']) }}" color="blue">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-        </x-stats-card>
-
-        <x-stats-card title="Active Tasks" value="{{ number_format($stats['active_tasks']) }}" color="emerald">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-        </x-stats-card>
-
-        <x-stats-card title="Overdue Tasks" value="{{ number_format($stats['overdue_tasks']) }}" color="rose">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        </x-stats-card>
-
-        <x-stats-card title="Critical Tasks" value="{{ number_format($stats['critical_tasks']) }}" color="orange">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-        </x-stats-card>
-    </div>
-
-    {{-- Fifth Row Stats: Milestones & Documents --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-        <x-stats-card title="Total Milestones" value="{{ number_format($stats['total_milestones']) }}" color="purple">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
-        </x-stats-card>
-
-        <x-stats-card title="Active Milestones" value="{{ number_format($stats['active_milestones']) }}" color="blue">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-        </x-stats-card>
-
-        <x-stats-card title="Completed Milestones" value="{{ number_format($stats['completed_milestones']) }}" color="emerald">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        </x-stats-card>
-        
-        <x-stats-card title="Total Documents" value="{{ number_format($stats['total_documents']) }}" color="cyan">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-        </x-stats-card>
-        
-        <x-stats-card title="Doc Categories" value="{{ number_format($stats['document_categories']) }}" color="orange">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-        </x-stats-card>
-    </div>
-
-    {{-- Sixth Row Stats: Discussions --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-        <x-stats-card title="Total Discussions" value="{{ number_format($stats['total_discussions']) }}" color="blue">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
-        </x-stats-card>
-
-        <x-stats-card title="Comments Today" value="{{ number_format($stats['comments_today']) }}" color="emerald">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        </x-stats-card>
-
-        <x-stats-card title="My Mentions" value="{{ number_format($stats['my_mentions']) }}" color="rose">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-        </x-stats-card>
-        
-        <x-stats-card title="Active Threads" value="{{ number_format($stats['active_threads']) }}" color="cyan">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"></path></svg>
-        </x-stats-card>
-        
-        <x-stats-card title="Internal Notes" value="{{ number_format($stats['internal_notes']) }}" color="orange">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-        </x-stats-card>
-    </div>
-
-    {{-- Seventh Row Stats: Calendar & Meetings --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <x-stats-card title="Meetings Today" value="{{ number_format($stats['meetings_today']) }}" color="blue">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-        </x-stats-card>
-
-        <x-stats-card title="Upcoming Meetings" value="{{ number_format($stats['upcoming_meetings']) }}" color="emerald">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        </x-stats-card>
-
-        <x-stats-card title="Events This Week" value="{{ number_format($stats['events_this_week']) }}" color="purple">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-        </x-stats-card>
-        
-        <x-stats-card title="Schedule Conflicts" value="{{ number_format($stats['schedule_conflicts']) }}" color="rose">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-        </x-stats-card>
-    </div>
-
-    {{-- Eighth Row Stats: Time Tracking --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <x-stats-card title="Hours Today" value="{{ number_format($stats['hours_today'] ?? 0, 1) }}h" color="emerald">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        </x-stats-card>
-
-        <x-stats-card title="Hours This Week" value="{{ number_format($stats['hours_this_week'] ?? 0, 1) }}h" color="blue">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-        </x-stats-card>
-
-        <x-stats-card title="Active Timers" value="{{ number_format($stats['running_timers_count'] ?? 0) }}" color="rose">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        </x-stats-card>
-        
-        <x-stats-card title="Users Tracking Time" value="{{ number_format($stats['users_tracking_time'] ?? 0) }}" color="purple">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-        </x-stats-card>
-    </div>
-
-    {{-- Workflow & Approvals Stats --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <x-stats-card title="Pending Approvals" value="{{ number_format($stats['pending_approvals'] ?? 0) }}" color="amber">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        </x-stats-card>
-
-        <x-stats-card title="Approved Today" value="{{ number_format($stats['approved_today'] ?? 0) }}" color="emerald">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        </x-stats-card>
-
-        <x-stats-card title="Rejected Today" value="{{ number_format($stats['rejected_today'] ?? 0) }}" color="rose">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        </x-stats-card>
-
-        <x-stats-card title="My Pending Requests" value="{{ number_format($stats['my_pending_requests'] ?? 0) }}" color="blue">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-        </x-stats-card>
-    </div>
-
-    {{-- Bottom Section: Recent Projects + Quick Actions --}}
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-        {{-- Latest Projects --}}
-        <div class="lg:col-span-2 space-y-6">
-            @can('project.view')
-        <x-card>
-                <x-slot:header>
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-lg font-semibold text-gray-900">Latest Projects</h3>
-                        <a href="{{ route('admin.projects.index') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">View All</a>
-                    </div>
-                </x-slot:header>
-
-                <div class="space-y-4">
-                    @forelse($latestProjects as $project)
-                        <div class="flex items-start gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                            <div class="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                                </svg>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <a href="{{ route('admin.projects.show', $project) }}" class="text-sm font-medium text-gray-900 hover:text-blue-600">{{ $project->name }}</a>
-                                <p class="text-xs text-gray-500 mt-1">{{ $project->company?->name }} • {{ $project->created_at->diffForHumans() }}</p>
-                            </div>
-                            <x-badge :type="match($project->status) { 'Planning' => 'default', 'In Progress' => 'primary', 'Completed', 'Closed' => 'success', default => 'warning' }">
-                                {{ $project->status }}
-                            </x-badge>
-                        </div>
-                    @empty
-                        <p class="text-sm text-gray-500 py-4 text-center">No projects created yet.</p>
-                    @endforelse
-                </div>
-            </x-card>
-        @endcan
-
-            {{-- Recent Activity Feed (Sample Data) --}}
-            @can('project_task.view')
-        <x-card>
-                <x-slot:header>
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-lg font-semibold text-gray-900">My Latest Tasks</h3>
-                        <a href="{{ route('admin.projects.tasks.index', ['assigned_to' => auth()->id()]) }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">View All</a>
-                    </div>
-                </x-slot:header>
-
-                <div class="space-y-4">
-                    @forelse($myAssignedTasks as $task)
-                        <div class="flex items-start gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                            <div class="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-                                </svg>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <a href="{{ route('admin.projects.tasks.show', $task) }}" class="text-sm font-medium text-gray-900 hover:text-blue-600">{{ $task->name }}</a>
-                                <p class="text-xs text-gray-500 mt-1">{{ $task->project->name }} • Due: {{ $task->due_date ? $task->due_date->format('M j, Y') : 'N/A' }}</p>
-                            </div>
-                            <x-badge :type="match($task->status) { 'Pending' => 'default', 'In Progress' => 'primary', 'Completed' => 'success', default => 'warning' }">
-                                {{ $task->status }}
-                            </x-badge>
-                        </div>
-                    @empty
-                        <p class="text-sm text-gray-500 py-4 text-center">No open tasks assigned to you.</p>
-                    @endforelse
-                </div>
-            </x-card>
-        @endcan
-            
-            {{-- Latest Documents Feed --}}
-            @can('document.view')
-        <x-card>
-                <x-slot:header>
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-lg font-semibold text-gray-900">Recently Uploaded Documents</h3>
-                        <a href="{{ route('admin.documents.index') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">View All</a>
-                    </div>
-                </x-slot:header>
-
-                <div class="space-y-4">
-                    @forelse($latestDocuments as $document)
-                        <div class="flex items-start gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                            <div class="flex-shrink-0 w-10 h-10 bg-cyan-100 rounded-lg flex items-center justify-center">
-                                <svg class="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                                </svg>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <a href="{{ route('admin.documents.show', $document) }}" class="text-sm font-medium text-gray-900 hover:text-blue-600">{{ Str::limit($document->original_name, 30) }}</a>
-                                <p class="text-xs text-gray-500 mt-1">{{ class_basename($document->documentable_type) }} • {{ $document->formatted_size }}</p>
-                            </div>
-                            <span class="text-xs text-gray-400">{{ $document->created_at->diffForHumans() }}</span>
-                        </div>
-                    @empty
-                        <p class="text-sm text-gray-500 py-4 text-center">No documents uploaded yet.</p>
-                    @endforelse
-                </div>
-            </x-card>
-        @endcan
-
-            {{-- Recent Discussions Feed --}}
-            @can('comment.view')
-        <x-card>
-                <x-slot:header>
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-lg font-semibold text-gray-900">Recent Discussions</h3>
-                    </div>
-                </x-slot:header>
-
-                <div class="space-y-4">
-                    @forelse($recentDiscussions as $discussion)
-                        <div class="flex items-start gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                            <div class="flex-shrink-0 w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-                                <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                                </svg>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium text-gray-900">{{ Str::limit(strip_tags($discussion->body), 50) }}</p>
-                                <p class="text-xs text-gray-500 mt-1">{{ class_basename($discussion->commentable_type) }} • by {{ $discussion->user?->first_name ?? 'Unknown User' }}</p>
-                            </div>
-                            <span class="text-xs text-gray-400">{{ $discussion->created_at->diffForHumans() }}</span>
-                        </div>
-                    @empty
-                        <p class="text-sm text-gray-500 py-4 text-center">No discussions yet.</p>
-                    @endforelse
-                </div>
-            </x-card>
-        @endcan
-
-            {{-- Recent Deals --}}
-            @can('opportunity.view')
-            <x-card>
-                <x-slot:header>
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-lg font-semibold text-gray-900">Recent Opportunities</h3>
-                        <a href="{{ route('admin.crm.opportunities.index') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">View All</a>
-                    </div>
-                </x-slot:header>
-                
-                <div class="space-y-4">
-                    @forelse($recentDeals ?? [] as $deal)
-                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                            <div>
-                                <a href="{{ route('admin.crm.opportunities.show', $deal) }}" class="text-sm font-medium text-gray-900 hover:text-blue-600">{{ $deal->name }}</a>
-                                <p class="text-xs text-gray-500">{{ $deal->account?->name ?? 'No Account' }}</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-sm font-bold text-gray-900">{{ format_currency($deal->expected_revenue) }}</p>
-                                <x-badge type="default" class="text-xs">{{ $deal->status }}</x-badge>
-                            </div>
-                        </div>
-                    @empty
-                        <p class="text-sm text-gray-500 text-center py-4">No recent opportunities found.</p>
-                    @endforelse
-                </div>
-            </x-card>
-            @endcan
+        <div class="mb-6">
+            <x-financial-filter-bar 
+                action="{{ route('admin.dashboard') }}"
+                :fiscalYears="$fiscalYears ?? []"
+                :fiscalYearId="$fiscalYearId ?? null"
+                :branches="$branches ?? []"
+                :departments="$departments ?? []"
+                :projects="$projects ?? []"
+                :clients="$clients ?? []"
+                :filters="$filters"
+            />
         </div>
+    @endif
 
-        {{-- Right Column: Calendar, Quick Actions & Project Summary --}}
-        <div class="space-y-6">
-            {{-- Today's Schedule --}}
-            @can('calendar.view')
-        <x-card>
-                <x-slot:header>
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-lg font-semibold text-gray-900">Today's Schedule</h3>
-                        <a href="{{ route('admin.calendar.agenda') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">Agenda</a>
-                    </div>
-                </x-slot:header>
-
-                <div class="space-y-3">
-                    @forelse($todaysSchedule as $event)
-                        <a href="{{ $event->url }}" class="block p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors" style="border-left: 3px solid {{ $event->color }};">
-                            <h4 class="text-sm font-medium text-gray-900 truncate">{{ $event->title }}</h4>
-                            <p class="text-xs text-gray-500 mt-1">
-                                @if(!$event->allDay)
-                                    {{ $event->start->format('g:i A') }} — {{ $event->end?->format('g:i A') }}
-                                @else
-                                    All Day
-                                @endif
-                            </p>
-                        </a>
-                    @empty
-                        <p class="text-sm text-gray-500 py-4 text-center">Nothing scheduled for today.</p>
-                    @endforelse
-                </div>
-            </x-card>
-        @endcan
-
-            {{-- Upcoming Meetings --}}
-            @can('meeting.view')
-        <x-card>
-                <x-slot:header>
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-lg font-semibold text-gray-900">Upcoming Meetings</h3>
-                        <a href="{{ route('admin.meetings.index') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">View All</a>
-                    </div>
-                </x-slot:header>
-
-                <div class="space-y-4">
-                    @forelse($upcomingMeetings as $meeting)
-                        <div class="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                            <div class="flex-shrink-0 w-10 h-10 bg-blue-50 rounded-lg flex flex-col items-center justify-center border border-blue-100">
-                                <span class="text-[10px] font-bold text-blue-600 uppercase">{{ $meeting->start_at->format('M') }}</span>
-                                <span class="text-sm font-bold text-blue-700 leading-none">{{ $meeting->start_at->format('j') }}</span>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <a href="{{ route('admin.meetings.show', $meeting) }}" class="text-sm font-medium text-gray-900 hover:text-blue-600 truncate block">{{ $meeting->title }}</a>
-                                <p class="text-xs text-gray-500 mt-1">{{ $meeting->start_at->format('g:i A') }} • {{ $meeting->formatted_duration }}</p>
-                            </div>
-                        </div>
-                    @empty
-                        <p class="text-sm text-gray-500 py-4 text-center">No upcoming meetings.</p>
-                    @endforelse
-                </div>
-            </x-card>
-        @endcan
-
-            {{-- Upcoming Activities --}}
-            @can('activity.view')
-            <x-card>
-                <x-slot:header>
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-lg font-semibold text-gray-900">Upcoming Activities</h3>
-                        <a href="{{ route('admin.crm.activities.index') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">View All</a>
-                    </div>
-                </x-slot:header>
-                
-                <div class="space-y-4">
-                    @forelse($upcomingActivities ?? [] as $activity)
-                        <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                            <div class="mt-1">
-                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                            </div>
-                            <div class="flex-1">
-                                <p class="text-sm font-medium text-gray-900">{{ $activity->subject }}</p>
-                                <p class="text-xs text-gray-500">{{ $activity->type }} • {{ $activity->scheduled_at->format('M j, Y g:i A') }}</p>
-                                @if($activity->activityable)
-                                    <p class="text-xs text-blue-600 mt-1">Related to: {{ class_basename($activity->activityable_type) }} #{{ $activity->activityable->id }}</p>
-                                @endif
-                            </div>
-                        </div>
-                    @empty
-                        <p class="text-sm text-gray-500 text-center py-4">No upcoming activities.</p>
-                    @endforelse
-                </div>
-            </x-card>
+    {{-- Quick Actions --}}
+    <div class="mb-8 overflow-x-auto pb-2 scrollbar-hide">
+        <div class="flex gap-3 min-w-max">
+            @can('project.create')
+            <a href="{{ route('admin.projects.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600 hover:border-blue-200 transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> New Project
+            </a>
             @endcan
-
-            {{-- Recent Notifications --}}
-            @can('notification.view')
-                @php
-                    $dashboardNotifications = app(\App\Services\NotificationService::class)->getRecentNotifications(auth()->user(), 5);
-                @endphp
-                <x-notification-widget :notifications="$dashboardNotifications" />
+            @can('invoice.create')
+            <a href="{{ route('admin.finance.invoices.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-emerald-600 hover:border-emerald-200 transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> New Invoice
+            </a>
             @endcan
-
-            {{-- Announcements --}}
-            @if(config('realtime.features.announcements', true))
-                <x-dashboard-announcements />
-            @endif
-
-            {{-- Quick Actions --}}
-            <x-card>
-                <x-slot:header>
-                    <h3 class="text-lg font-semibold text-gray-900">Quick Actions</h3>
-                </x-slot:header>
-
-                <div class="grid grid-cols-2 gap-3">
-                    @can('project.create')
-        <a href="{{ route('admin.projects.create') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-blue-50 hover:text-blue-700 text-gray-600 transition-all duration-200 group">
-                        <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                            </svg>
-                        </div>
-                        <span class="text-xs font-medium">New Project</span>
-                    </a>
-        @endcan
-                    @can('project-team.create')
-        <a href="{{ route('admin.projects.team.create') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-blue-50 hover:text-blue-700 text-gray-600 transition-all duration-200 group">
-                        <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                            </svg>
-                        </div>
-                        <span class="text-xs font-medium">Assign Member</span>
-                    </a>
-        @endcan
-                    @can('customer.create')
-        <a href="{{ route('admin.clients.create') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-emerald-50 hover:text-emerald-700 text-gray-600 transition-all duration-200 group">
-                        <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
-                            </svg>
-                        </div>
-                        <span class="text-xs font-medium">New Client</span>
-                    </a>
-        @endcan
-                    @can('user.create')
-        <a href="{{ route('admin.users.create') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-purple-50 hover:text-purple-700 text-gray-600 transition-all duration-200 group">
-                        <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
-                            </svg>
-                        </div>
-                        <span class="text-xs font-medium">Add User</span>
-                    </a>
-        @endcan
-                    @can('company.create')
-        <a href="{{ route('admin.companies.create') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-amber-50 hover:text-amber-700 text-gray-600 transition-all duration-200 group">
-                        <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                            </svg>
-                        </div>
-                        <span class="text-xs font-medium">New Company</span>
-                    </a>
-        @endcan
-                    @can('meeting.create')
-        <a href="{{ route('admin.meetings.create') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-rose-50 hover:text-rose-700 text-gray-600 transition-all duration-200 group">
-                        <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                            </svg>
-                        </div>
-                        <span class="text-xs font-medium">New Meeting</span>
-                    </a>
-        @endcan
-                </div>
-            </x-card>
-
-            {{-- Project Status Summary --}}
-            @can('project.view')
-        <x-card>
-                <x-slot:header>
-                    <h3 class="text-lg font-semibold text-gray-900">Projects by Status</h3>
-                </x-slot:header>
-
-                @php
-                    $total = $stats['projects'] > 0 ? $stats['projects'] : 1;
-                    $activePct = round(($stats['active_projects'] / $total) * 100);
-                    $completedPct = round(($stats['completed_projects'] / $total) * 100);
-                    $closedPct = round(($stats['closed_projects'] / $total) * 100);
-                    $holdPct = round(($stats['on_hold_projects'] / $total) * 100);
-                @endphp
-
-                <div class="space-y-4">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
-                            <span class="text-sm text-gray-600">Active</span>
-                        </div>
-                        <span class="text-sm font-semibold text-gray-900">{{ number_format($stats['active_projects']) }} ({{ $activePct }}%)</span>
-                    </div>
-                    <div class="w-full bg-gray-100 rounded-full h-2">
-                        <div class="bg-blue-500 h-2 rounded-full" style="width: {{ $activePct }}%"></div>
-                    </div>
-
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <div class="w-3 h-3 bg-emerald-500 rounded-full"></div>
-                            <span class="text-sm text-gray-600">Completed</span>
-                        </div>
-                        <span class="text-sm font-semibold text-gray-900">{{ number_format($stats['completed_projects']) }} ({{ $completedPct }}%)</span>
-                    </div>
-                    <div class="w-full bg-gray-100 rounded-full h-2">
-                        <div class="bg-emerald-500 h-2 rounded-full" style="width: {{ $completedPct }}%"></div>
-                    </div>
-                    
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
-                            <span class="text-sm text-gray-600">Closed</span>
-                        </div>
-                        <span class="text-sm font-semibold text-gray-900">{{ number_format($stats['closed_projects']) }} ({{ $closedPct }}%)</span>
-                    </div>
-                    <div class="w-full bg-gray-100 rounded-full h-2">
-                        <div class="bg-purple-500 h-2 rounded-full" style="width: {{ $closedPct }}%"></div>
-                    </div>
-
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <div class="w-3 h-3 bg-amber-500 rounded-full"></div>
-                            <span class="text-sm text-gray-600">On Hold</span>
-                        </div>
-                        <span class="text-sm font-semibold text-gray-900">{{ number_format($stats['on_hold_projects']) }} ({{ $holdPct }}%)</span>
-                    </div>
-                    <div class="w-full bg-gray-100 rounded-full h-2">
-                        <div class="bg-amber-500 h-2 rounded-full" style="width: {{ $holdPct }}%"></div>
-                    </div>
-                </div>
-            </x-card>
-        @endcan
+            @can('journal.create')
+            <a href="{{ route('admin.finance.accounting.journals.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-purple-600 hover:border-purple-200 transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> New Journal
+            </a>
+            @endcan
+            @can('purchase-order.create')
+            <a href="{{ route('admin.procurement.pos.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-orange-600 hover:border-orange-200 transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> New PO
+            </a>
+            @endcan
+            @can('lead.create')
+            <a href="{{ route('admin.crm.leads.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-indigo-600 hover:border-indigo-200 transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> New Lead
+            </a>
+            @endcan
+            @can('project-material-request.create')
+            <a href="{{ route('admin.material-requests.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-amber-600 hover:border-amber-200 transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> Material Request
+            </a>
+            @endcan
+            @can('time-entry.create')
+            <a href="{{ route('admin.time-tracking.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-cyan-600 hover:border-cyan-200 transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Log Time
+            </a>
+            @endcan
+            @can('announcement.create')
+            <a href="{{ route('admin.announcements.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-rose-600 hover:border-rose-200 transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path></svg> Post Announcement
+            </a>
+            @endcan
         </div>
     </div>
 
-    {{-- Latest Team Members --}}
-    <div class="mt-8">
-        @can('project-team.view')
-        <x-card>
-            <x-slot:header>
-                <div class="flex items-center justify-between">
-                    <h3 class="text-lg font-semibold text-gray-900">Recently Assigned Team Members</h3>
-                    <a href="{{ route('admin.projects.team.index') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">View All Team Members</a>
+    {{-- Layout Grid --}}
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-8" x-data="{ loading: false }" @filters-loading.window="loading = true">
+        
+        {{-- Skeleton Loading State --}}
+        <div class="xl:col-span-12 w-full" x-show="loading" style="display: none;">
+            <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+                <div class="xl:col-span-8 2xl:col-span-9 space-y-10">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <x-skeletons.card /><x-skeletons.card /><x-skeletons.card /><x-skeletons.card />
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <x-skeletons.chart />
+                        <x-skeletons.chart />
+                    </div>
+                    <x-skeletons.table :rows="5" :cols="6" />
                 </div>
-            </x-slot:header>
-
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Member</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role & Dept</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Join Date</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @forelse($latestTeamMembers ?? [] as $member)
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-8 w-8">
-                                            @if($member->user->avatar)
-                                                <img class="h-8 w-8 rounded-full" src="{{ asset('storage/' . $member->user->avatar) }}" alt="">
-                                            @else
-                                                <div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs">
-                                                    {{ $member->user->initials }}
-                                                </div>
-                                            @endif
-                                        </div>
-                                        <div class="ml-3">
-                                            <div class="text-sm font-medium text-gray-900">{{ $member->user->full_name }}</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <a href="{{ route('admin.projects.show', $member->project_id) }}" class="text-sm text-blue-600 hover:text-blue-900">{{ $member->project->name }}</a>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">{{ $member->project_role }}</div>
-                                    <div class="text-xs text-gray-500">{{ $member->department->name }}</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $member->joined_at->format('M j, Y') }}
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="4" class="px-6 py-8 text-center text-gray-500">
-                                    No team members assigned yet.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                <div class="xl:col-span-4 2xl:col-span-3 space-y-8">
+                    <x-skeletons.widget />
+                    <x-skeletons.widget />
+                    <x-skeletons.list />
+                </div>
             </div>
-        </x-card>
-        @endcan
+        </div>
+
+        {{-- Main Content Column --}}
+        <div class="xl:col-span-8 2xl:col-span-9 space-y-10" x-show="!loading">
+
+            {{-- 1. FINANCE MODULE --}}
+            @can('finance.view')
+            <div class="space-y-4">
+                <div class="flex items-center justify-between border-b border-gray-100 pb-2">
+                    <h2 class="text-lg font-bold text-gray-900 tracking-tight">Financial Overview</h2>
+                    <a href="{{ route('admin.finance.analytics') }}" class="text-sm font-medium text-blue-600 hover:text-blue-700">Finance Module &rarr;</a>
+                </div>
+                
+                {{-- Cards --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <x-stats-card title="Total Revenue" value="{{ format_currency((float) str_replace(['$', ','], '', $stats['total_payments']['value'] ?? 0)) }}" color="green">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </x-stats-card>
+                    <x-stats-card title="Revenue This Month" value="{{ format_currency((float) str_replace(['$', ','], '', $stats['revenue_this_month']['value'] ?? 0)) }}" color="emerald">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                    </x-stats-card>
+                    <x-stats-card title="Outstanding Receivables" value="{{ format_currency((float) str_replace(['$', ','], '', $stats['total_receivables']['value'] ?? 0)) }}" color="indigo">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                    </x-stats-card>
+                    <x-stats-card title="Collection Rate" value="{{ $stats['collection_rate']['value'] ?? '0.0%' }}" color="blue">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                    </x-stats-card>
+                </div>
+                
+                {{-- Chart & Table Row --}}
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <x-card class="h-full">
+                        <h3 class="text-sm font-semibold text-gray-900 mb-4">Revenue vs Expenses</h3>
+                        <div x-data="{
+                            init() {
+                                let options = {
+                                    chart: { type: 'area', height: 300, toolbar: { show: false }, fontFamily: 'Inter, sans-serif' },
+                                    series: [
+                                        { name: 'Revenue', data: {{ json_encode($chartData['revenueTrends'] ?? []) }} }, 
+                                        { name: 'Expenses', data: {{ json_encode($chartData['expenseTrends'] ?? []) }} }
+                                    ],
+                                    colors: ['#10B981', '#EF4444'],
+                                    fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.05, stops: [0, 90, 100] } },
+                                    dataLabels: { enabled: false },
+                                    stroke: { curve: 'smooth', width: 2 },
+                                    xaxis: { categories: ['M-5', 'M-4', 'M-3', 'M-2', 'M-1', 'Current'] }
+                                };
+                                new ApexCharts(this.$refs.chart, options).render();
+                            }
+                        }">
+                            <div x-ref="chart"></div>
+                        </div>
+                    </x-card>
+                    
+                    <x-card class="h-full">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-sm font-semibold text-gray-900">Outstanding Invoices</h3>
+                            <a href="{{ route('admin.finance.invoices.index') }}" class="text-xs font-medium text-blue-600 hover:underline">View All</a>
+                        </div>
+                        @php
+                            // Fetch only if needed to avoid duplicate logic, using with() for performance
+                            $outstandingInvoices = \App\Models\Invoice::with('client')->whereIn('status', ['Sent', 'Overdue', 'Partially Paid'])->orderBy('due_date', 'asc')->take(5)->get();
+                        @endphp
+                        @if($outstandingInvoices->count() > 0)
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-100">
+                                <thead class="bg-gray-50/50">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Client</th>
+                                        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Amount</th>
+                                        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Due</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-50">
+                                    @foreach($outstandingInvoices as $invoice)
+                                    <tr class="hover:bg-gray-50/50 transition-colors">
+                                        <td class="px-3 py-2.5 whitespace-nowrap text-sm text-gray-900">{{ Str::limit($invoice->client->name ?? 'Unknown', 20) }}</td>
+                                        <td class="px-3 py-2.5 whitespace-nowrap text-sm font-medium text-gray-900">{{ format_currency($invoice->balance_due ?? 0) }}</td>
+                                        <td class="px-3 py-2.5 whitespace-nowrap text-sm text-gray-500">
+                                            @if($invoice->due_date && $invoice->due_date->isPast())
+                                                <span class="text-rose-600 font-medium">{{ $invoice->due_date->format('M d') }}</span>
+                                            @else
+                                                {{ $invoice->due_date ? $invoice->due_date->format('M d') : 'N/A' }}
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        @else
+                        <div class="flex flex-col items-center justify-center py-10">
+                            <svg class="w-12 h-12 text-gray-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            <p class="text-sm font-medium text-gray-500">No outstanding invoices</p>
+                        </div>
+                        @endif
+                    </x-card>
+                </div>
+            </div>
+            @endcan
+
+            {{-- 2. PROJECTS MODULE --}}
+            @can('project.view')
+            <div class="space-y-4">
+                <div class="flex items-center justify-between border-b border-gray-100 pb-2">
+                    <h2 class="text-lg font-bold text-gray-900 tracking-tight">Projects & Operations</h2>
+                    <a href="{{ route('admin.projects.index') }}" class="text-sm font-medium text-blue-600 hover:text-blue-700">Project Module &rarr;</a>
+                </div>
+                
+                {{-- Cards --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <x-stats-card title="Total Projects" value="{{ number_format($stats['projects'] ?? 0) }}" color="blue">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    </x-stats-card>
+                    <x-stats-card title="Active Projects" value="{{ number_format($stats['active_projects'] ?? 0) }}" color="emerald">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </x-stats-card>
+                    <x-stats-card title="My Tasks" value="{{ number_format($stats['my_tasks'] ?? 0) }}" color="amber">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                    </x-stats-card>
+                    <x-stats-card title="Overdue Tasks" value="{{ number_format($stats['overdue_tasks'] ?? 0) }}" color="rose">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </x-stats-card>
+                </div>
+
+                {{-- Chart & Table Row --}}
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <x-card class="h-full">
+                        <h3 class="text-sm font-semibold text-gray-900 mb-4">Task Status Distribution</h3>
+                        <div x-data="{
+                            init() {
+                                let taskData = {{ json_encode($chartData['tasksByStatus'] ?? []) }};
+                                let labels = Object.keys(taskData);
+                                let series = Object.values(taskData);
+                                
+                                if(series.length === 0 || series.every(item => item === 0)) {
+                                    this.$refs.empty.classList.remove('hidden');
+                                    return;
+                                }
+
+                                let options = {
+                                    chart: { type: 'donut', height: 300, fontFamily: 'Inter, sans-serif' },
+                                    series: series,
+                                    labels: labels,
+                                    colors: ['#6B7280', '#3B82F6', '#F59E0B', '#10B981', '#EF4444'],
+                                    dataLabels: { enabled: false },
+                                    plotOptions: { pie: { donut: { size: '75%', labels: { show: true, total: { show: true, label: 'Total Tasks' } } } } },
+                                    legend: { position: 'bottom' },
+                                    stroke: { width: 0 }
+                                };
+                                new ApexCharts(this.$refs.chart, options).render();
+                            }
+                        }">
+                            <div x-ref="chart"></div>
+                            <div x-ref="empty" class="hidden flex flex-col items-center justify-center py-10">
+                                <svg class="w-12 h-12 text-gray-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                                <p class="text-sm font-medium text-gray-500">No task data available</p>
+                            </div>
+                        </div>
+                    </x-card>
+
+                    <x-card class="h-full">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-sm font-semibold text-gray-900">Latest Projects</h3>
+                            <a href="{{ route('admin.projects.index') }}" class="text-xs font-medium text-blue-600 hover:underline">View All</a>
+                        </div>
+                        @if(isset($latestProjects) && count($latestProjects) > 0)
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-100">
+                                <thead class="bg-gray-50/50">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Project</th>
+                                        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Progress</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-50">
+                                    @foreach(collect($latestProjects)->take(5) as $project)
+                                    <tr class="hover:bg-gray-50/50 transition-colors">
+                                        <td class="px-3 py-2.5 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            <a href="{{ route('admin.projects.show', $project) }}" class="hover:text-blue-600">{{ Str::limit($project->name, 25) }}</a>
+                                        </td>
+                                        <td class="px-3 py-2.5 whitespace-nowrap">
+                                            <x-badge :type="match($project->status) { 'Planning' => 'default', 'In Progress' => 'primary', 'Completed', 'Closed' => 'success', default => 'warning' }" class="text-[10px] px-2 py-0.5">
+                                                {{ $project->status }}
+                                            </x-badge>
+                                        </td>
+                                        <td class="px-3 py-2.5 whitespace-nowrap">
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-full bg-gray-100 rounded-full h-1.5 w-16 overflow-hidden">
+                                                    <div class="bg-blue-600 h-1.5 rounded-full" style="width: {{ $project->progress ?? 0 }}%"></div>
+                                                </div>
+                                                <span class="text-xs text-gray-500 font-medium">{{ $project->progress ?? 0 }}%</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        @else
+                        <div class="flex flex-col items-center justify-center py-10">
+                            <svg class="w-12 h-12 text-gray-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                            <p class="text-sm font-medium text-gray-500">No active projects</p>
+                        </div>
+                        @endif
+                    </x-card>
+                </div>
+            </div>
+            @endcan
+
+            {{-- 3. CRM MODULE --}}
+            @canany(['lead.view', 'opportunity.view'])
+            <div class="space-y-4">
+                <div class="flex items-center justify-between border-b border-gray-100 pb-2">
+                    <h2 class="text-lg font-bold text-gray-900 tracking-tight">CRM & Sales</h2>
+                    <a href="{{ route('admin.crm.opportunities.kanban') }}" class="text-sm font-medium text-blue-600 hover:text-blue-700">CRM Module &rarr;</a>
+                </div>
+                
+                {{-- Cards --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <x-stats-card title="Total Leads" value="{{ number_format($stats['total_leads'] ?? 0) }}" color="blue">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                    </x-stats-card>
+                    <x-stats-card title="Active Deals" value="{{ number_format($stats['total_opportunities'] ?? 0) }}" color="indigo">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    </x-stats-card>
+                    <x-stats-card title="Pipeline Value" value="{{ format_currency((float) str_replace(['$', ','], '', $stats['pipeline_value'] ?? 0)) }}" color="emerald">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </x-stats-card>
+                    <x-stats-card title="Conversion Rate" value="{{ $stats['conversion_rate'] ?? 0 }}%" color="purple">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l10-16M6 9h.01M18 15h.01"/></svg>
+                    </x-stats-card>
+                </div>
+            </div>
+            @endcan
+
+            {{-- 4. SUPPLY CHAIN & PROCUREMENT MODULE --}}
+            @canany(['purchase-order.view', 'inventory.view'])
+            <div class="space-y-4">
+                <div class="flex items-center justify-between border-b border-gray-100 pb-2">
+                    <h2 class="text-lg font-bold text-gray-900 tracking-tight">Procurement & Inventory</h2>
+                    <a href="{{ route('admin.procurement.requisitions.index') }}" class="text-sm font-medium text-blue-600 hover:text-blue-700">Supply Chain &rarr;</a>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <x-card class="h-full">
+                        <h3 class="text-sm font-semibold text-gray-900 mb-4">Monthly Procurement Spend</h3>
+                        <div x-data="{
+                            init() {
+                                let options = {
+                                    chart: { type: 'bar', height: 300, toolbar: { show: false }, fontFamily: 'Inter, sans-serif' },
+                                    series: [{ name: 'Spend', data: {{ json_encode($chartData['purchaseTrends'] ?? []) }} }],
+                                    colors: ['#F97316'],
+                                    plotOptions: { bar: { borderRadius: 4, columnWidth: '50%' } },
+                                    dataLabels: { enabled: false },
+                                    grid: { strokeDashArray: 4 },
+                                    xaxis: { categories: ['M-5', 'M-4', 'M-3', 'M-2', 'M-1', 'Current'] }
+                                };
+                                new ApexCharts(this.$refs.chart, options).render();
+                            }
+                        }">
+                            <div x-ref="chart"></div>
+                        </div>
+                    </x-card>
+                    
+                    <x-card class="h-full">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-sm font-semibold text-gray-900">Pending Purchase Orders</h3>
+                            <a href="{{ route('admin.procurement.pos.index') }}" class="text-xs font-medium text-blue-600 hover:underline">View All</a>
+                        </div>
+                        @php
+                            $pendingPos = \App\Models\PurchaseOrder::with('supplier')->whereIn('status', ['pending', 'approved'])->latest()->take(5)->get();
+                        @endphp
+                        @if($pendingPos->count() > 0)
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-100">
+                                <thead class="bg-gray-50/50">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase">PO #</th>
+                                        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Supplier</th>
+                                        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-50">
+                                    @foreach($pendingPos as $po)
+                                    <tr class="hover:bg-gray-50/50 transition-colors">
+                                        <td class="px-3 py-2.5 whitespace-nowrap text-sm font-medium text-blue-600">
+                                            <a href="{{ route('admin.procurement.pos.show', $po) }}" class="hover:underline">{{ $po->po_number }}</a>
+                                        </td>
+                                        <td class="px-3 py-2.5 whitespace-nowrap text-sm text-gray-900">{{ Str::limit($po->supplier->name ?? 'Unknown', 20) }}</td>
+                                        <td class="px-3 py-2.5 whitespace-nowrap text-sm font-medium text-gray-900">{{ format_currency($po->grand_total ?? 0) }}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        @else
+                        <div class="flex flex-col items-center justify-center py-10">
+                            <svg class="w-12 h-12 text-gray-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                            <p class="text-sm font-medium text-gray-500">No pending purchase orders</p>
+                        </div>
+                        @endif
+                    </x-card>
+                </div>
+            </div>
+            @endcan
+
+        </div>
+
+        {{-- Right Sidebar Column (Sticky) --}}
+        <div class="xl:col-span-4 2xl:col-span-3 relative" x-show="!loading">
+            <div class="sticky top-6 space-y-6">
+                
+                {{-- Pending Approvals --}}
+                @can('approval.view')
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="px-5 py-4 border-b border-gray-100 bg-amber-50/30 flex items-center justify-between">
+                        <h3 class="text-sm font-bold text-gray-900 flex items-center gap-2">
+                            <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Action Required
+                        </h3>
+                        <span class="bg-amber-100 text-amber-700 text-xs font-bold px-2 py-0.5 rounded-full">{{ number_format($stats['pending_approvals'] ?? 0) }}</span>
+                    </div>
+                    <div class="p-4 space-y-3">
+                        @php
+                            $pendingApprovals = \App\Models\Approval::with('requester')->where('status', 'pending')
+                                ->where('approver_id', auth()->id())
+                                ->latest()->take(4)->get();
+                        @endphp
+                        @forelse($pendingApprovals as $approval)
+                        <div class="p-3 bg-white rounded-lg border border-gray-100 shadow-sm hover:border-amber-200 hover:shadow-md transition-all">
+                            <p class="text-sm font-semibold text-gray-900">{{ class_basename($approval->approvable_type) }} #{{ $approval->approvable_id }}</p>
+                            <p class="text-xs text-gray-500 mt-1">Req. by {{ $approval->requester->first_name ?? 'System' }}</p>
+                            <div class="mt-3 flex gap-2">
+                                <a href="#" class="px-3 py-1.5 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded hover:bg-emerald-100 transition-colors w-full text-center">Approve</a>
+                                <a href="#" class="px-3 py-1.5 bg-rose-50 text-rose-700 text-xs font-semibold rounded hover:bg-rose-100 transition-colors w-full text-center">Reject</a>
+                            </div>
+                        </div>
+                        @empty
+                        <div class="text-center py-8">
+                            <svg class="mx-auto w-10 h-10 text-gray-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 13l4 4L19 7"></path></svg>
+                            <p class="text-sm font-medium text-gray-500">You're all caught up!</p>
+                        </div>
+                        @endforelse
+                    </div>
+                </div>
+                @endcan
+
+                {{-- Today's Schedule & Meetings --}}
+                @can('calendar.view')
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+                        <h3 class="text-sm font-bold text-gray-900">Today's Schedule</h3>
+                        <a href="{{ route('admin.calendar.agenda') }}" class="text-xs font-medium text-blue-600 hover:text-blue-700">Agenda &rarr;</a>
+                    </div>
+                    <div class="p-4 space-y-3">
+                        @forelse($todaysSchedule ?? [] as $event)
+                            <a href="{{ $event->url }}" class="block p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors shadow-sm" style="border-left: 3px solid {{ $event->color ?? '#3B82F6' }};">
+                                <h4 class="text-sm font-semibold text-gray-900 truncate">{{ $event->title }}</h4>
+                                <p class="text-xs font-medium text-gray-500 mt-1 flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    @if(!($event->allDay ?? false))
+                                        {{ $event->start->format('g:i A') }} — {{ $event->end?->format('g:i A') }}
+                                    @else
+                                        All Day
+                                    @endif
+                                </p>
+                            </a>
+                        @empty
+                            <div class="text-center py-8">
+                                <svg class="mx-auto w-10 h-10 text-gray-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                <p class="text-sm font-medium text-gray-500">Clear calendar today.</p>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+                @endcan
+
+                {{-- Recent Announcements --}}
+                @can('announcement.view')
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="px-5 py-4 border-b border-gray-100">
+                        <h3 class="text-sm font-bold text-gray-900">Announcements</h3>
+                    </div>
+                    @php
+                        $announcements = \App\Models\Announcement::latest()->take(4)->get();
+                    @endphp
+                    <div class="p-4 space-y-4">
+                        @forelse($announcements as $announcement)
+                        <div class="flex items-start gap-3">
+                            <div class="flex-shrink-0 mt-1">
+                                <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <a href="{{ route('admin.announcements.show', $announcement) }}" class="text-sm font-semibold text-gray-900 hover:text-blue-600 block truncate">{{ $announcement->title }}</a>
+                                <p class="text-xs text-gray-500 mt-0.5 font-medium">{{ $announcement->created_at->diffForHumans() }}</p>
+                            </div>
+                        </div>
+                        @empty
+                        <div class="text-center py-4">
+                            <p class="text-sm font-medium text-gray-500">No recent announcements.</p>
+                        </div>
+                        @endforelse
+                    </div>
+                </div>
+                @endcan
+
+            </div>
+        </div>
     </div>
 </x-layouts.admin>

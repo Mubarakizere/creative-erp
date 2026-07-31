@@ -6,11 +6,11 @@
                 <p class="mt-1 text-sm text-gray-500">Select data source, filter dynamically, and configure your layout.</p>
             </div>
             <div class="flex space-x-3">
-                <button type="button" @click="previewReport" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                <button type="button" @click="previewReport" class="inline-flex items-center px-4 py-2 border border-gray-200/60 text-sm font-medium rounded-xl text-gray-700 bg-white hover:bg-gray-50 min-h-[42px] shadow-sm transition-colors">
                     <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                     Preview
                 </button>
-                <a href="{{ route('admin.reports.index') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200">
+                <a href="{{ route('admin.reports.index') }}" class="inline-flex items-center px-4 py-2 border border-gray-200/60 shadow-sm text-sm font-medium rounded-xl text-gray-700 bg-white hover:bg-gray-50 min-h-[42px] transition-colors">
                     Cancel
                 </a>
             </div>
@@ -21,7 +21,7 @@
             <!-- Left Sidebar: Configuration Form -->
             <div class="lg:col-span-1 space-y-6">
                 @if ($errors->any())
-                    <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded-md">
+                    <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded-xl">
                         <div class="flex">
                             <div class="flex-shrink-0">
                                 <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
@@ -42,7 +42,7 @@
                     </div>
                 @endif
 
-                <form id="reportForm" action="{{ $template ? route('admin.reports.update', $template) : route('admin.reports.store') }}" method="POST" class="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden">
+                <form id="reportForm" action="{{ $template ? route('admin.reports.update', $template) : route('admin.reports.store') }}" method="POST" class="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
                     @csrf
                     @if($template) @method('PUT') @endif
                     
@@ -59,17 +59,17 @@
                     <div class="p-5 space-y-5">
                         <div>
                             <label class="block text-sm font-semibold text-gray-700">Report Name <span class="text-red-500">*</span></label>
-                            <input type="text" name="name" required value="{{ old('name', $template->name ?? '') }}" class="mt-1.5 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors">
+                            <input type="text" name="name" required value="{{ old('name', $template->name ?? '') }}" class="mt-1.5 block w-full rounded-xl border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors min-h-[42px]">
                         </div>
 
                         <div>
                             <label class="block text-sm font-semibold text-gray-700">Description</label>
-                            <textarea name="description" rows="2" class="mt-1.5 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors">{{ old('description', $template->description ?? '') }}</textarea>
+                            <textarea name="description" rows="2" class="mt-1.5 block w-full rounded-xl border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors min-h-[42px]">{{ old('description', $template->description ?? '') }}</textarea>
                         </div>
 
                         <div>
                             <label class="block text-sm font-semibold text-gray-700">Data Source (Module) <span class="text-red-500">*</span></label>
-                            <select name="type" x-model="type" @change="resetFilters" required class="mt-1.5 block w-full rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-blue-50 border-blue-300 text-blue-900 transition-colors font-medium">
+                            <select name="type" x-model="type" @change="resetFilters" required class="mt-1.5 block w-full rounded-xl shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-blue-50/50 border-blue-200 text-blue-900 transition-colors font-medium min-h-[42px]">
                                 <option value="executive">Executive Dashboard</option>
                                 <option value="project_summary">Projects</option>
                                 <option value="task_summary">Tasks</option>
@@ -113,7 +113,7 @@
                                 <template x-if="availableFilters.includes('company_id')">
                                     <div>
                                         <label class="block text-xs font-medium text-gray-700">Company</label>
-                                        <select x-model="filters.company_id" name="filters[company_id]" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                        <select x-model="filters.company_id" name="filters[company_id]" class="mt-1 block w-full rounded-xl border-gray-200 min-h-[42px] shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
                                             <option value="">All Companies</option>
                                             @foreach($options['companies'] as $c)
                                                 <option value="{{ $c->id }}">{{ $c->name }}</option>
@@ -125,7 +125,7 @@
                                 <template x-if="availableFilters.includes('branch_id')">
                                     <div>
                                         <label class="block text-xs font-medium text-gray-700">Branch (Cascading)</label>
-                                        <select x-model="filters.branch_id" name="filters[branch_id]" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                        <select x-model="filters.branch_id" name="filters[branch_id]" class="mt-1 block w-full rounded-xl border-gray-200 min-h-[42px] shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
                                             <option value="">All Branches</option>
                                             @foreach($options['branches'] as $b)
                                                 <option value="{{ $b->id }}" x-show="!filters.company_id || filters.company_id == {{ $b->company_id }}">{{ $b->name }}</option>
@@ -137,7 +137,7 @@
                                 <template x-if="availableFilters.includes('department_id')">
                                     <div>
                                         <label class="block text-xs font-medium text-gray-700">Department</label>
-                                        <select x-model="filters.department_id" name="filters[department_id]" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                        <select x-model="filters.department_id" name="filters[department_id]" class="mt-1 block w-full rounded-xl border-gray-200 min-h-[42px] shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
                                             <option value="">All Departments</option>
                                             @foreach($options['departments'] as $d)
                                                 <option value="{{ $d->id }}" x-show="!filters.branch_id || filters.branch_id == {{ $d->branch_id }}">{{ $d->name }}</option>
@@ -149,7 +149,7 @@
                                 <template x-if="availableFilters.includes('client_id')">
                                     <div>
                                         <label class="block text-xs font-medium text-gray-700">Client</label>
-                                        <select x-model="filters.client_id" name="filters[client_id]" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                        <select x-model="filters.client_id" name="filters[client_id]" class="mt-1 block w-full rounded-xl border-gray-200 min-h-[42px] shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
                                             <option value="">All Clients</option>
                                             @foreach($options['clients'] as $cl)
                                                 <option value="{{ $cl->id }}">{{ $cl->name }}</option>
@@ -161,7 +161,7 @@
                                 <template x-if="availableFilters.includes('project_id')">
                                     <div>
                                         <label class="block text-xs font-medium text-gray-700">Project</label>
-                                        <select x-model="filters.project_id" name="filters[project_id]" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                        <select x-model="filters.project_id" name="filters[project_id]" class="mt-1 block w-full rounded-xl border-gray-200 min-h-[42px] shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
                                             <option value="">All Projects</option>
                                             @foreach($options['projects'] as $p)
                                                 <option value="{{ $p->id }}">{{ $p->name }}</option>
@@ -173,7 +173,7 @@
                                 <template x-if="availableFilters.includes('user_id')">
                                     <div>
                                         <label class="block text-xs font-medium text-gray-700">User / Employee</label>
-                                        <select x-model="filters.user_id" name="filters[user_id]" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                        <select x-model="filters.user_id" name="filters[user_id]" class="mt-1 block w-full rounded-xl border-gray-200 min-h-[42px] shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
                                             <option value="">All Users</option>
                                             @foreach($options['users'] as $u)
                                                 <option value="{{ $u->id }}">{{ $u->name }}</option>
@@ -185,7 +185,7 @@
                                 <template x-if="availableFilters.includes('status')">
                                     <div>
                                         <label class="block text-xs font-medium text-gray-700">Status</label>
-                                        <select x-model="filters.status" name="filters[status]" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                        <select x-model="filters.status" name="filters[status]" class="mt-1 block w-full rounded-xl border-gray-200 min-h-[42px] shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
                                             <option value="">Any Status</option>
                                             <option value="Pending">Pending</option>
                                             <option value="In Progress">In Progress</option>
@@ -200,7 +200,7 @@
                                 <template x-if="availableFilters.includes('priority')">
                                     <div>
                                         <label class="block text-xs font-medium text-gray-700">Priority</label>
-                                        <select x-model="filters.priority" name="filters[priority]" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                        <select x-model="filters.priority" name="filters[priority]" class="mt-1 block w-full rounded-xl border-gray-200 min-h-[42px] shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
                                             <option value="">Any Priority</option>
                                             <option value="Low">Low</option>
                                             <option value="Medium">Medium</option>
@@ -213,11 +213,11 @@
                                 <div class="grid grid-cols-2 gap-2">
                                     <div>
                                         <label class="block text-xs font-medium text-gray-700">Date From</label>
-                                        <input type="date" x-model="filters.date_from" name="filters[date_from]" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                        <input type="date" x-model="filters.date_from" name="filters[date_from]" class="mt-1 block w-full rounded-xl border-gray-200 min-h-[42px] shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
                                     </div>
                                     <div>
                                         <label class="block text-xs font-medium text-gray-700">Date To</label>
-                                        <input type="date" x-model="filters.date_to" name="filters[date_to]" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                        <input type="date" x-model="filters.date_to" name="filters[date_to]" class="mt-1 block w-full rounded-xl border-gray-200 min-h-[42px] shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
                                     </div>
                                 </div>
                             </div>
@@ -242,7 +242,7 @@
                             <div class="space-y-3">
                                 <div>
                                     <label class="block text-xs text-gray-500">Group By</label>
-                                    <select x-model="layout.groupBy" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                    <select x-model="layout.groupBy" class="mt-1 block w-full rounded-xl border-gray-200 min-h-[42px] shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
                                         <option value="">None</option>
                                         <option value="company_id">Company</option>
                                         <option value="branch_id">Branch</option>
@@ -258,7 +258,7 @@
                                 <div class="flex space-x-2">
                                     <div class="flex-1">
                                         <label class="block text-xs text-gray-500">Sort By</label>
-                                        <select x-model="layout.sortBy" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                        <select x-model="layout.sortBy" class="mt-1 block w-full rounded-xl border-gray-200 min-h-[42px] shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
                                             <option value="">Default (ID)</option>
                                             <option value="created_at">Created Date</option>
                                             <option value="name">Name</option>
@@ -267,7 +267,7 @@
                                     </div>
                                     <div class="w-1/3">
                                         <label class="block text-xs text-gray-500">Direction</label>
-                                        <select x-model="layout.sortDirection" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                        <select x-model="layout.sortDirection" class="mt-1 block w-full rounded-xl border-gray-200 min-h-[42px] shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
                                             <option value="asc">Asc</option>
                                             <option value="desc">Desc</option>
                                         </select>
@@ -279,7 +279,7 @@
                         <!-- Chart Builder -->
                         <div class="pt-4 border-t border-gray-200 mt-4" x-show="type !== 'executive'">
                             <h3 class="text-sm font-medium text-gray-900 mb-2">Preferred Chart</h3>
-                            <select x-model="layout.chartType" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                            <select x-model="layout.chartType" class="mt-1 block w-full rounded-xl border-gray-200 min-h-[42px] shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
                                 <option value="table">Table Only (No Chart)</option>
                                 <option value="bar">Bar Chart</option>
                                 <option value="line">Line Chart</option>
@@ -290,7 +290,7 @@
                         </div>
 
                         <div class="pt-5 flex justify-end gap-2 border-t mt-6">
-                            <button type="submit" class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            <button type="submit" class="w-full inline-flex justify-center items-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-xl text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-h-[42px] transition-colors">
                                 {{ $template ? 'Save Changes' : 'Create Report' }}
                             </button>
                         </div>
@@ -300,7 +300,7 @@
 
             <!-- Right Area: Live Preview -->
             <div class="lg:col-span-3">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden h-full flex flex-col relative">
+                <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden h-full flex flex-col relative">
                     
                     <div class="p-4 border-b bg-gray-50 flex justify-between items-center">
                         <h2 class="text-lg font-medium text-gray-900 flex items-center">

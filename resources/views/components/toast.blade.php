@@ -81,6 +81,12 @@
  x-transition:leave="transition ease-in duration-200"
  x-transition:leave-start="opacity-100"
  x-transition:leave-end="opacity-0 translate-x-2"
+ :class="{
+     'border-l-4 border-green-500': toast.type === 'success',
+     'border-l-4 border-red-500': toast.type === 'error',
+     'border-l-4 border-yellow-500': toast.type === 'warning',
+     'border-l-4 border-blue-500': toast.type === 'info',
+ }"
  class="flex items-start w-full max-w-sm p-4 text-gray-500 bg-white rounded-lg shadow-lg pointer-events-auto ring-1 ring-black ring-opacity-5"
  role="alert"
  >
@@ -110,9 +116,9 @@
  
  <div class="ml-3 w-0 flex-1 pt-0.5">
  <template x-if="toast.title">
- <p class="text-sm font-medium text-gray-900 " x-text="toast.title"></p>
+ <p class="text-sm font-bold text-gray-900" x-text="toast.title"></p>
  </template>
- <p class="text-sm text-gray-500 mt-1" x-text="toast.message"></p>
+ <p class="text-sm text-gray-600 mt-1" x-text="toast.message"></p>
  </div>
  
  <div class="ml-4 flex-shrink-0 flex">

@@ -8,117 +8,85 @@
         @endphp
     </x-slot:breadcrumbs>
 
-    {{-- Page Header --}}
-    <div class="mb-8">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-900">Projects</h1>
-                <p class="mt-1 text-sm text-gray-500">Manage all projects in the system.</p>
-            </div>
+    @can('viewAny', App\Models\Project::class)
+    <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Projects</h1>
+            <p class="mt-1 text-sm text-gray-500 font-medium">Manage all projects in the system.</p>
+        </div>
+        <div class="flex items-center gap-3">
             @can('create', App\Models\Project::class)
-                <x-button type="primary" href="{{ route('admin.projects.create') }}">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                    </svg>
+                <a href="{{ route('admin.projects.create') }}" class="inline-flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 shadow-sm transition-all hover:shadow-md focus:ring-2 focus:ring-blue-500 focus:outline-none shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
                     Create Project
-                </x-button>
+                </a>
             @endcan
         </div>
     </div>
 
-    {{-- Filters --}}
-    <x-card class="mb-6">
+    <div class="bg-white p-5 rounded-2xl border border-gray-200/60 shadow-sm mb-6">
         <form method="GET" action="{{ route('admin.projects.index') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-            {{-- Search --}}
-            <x-input
-                name="search"
-                placeholder="Search projects..."
-                :value="request('search')"
-                :icon="'<svg class=&quot;w-4 h-4&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; viewBox=&quot;0 0 24 24&quot;><path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; stroke-width=&quot;2&quot; d=&quot;M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z&quot;/></svg>'"
-            />
-            
-            {{-- Company Filter --}}
-            <x-select
-                name="company_id"
-                placeholder="All Companies"
-                :options="$companies->pluck('name', 'id')->toArray()"
-                :selected="request('company_id')"
-            />
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </div>
+                <input type="text" name="search" placeholder="Search projects..." value="{{ request('search') }}" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors shadow-sm">
+            </div>
 
-            {{-- Client Filter --}}
-            <x-select
-                name="client_id"
-                placeholder="All Clients"
-                :options="$clients->pluck('display_name', 'id')->toArray()"
-                :selected="request('client_id')"
-            />
-            
-            {{-- Status Filter --}}
-            <x-select
-                name="status"
-                placeholder="All Statuses"
-                :options="['Planning' => 'Planning', 'Pending' => 'Pending', 'In Progress' => 'In Progress', 'On Hold' => 'On Hold', 'Completed' => 'Completed', 'Cancelled' => 'Cancelled', 'Closed' => 'Closed']"
-                :selected="request('status')"
-            />
+            <x-select name="company_id" placeholder="All Companies" :options="$companies->pluck('name', 'id')->toArray()" :selected="request('company_id')" />
+            <x-select name="client_id" placeholder="All Clients" :options="$clients->pluck('display_name', 'id')->toArray()" :selected="request('client_id')" />
+            <x-select name="status" placeholder="All Statuses" :options="['Planning' => 'Planning', 'Pending' => 'Pending', 'In Progress' => 'In Progress', 'On Hold' => 'On Hold', 'Completed' => 'Completed', 'Cancelled' => 'Cancelled', 'Closed' => 'Closed']" :selected="request('status')" />
 
-            {{-- Actions --}}
             <div class="flex items-end gap-2">
-                <x-button type="primary" size="md">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
-                    </svg>
+                <button type="submit" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors shadow-sm border border-gray-200 w-full justify-center sm:w-auto">
+                    <svg class="w-4 h-4 mr-1.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
                     Filter
-                </x-button>
+                </button>
                 @if(request()->hasAny(['search', 'status', 'priority', 'company_id', 'client_id']))
-                    <x-button type="ghost" href="{{ route('admin.projects.index') }}" size="md">
+                    <a href="{{ route('admin.projects.index') }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 bg-white border border-transparent hover:border-gray-300 rounded-xl transition-colors shrink-0">
                         Clear
-                    </x-button>
+                    </a>
                 @endif
             </div>
         </form>
-    </x-card>
+    </div>
 
-    {{-- Projects Table --}}
-    <x-table>
-        <x-slot:head>
-            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-24">Code</th>
-            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Project Name</th>
-            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider hidden sm:table-cell">Client</th>
-            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider hidden md:table-cell">Manager</th>
-            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
-            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider hidden lg:table-cell">Progress</th>
-            <th class="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider w-20">Actions</th>
-        </x-slot:head>
+    <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200/60">
+                <thead class="bg-gray-50/50">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 w-24">Code</th>
+                        <th class="px-6 py-4 text-left text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">Project Name</th>
+                        <th class="px-6 py-4 text-left text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 hidden sm:table-cell">Client</th>
+                        <th class="px-6 py-4 text-left text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 hidden md:table-cell">Manager</th>
+                        <th class="px-6 py-4 text-left text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">Status</th>
+                        <th class="px-6 py-4 text-left text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 hidden lg:table-cell">Progress</th>
+                        <th class="px-6 py-4 text-right text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 w-24">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-100">
 
         @forelse($projects as $project)
-            <tr @class(['bg-red-50/30' => $project->trashed()])>
-                {{-- Code --}}
-                <td class="px-4 py-3">
+            <tr class="hover:bg-blue-50/30 transition-colors group {{ $project->trashed() ? 'bg-red-50/30' : '' }}">
+                <td class="px-6 py-4">
                     <span class="text-sm font-semibold text-gray-700">{{ $project->project_code }}</span>
                 </td>
-
-                {{-- Name --}}
-                <td class="px-4 py-3">
+                <td class="px-6 py-4">
                     <div>
-                        <a href="{{ route('admin.projects.show', $project) }}" class="text-sm font-semibold text-gray-900 hover:text-blue-600 transition-colors">
+                        <a href="{{ route('admin.projects.show', $project) }}" class="text-sm font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
                             {{ $project->name }}
                         </a>
-                        <p class="text-xs text-gray-500 mt-0.5">{{ $project->company?->name }} - {{ $project->branch?->name }}</p>
+                        <p class="text-xs text-gray-500 mt-0.5 font-medium">{{ $project->company?->name }} - {{ $project->branch?->name }}</p>
                     </div>
                 </td>
-
-                {{-- Client --}}
-                <td class="px-4 py-3 hidden sm:table-cell">
-                    <span class="text-sm text-gray-600">{{ $project->client?->display_name }}</span>
+                <td class="px-6 py-4 hidden sm:table-cell">
+                    <span class="text-sm text-gray-600 font-medium">{{ $project->client?->display_name }}</span>
                 </td>
-
-                {{-- Manager --}}
-                <td class="px-4 py-3 hidden md:table-cell">
-                    <span class="text-sm text-gray-600">{{ $project->manager?->name }}</span>
+                <td class="px-6 py-4 hidden md:table-cell">
+                    <span class="text-sm text-gray-600 font-medium">{{ $project->manager?->name }}</span>
                 </td>
-
-                {{-- Status --}}
-                <td class="px-4 py-3">
+                <td class="px-6 py-4">
                     @php
                         $statusType = match($project->status) {
                             'Planning' => 'default',
@@ -134,9 +102,7 @@
                         <x-badge type="danger" class="ml-1">Archived</x-badge>
                     @endif
                 </td>
-
-                {{-- Progress --}}
-                <td class="px-4 py-3 hidden lg:table-cell">
+                <td class="px-6 py-4 hidden lg:table-cell">
                     <div class="flex items-center gap-2">
                         <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
                             <div class="h-full bg-blue-600 rounded-full" style="width: {{ $project->progress }}%"></div>
@@ -144,9 +110,7 @@
                         <span class="text-xs font-medium text-gray-600">{{ $project->progress }}%</span>
                     </div>
                 </td>
-
-                {{-- Actions --}}
-                <td class="px-4 py-3 text-right">
+                <td class="px-6 py-4 text-right">
                     <div x-data="{ open: false }" class="relative inline-block text-left">
                         <button @click="open = !open" @click.outside="open = false" class="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -279,29 +243,40 @@
                     </x-slot:footer>
                 </x-modal>
             @endif
-        @empty
-            <tr>
-                <td colspan="7" class="px-4 py-12 text-center">
-                    <div class="flex flex-col items-center">
-                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+            @empty
+                <tr>
+                    <td colspan="7" class="px-6 py-16 text-center">
+                        <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-100">
                             <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
                             </svg>
                         </div>
-                        <p class="text-gray-500 text-sm font-medium">No projects found</p>
-                        <p class="text-gray-400 text-xs mt-1">Create your first project to get started.</p>
+                        <h3 class="text-lg font-bold text-gray-900 mb-1">No projects found</h3>
+                        <p class="text-sm text-gray-500 font-medium">Create your first project to get started.</p>
                         @can('create', App\Models\Project::class)
-                            <x-button type="primary" href="{{ route('admin.projects.create') }}" class="mt-4" size="sm">
+                            <a href="{{ route('admin.projects.create') }}" class="mt-4 inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 shadow-sm transition-all focus:ring-2 focus:ring-blue-500 focus:outline-none">
                                 Create Project
-                            </x-button>
+                            </a>
                         @endcan
-                    </div>
-                </td>
-            </tr>
-        @endforelse
-
-        <x-slot:pagination>
+                    </td>
+                </tr>
+            @endforelse
+                </tbody>
+            </table>
+        </div>
+        @if(method_exists($projects, 'hasPages') && $projects->hasPages())
+        <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/30">
             {{ $projects->links('components.pagination') }}
-        </x-slot:pagination>
-    </x-table>
+        </div>
+        @endif
+    </div>
+    @else
+    <div class="text-center py-16 bg-white rounded-2xl border border-gray-200/60 shadow-sm">
+        <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4 border border-red-200">
+            <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 mb-2">Access Denied</h3>
+        <p class="text-sm text-gray-500 font-medium">You do not have permission to view projects.</p>
+    </div>
+    @endcan
 </x-layouts.admin>

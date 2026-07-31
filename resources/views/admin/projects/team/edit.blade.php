@@ -13,22 +13,24 @@
 
     <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900">Edit Team Member</h1>
-            <p class="mt-1 text-sm text-gray-500">Update assignment details for {{ $teamMember->user->full_name }} on {{ $teamMember->project->name }}.</p>
-        </div>
-        <div class="flex items-center gap-3">
-            <x-button type="default" href="{{ route('admin.projects.show', $teamMember->project_id) }}">
-                Cancel
-            </x-button>
+            <a href="{{ route('admin.projects.show', $teamMember->project_id) }}" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 mb-2 transition-colors">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                Back to Project
+            </a>
+            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Edit Team Member</h1>
+            <p class="mt-1 text-sm text-gray-500 font-medium">Update assignment details for {{ $teamMember->user->full_name }} on {{ $teamMember->project->name }}.</p>
         </div>
     </div>
 
     <div class="max-w-4xl">
-        <x-card>
-            <form action="{{ route('admin.projects.team.update', $teamMember) }}" method="POST" x-data="{ allocation: {{ $teamMember->allocation_percentage }} }">
+        <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
+            <div class="bg-gray-50/50 border-b border-gray-100 px-6 py-4">
+                <h3 class="text-lg font-bold text-gray-900 tracking-tight">Assignment Details</h3>
+            </div>
+            <form action="{{ route('admin.projects.team.update', $teamMember) }}" method="POST" id="team-form" x-data="{ allocation: {{ $teamMember->allocation_percentage }} }">
                 @csrf
                 @method('PUT')
-                
+                <div class="p-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     {{-- User Display (Readonly) --}}
                     <div>
@@ -106,11 +108,16 @@
                     @enderror
                 </div>
 
-                <div class="flex justify-end gap-3 pt-4 border-t">
-                    <x-button type="default" href="{{ route('admin.projects.show', $teamMember->project_id) }}">Cancel</x-button>
-                    <x-button type="primary" submit>Update Member</x-button>
                 </div>
             </form>
-        </x-card>
+            <div class="bg-gray-50/50 border-t border-gray-100 px-6 py-4 flex items-center justify-end gap-3">
+                <a href="{{ route('admin.projects.show', $teamMember->project_id) }}" class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors shadow-sm">
+                    Cancel
+                </a>
+                <button type="submit" form="team-form" class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 shadow-sm transition-all focus:ring-2 focus:ring-blue-500 focus:outline-none hover:shadow-md">
+                    Update Member
+                </button>
+            </div>
+        </div>
     </div>
 </x-layouts.admin>

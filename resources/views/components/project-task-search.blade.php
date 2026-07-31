@@ -18,10 +18,10 @@
         <label class="block text-sm font-medium text-gray-700">Project <span class="text-red-500">*</span></label>
         <input type="hidden" name="project_id" :value="selectedProjectId" required>
         
-        <button type="button" @click="showProjectDropdown = !showProjectDropdown" class="w-full bg-white border border-gray-300 rounded-lg shadow-sm py-2.5 px-3 text-left sm:text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
-            <span x-text="selectedProjectName"></span>
-            <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none" style="top: 28px;">
-                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg>
+        <button type="button" @click="showProjectDropdown = !showProjectDropdown" class="relative w-full bg-white border border-gray-300 rounded-lg shadow-sm py-2.5 pl-3 pr-10 text-left sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 min-h-[42px] flex items-center">
+            <span class="block truncate text-gray-900" x-text="selectedProjectName"></span>
+            <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
             </span>
         </button>
         
@@ -48,10 +48,10 @@
         <label class="block text-sm font-medium text-gray-700">Task (Optional)</label>
         <input type="hidden" name="task_id" :value="selectedTaskId">
         
-        <button type="button" @click="showTaskDropdown = !showTaskDropdown" :disabled="!selectedProjectId" class="w-full bg-white border border-gray-300 rounded-lg shadow-sm py-2.5 px-3 text-left sm:text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:text-gray-500">
-            <span x-text="selectedTaskName"></span>
-            <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none" style="top: 28px;">
-                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg>
+        <button type="button" @click="showTaskDropdown = !showTaskDropdown" :disabled="!selectedProjectId" class="relative w-full bg-white border border-gray-300 rounded-lg shadow-sm py-2.5 pl-3 pr-10 text-left sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:text-gray-500 transition-colors duration-200 min-h-[42px] flex items-center">
+            <span class="block truncate text-gray-900" x-text="selectedTaskName"></span>
+            <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
             </span>
         </button>
         

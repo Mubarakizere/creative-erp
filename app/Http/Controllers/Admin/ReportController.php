@@ -26,11 +26,51 @@ class ReportController extends Controller
         Gate::authorize('viewAny', ReportTemplate::class);
 
         $userId = auth()->id();
+        $companyId = auth()->user()->company_id ?? 1;
         $systemTemplates = $this->reportService->getSystemTemplates();
         $userTemplates = $this->reportService->getUserTemplates($userId);
         $favoriteTemplates = $this->reportService->getFavoriteTemplates($userId);
 
-        return view('admin.reports.index', compact('systemTemplates', 'userTemplates', 'favoriteTemplates'));
+        // Fetch basic financial stats for accounting staff dashboard
+        $totalInvoiced = \App\Models\Invoice::where('company_id', $companyId)->sum('total_amount');
+        $totalPaid = \App\Models\Payment::where('company_id', $companyId)->sum('amount');
+        $totalOutstanding = \App\Models\Invoice::where('company_id', $companyId)->sum('balance_due');
+
+        // Invoice Status Breakdown
+        $invoiceStatusData = \App\Models\Invoice::where('company_id', $companyId)
+            ->select('status', \Illuminate\Support\Facades\DB::raw('count(*) as count'), \Illuminate\Support\Facades\DB::raw('sum(total_amount) as total'))
+            ->groupBy('status')
+            ->get();
+
+        // Payments by Method
+        $paymentMethodData = \App\Models\Payment::where('company_id', $companyId)
+            ->with('paymentMethod')
+            ->select('payment_method_id', \Illuminate\Support\Facades\DB::raw('sum(amount) as total'))
+            ->groupBy('payment_method_id')
+            ->get();
+
+        // Monthly Payments (Last 6 Months) - DB agnostic grouping
+        $sixMonthsAgo = now()->subMonths(5)->startOfMonth();
+        $recentPayments = \App\Models\Payment::where('company_id', $companyId)
+            ->where('payment_date', '>=', $sixMonthsAgo)
+            ->get();
+
+        $monthlyPayments = collect();
+        for ($i = 5; $i >= 0; $i--) {
+            $month = now()->subMonths($i);
+            $monthlyPayments->push([
+                'label' => $month->format('M Y'),
+                'total' => $recentPayments->filter(function ($payment) use ($month) {
+                    return $payment->payment_date && $payment->payment_date->format('Y-m') === $month->format('Y-m');
+                })->sum('amount'),
+            ]);
+        }
+
+        return view('admin.reports.index', compact(
+            'systemTemplates', 'userTemplates', 'favoriteTemplates',
+            'totalInvoiced', 'totalPaid', 'totalOutstanding',
+            'invoiceStatusData', 'paymentMethodData', 'monthlyPayments'
+        ));
     }
 
     public function builder(Request $request)

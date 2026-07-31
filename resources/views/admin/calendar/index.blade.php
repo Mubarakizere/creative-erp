@@ -5,7 +5,7 @@
             <div>
                 <x-breadcrumb :items="[['label' => 'Dashboard', 'url' => route('admin.dashboard')], ['label' => 'Calendar']]" />
                 <h1 class="text-2xl font-bold text-gray-900 mt-2">Calendar</h1>
-                <p class="mt-1 text-sm text-gray-500">Unified schedule — meetings, tasks, milestones & deadlines.</p>
+                <p class="mt-1 text-sm text-gray-500">Unified schedule meetings, tasks, milestones & deadlines.</p>
             </div>
             <div class="flex items-center gap-3">
                 <a href="{{ route('admin.calendar.agenda') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
@@ -20,66 +20,65 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6" x-data="calendarApp({{ $year }}, {{ $month }})">
+    <div class="flex flex-col lg:flex-row gap-6 lg:gap-8" x-data="calendarApp({{ $year }}, {{ $month }})">
         {{-- Calendar Grid --}}
-        <div class="lg:col-span-3">
-            <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="flex-1 w-full lg:w-auto">
+            <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
                 {{-- Calendar Header --}}
-                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-                    <button @click="prevMonth()" class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
-                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                    </button>
-                    <h2 class="text-lg font-semibold text-gray-900" x-text="monthNames[currentMonth - 1] + ' ' + currentYear"></h2>
-                    <button @click="nextMonth()" class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
-                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </button>
+                <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100 bg-gray-50/50">
+                    <div class="flex items-center gap-4">
+                        <h2 class="text-xl font-bold text-gray-900 tracking-tight" x-text="monthNames[currentMonth - 1] + ' ' + currentYear"></h2>
+                        <span class="px-2.5 py-1 rounded-full bg-white border border-gray-200 text-xs font-medium text-gray-600 shadow-sm cursor-pointer hover:bg-gray-50 transition-colors" @click="goToToday()">Today</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button type="button" @click="prevMonth()" class="p-2 rounded-xl bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900 shadow-sm transition-all focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                        </button>
+                        <button type="button" @click="nextMonth()" class="p-2 rounded-xl bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900 shadow-sm transition-all focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </button>
+                    </div>
                 </div>
 
                 {{-- Day Headers --}}
-                <div class="grid grid-cols-7 border-b border-gray-200">
+                <div class="grid grid-cols-7 border-b border-gray-100 bg-white">
                     <template x-for="day in ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']">
-                        <div class="px-2 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider" x-text="day"></div>
+                        <div class="px-2 py-3.5 text-center text-[11px] font-bold text-gray-400 uppercase tracking-widest" x-text="day"></div>
                     </template>
                 </div>
 
                 {{-- Calendar Days Grid --}}
-                <div class="grid grid-cols-7">
+                <div class="grid grid-cols-7 bg-gray-100 gap-px border-b border-gray-100">
                     <template x-for="(day, index) in calendarDays" :key="index">
                         <div
-                            class="min-h-[100px] p-1.5 border-b border-r border-gray-100 transition-colors cursor-pointer hover:bg-blue-50/50"
+                            class="min-h-[100px] sm:min-h-[120px] bg-white p-1 sm:p-2 transition-all cursor-pointer hover:bg-blue-50/30 group relative"
                             :class="{
-                                'bg-blue-50/70': day.isToday,
-                                'bg-gray-50/50': !day.currentMonth
+                                'opacity-50': !day.currentMonth,
                             }"
                             @click="selectDate(day.date)"
                         >
-                            <div class="flex items-center justify-between mb-1">
+                            <div class="flex items-center justify-between mb-2">
                                 <span
-                                    class="text-sm font-medium w-7 h-7 flex items-center justify-center rounded-full"
+                                    class="text-sm font-semibold w-8 h-8 flex items-center justify-center rounded-full transition-all"
                                     :class="{
-                                        'bg-blue-600 text-white': day.isToday,
-                                        'text-gray-900': day.currentMonth && !day.isToday,
+                                        'bg-blue-600 text-white shadow-md shadow-blue-500/30': day.isToday,
+                                        'text-gray-700 group-hover:text-blue-600': day.currentMonth && !day.isToday,
                                         'text-gray-400': !day.currentMonth
                                     }"
                                     x-text="day.dayNumber"
                                 ></span>
-                                <span
-                                    x-show="day.events.length > 0"
-                                    class="text-[10px] font-bold text-gray-400"
-                                    x-text="day.events.length + ' event' + (day.events.length > 1 ? 's' : '')"
-                                ></span>
                             </div>
-                            <div class="space-y-0.5">
+                            <div class="space-y-1">
                                 <template x-for="event in day.events.slice(0, 3)" :key="event.id">
                                     <a
                                         :href="event.url"
-                                        class="block px-1.5 py-0.5 text-[11px] font-medium rounded truncate transition-opacity hover:opacity-80"
-                                        :style="'background-color: ' + event.color + '20; color: ' + event.color + '; border-left: 2px solid ' + event.color"
+                                        class="block px-2 py-1 text-[11px] font-semibold rounded-md truncate transition-all hover:opacity-90 hover:scale-[1.02]"
+                                        :style="'background-color: ' + event.color + '15; color: ' + event.color + '; border-left: 3px solid ' + event.color"
                                         x-text="event.title"
                                         @click.stop
                                     ></a>
                                 </template>
-                                <div x-show="day.events.length > 3" class="text-[10px] text-gray-500 font-medium px-1.5" x-text="'+' + (day.events.length - 3) + ' more'"></div>
+                                <div x-show="day.events.length > 3" class="text-[10px] text-gray-500 font-semibold px-2 py-0.5" x-text="'+' + (day.events.length - 3) + ' more'"></div>
                             </div>
                         </div>
                     </template>
@@ -88,61 +87,67 @@
         </div>
 
         {{-- Sidebar --}}
-        <div class="space-y-6">
+        <div class="w-full lg:w-80 flex-shrink-0 space-y-6">
             {{-- Today's Schedule --}}
-            <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
-                <div class="px-4 py-3 border-b border-gray-200">
-                    <h3 class="text-sm font-semibold text-gray-900">Today's Schedule</h3>
+            <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
+                <div class="px-5 py-4 border-b border-gray-100 bg-gray-50/50">
+                    <h3 class="text-sm font-bold text-gray-900 tracking-tight">Today's Schedule</h3>
                 </div>
-                <div class="p-4 space-y-3">
+                <div class="p-5 space-y-3">
                     @forelse($todaysSchedule as $event)
-                        <a href="{{ $event->url }}" class="block p-2.5 rounded-lg hover:bg-gray-50 transition-colors border-l-3" style="border-left: 3px solid {{ $event->color }};">
-                            <p class="text-sm font-medium text-gray-900">{{ $event->title }}</p>
-                            <p class="text-xs text-gray-500 mt-0.5">
+                        <a href="{{ $event->url }}" class="block p-3 rounded-xl hover:bg-gray-50 transition-all border border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200" style="border-left: 4px solid {{ $event->color }};">
+                            <p class="text-sm font-semibold text-gray-900">{{ $event->title }}</p>
+                            <div class="flex items-center gap-2 mt-1.5 text-xs text-gray-500 font-medium">
+                                <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                 @if(!$event->allDay)
-                                    {{ $event->start->format('g:i A') }} — {{ $event->end?->format('g:i A') }}
+                                    {{ $event->start->format('g:i A') }} to {{ $event->end?->format('g:i A') }}
                                 @else
                                     All Day
                                 @endif
-                            </p>
+                            </div>
                         </a>
                     @empty
-                        <p class="text-sm text-gray-500 text-center py-4">Nothing scheduled today.</p>
+                        <div class="text-center py-6">
+                            <div class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            </div>
+                            <p class="text-sm font-medium text-gray-500">You're all clear today!</p>
+                        </div>
                     @endforelse
                 </div>
             </div>
 
             {{-- Upcoming Events --}}
-            <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
-                <div class="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
-                    <h3 class="text-sm font-semibold text-gray-900">Upcoming</h3>
-                    <a href="{{ route('admin.calendar.upcoming') }}" class="text-xs text-blue-600 hover:text-blue-700 font-medium">View All</a>
+            <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
+                <div class="px-5 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
+                    <h3 class="text-sm font-bold text-gray-900 tracking-tight">Upcoming</h3>
+                    <a href="{{ route('admin.calendar.upcoming') }}" class="text-[11px] font-bold text-blue-600 hover:text-blue-700 uppercase tracking-wider">View All</a>
                 </div>
-                <div class="p-4 space-y-3">
+                <div class="p-5 space-y-4">
                     @forelse($upcomingEvents as $event)
-                        <a href="{{ $event->url }}" class="block p-2.5 rounded-lg hover:bg-gray-50 transition-colors">
-                            <div class="flex items-center gap-2">
-                                <div class="w-2 h-2 rounded-full flex-shrink-0" style="background-color: {{ $event->color }};"></div>
-                                <p class="text-sm font-medium text-gray-900 truncate">{{ $event->title }}</p>
+                        <a href="{{ $event->url }}" class="flex items-start gap-3 group">
+                            <div class="mt-1 w-2.5 h-2.5 rounded-full flex-shrink-0 shadow-sm" style="background-color: {{ $event->color }};"></div>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">{{ $event->title }}</p>
+                                <p class="text-xs text-gray-500 mt-0.5 font-medium">{{ $event->start->format('M j, Y • g:i A') }}</p>
                             </div>
-                            <p class="text-xs text-gray-500 mt-0.5 ml-4">{{ $event->start->format('M j, g:i A') }}</p>
                         </a>
                     @empty
-                        <p class="text-sm text-gray-500 text-center py-4">No upcoming events.</p>
+                        <p class="text-sm text-gray-500 text-center py-4 font-medium">No upcoming events.</p>
                     @endforelse
                 </div>
             </div>
 
             {{-- Legend --}}
-            <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
-                <div class="px-4 py-3 border-b border-gray-200">
-                    <h3 class="text-sm font-semibold text-gray-900">Event Types</h3>
+            <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
+                <div class="px-5 py-4 border-b border-gray-100 bg-gray-50/50">
+                    <h3 class="text-sm font-bold text-gray-900 tracking-tight">Event Types</h3>
                 </div>
-                <div class="p-4 space-y-2">
+                <div class="p-5 flex flex-wrap gap-3">
                     @foreach($legend as $item)
-                        <div class="flex items-center gap-2">
-                            <div class="w-3 h-3 rounded-full" style="background-color: {{ $item['color'] }};"></div>
-                            <span class="text-sm text-gray-600">{{ $item['label'] }}</span>
+                        <div class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-gray-100 bg-gray-50/50">
+                            <div class="w-2.5 h-2.5 rounded-full shadow-sm" style="background-color: {{ $item['color'] }};"></div>
+                            <span class="text-xs font-semibold text-gray-700">{{ $item['label'] }}</span>
                         </div>
                     @endforeach
                 </div>
@@ -247,6 +252,13 @@
                 } else {
                     this.currentMonth++;
                 }
+                this.fetchEvents();
+            },
+
+            goToToday() {
+                const today = new Date();
+                this.currentMonth = today.getMonth() + 1;
+                this.currentYear = today.getFullYear();
                 this.fetchEvents();
             },
 

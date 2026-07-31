@@ -234,7 +234,7 @@
                             @endphp
                             @foreach($fullDays as $index => $day)
                                 <span @class([
-                                    'inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium',
+                                    'inline-flex items-center px-2.5 py-1 rounded-xl text-xs font-medium',
                                     'bg-blue-100 text-blue-700' => in_array($day, $workingDays),
                                     'bg-gray-100 text-gray-400' => !in_array($day, $workingDays),
                                 ])>
@@ -271,7 +271,7 @@
                             @if($company->logo_url)
                                 <img src="{{ $company->logo_url }}" alt="{{ $company->name }} Logo" class="w-24 h-24 rounded-xl object-cover border border-gray-200">
                             @else
-                                <div class="w-24 h-24 rounded-xl bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center">
+                                <div class="w-24 h-24 rounded-xl bg-gray-100 border-2 border-dashed border-gray-200/60 flex items-center justify-center">
                                     <span class="text-xs text-gray-400">No logo</span>
                                 </div>
                             @endif
@@ -281,9 +281,9 @@
                         <label class="text-xs font-medium text-gray-500 uppercase tracking-wider">Favicon</label>
                         <div class="mt-2">
                             @if($company->favicon_url)
-                                <img src="{{ $company->favicon_url }}" alt="{{ $company->name }} Favicon" class="w-12 h-12 rounded-lg object-cover border border-gray-200">
+                                <img src="{{ $company->favicon_url }}" alt="{{ $company->name }} Favicon" class="w-12 h-12 rounded-xl object-cover border border-gray-200">
                             @else
-                                <div class="w-12 h-12 rounded-lg bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center">
+                                <div class="w-12 h-12 rounded-xl bg-gray-100 border-2 border-dashed border-gray-200/60 flex items-center justify-center">
                                     <span class="text-[10px] text-gray-400">None</span>
                                 </div>
                             @endif

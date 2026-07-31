@@ -2,7 +2,7 @@
     'padding' => true,
 ])
 
-<div {{ $attributes->merge(['class' => 'bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200']) }}>
+<div {{ $attributes->merge(['class' => 'bg-white rounded-2xl border border-gray-200/60 shadow-sm hover:shadow-md transition-shadow duration-200']) }}>
     @if(isset($header))
         <div class="px-6 py-4 border-b border-gray-100">
             {{ $header }}

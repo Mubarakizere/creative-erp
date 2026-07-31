@@ -168,10 +168,12 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
     Route::resource('time-tracking', \App\Http\Controllers\Admin\TimeEntryController::class)->parameters(['time-tracking' => 'timeEntry']);
 
     // Calendar
-    Route::get('/calendar', [\App\Http\Controllers\Admin\CalendarController::class, 'index'])->name('calendar.index');
-    Route::get('/calendar/events', [\App\Http\Controllers\Admin\CalendarController::class, 'events'])->name('calendar.events');
-    Route::get('/calendar/agenda', [\App\Http\Controllers\Admin\CalendarController::class, 'agenda'])->name('calendar.agenda');
-    Route::get('/calendar/upcoming', [\App\Http\Controllers\Admin\CalendarController::class, 'upcoming'])->name('calendar.upcoming');
+    Route::prefix('calendar')->name('calendar.')->middleware('can:calendar.view')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\CalendarController::class, 'index'])->name('index');
+        Route::get('/events', [\App\Http\Controllers\Admin\CalendarController::class, 'events'])->name('events');
+        Route::get('/agenda', [\App\Http\Controllers\Admin\CalendarController::class, 'agenda'])->name('agenda');
+        Route::get('/upcoming', [\App\Http\Controllers\Admin\CalendarController::class, 'upcoming'])->name('upcoming');
+    });
 
     // Meetings
     Route::patch('/meetings/{meeting}/restore', [\App\Http\Controllers\Admin\MeetingController::class, 'restore'])->name('meetings.restore')->withTrashed();

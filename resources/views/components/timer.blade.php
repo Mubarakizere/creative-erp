@@ -16,12 +16,12 @@
 
 <div x-data="timerComponent()" x-init="initTimer()" class="relative inline-block">
     <!-- Timer Widget (always visible on navbar/sidebar) -->
-    <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 transition-colors shadow-sm"
+    <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors shadow-sm"
          @click="$dispatch('open-modal', 'timer-modal')">
         <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
         </svg>
-        <span class="font-mono text-sm font-semibold tracking-wider text-gray-700 dark:text-gray-200" x-text="formattedTime">00:00:00</span>
+        <span class="font-mono text-sm font-semibold tracking-wider text-gray-700" x-text="formattedTime">00:00:00</span>
         
         @if($runningTimer)
             <span class="flex h-2 w-2 relative ml-1">

@@ -5,13 +5,12 @@
 }">
     <div class="lg:col-span-2 space-y-6">
         {{-- Basic Information --}}
-        <x-card>
-            <x-slot:header>
-                <h3 class="text-lg font-medium text-gray-900">Task Information</h3>
-                <p class="mt-1 text-sm text-gray-500">Provide the basic details for this task.</p>
-            </x-slot:header>
-
-            <div class="space-y-4">
+        <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
+            <div class="bg-gray-50/50 border-b border-gray-100 px-6 py-4">
+                <h3 class="text-lg font-bold text-gray-900 tracking-tight">Task Information</h3>
+                <p class="mt-1 text-sm text-gray-500 font-medium">Provide the basic details for this task.</p>
+            </div>
+            <div class="p-6 space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {{-- Project --}}
                     <div>
@@ -70,17 +69,17 @@
                     </div>
                 @endif
             </div>
-        </x-card>
+            </div>
+        </div>
     </div>
 
     <div class="space-y-6">
         {{-- Assignment & Status --}}
-        <x-card>
-            <x-slot:header>
-                <h3 class="text-lg font-medium text-gray-900">Assignment & Status</h3>
-            </x-slot:header>
-
-            <div class="space-y-4">
+        <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
+            <div class="bg-gray-50/50 border-b border-gray-100 px-6 py-4">
+                <h3 class="text-lg font-bold text-gray-900 tracking-tight">Assignment & Status</h3>
+            </div>
+            <div class="p-6 space-y-4">
                 {{-- Assignee --}}
                 <div>
                     @php
@@ -146,15 +145,15 @@
                     <p class="text-xs text-gray-500 mt-1" x-show="status === 'Completed'">Progress is locked at 100% when completed.</p>
                 </div>
             </div>
-        </x-card>
+            </div>
+        </div>
 
         {{-- Dates --}}
-        <x-card>
-            <x-slot:header>
-                <h3 class="text-lg font-medium text-gray-900">Timeline</h3>
-            </x-slot:header>
-
-            <div class="space-y-4">
+        <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
+            <div class="bg-gray-50/50 border-b border-gray-100 px-6 py-4">
+                <h3 class="text-lg font-bold text-gray-900 tracking-tight">Timeline</h3>
+            </div>
+            <div class="p-6 space-y-4">
                 {{-- Start Date --}}
                 <div>
                     <x-input label="Start Date" id="start_date" name="start_date" type="date" :value="old('start_date', optional($task->start_date ?? null)->format('Y-m-d') ?? '')" required="true" />
@@ -165,16 +164,18 @@
                     <x-input label="Due Date" id="due_date" name="due_date" type="date" :value="old('due_date', optional($task->due_date ?? null)->format('Y-m-d') ?? '')" />
                 </div>
             </div>
-        </x-card>
+            </div>
+        </div>
 
         {{-- Actions --}}
-        <div class="flex items-center justify-end gap-4">
-            <x-button type="ghost" href="{{ $task ? route('admin.projects.tasks.show', $task) : route('admin.projects.tasks.index') }}">
+        <div class="flex items-center justify-end gap-3 pt-2">
+            <a href="{{ $task ? route('admin.projects.tasks.show', $task) : route('admin.projects.tasks.index') }}" class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors shadow-sm">
                 Cancel
-            </x-button>
-            <x-button type="primary" submit="true">
+            </a>
+            <button type="submit" form="task-form" class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 shadow-sm transition-all focus:ring-2 focus:ring-blue-500 focus:outline-none hover:shadow-md">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                 {{ $task ? 'Update Task' : 'Create Task' }}
-            </x-button>
+            </button>
         </div>
     </div>
 </div>

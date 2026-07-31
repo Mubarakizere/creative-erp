@@ -113,15 +113,15 @@ class InventoryReportController extends Controller
                     'SKU' => $product->sku,
                     'Product' => $product->name,
                     'Quantity' => number_format($qty),
-                    'Unit Cost' => '$' . number_format($value / $qty, 2),
-                    'Total Value' => '$' . number_format($value, 2),
+                    'Unit Cost' => 'RWF ' . number_format($value / $qty, 2),
+                    'Total Value' => 'RWF ' . number_format($value, 2),
                 ];
             }
         }
 
         // Add total row
         if (count($rows) > 0) {
-            $rows[] = ['SKU' => '', 'Product' => 'TOTAL', 'Quantity' => '', 'Unit Cost' => '', 'Total Value' => '$' . number_format($totalValuation, 2)];
+            $rows[] = ['SKU' => '', 'Product' => 'TOTAL', 'Quantity' => '', 'Unit Cost' => '', 'Total Value' => 'RWF ' . number_format($totalValuation, 2)];
         }
 
         return [
@@ -277,7 +277,7 @@ class InventoryReportController extends Controller
                 'Warehouse' => $warehouse->name,
                 'Unique Products' => number_format($uniqueProducts),
                 'Total Items' => number_format($totalItems),
-                'Est. Value' => '$' . number_format($totalValue, 2),
+                'Est. Value' => 'RWF ' . number_format($totalValue, 2),
             ];
         }
 
@@ -305,8 +305,8 @@ class InventoryReportController extends Controller
                 'Product' => $tx->inventory->product->name ?? 'Unknown',
                 'Type' => ucwords(str_replace('_', ' ', $tx->type)),
                 'Quantity' => number_format($tx->quantity),
-                'Unit Cost' => '$' . number_format($tx->unit_cost ?? 0, 2),
-                'Total Value' => '$' . number_format(abs($tx->quantity) * ($tx->unit_cost ?? 0), 2),
+                'Unit Cost' => 'RWF ' . number_format($tx->unit_cost ?? 0, 2),
+                'Total Value' => 'RWF ' . number_format(abs($tx->quantity) * ($tx->unit_cost ?? 0), 2),
             ];
         }
 
@@ -334,7 +334,7 @@ class InventoryReportController extends Controller
                     'Product' => $item->product->name ?? 'Unknown',
                     'Reason' => $adj->reason,
                     'Adjusted Qty' => number_format($item->adjusted_quantity),
-                    'Unit Cost' => '$' . number_format($item->unit_cost ?? 0, 2),
+                    'Unit Cost' => 'RWF ' . number_format($item->unit_cost ?? 0, 2),
                     'Status' => ucfirst($adj->status),
                 ];
             }
@@ -379,9 +379,9 @@ class InventoryReportController extends Controller
                     'SKU' => $product->sku,
                     'Product' => $product->name,
                     'Units Sold' => number_format($unitsSold),
-                    'Avg Unit Cost' => '$' . number_format($unitCost, 2),
-                    'Selling Price' => '$' . number_format($product->selling_price ?? 0, 2),
-                    'Profit' => '$' . number_format($profit, 2),
+                    'Avg Unit Cost' => 'RWF ' . number_format($unitCost, 2),
+                    'Selling Price' => 'RWF ' . number_format($product->selling_price ?? 0, 2),
+                    'Profit' => 'RWF ' . number_format($profit, 2),
                     'Margin %' => number_format($margin, 1) . '%',
                 ];
             }
@@ -389,7 +389,7 @@ class InventoryReportController extends Controller
 
         // Sort by Profit descending
         usort($rows, function($a, $b) {
-            return (float)str_replace(['$', ','], '', $b['Profit']) <=> (float)str_replace(['$', ','], '', $a['Profit']);
+            return (float)str_replace(['RWF', ' ', ','], '', $b['Profit']) <=> (float)str_replace(['RWF', ' ', ','], '', $a['Profit']);
         });
 
         return [

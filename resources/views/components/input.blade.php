@@ -36,11 +36,11 @@
             @if($required) required @endif
             @if($disabled) disabled @endif
             {{ $attributes->except('class')->merge([
-                'class' => 'block w-full rounded-lg border ' .
+                'class' => 'block w-full rounded-xl border ' .
                     ($errors->has($name) ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500') .
                     ' shadow-sm text-sm transition-colors duration-200 ' .
                     ($icon ? 'pl-10' : 'pl-3') .
-                    ' pr-3 py-2.5 disabled:bg-gray-50 disabled:text-gray-500'
+                    ' pr-3 py-2.5 min-h-[42px] disabled:bg-gray-50 disabled:text-gray-500'
             ]) }}
         >
     </div>

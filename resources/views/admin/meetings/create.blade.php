@@ -1,7 +1,7 @@
 <x-layouts.admin title="Create Meeting">
     <div class="mb-8">
         <x-breadcrumb :items="[['label' => 'Dashboard', 'url' => route('admin.dashboard')], ['label' => 'Meetings', 'url' => route('admin.meetings.index')], ['label' => 'Create']]" />
-        <h1 class="text-2xl font-bold text-gray-900 mt-2">Schedule New Meeting</h1>
+        <h1 class="text-2xl font-bold text-gray-900 mt-2 tracking-tight">Schedule New Meeting</h1>
     </div>
 
     <form method="POST" action="{{ route('admin.meetings.store') }}" class="max-w-4xl">
@@ -15,48 +15,25 @@
             <input type="hidden" name="meetingable_id" value="{{ old('meetingable_id') }}">
         @endif
 
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h2 class="text-lg font-semibold text-gray-900">Meeting Details</h2>
+        <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
+            <div class="px-6 py-5 border-b border-gray-100 bg-gray-50/50">
+                <h2 class="text-base font-bold text-gray-900 tracking-tight">Meeting Details</h2>
             </div>
             <div class="p-6 space-y-6">
                 <x-input name="title" label="Meeting Title" :value="old('title')" required placeholder="e.g., Weekly Team Standup" />
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <x-select name="company_id" label="Company" required>
-                        <option value="">Select Company</option>
-                        @foreach($companies as $company)
-                            <option value="{{ $company->id }}" {{ old('company_id', auth()->user()->company_id) == $company->id ? 'selected' : '' }}>{{ $company->name }}</option>
-                        @endforeach
-                    </x-select>
+                    <x-select name="company_id" label="Company" required placeholder="Select Company" :selected="old('company_id', auth()->user()->company_id)" :options="$companies->pluck('name', 'id')->toArray()" />
 
-                    <x-select name="branch_id" label="Branch" required>
-                        <option value="">Select Branch</option>
-                        @foreach($branches as $branch)
-                            <option value="{{ $branch->id }}" {{ old('branch_id', auth()->user()->branch_id) == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
-                        @endforeach
-                    </x-select>
+                    <x-select name="branch_id" label="Branch" required placeholder="Select Branch" :selected="old('branch_id', auth()->user()->branch_id)" :options="$branches->pluck('name', 'id')->toArray()" />
 
-                    <x-select name="project_id" label="Project (Optional)">
-                        <option value="">No Project</option>
-                        @foreach($projects as $project)
-                            <option value="{{ $project->id }}" {{ old('project_id', $selectedProject?->id) == $project->id ? 'selected' : '' }}>{{ $project->name }}</option>
-                        @endforeach
-                    </x-select>
+                    <x-select name="project_id" label="Project (Optional)" placeholder="No Project" :selected="old('project_id', $selectedProject?->id)" :options="$projects->pluck('name', 'id')->toArray()" />
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <x-select name="meeting_type" label="Meeting Type" required>
-                        @foreach(\App\Models\Meeting::getMeetingTypes() as $key => $label)
-                            <option value="{{ $key }}" {{ old('meeting_type', 'internal') === $key ? 'selected' : '' }}>{{ $label }}</option>
-                        @endforeach
-                    </x-select>
+                    <x-select name="meeting_type" label="Meeting Type" required :placeholder="false" :selected="old('meeting_type', 'internal')" :options="\App\Models\Meeting::getMeetingTypes()" />
 
-                    <x-select name="timezone" label="Timezone" required>
-                        @foreach(timezone_identifiers_list() as $tz)
-                            <option value="{{ $tz }}" {{ old('timezone', 'UTC') === $tz ? 'selected' : '' }}>{{ $tz }}</option>
-                        @endforeach
-                    </x-select>
+                    <x-select name="timezone" label="Timezone" required :placeholder="false" :selected="old('timezone', 'UTC')" :options="array_combine(timezone_identifiers_list(), timezone_identifiers_list())" />
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -76,11 +53,11 @@
         </div>
 
         {{-- Attendees --}}
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm mt-6" x-data="{ search: '' }">
-            <div class="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm mt-6 overflow-hidden" x-data="{ search: '' }">
+            <div class="px-6 py-5 border-b border-gray-100 bg-gray-50/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h2 class="text-lg font-semibold text-gray-900">Attendees</h2>
-                    <p class="text-sm text-gray-500 mt-1">Select users to invite to this meeting.</p>
+                    <h2 class="text-base font-bold text-gray-900 tracking-tight">Attendees</h2>
+                    <p class="text-sm text-gray-500 mt-1 font-medium">Select users to invite to this meeting.</p>
                 </div>
                 <div class="relative max-w-xs w-full">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">

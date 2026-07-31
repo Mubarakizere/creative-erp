@@ -1,5 +1,9 @@
-<x-card>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6"
+<div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
+    <div class="bg-gray-50/50 border-b border-gray-100 px-6 py-4">
+        <h3 class="text-lg font-bold text-gray-900 tracking-tight">Project Details</h3>
+    </div>
+    <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6"
          x-data="{
              companyId: '{{ old('company_id', $project->company_id ?? '') }}',
              branchId: '{{ old('branch_id', $project->branch_id ?? '') }}',
@@ -255,8 +259,17 @@
         </div>
     </div>
 
-    <div class="mt-6 flex items-center justify-end gap-3">
-        <x-button type="ghost" href="{{ route('admin.projects.index') }}">Cancel</x-button>
-        <x-button type="primary" submit>{{ $project ? 'Update Project' : 'Create Project' }}</x-button>
+        </div>
     </div>
-</x-card>
+    <div class="bg-gray-50/50 border-t border-gray-100 px-6 py-4 flex items-center justify-end gap-3">
+        <a href="{{ route('admin.projects.index') }}" class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors shadow-sm">
+            Cancel
+        </a>
+        <button type="submit" form="project-form" class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 shadow-sm transition-all focus:ring-2 focus:ring-blue-500 focus:outline-none hover:shadow-md">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            {{ $project ? 'Update Project' : 'Create Project' }}
+        </button>
+    </div>
+</div>

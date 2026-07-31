@@ -48,7 +48,7 @@
             <x-card>
                 <x-slot:header>
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                        <div class="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
                             <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
@@ -91,7 +91,7 @@
             <x-card>
                 <x-slot:header>
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
                             <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
@@ -109,10 +109,10 @@
                         <label class="block text-sm font-medium text-gray-700 mb-3">Working Days</label>
                         <div class="grid grid-cols-2 gap-2">
                             @foreach(['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] as $day)
-                                <label class="relative flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 hover:border-blue-300 cursor-pointer transition-colors has-[:checked]:bg-blue-50 has-[:checked]:border-blue-500 has-[:checked]:text-blue-700">
+                                <label class="relative flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-200 hover:border-blue-300 cursor-pointer transition-colors has-[:checked]:bg-blue-50 has-[:checked]:border-blue-500 has-[:checked]:text-blue-700">
                                     <input type="checkbox" name="working_days[]" value="{{ $day }}"
                                            @checked(in_array($day, old('working_days', $company->working_days ?? [])))
-                                           class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                           class="w-4 h-4 rounded border-gray-200/60 text-blue-600 focus:ring-blue-500">
                                     <span class="text-sm font-medium">{{ $day }}</span>
                                 </label>
                             @endforeach
@@ -131,7 +131,7 @@
             <x-card class="lg:col-span-2">
                 <x-slot:header>
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
+                        <div class="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center">
                             <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
                             </svg>
@@ -149,7 +149,7 @@
                         <label class="block text-sm font-medium text-gray-700">Company Logo</label>
                         <div class="flex items-center gap-4">
                             <div class="flex-shrink-0">
-                                <div x-show="!preview" class="w-20 h-20 rounded-xl bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center">
+                                <div x-show="!preview" class="w-20 h-20 rounded-xl bg-gray-100 border-2 border-dashed border-gray-200/60 flex items-center justify-center">
                                     <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                     </svg>
@@ -159,7 +159,7 @@
                             <div class="flex-1">
                                 <input type="file" name="logo" id="settings_logo" accept="image/*" class="hidden"
                                        @change="const file = $event.target.files[0]; if(file) { const reader = new FileReader(); reader.onload = (e) => preview = e.target.result; reader.readAsDataURL(file); }">
-                                <label for="settings_logo" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                                <label for="settings_logo" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200/60 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors">
                                     Change Logo
                                 </label>
                                 <p class="mt-1 text-xs text-gray-500">JPG, PNG, SVG or WebP. Max 2MB.</p>
@@ -172,17 +172,17 @@
                         <label class="block text-sm font-medium text-gray-700">Favicon</label>
                         <div class="flex items-center gap-4">
                             <div class="flex-shrink-0">
-                                <div x-show="!preview" class="w-16 h-16 rounded-lg bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center">
+                                <div x-show="!preview" class="w-16 h-16 rounded-xl bg-gray-100 border-2 border-dashed border-gray-200/60 flex items-center justify-center">
                                     <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
                                     </svg>
                                 </div>
-                                <img x-show="preview" :src="preview" class="w-16 h-16 rounded-lg object-cover border border-gray-200" style="{{ $company->favicon_url ? '' : 'display: none;' }}" />
+                                <img x-show="preview" :src="preview" class="w-16 h-16 rounded-xl object-cover border border-gray-200" style="{{ $company->favicon_url ? '' : 'display: none;' }}" />
                             </div>
                             <div class="flex-1">
                                 <input type="file" name="favicon" id="settings_favicon" accept=".png,.ico" class="hidden"
                                        @change="const file = $event.target.files[0]; if(file) { const reader = new FileReader(); reader.onload = (e) => preview = e.target.result; reader.readAsDataURL(file); }">
-                                <label for="settings_favicon" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                                <label for="settings_favicon" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200/60 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors">
                                     Change Favicon
                                 </label>
                                 <p class="mt-1 text-xs text-gray-500">PNG or ICO. Max 512KB.</p>

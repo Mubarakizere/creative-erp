@@ -22,5 +22,21 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // Handle CSRF Token Expiration (Session timeout) gracefully
+        $exceptions->renderable(function (\Illuminate\Session\TokenMismatchException $e, $request) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Your session has expired. Please log in again.'], 419);
+            }
+            return redirect()->back()->withInput($request->except(['password', '_token']))->with('error', 'Your session has expired. Please try again.');
+        });
+
+        // Handle File Upload Too Large
+        $exceptions->renderable(function (\Illuminate\Http\Exceptions\PostTooLargeException $e, $request) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'The uploaded file is too large. Please upload a smaller file.'], 413);
+            }
+            return redirect()->back()->withInput()->with('error', 'The uploaded file exceeds the maximum allowed size.');
+        });
+        
+        // Handle generic Symfony HTTP exceptions (they will automatically use our custom views)
     })->create();
