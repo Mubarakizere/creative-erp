@@ -5,27 +5,19 @@
             <div class="mx-auto w-full max-w-sm lg:w-96">
                 {{-- Logo / Branding --}}
                 <div class="mb-8">
-                    <div class="inline-flex items-center justify-center w-12 h-12 bg-blue-600 rounded-xl shadow-lg shadow-blue-500/25 mb-4">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                        </svg>
-                    </div>
-                    <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Creative Management System</h2>
+                    <a href="{{ route('home') }}" class="inline-block hover:opacity-80 transition-opacity">
+                        <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Creative <span class="text-blue-600">Engineering</span> Rwanda</h2>
+                    </a>
                     <p class="mt-2 text-sm text-gray-500 font-medium">Enterprise Management System</p>
                 </div>
 
-                {{-- Flash Messages --}}
-                @if(session('status'))
-                    <div class="mb-6">
-                        <x-alert type="success" :message="session('status')" />
-                    </div>
-                @endif
+                {{-- Flash Messages handled globally --}}
 
                 {{ $slot }}
 
                 {{-- Footer --}}
                 <p class="mt-10 text-sm text-gray-400">
-                    &copy; {{ date('Y') }} Creative Management System. All rights reserved.
+                    &copy; {{ date('Y') }} Creative Engineering Rwanda. All rights reserved.
                 </p>
             </div>
         </div>
@@ -40,11 +32,11 @@
             <div class="absolute bottom-12 left-12 right-12 text-white">
                 <blockquote class="space-y-4">
                     <p class="text-xl font-medium leading-relaxed">
-                        "Creative Management System has completely transformed how we manage our engineering projects and resources. It's the backbone of our daily operations."
+                        "Creative Engineering Rwanda's enterprise system has completely transformed how we manage our engineering projects and resources. It's the backbone of our daily operations."
                     </p>
                     <footer class="flex items-center gap-3">
-                        <div class="font-semibold text-white">Engineering Team</div>
-                        <div class="text-blue-200 text-sm">— Global Infrastructure Corp</div>
+                        <div class="font-semibold text-white">Project Management Team</div>
+                        <div class="text-blue-200 text-sm">— Creative Engineering Rwanda</div>
                     </footer>
                 </blockquote>
             </div>

@@ -15,11 +15,6 @@
         </div>
     </div>
 
-    @if(session('success'))
-        <div class="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
-            <p class="text-sm text-green-800">{{ session('success') }}</p>
-        </div>
-    @endif
 
     <x-card>
         <div class="overflow-x-auto">

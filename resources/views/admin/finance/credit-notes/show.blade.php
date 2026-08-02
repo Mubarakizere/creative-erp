@@ -36,16 +36,6 @@
         </div>
     </div>
 
-    @if(session('error'))
-        <div class="mb-6 bg-red-50 p-4 rounded-md">
-            <p class="text-sm text-red-700">{{ session('error') }}</p>
-        </div>
-    @endif
-    @if(session('success'))
-        <div class="mb-6 bg-green-50 p-4 rounded-md">
-            <p class="text-sm text-green-700">{{ session('success') }}</p>
-        </div>
-    @endif
 
     <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
         

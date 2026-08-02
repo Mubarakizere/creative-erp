@@ -40,6 +40,7 @@ class UpdateBranchRequest extends FormRequest
             ],
             'email' => ['nullable', 'email', 'max:255'],
             'phone' => ['nullable', 'string', 'max:30'],
+            'manager_id' => ['nullable', 'exists:users,id'],
             'manager_name' => ['nullable', 'string', 'max:255'],
             'country' => ['nullable', 'string', 'max:100'],
             'state' => ['nullable', 'string', 'max:100'],

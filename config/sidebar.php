@@ -88,6 +88,11 @@ return [
         ['route' => 'admin.permissions.index', 'label' => 'Permissions', 'permission' => 'permission.view', 'active' => 'admin.permissions.*'],
         ['route' => 'admin.workflows.index', 'label' => 'Workflow Builder', 'model' => \App\Models\ApprovalWorkflow::class, 'active' => 'admin.workflows.*'],
     ],
+    'Website CMS' => [
+        ['route' => 'admin.website-settings.index', 'label' => 'General Settings', 'permission' => 'superadmin', 'active' => 'admin.website-settings.*'],
+        ['route' => 'admin.expertise-cards.index', 'label' => 'Expertise Cards', 'permission' => 'superadmin', 'active' => 'admin.expertise-cards.*'],
+        ['route' => 'admin.website-projects.index', 'label' => 'Website Projects', 'permission' => 'superadmin', 'active' => 'admin.website-projects.*'],
+    ],
     'Documents' => [
         ['route' => 'admin.document-categories.index', 'label' => 'Document Categories', 'model' => \App\Models\DocumentCategory::class, 'active' => 'admin.document-categories.*'],
         ['route' => 'admin.documents.index', 'label' => 'Documents', 'model' => \App\Models\Document::class, 'active' => 'admin.documents.*'],

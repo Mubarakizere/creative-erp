@@ -9,11 +9,6 @@
         @endphp
     </x-slot:breadcrumbs>
 
-    @if(session('success'))
-        <div class="mb-6 rounded-xl bg-green-50 p-4 border border-green-200">
-            <p class="text-sm font-medium text-green-800">{{ session('success') }}</p>
-        </div>
-    @endif
 
     <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>

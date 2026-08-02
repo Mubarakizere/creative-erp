@@ -15,14 +15,6 @@
         </div>
     </div>
 
-    @if(session('success'))
-        <div class="mb-6 bg-green-50/50 border border-green-100 p-4 rounded-xl flex items-center">
-            <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3 shrink-0">
-                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-            </div>
-            <p class="text-sm font-medium text-green-800">{{ session('success') }}</p>
-        </div>
-    @endif
 
     @if($errors->any())
         <div class="mb-6 bg-red-50/50 border border-red-100 p-4 rounded-xl flex items-start">

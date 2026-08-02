@@ -29,11 +29,7 @@
 
                 <div class="p-6 text-gray-900 ">
                     
-                    @if (session('success'))
-                        <div class="mb-6 bg-green-50  border border-green-200  text-green-800  px-4 py-3 rounded relative" role="alert">
-                            <span class="block sm:inline">{{ session('success') }}</span>
-                        </div>
-                    @endif
+
 
                     <form action="{{ route('admin.notifications.preferences.update') }}" method="POST">
                         @csrf

@@ -23,11 +23,6 @@
         @endcan
     </div>
 
-    @if(session('success'))
-        <div class="mb-6 rounded-xl bg-green-50 p-4 border border-green-200">
-            <p class="text-sm font-medium text-green-800">{{ session('success') }}</p>
-        </div>
-    @endif
 
     <x-card>
         <div class="overflow-x-auto">

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Branch;
+use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
 
@@ -13,7 +14,7 @@ class BranchService
      */
     public function list(array $filters = []): LengthAwarePaginator
     {
-        $query = Branch::query()->with('company');
+        $query = Branch::query()->with('company', 'manager');
 
         // Include trashed if requested
         if (! empty($filters['trashed'])) {
@@ -69,6 +70,17 @@ class BranchService
     {
         $data['uuid'] = (string) Str::uuid();
 
+        // Auto-populate manager_name from selected user
+        if (!empty($data['manager_id'])) {
+            $manager = User::find($data['manager_id']);
+            if ($manager) {
+                $data['manager_name'] = trim($manager->first_name . ' ' . $manager->last_name);
+            }
+        } else {
+            $data['manager_id'] = null;
+            $data['manager_name'] = null;
+        }
+
         // Set audit fields
         if (auth()->check()) {
             $data['created_by'] = auth()->id();
@@ -83,6 +95,19 @@ class BranchService
      */
     public function update(Branch $branch, array $data): Branch
     {
+        // Auto-populate manager_name from selected user
+        if (array_key_exists('manager_id', $data)) {
+            if (!empty($data['manager_id'])) {
+                $manager = User::find($data['manager_id']);
+                if ($manager) {
+                    $data['manager_name'] = trim($manager->first_name . ' ' . $manager->last_name);
+                }
+            } else {
+                $data['manager_id'] = null;
+                $data['manager_name'] = null;
+            }
+        }
+
         // Set audit field
         if (auth()->check()) {
             $data['updated_by'] = auth()->id();

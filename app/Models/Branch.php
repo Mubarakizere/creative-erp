@@ -29,6 +29,7 @@ class Branch extends Model
         'code',
         'email',
         'phone',
+        'manager_id',
         'manager_name',
         'country',
         'state',
@@ -110,6 +111,14 @@ class Branch extends Model
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
+    }
+
+    /**
+     * Get the manager (user) assigned to this branch.
+     */
+    public function manager(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'manager_id');
     }
 
     /**

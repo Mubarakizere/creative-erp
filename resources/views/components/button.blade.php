@@ -44,7 +44,7 @@
     <button 
         x-data="{ submitting: {{ $loading ? 'true' : 'false' }} }"
         @if($submit)
-            @click="if($el.closest('form') && $el.closest('form').checkValidity()) { submitting = true; Alpine.store('loading').start(); }"
+            @click="if($el.closest('form') && $el.closest('form').checkValidity()) { setTimeout(() => { submitting = true; Alpine.store('loading').start(); }, 0); }"
         @endif
         x-bind:disabled="submitting || {{ $disabled ? 'true' : 'false' }}"
         x-bind:class="{ 'opacity-75 cursor-wait': submitting }"

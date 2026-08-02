@@ -50,8 +50,8 @@
             <label class="block text-sm font-medium text-gray-700 mb-1">Client <span class="text-red-500">*</span></label>
             <select name="client_id" x-model="clientId" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required :disabled="availableClients.length === 0">
                 <option value="">Select Client</option>
-                <template x-for="client in availableClients" :key="customer.id">
-                    <option :value="customer.id" x-text="customer.display_name" :selected="customer.id == clientId"></option>
+                <template x-for="client in availableClients" :key="client.id">
+                    <option :value="client.id" x-text="client.display_name" :selected="client.id == clientId"></option>
                 </template>
             </select>
             @error('client_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
@@ -60,14 +60,16 @@
         {{-- Project Manager --}}
         <div class="col-span-1">
             <label class="block text-sm font-medium text-gray-700 mb-1">Project Manager <span class="text-red-500">*</span></label>
-            <select name="project_manager_id" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
-                <option value="">Select Manager</option>
-                @foreach($managers as $manager)
-                    <option value="{{ $manager->id }}" {{ old('project_manager_id', $project->project_manager_id ?? '') == $manager->id ? 'selected' : '' }}>
-                        {{ $manager->name }}
-                    </option>
-                @endforeach
-            </select>
+            <div wire:ignore>
+                <select name="project_manager_id" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required x-init="if(window.TomSelect) new window.TomSelect($el, {searchField: ['text']})">
+                    <option value="">Select Manager</option>
+                    @foreach($managers as $manager)
+                        <option value="{{ $manager->id }}" {{ old('project_manager_id', $project->project_manager_id ?? '') == $manager->id ? 'selected' : '' }}>
+                            {{ $manager->full_name ?? $manager->name ?? 'Unknown' }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
             @error('project_manager_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
         </div>
 
@@ -145,14 +147,16 @@
         </div>
 
         {{-- Currency --}}
-        <div class="col-span-1">
+        <div class="col-span-1 md:col-span-2">
             <label class="block text-sm font-medium text-gray-700 mb-1">Currency <span class="text-red-500">*</span></label>
-            <select name="currency" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
-                @foreach(['RWF', 'USD', 'EUR', 'GBP', 'AED', 'SAR'] as $currency)
-                    <option value="{{ $currency }}" {{ old('currency', $project->currency ?? 'RWF') == $currency ? 'selected' : '' }}>{{ $currency }}</option>
-                @endforeach
-            </select>
-            @error('currency') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+            <div class="md:w-1/2 md:pr-3">
+                <select name="currency" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                    @foreach(['RWF', 'USD', 'EUR', 'GBP', 'AED', 'SAR'] as $currency)
+                        <option value="{{ $currency }}" {{ old('currency', $project->currency ?? 'RWF') == $currency ? 'selected' : '' }}>{{ $currency }}</option>
+                    @endforeach
+                </select>
+                @error('currency') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+            </div>
         </div>
 
         {{-- Dates --}}
@@ -172,16 +176,6 @@
             :value="old('planned_end_date', optional($project ?? null)->planned_end_date?->format('Y-m-d') ?? '')"
             class="col-span-1"
         />
-        
-        @if($project)
-            <x-input
-                type="date"
-                name="actual_end_date"
-                label="Actual End Date"
-                :value="old('actual_end_date', optional($project)->actual_end_date?->format('Y-m-d') ?? '')"
-                class="col-span-1"
-            />
-        @endif
 
         {{-- Budgets --}}
         <x-input
@@ -193,17 +187,6 @@
             class="col-span-1"
         />
         
-        @if($project)
-            <x-input
-                type="number"
-                step="0.01"
-                name="actual_budget"
-                label="Actual Budget"
-                :value="old('actual_budget', $project->actual_budget ?? '')"
-                class="col-span-1"
-            />
-        @endif
-
         <x-input
             type="number"
             step="0.01"
@@ -214,6 +197,25 @@
         />
         
         @if($project)
+            <x-input
+                type="date"
+                name="actual_end_date"
+                label="Actual End Date"
+                :value="old('actual_end_date', optional($project)->actual_end_date?->format('Y-m-d') ?? '')"
+                class="col-span-1"
+            />
+            
+            <div class="col-span-1 hidden md:block"></div>
+
+            <x-input
+                type="number"
+                step="0.01"
+                name="actual_budget"
+                label="Actual Budget"
+                :value="old('actual_budget', $project->actual_budget ?? '')"
+                class="col-span-1"
+            />
+
             <x-input
                 type="number"
                 step="0.01"
@@ -258,9 +260,8 @@
             @error('notes') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
         </div>
     </div>
+    </div> <!-- Close .p-6 -->
 
-        </div>
-    </div>
     <div class="bg-gray-50/50 border-t border-gray-100 px-6 py-4 flex items-center justify-end gap-3">
         <a href="{{ route('admin.projects.index') }}" class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors shadow-sm">
             Cancel
@@ -272,4 +273,4 @@
             {{ $project ? 'Update Project' : 'Create Project' }}
         </button>
     </div>
-</div>
+</div> <!-- Close Main Container -->

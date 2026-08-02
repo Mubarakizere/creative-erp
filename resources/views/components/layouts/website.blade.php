@@ -7,19 +7,15 @@
                 <div class="flex justify-between items-center h-16">
                     {{-- Logo --}}
                     <a href="{{ route('home') }}" class="flex items-center space-x-3 group">
-                        <div class="w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center shadow-md shadow-blue-500/20 group-hover:shadow-blue-500/40 transition-shadow">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                            </svg>
-                        </div>
-                        <span class="text-xl font-bold text-gray-900">Creative <span class="text-blue-600">ERP</span></span>
+                        <span class="text-xl font-bold text-gray-900">Creative <span class="text-blue-600">Engineering</span> <span class="text-gray-600 text-sm">Rwanda</span></span>
                     </a>
 
                     {{-- Navigation --}}
                     <nav class="hidden md:flex items-center space-x-1">
                         <a href="{{ route('home') }}" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition-colors">Home</a>
-                        <a href="#features" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition-colors">Features</a>
-                        <a href="#about" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition-colors">About</a>
+                        <a href="{{ route('expertise') }}" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition-colors">Expertise</a>
+                        <a href="{{ route('projects') }}" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition-colors">Projects</a>
+                        <a href="{{ route('about') }}" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition-colors">About Us</a>
                     </nav>
 
                     {{-- Auth Actions --}}
@@ -30,10 +26,10 @@
                             </a>
                         @else
                             <a href="{{ route('login') }}" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
-                                Sign In
+                                Portal Login
                             </a>
-                            <a href="{{ route('login') }}" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
-                                Get Started
+                            <a href="{{ route('contact') }}" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
+                                Contact Us
                             </a>
                         @endauth
                     </div>
@@ -53,25 +49,20 @@
                     {{-- Brand --}}
                     <div class="col-span-1 md:col-span-2">
                         <div class="flex items-center space-x-3 mb-4">
-                            <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg flex items-center justify-center">
-                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                                </svg>
-                            </div>
-                            <span class="text-lg font-bold text-white">Creative ERP</span>
+                            <span class="text-lg font-bold text-white">Creative Engineering</span>
                         </div>
                         <p class="text-sm max-w-md">
-                            Next-generation Enterprise Resource Planning platform designed for engineering, construction, and contracting companies.
+                            Leading the future of construction and engineering in Rwanda with innovative solutions and unmatched excellence.
                         </p>
                     </div>
 
                     {{-- Links --}}
                     <div>
-                        <h4 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">Platform</h4>
+                        <h4 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">Company</h4>
                         <ul class="space-y-2 text-sm">
-                            <li><a href="#" class="hover:text-white transition-colors">Features</a></li>
-                            <li><a href="#" class="hover:text-white transition-colors">Pricing</a></li>
-                            <li><a href="#" class="hover:text-white transition-colors">Documentation</a></li>
+                            <li><a href="{{ route('expertise') }}" class="hover:text-blue-400 transition-colors">Our Expertise</a></li>
+                            <li><a href="{{ route('projects') }}" class="hover:text-blue-400 transition-colors">Featured Projects</a></li>
+                            <li><a href="{{ route('about') }}" class="hover:text-blue-400 transition-colors">About Us</a></li>
                         </ul>
                     </div>
 
@@ -87,9 +78,25 @@
                 </div>
 
                 <div class="mt-8 pt-8 border-t border-gray-800 text-center text-sm">
-                    <p>&copy; {{ date('Y') }} Creative ERP. All rights reserved.</p>
+                    <p>&copy; {{ date('Y') }} Creative Engineering Rwanda. All rights reserved.</p>
                 </div>
             </div>
         </footer>
     </div>
+
+    <style>
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+            opacity: 0;
+        }
+        .animation-delay-100 { animation-delay: 100ms; }
+        .animation-delay-200 { animation-delay: 200ms; }
+        .animation-delay-300 { animation-delay: 300ms; }
+        .animation-delay-400 { animation-delay: 400ms; }
+        .animation-delay-500 { animation-delay: 500ms; }
+    </style>
 </x-layouts.app>

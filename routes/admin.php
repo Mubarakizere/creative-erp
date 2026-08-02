@@ -33,6 +33,15 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
     // Global Search
     Route::get('/search', [\App\Http\Controllers\Admin\SearchController::class, 'index'])->name('search');
 
+    // Website CMS
+    Route::middleware(['role:Super Admin'])->group(function () {
+        Route::get('/website-settings', [\App\Http\Controllers\Admin\WebsiteSettingController::class, 'index'])->name('website-settings.index');
+        Route::post('/website-settings', [\App\Http\Controllers\Admin\WebsiteSettingController::class, 'store'])->name('website-settings.store');
+        
+        Route::resource('expertise-cards', \App\Http\Controllers\Admin\ExpertiseCardController::class)->except(['show']);
+        Route::resource('website-projects', \App\Http\Controllers\Admin\WebsiteProjectController::class)->except(['show']);
+    });
+
     // Notifications
     Route::prefix('notifications')->name('notifications.')->group(function () {
         Route::patch('/mark-all-read', [\App\Http\Controllers\Admin\NotificationController::class, 'markAllAsRead'])->name('mark-all-read');

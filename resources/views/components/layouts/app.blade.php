@@ -83,9 +83,27 @@
     </div>
     {{ $slot }}
 
-    @if(config('realtime.features.toast', true))
-        <x-toast />
-    @endif
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.notyf) {
+                @if(session('success'))
+                    window.notyf.success("{{ session('success') }}");
+                @endif
+                @if(session('error'))
+                    window.notyf.error("{{ session('error') }}");
+                @endif
+                @if(session('info'))
+                    window.notyf.open({ type: 'info', message: "{{ session('info') }}" });
+                @endif
+                @if(session('warning'))
+                    window.notyf.open({ type: 'warning', message: "{{ session('warning') }}" });
+                @endif
+                @if(session('status'))
+                    window.notyf.open({ type: 'info', message: "{{ session('status') }}" });
+                @endif
+            }
+        });
+    </script>
     @stack('scripts')
     
     <!-- Global Error Handling & Auto-scroll -->

@@ -51,7 +51,7 @@ class ProjectController extends Controller
         $companies = Company::where('status', 'active')->orderBy('name')->get();
         $branches = Branch::where('status', 'active')->orderBy('name')->get();
         $clients = Client::where('status', 'active')->orderBy('display_name')->get();
-        $managers = User::where('status', 'active')->orderBy('name')->get(); // Ideally filter by role
+        $managers = User::where('status', 'active')->orderBy('first_name')->get(); // Ideally filter by role
 
         return view('admin.projects.create', compact('companies', 'branches', 'clients', 'managers'));
     }
@@ -82,10 +82,80 @@ class ProjectController extends Controller
             'tasks.materialRequests.items.product',
             'tasks.materialIssues.items.product',
             'materialRequests.items.product',
-            'materialIssues.items.product'
+            'materialIssues.items.product',
+            'milestones', 'documents', 'timeEntries', 'comments.user'
         ]);
+        
+        $activityLogs = \App\Models\ActivityLog::with('user')
+            ->where('subject_type', Project::class)
+            ->where('subject_id', $project->id)
+            ->latest()
+            ->take(50)
+            ->get();
+        
+        // Build timeline events
+        $events = collect([
+            [
+                'date' => $project->created_at,
+                'title' => 'Project Created',
+                'description' => "Project {$project->project_code} was created by " . optional($project->creator)->name,
+                'type' => 'created',
+                'icon' => 'plus'
+            ]
+        ]);
+        
+        if ($project->status === 'Closed') {
+            $events->push([
+                'date' => $project->actual_end_date ?? $project->updated_at,
+                'title' => 'Project Closed',
+                'description' => "Project was marked as Closed.",
+                'type' => 'closed',
+                'icon' => 'check-circle'
+            ]);
+        }
+        
+        foreach($project->milestones as $milestone) {
+            $events->push([
+                'date' => $milestone->created_at,
+                'title' => 'Milestone Added',
+                'description' => "Milestone '{$milestone->name}' was added.",
+                'type' => 'info',
+                'icon' => 'flag'
+            ]);
+        }
+        
+        foreach($project->tasks as $task) {
+            $events->push([
+                'date' => $task->created_at,
+                'title' => 'Task Created',
+                'description' => "Task '{$task->title}' was created.",
+                'type' => 'info',
+                'icon' => 'clipboard-list'
+            ]);
+            if ($task->status === 'completed' && $task->updated_at) {
+                $events->push([
+                    'date' => $task->updated_at,
+                    'title' => 'Task Completed',
+                    'description' => "Task '{$task->title}' was completed.",
+                    'type' => 'success',
+                    'icon' => 'check'
+                ]);
+            }
+        }
+        
+        foreach($project->documents as $doc) {
+            $events->push([
+                'date' => $doc->created_at,
+                'title' => 'Document Uploaded',
+                'description' => "Document '{$doc->title}' was uploaded.",
+                'type' => 'info',
+                'icon' => 'document'
+            ]);
+        }
+        
+        $timelineEvents = $events->sortByDesc('date');
 
-        return view('admin.projects.show', compact('project'));
+        return view('admin.projects.show', compact('project', 'timelineEvents', 'activityLogs'));
     }
 
     /**
@@ -98,7 +168,7 @@ class ProjectController extends Controller
         $companies = Company::where('status', 'active')->orderBy('name')->get();
         $branches = Branch::where('status', 'active')->orderBy('name')->get();
         $clients = Client::where('status', 'active')->orderBy('display_name')->get();
-        $managers = User::where('status', 'active')->orderBy('name')->get();
+        $managers = User::where('status', 'active')->orderBy('first_name')->get();
 
         return view('admin.projects.edit', compact('project', 'companies', 'branches', 'clients', 'managers'));
     }
@@ -196,9 +266,12 @@ class ProjectController extends Controller
     {
         Gate::authorize('view', $project);
         
-        $project->load(['company', 'branch', 'client', 'manager']);
+        $project->load([
+            'company', 'branch', 'client', 'manager', 'creator', 'updater',
+            'tasks', 'milestones', 'documents', 'timeEntries'
+        ]);
         
-        // Placeholder for timeline events (in the future: tasks, milestones, etc.)
+        // Build timeline events
         $events = collect([
             [
                 'date' => $project->created_at,
@@ -216,6 +289,45 @@ class ProjectController extends Controller
                 'description' => "Project was marked as Closed.",
                 'type' => 'closed',
                 'icon' => 'check-circle'
+            ]);
+        }
+        
+        foreach($project->milestones as $milestone) {
+            $events->push([
+                'date' => $milestone->created_at,
+                'title' => 'Milestone Added',
+                'description' => "Milestone '{$milestone->name}' was added.",
+                'type' => 'info',
+                'icon' => 'flag'
+            ]);
+        }
+        
+        foreach($project->tasks as $task) {
+            $events->push([
+                'date' => $task->created_at,
+                'title' => 'Task Created',
+                'description' => "Task '{$task->title}' was created.",
+                'type' => 'info',
+                'icon' => 'clipboard-list'
+            ]);
+            if ($task->status === 'completed' && $task->updated_at) {
+                $events->push([
+                    'date' => $task->updated_at,
+                    'title' => 'Task Completed',
+                    'description' => "Task '{$task->title}' was completed.",
+                    'type' => 'success',
+                    'icon' => 'check'
+                ]);
+            }
+        }
+        
+        foreach($project->documents as $doc) {
+            $events->push([
+                'date' => $doc->created_at,
+                'title' => 'Document Uploaded',
+                'description' => "Document '{$doc->title}' was uploaded.",
+                'type' => 'info',
+                'icon' => 'document'
             ]);
         }
         

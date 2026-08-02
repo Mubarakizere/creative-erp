@@ -19,21 +19,7 @@
                 </div>
             @endif
 
-            {{-- Flash Messages --}}
-            <div class="px-4 sm:px-6 lg:px-8 pt-2">
-                @if(session('success'))
-                    <x-alert type="success" :message="session('success')" dismissible />
-                @endif
-                @if(session('error'))
-                    <x-alert type="error" :message="session('error')" dismissible />
-                @endif
-                @if(session('warning'))
-                    <x-alert type="warning" :message="session('warning')" dismissible />
-                @endif
-                @if(session('status'))
-                    <x-alert type="info" :message="session('status')" dismissible />
-                @endif
-            </div>
+            {{-- Flash Messages handled globally in app.blade.php by Notyf --}}
 
             {{-- Page Content --}}
             <main class="flex-1 px-4 sm:px-6 lg:px-8 py-6">

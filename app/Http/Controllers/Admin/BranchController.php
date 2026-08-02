@@ -7,6 +7,7 @@ use App\Http\Requests\StoreBranchRequest;
 use App\Http\Requests\UpdateBranchRequest;
 use App\Models\Branch;
 use App\Models\Company;
+use App\Models\User;
 use App\Services\BranchService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -44,8 +45,11 @@ class BranchController extends Controller
         Gate::authorize('create', Branch::class);
 
         $companies = Company::where('status', 'active')->orderBy('name')->pluck('name', 'id')->toArray();
+        $users = User::orderBy('first_name')->get()->mapWithKeys(function ($user) {
+            return [$user->id => trim($user->first_name . ' ' . $user->last_name)];
+        })->toArray();
 
-        return view('admin.branches.create', compact('companies'));
+        return view('admin.branches.create', compact('companies', 'users'));
     }
 
     /**
@@ -69,7 +73,7 @@ class BranchController extends Controller
     {
         Gate::authorize('view', $branch);
 
-        $branch->load('company', 'creator', 'updater');
+        $branch->load('company', 'creator', 'updater', 'manager');
 
         return view('admin.branches.show', compact('branch'));
     }
@@ -82,8 +86,11 @@ class BranchController extends Controller
         Gate::authorize('update', $branch);
 
         $companies = Company::where('status', 'active')->orderBy('name')->pluck('name', 'id')->toArray();
+        $users = User::orderBy('first_name')->get()->mapWithKeys(function ($user) {
+            return [$user->id => trim($user->first_name . ' ' . $user->last_name)];
+        })->toArray();
 
-        return view('admin.branches.edit', compact('branch', 'companies'));
+        return view('admin.branches.edit', compact('branch', 'companies', 'users'));
     }
 
     /**

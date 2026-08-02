@@ -52,16 +52,7 @@
             </div>
         </nav>
 
-        {{-- Flash Messages --}}
-        <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-4">
-            @if(session('success'))
-                <x-alert type="success" :message="session('success')" dismissible />
-            @endif
-            @if(session('error'))
-                <x-alert type="error" :message="session('error')" dismissible />
-            @endif
-        </div>
-
+        {{-- Flash Messages handled globally in app.blade.php --}}
         {{-- Page Content --}}
         <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
             {{ $slot }}

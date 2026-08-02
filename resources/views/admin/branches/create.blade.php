@@ -52,7 +52,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <x-input name="email" label="Email" type="email" placeholder="branch@company.com" />
                     <x-input name="phone" label="Phone" placeholder="+971 4 123 4567" />
-                    <x-input name="manager_name" label="Manager Name" placeholder="Full name of the branch manager" />
+                    <x-select name="manager_id" label="Branch Manager" :options="$users" :selected="old('manager_id')" placeholder="Select a manager" />
                 </div>
             </x-card>
 

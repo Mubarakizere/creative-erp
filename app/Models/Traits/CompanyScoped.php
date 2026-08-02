@@ -18,9 +18,9 @@ trait CompanyScoped
     {
         static::addGlobalScope('company_scoped', function (Builder $builder) {
             // Avoid running in console (e.g., artisan commands) unless testing
-            if (app()->runningInConsole() && !app()->runningUnitTests()) {
-                return;
-            }
+            // if (app()->runningInConsole() && !app()->runningUnitTests()) {
+            //     return;
+            // }
 
             // Prevent recursion when resolving user or roles
             static $checkingScope = false;

@@ -1,6 +1,8 @@
 import './bootstrap';
 import './event-bus';
 import TomSelect from 'tom-select';
+import { Notyf } from 'notyf';
+import 'notyf/notyf.min.css';
 
 window.TomSelect = TomSelect;
 
@@ -8,13 +10,46 @@ window.TomSelect = TomSelect;
 // This file is for custom JavaScript initialization
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Auto-dismiss alerts after 5 seconds
-    document.querySelectorAll('[data-auto-dismiss]').forEach((el) => {
-        const delay = parseInt(el.dataset.autoDismiss) || 5000;
-        setTimeout(() => {
-            el.style.transition = 'opacity 300ms ease-out';
-            el.style.opacity = '0';
-            setTimeout(() => el.remove(), 300);
-        }, delay);
+    // Initialize Notyf
+    window.notyf = new Notyf({
+        duration: 5000,
+        position: {
+            x: 'right',
+            y: window.innerWidth < 768 ? 'bottom' : 'top', // Bottom Center mobile, Top Right desktop
+        },
+        dismissible: true,
+        types: [
+            {
+                type: 'success',
+                background: 'green',
+                duration: 3000,
+                icon: false
+            },
+            {
+                type: 'info',
+                background: 'blue',
+                duration: 5000,
+                icon: false
+            },
+            {
+                type: 'warning',
+                background: 'orange',
+                duration: 6000,
+                icon: false
+            },
+            {
+                type: 'error',
+                background: 'red',
+                duration: 8000,
+                icon: false
+            }
+        ]
+    });
+    
+    // Make position responsive on resize
+    window.addEventListener('resize', () => {
+        const isMobile = window.innerWidth < 768;
+        window.notyf.options.position.y = isMobile ? 'bottom' : 'top';
+        window.notyf.options.position.x = isMobile ? 'center' : 'right';
     });
 });

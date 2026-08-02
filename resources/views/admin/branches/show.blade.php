@@ -97,7 +97,18 @@
                     </div>
                     <div>
                         <label class="text-xs font-medium text-gray-500 uppercase tracking-wider">Manager</label>
-                        <p class="mt-1 text-sm text-gray-900">{{ $branch->manager_name ?? '—' }}</p>
+                        <div class="mt-1">
+                            @if($branch->manager)
+                                <div class="flex items-center gap-2">
+                                    <div class="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center text-white text-xs font-bold">
+                                        {{ strtoupper(substr($branch->manager->first_name, 0, 1) . substr($branch->manager->last_name, 0, 1)) }}
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-900">{{ trim($branch->manager->first_name . ' ' . $branch->manager->last_name) }}</span>
+                                </div>
+                            @else
+                                <p class="text-sm text-gray-900">{{ $branch->manager_name ?? '—' }}</p>
+                            @endif
+                        </div>
                     </div>
                 </div>
             </x-card>
