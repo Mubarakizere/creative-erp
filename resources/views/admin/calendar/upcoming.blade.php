@@ -4,7 +4,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-2">
             <div>
                 <h1 class="text-2xl font-bold text-gray-900">Upcoming Events</h1>
-                <p class="mt-1 text-sm text-gray-500">Next {{ $days }} days — {{ now()->format('M j') }} to {{ now()->addDays($days)->format('M j, Y') }}</p>
+                <p class="mt-1 text-sm text-gray-500">Next {{ $days }} days - {{ format_date(now(), 'M j') }} to {{ format_date(now()->addDays($days)) }}</p>
             </div>
             <a href="{{ route('admin.calendar.index') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
@@ -32,11 +32,11 @@
                 <div>
                     <div class="flex items-center gap-3 mb-3">
                         <div class="flex-shrink-0 w-12 h-12 bg-blue-50 rounded-xl flex flex-col items-center justify-center border border-blue-100 {{ $dateObj->isToday() ? 'ring-2 ring-blue-500' : '' }}">
-                            <span class="text-[10px] font-bold text-blue-600 uppercase">{{ $dateObj->format('M') }}</span>
-                            <span class="text-lg font-bold text-blue-700 leading-none">{{ $dateObj->format('j') }}</span>
+                            <span class="text-[10px] font-bold text-blue-600 uppercase">{{ format_date($dateObj, 'M') }}</span>
+                            <span class="text-lg font-bold text-blue-700 leading-none">{{ format_date($dateObj, 'j') }}</span>
                         </div>
                         <div>
-                            <h3 class="text-sm font-semibold text-gray-900">{{ $dateObj->format('l, F j') }}</h3>
+                            <h3 class="text-sm font-semibold text-gray-900">{{ format_date($dateObj, 'l, F j') }}</h3>
                             <p class="text-xs text-gray-500">{{ $dayEvents->count() }} event{{ $dayEvents->count() > 1 ? 's' : '' }}{{ $dateObj->isToday() ? ' • Today' : '' }}</p>
                         </div>
                     </div>
@@ -49,7 +49,7 @@
                                 </div>
                                 <p class="text-xs text-gray-500 mt-1">
                                     @if(!$event->allDay)
-                                        {{ $event->start->format('g:i A') }}{{ $event->end ? ' — ' . $event->end->format('g:i A') : '' }}
+                                        {{ format_time($event->start) }}{{ $event->end ? ' - ' . format_time($event->end) : '' }}
                                     @else
                                         All Day
                                     @endif

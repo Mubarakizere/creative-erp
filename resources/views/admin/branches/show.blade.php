@@ -240,11 +240,11 @@
                     </div>
                     <div class="flex items-center justify-between py-1.5 border-t border-gray-100">
                         <span class="text-sm text-gray-500">Created</span>
-                        <span class="text-sm text-gray-600">{{ $branch->created_at->format('M d, Y h:i A') }}</span>
+                        <span class="text-sm text-gray-600">{{ format_datetime($branch->created_at) }}</span>
                     </div>
                     <div class="flex items-center justify-between py-1.5 border-t border-gray-100">
                         <span class="text-sm text-gray-500">Updated</span>
-                        <span class="text-sm text-gray-600">{{ $branch->updated_at->format('M d, Y h:i A') }}</span>
+                        <span class="text-sm text-gray-600">{{ format_datetime($branch->updated_at) }}</span>
                     </div>
                     @if($branch->creator)
                         <div class="flex items-center justify-between py-1.5 border-t border-gray-100">

@@ -48,6 +48,8 @@ class ProjectMaterialIssueService
                                   ->where('company_id', $data['company_id'])
                                   ->firstOrFail();
 
+            $data['issue_number'] = app(\App\Services\SequenceService::class)->generate('project_material_issue', $data['company_id']);
+
             $issue = ProjectMaterialIssue::create($data);
             
             $totalIssueCost = 0;

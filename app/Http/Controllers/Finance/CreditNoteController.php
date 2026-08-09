@@ -38,7 +38,10 @@ class CreditNoteController extends Controller
             $preselectedInvoice = Invoice::findOrFail($request->invoice_id);
         }
         
-        return view('admin.finance.credit-notes.create', compact('clients', 'preselectedInvoice'));
+        $companyId = auth()->user()->company_id ?? 1;
+        $credit_note_number = app(\App\Services\SequenceService::class)->generate('credit_note', $companyId);
+        
+        return view('admin.finance.credit-notes.create', compact('clients', 'preselectedInvoice', 'credit_note_number'));
     }
 
     public function store(Request $request)
@@ -46,6 +49,7 @@ class CreditNoteController extends Controller
         $this->authorize('create', CreditNote::class);
         
         $request->validate([
+            'credit_note_number' => 'required|string|unique:credit_notes,credit_note_number',
             'client_id' => 'required|exists:clients,id',
             'amount' => 'required|numeric|min:0.01',
             'issue_date' => 'required|date',

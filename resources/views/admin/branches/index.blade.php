@@ -156,7 +156,7 @@
 
                 {{-- Created At --}}
                 <td class="px-4 py-3 hidden xl:table-cell">
-                    <span class="text-sm text-gray-500">{{ $branch->created_at->format('M d, Y') }}</span>
+                    <span class="text-sm text-gray-500">{{ format_date($branch->created_at) }}</span>
                 </td>
 
                 {{-- Actions --}}

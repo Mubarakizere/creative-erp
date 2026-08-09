@@ -222,7 +222,7 @@
                             {{ $client->creator?->first_name }} {{ $client->creator?->last_name }}
                         </span>
                         <span class="block text-xs text-gray-400 mt-0.5">
-                            {{ $client->created_at->format('M d, Y h:i A') }}
+                            {{ format_datetime($client->created_at) }}
                         </span>
                     </div>
                     
@@ -233,7 +233,7 @@
                                 {{ $client->updater?->first_name }} {{ $client->updater?->last_name }}
                             </span>
                             <span class="block text-xs text-gray-400 mt-0.5">
-                                {{ $client->updated_at->format('M d, Y h:i A') }}
+                                {{ format_datetime($client->updated_at) }}
                             </span>
                         </div>
                     @endif

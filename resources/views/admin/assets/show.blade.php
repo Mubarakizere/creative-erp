@@ -57,11 +57,11 @@
                         
                         <div class="sm:col-span-1">
                             <dt class="text-sm font-medium text-gray-500">Purchase Date</dt>
-                            <dd class="mt-1 text-sm text-gray-900">{{ $asset->purchase_date ? $asset->purchase_date->format('M d, Y') : '-' }}</dd>
+                            <dd class="mt-1 text-sm text-gray-900">{{ $asset->purchase_date ? format_date($asset->purchase_date) : '-' }}</dd>
                         </div>
                         <div class="sm:col-span-1">
                             <dt class="text-sm font-medium text-gray-500">In Service Date</dt>
-                            <dd class="mt-1 text-sm text-gray-900">{{ $asset->in_service_date ? $asset->in_service_date->format('M d, Y') : '-' }}</dd>
+                            <dd class="mt-1 text-sm text-gray-900">{{ $asset->in_service_date ? format_date($asset->in_service_date) : '-' }}</dd>
                         </div>
                         <div class="sm:col-span-1">
                             <dt class="text-sm font-medium text-gray-500">Useful Life</dt>
@@ -115,7 +115,7 @@
                         <tbody class="bg-white divide-y divide-gray-200">
                             @forelse($asset->depreciations as $depreciation)
                             <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $depreciation->period_date->format('M Y') }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $depreciation->period_date ? format_date($depreciation->period_date, 'M Y') : '' }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600">{{ format_currency($depreciation->amount) }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ format_currency($depreciation->accumulated_depreciation) }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ format_currency($depreciation->book_value) }}</td>
@@ -158,7 +158,7 @@
                         <tbody class="bg-white divide-y divide-gray-200">
                             @forelse($asset->maintenances as $maintenance)
                             <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $maintenance->maintenance_date->format('M d, Y') }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ format_date($maintenance->maintenance_date) }}</td>
                                 <td class="px-6 py-4 text-sm text-gray-900">{{ $maintenance->description }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ format_currency($maintenance->cost) }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $maintenance->status }}</td>
@@ -180,11 +180,11 @@
                         <li class="p-4 flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-medium text-gray-900">Assigned to: {{ $assignment->user->name ?? 'Unknown' }}</p>
-                                <p class="text-xs text-gray-500">Assigned At: {{ $assignment->assigned_at->format('M d, Y') }}</p>
+                                <p class="text-xs text-gray-500">Assigned At: {{ format_date($assignment->assigned_at) }}</p>
                             </div>
                             <div>
                                 @if($assignment->returned_at)
-                                    <span class="text-xs text-gray-500">Returned: {{ $assignment->returned_at->format('M d, Y') }}</span>
+                                    <span class="text-xs text-gray-500">Returned: {{ format_date($assignment->returned_at) }}</span>
                                 @else
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Current</span>
                                 @endif
@@ -210,7 +210,7 @@
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @forelse($asset->transfers as $transfer)
                                 <tr>
-                                    <td class="px-4 py-3 text-sm text-gray-900">{{ $transfer->transfer_date->format('M d, Y') }}</td>
+                                    <td class="px-4 py-3 text-sm text-gray-900">{{ format_date($transfer->transfer_date) }}</td>
                                     <td class="px-4 py-3 text-sm text-gray-500">{{ $transfer->fromDepartment->name ?? '-' }}</td>
                                     <td class="px-4 py-3 text-sm text-gray-900 font-medium">{{ $transfer->toDepartment->name ?? '-' }}</td>
                                     <td class="px-4 py-3 text-sm text-gray-500">{{ $transfer->requestedBy ? $transfer->requestedBy->first_name . ' ' . $transfer->requestedBy->last_name : 'System' }}</td>

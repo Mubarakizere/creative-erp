@@ -92,11 +92,13 @@ class QuotationController extends Controller
         $paymentTerms = PaymentTerm::where('company_id', $companyId)->get();
         $templates = QuotationTemplate::where('company_id', $companyId)->get();
 
+        $quotation_number = app(\App\Services\SequenceService::class)->generate('quotation', $companyId);
+
         $selectedOpportunityId = $request->query('opportunity_id');
         $selectedAccountId = $request->query('account_id');
 
         return view('admin.crm.quotations.create', compact(
-            'accounts', 'opportunities', 'leads', 'contacts', 'taxes', 'paymentTerms', 'templates', 'selectedOpportunityId', 'selectedAccountId'
+            'accounts', 'opportunities', 'leads', 'contacts', 'taxes', 'paymentTerms', 'templates', 'selectedOpportunityId', 'selectedAccountId', 'quotation_number'
         ));
     }
 
@@ -104,6 +106,7 @@ class QuotationController extends Controller
     {
         Gate::authorize('create', Quotation::class);
         $data = $request->validate([
+            'quotation_number' => 'required|string|unique:quotations,quotation_number',
             'reference' => 'nullable|string',
             'lead_id' => 'nullable|exists:leads,id',
             'opportunity_id' => 'nullable|exists:opportunities,id',
@@ -125,7 +128,6 @@ class QuotationController extends Controller
             'items.*.tax_id' => 'nullable|exists:taxes,id',
         ]);
         $data['company_id'] = $request->user()->company_id ?? 1;
-        $data['quotation_number'] = 'QT-' . strtoupper(uniqid());
 
         $items = $data['items'];
         unset($data['items']);
@@ -227,7 +229,7 @@ class QuotationController extends Controller
     {
         Gate::authorize('create', Quotation::class);
         $newQuotation = $this->quotationService->createQuotation(
-            array_merge($quotation->toArray(), ['quotation_number' => 'QT-' . strtoupper(uniqid())]),
+            array_merge($quotation->toArray(), ['quotation_number' => app(\App\Services\SequenceService::class)->generate('quotation', $quotation->company_id)]),
             $quotation->items->toArray()
         );
         return redirect()->route('admin.crm.quotations.show', $newQuotation)

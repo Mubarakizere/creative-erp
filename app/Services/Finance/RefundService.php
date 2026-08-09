@@ -23,7 +23,7 @@ class RefundService
     public function processRefund(array $data): Refund
     {
         return DB::transaction(function () use ($data) {
-            $data['refund_number'] = $data['refund_number'] ?? $this->generateRefundNumber();
+            $data['refund_number'] = $data['refund_number'] ?? $this->generateRefundNumber($data['company_id'] ?? (auth()->user()->company_id ?? 1));
             
             // Check for active approval workflow
             $workflow = ApprovalWorkflow::where('module', 'Refund')
@@ -56,9 +56,9 @@ class RefundService
         });
     }
     
-    private function generateRefundNumber(): string
+    private function generateRefundNumber($companyId): string
     {
-        return 'REF-' . strtoupper(uniqid());
+        return app(\App\Services\SequenceService::class)->generate('refund', $companyId);
     }
 
     private function autoPostRefundToLedger(Refund $refund): void

@@ -23,7 +23,7 @@ class InvoiceService
     public function createInvoice(array $data, array $items = []): Invoice
     {
         return DB::transaction(function () use ($data, $items) {
-            $data['invoice_number'] = $data['invoice_number'] ?? $this->generateInvoiceNumber();
+            $data['invoice_number'] = $data['invoice_number'] ?? $this->generateInvoiceNumber($data['company_id']);
             $invoice = Invoice::create($data);
             
             if (!empty($items)) {
@@ -52,7 +52,7 @@ class InvoiceService
                 'project_id' => null, // Set if needed
                 'opportunity_id' => $quotation->opportunity_id,
                 'quotation_id' => $quotation->id,
-                'invoice_number' => $this->generateInvoiceNumber(),
+                'invoice_number' => $this->generateInvoiceNumber($quotation->company_id),
                 'status' => 'Draft',
                 'issue_date' => now(),
                 'due_date' => now()->addDays(30),
@@ -157,9 +157,9 @@ class InvoiceService
         ]);
     }
 
-    private function generateInvoiceNumber(): string
+    private function generateInvoiceNumber($companyId): string
     {
-        return 'INV-' . strtoupper(uniqid());
+        return app(\App\Services\SequenceService::class)->generate('invoice', $companyId);
     }
 
     private function autoPostInvoiceToLedger(Invoice $invoice): void

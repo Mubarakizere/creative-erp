@@ -39,8 +39,9 @@ class CycleCountController extends Controller
         $warehouses = Warehouse::where('company_id', $companyId)->get();
         // Just fetch some inventory options for simplicity in the UI
         $inventories = Inventory::where('company_id', $companyId)->with(['product', 'warehouseBin'])->get();
+        $cycle_count_number = app(\App\Services\SequenceService::class)->generate('cycle_count', $companyId);
 
-        return view('admin.warehouse.cycle-counts.create', compact('warehouses', 'inventories'));
+        return view('admin.warehouse.cycle-counts.create', compact('warehouses', 'inventories', 'cycle_count_number'));
     }
 
     public function store(Request $request)
@@ -48,6 +49,7 @@ class CycleCountController extends Controller
         $this->authorize('create', WarehouseCycleCount::class);
 
         $request->validate([
+            'cycle_count_number' => 'required|string|unique:warehouse_cycle_counts,cycle_count_number',
             'warehouse_id' => 'required|exists:warehouses,id',
             'type' => 'required|in:daily,weekly,monthly,abc,manual',
             'assigned_to' => 'nullable|exists:users,id',

@@ -14,6 +14,7 @@ class StoreProjectMaterialRequestRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'request_number' => ['required', 'string', 'unique:project_material_requests,request_number'],
             'project_id' => ['required', 'exists:projects,id'],
             'request_date' => ['required', 'date'],
             'required_date' => ['nullable', 'date', 'after_or_equal:request_date'],

@@ -23,7 +23,7 @@
                 <span class="text-xs font-semibold text-gray-500 uppercase">Valuation</span>
             </div>
             <div>
-                <h3 class="text-3xl font-bold text-gray-900">${{ number_format($inventoryValue, 2) }}</h3>
+                <h3 class="text-3xl font-bold text-gray-900">RWF {{ number_format($inventoryValue, 2) }}</h3>
                 <p class="text-sm text-gray-500 mt-1">Total System Value</p>
             </div>
         </x-card>
@@ -152,17 +152,19 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr>
-                            <th class="py-2 px-3 border-b text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
-                            <th class="py-2 px-3 border-b text-xs font-semibold text-gray-500 uppercase tracking-wider">Product</th>
-                            <th class="py-2 px-3 border-b text-xs font-semibold text-gray-500 uppercase tracking-wider">Type</th>
-                            <th class="py-2 px-3 border-b text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Qty</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100">
-                        @forelse($recentTransactions as $tx)
-                            <tr>
-                                <td class="py-3 px-3 text-sm text-gray-500">{{ $tx->date->format('M d, H:i') }}</td>
-                                <td class="py-3 px-3 text-sm text-gray-900 truncate max-w-[150px]">{{ $tx->inventory->product->name ?? 'Unknown' }}</td>
+                              <th class="py-2 px-3 border-b text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+                              <th class="py-2 px-3 border-b text-xs font-semibold text-gray-500 uppercase tracking-wider">Ref #</th>
+                              <th class="py-2 px-3 border-b text-xs font-semibold text-gray-500 uppercase tracking-wider">Product</th>
+                              <th class="py-2 px-3 border-b text-xs font-semibold text-gray-500 uppercase tracking-wider">Type</th>
+                              <th class="py-2 px-3 border-b text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Qty</th>
+                          </tr>
+                      </thead>
+                      <tbody class="divide-y divide-gray-100">
+                          @forelse($recentTransactions as $tx)
+                              <tr>
+                                  <td class="py-3 px-3 text-sm text-gray-500">{{ $tx->date->format('M d, H:i') }}</td>
+                                  <td class="py-3 px-3 text-sm font-medium text-blue-600">{{ $tx->reference_code }}</td>
+                                  <td class="py-3 px-3 text-sm text-gray-900 truncate max-w-[150px]">{{ $tx->inventory->product->name ?? 'Unknown' }}</td>
                                 <td class="py-3 px-3 text-sm">
                                     @php
                                         $isPositive = $tx->quantity > 0;
@@ -176,9 +178,9 @@
                                     {{ $isPositive ? '+' : '' }}{{ number_format($tx->quantity) }}
                                 </td>
                             </tr>
-                        @empty
-                            <tr><td colspan="4" class="py-4 text-center text-sm text-gray-500">No recent transactions.</td></tr>
-                        @endforelse
+                          @empty
+                              <tr><td colspan="5" class="py-4 text-center text-sm text-gray-500">No recent transactions.</td></tr>
+                          @endforelse
                     </tbody>
                 </table>
             </div>
@@ -194,27 +196,29 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr>
-                            <th class="py-2 px-3 border-b text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
-                            <th class="py-2 px-3 border-b text-xs font-semibold text-gray-500 uppercase tracking-wider">Warehouse</th>
-                            <th class="py-2 px-3 border-b text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Cost</th>
-                            <th class="py-2 px-3 border-b text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100">
-                        @forelse($pendingAdjustments as $adj)
-                            <tr>
-                                <td class="py-3 px-3 text-sm text-gray-500">{{ $adj->date->format('M d, Y') }}</td>
-                                <td class="py-3 px-3 text-sm text-gray-900">{{ $adj->warehouse->name ?? '—' }}</td>
-                                <td class="py-3 px-3 text-sm text-gray-900 font-medium text-right">${{ number_format($adj->total_cost, 2) }}</td>
+                              <th class="py-2 px-3 border-b text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+                              <th class="py-2 px-3 border-b text-xs font-semibold text-gray-500 uppercase tracking-wider">Adj #</th>
+                              <th class="py-2 px-3 border-b text-xs font-semibold text-gray-500 uppercase tracking-wider">Warehouse</th>
+                              <th class="py-2 px-3 border-b text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Total Cost</th>
+                              <th class="py-2 px-3 border-b text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                          </tr>
+                      </thead>
+                      <tbody class="divide-y divide-gray-100">
+                          @forelse($pendingAdjustments as $adj)
+                              <tr>
+                                  <td class="py-3 px-3 text-sm text-gray-500">{{ $adj->date->format('M d, Y') }}</td>
+                                  <td class="py-3 px-3 text-sm font-medium text-blue-600">ADJ-{{ strtoupper(substr($adj->id, 0, 6)) }}</td>
+                                  <td class="py-3 px-3 text-sm text-gray-900">{{ $adj->warehouse->name ?? '—' }}</td>
+                                <td class="py-3 px-3 text-sm text-gray-900 font-medium text-right">RWF {{ number_format($adj->total_cost, 2) }}</td>
                                 <td class="py-3 px-3 text-sm">
                                     <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
                                         Pending
                                     </span>
                                 </td>
                             </tr>
-                        @empty
-                            <tr><td colspan="4" class="py-4 text-center text-sm text-gray-500">No pending adjustments.</td></tr>
-                        @endforelse
+                          @empty
+                              <tr><td colspan="5" class="py-4 text-center text-sm text-gray-500">No pending adjustments.</td></tr>
+                          @endforelse
                     </tbody>
                 </table>
             </div>

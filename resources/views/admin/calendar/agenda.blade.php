@@ -4,7 +4,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-2">
             <div>
                 <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Agenda</h1>
-                <p class="mt-1 text-sm text-gray-500 font-medium">{{ $date->format('l, F j, Y') }}</p>
+                <p class="mt-1 text-sm text-gray-500 font-medium">{{ format_date($date, 'l, F j, Y') }}</p>
             </div>
             <div class="flex items-center gap-2">
                 <a href="{{ route('admin.calendar.index') }}" class="inline-flex items-center gap-2 px-4 py-2 mr-2 text-sm font-medium text-gray-700 bg-white border border-gray-200/60 rounded-xl hover:bg-gray-50 shadow-sm transition-all focus:ring-2 focus:ring-blue-500 focus:outline-none">
@@ -31,7 +31,7 @@
                         <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                     </div>
                     <h3 class="text-lg font-bold text-gray-900 mb-1">No events scheduled</h3>
-                    <p class="text-sm text-gray-500 mb-6">Nothing is scheduled for {{ $date->format('F j, Y') }}.</p>
+                    <p class="text-sm text-gray-500 mb-6">Nothing is scheduled for {{ format_date($date, 'F j, Y') }}.</p>
                     <a href="{{ route('admin.meetings.create') }}" class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 shadow-sm transition-all hover:shadow-md">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
                         Schedule Meeting
@@ -40,7 +40,7 @@
             @else
                 <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
-                        <h3 class="text-sm font-bold text-gray-900 tracking-tight">Events for {{ $date->format('l') }}</h3>
+                        <h3 class="text-sm font-bold text-gray-900 tracking-tight">Events for {{ format_date($date, 'l') }}</h3>
                     </div>
                     <div class="p-6 space-y-4">
                         @foreach($events as $event)
@@ -56,7 +56,7 @@
                                             @if(!$event->allDay)
                                                 <span class="flex items-center gap-1.5 text-gray-600">
                                                     <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                                    {{ $event->start->format('g:i A') }} to {{ $event->end?->format('g:i A') }}
+                                                    {{ format_time($event->start) }} to {{ $event->end ? format_time($event->end) : '' }}
                                                 </span>
                                             @else
                                                 <span class="flex items-center gap-1.5 text-gray-600">
@@ -99,7 +99,7 @@
                             <div class="mt-1 w-2.5 h-2.5 rounded-full flex-shrink-0 shadow-sm" style="background-color: {{ $event->color }};"></div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-semibold text-gray-900 group-hover:text-blue-600 transition-colors truncate">{{ $event->title }}</p>
-                                <p class="text-xs text-gray-500 mt-0.5 font-medium">{{ $event->start->format('l • g:i A') }}</p>
+                                <p class="text-xs text-gray-500 mt-0.5 font-medium">{{ format_date($event->start, 'l') }} &bull; {{ format_time($event->start) }}</p>
                             </div>
                         </a>
                     @empty

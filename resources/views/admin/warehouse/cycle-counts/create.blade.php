@@ -29,7 +29,13 @@
             <form action="{{ route('admin.warehouse.cycle-counts.store') }}" method="POST" class="p-6 space-y-6">
                 @csrf
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label for="cycle_count_number" class="block text-sm font-medium text-gray-700">Count Number <span class="text-red-500">*</span></label>
+                        <input type="text" name="cycle_count_number" id="cycle_count_number" value="{{ old('cycle_count_number', $cycle_count_number ?? '') }}" required readonly class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50 cursor-not-allowed sm:text-sm">
+                        @error('cycle_count_number') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
+                    </div>
+
                     <div>
                         <label for="warehouse_id" class="block text-sm font-medium text-gray-700">Target Warehouse <span class="text-red-500">*</span></label>
                         <select name="warehouse_id" id="warehouse_id" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">

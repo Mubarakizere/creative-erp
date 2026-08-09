@@ -39,7 +39,7 @@
                                 <td class="px-6 py-4 font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">{{ $approval->workflow->name }}</td>
                                 <td class="px-6 py-4 text-sm font-medium text-gray-600">{{ class_basename($approval->approvable_type) }}</td>
                                 <td class="px-6 py-4 text-sm font-medium text-gray-600">{{ $approval->submitter->full_name ?? 'System' }}</td>
-                                <td class="px-6 py-4 text-sm font-medium text-gray-600">{{ $approval->submitted_at->format('M j, Y') }}</td>
+                                <td class="px-6 py-4 text-sm font-medium text-gray-600">{{ format_date($approval->submitted_at) }}</td>
                                 <td class="px-6 py-4 text-right">
                                     <a href="{{ route('admin.approvals.show', $approval) }}" class="inline-flex items-center px-3 py-1.5 text-xs font-bold text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">Review</a>
                                 </td>
@@ -99,7 +99,7 @@
                                         {{ $request->status }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 text-sm font-medium text-gray-600">{{ $request->submitted_at->format('M j, Y') }}</td>
+                                <td class="px-6 py-4 text-sm font-medium text-gray-600">{{ format_date($request->submitted_at) }}</td>
                                 <td class="px-6 py-4 text-right">
                                     <a href="{{ route('admin.approvals.show', $request) }}" class="inline-flex items-center px-3 py-1.5 text-xs font-bold text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">View Details</a>
                                 </td>

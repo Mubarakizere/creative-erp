@@ -21,7 +21,7 @@ class CreditNoteService
     public function createCreditNote(array $data): CreditNote
     {
         return DB::transaction(function () use ($data) {
-            $data['credit_note_number'] = $data['credit_note_number'] ?? $this->generateCreditNoteNumber();
+            $data['credit_note_number'] = $data['credit_note_number'] ?? $this->generateCreditNoteNumber($data['company_id']);
             $data['remaining_balance'] = $data['amount'];
             $creditNote = CreditNote::create($data);
             
@@ -68,8 +68,8 @@ class CreditNoteService
         });
     }
     
-    private function generateCreditNoteNumber(): string
+    private function generateCreditNoteNumber($companyId): string
     {
-        return 'CN-' . strtoupper(uniqid());
+        return app(\App\Services\SequenceService::class)->generate('credit_note', $companyId);
     }
 }

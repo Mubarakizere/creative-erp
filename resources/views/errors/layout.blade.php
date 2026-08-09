@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title') - {{ config('app.name', 'Creative Century Engineering') }}</title>
+    <title>@yield('title') - {{ system_name() }}</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -41,7 +41,7 @@
         </div>
         
         <div class="mt-12 text-sm text-gray-400">
-            &copy; {{ date('Y') }} {{ config('app.name', 'Creative Century Engineering') }}. All rights reserved.
+            &copy; {{ date('Y') }} {{ system_name() }}. All rights reserved.
         </div>
     </div>
 </body>

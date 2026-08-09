@@ -29,7 +29,7 @@
             {{-- Footer --}}
             <footer class="border-t border-gray-200 px-4 sm:px-6 lg:px-8 py-4">
                 <p class="text-sm text-gray-500 text-center">
-                    &copy; {{ date('Y') }} Creative Century Engineering. All rights reserved.
+                    &copy; {{ date('Y') }} {{ system_name() }}. All rights reserved.
                 </p>
             </footer>
         </div>

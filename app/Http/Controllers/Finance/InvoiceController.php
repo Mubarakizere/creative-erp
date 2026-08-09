@@ -50,7 +50,10 @@ class InvoiceController extends Controller
             $quotation = Quotation::with('items')->findOrFail($request->quotation_id);
         }
 
-        return view('admin.finance.invoices.create', compact('clients', 'projects', 'quotation'));
+        $companyId = auth()->user()->company_id ?? 1;
+        $invoice_number = app(\App\Services\SequenceService::class)->generate('invoice', $companyId);
+
+        return view('admin.finance.invoices.create', compact('clients', 'projects', 'quotation', 'invoice_number'));
     }
 
     public function store(Request $request)
@@ -58,6 +61,7 @@ class InvoiceController extends Controller
         $this->authorize('create', Invoice::class);
         
         $request->validate([
+            'invoice_number' => 'required|string|unique:invoices,invoice_number',
             'client_id' => 'required|exists:clients,id',
             'issue_date' => 'required|date',
             'due_date' => 'required|date|after_or_equal:issue_date',

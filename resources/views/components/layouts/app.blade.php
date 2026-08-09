@@ -10,8 +10,8 @@
     <link rel="manifest" href="{{ asset('manifest.json') }}">
     <link rel="apple-touch-icon" href="{{ asset('images/logo.png') }}">
 
-    <title>{{ $title ?? 'Creative Century Engineering' }} - Creative Century Engineering</title>
-    <meta name="description" content="{{ $description ?? 'Creative Century Engineering - Enterprise Resource Planning for Engineering & Construction' }}">
+    <title>{{ $title ?? system_name() }} - {{ system_name() }}</title>
+    <meta name="description" content="{{ $description ?? system_name() . ' - Enterprise Resource Planning for Engineering & Construction' }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">

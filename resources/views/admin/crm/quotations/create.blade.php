@@ -35,11 +35,12 @@
                         <h3 class="text-lg font-bold text-gray-900 tracking-tight">Quotation Details</h3>
                     </div>
                     <div class="p-6">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <x-input name="quotation_number" label="Quotation Number" :value="$quotation_number" required />
                             <x-input name="reference" label="Reference Number" placeholder="e.g. PO-12345" />
                             <x-input name="valid_until" type="date" label="Valid Until" required :value="now()->addDays(30)->format('Y-m-d')" />
 
-                            <div class="sm:col-span-2">
+                            <div class="sm:col-span-2 lg:col-span-3">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Customer (Select One)</label>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <x-select name="account_id" label="Account" placeholder="Select Account" :options="$accounts->pluck('name', 'id')->toArray()" :selected="old('account_id', $selectedAccountId ?? null)" />

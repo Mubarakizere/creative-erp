@@ -26,7 +26,7 @@ class PaymentService
     public function processPayment(array $data, array $allocations = []): Payment
     {
         return DB::transaction(function () use ($data, $allocations) {
-            $data['payment_number'] = $data['payment_number'] ?? $this->generatePaymentNumber();
+            $data['payment_number'] = $data['payment_number'] ?? $this->generatePaymentNumber($data['company_id']);
             $payment = Payment::create($data);
             
             if (!empty($allocations)) {
@@ -78,7 +78,7 @@ class PaymentService
         $receipt = Receipt::create([
             'company_id' => $payment->company_id,
             'payment_id' => $payment->id,
-            'receipt_number' => 'RCT-' . strtoupper(uniqid()),
+            'receipt_number' => app(\App\Services\SequenceService::class)->generate('receipt', $payment->company_id),
             'generated_at' => now(),
         ]);
         
@@ -90,9 +90,9 @@ class PaymentService
         return $receipt;
     }
     
-    private function generatePaymentNumber(): string
+    private function generatePaymentNumber($companyId): string
     {
-        return 'PAY-' . strtoupper(uniqid());
+        return app(\App\Services\SequenceService::class)->generate('payment', $companyId);
     }
 
     private function autoPostPaymentToLedger(Payment $payment): void

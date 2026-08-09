@@ -126,7 +126,7 @@ class QuotationService
             'account_id' => $opportunity->account_id,
             'contact_id' => $opportunity->contact_id,
             'owner_id' => $opportunity->owner_id,
-            'quotation_number' => 'QT-' . strtoupper(uniqid()),
+            'quotation_number' => app(\App\Services\SequenceService::class)->generate('quotation', $opportunity->company_id),
             'currency' => 'USD', // Default or from company settings
             'valid_until' => now()->addDays(30),
             'notes' => $opportunity->description,
@@ -139,7 +139,7 @@ class QuotationService
             'company_id' => $lead->company_id,
             'lead_id' => $lead->id,
             'owner_id' => $lead->owner_id,
-            'quotation_number' => 'QT-' . strtoupper(uniqid()),
+            'quotation_number' => app(\App\Services\SequenceService::class)->generate('quotation', $lead->company_id),
             'currency' => 'USD',
             'valid_until' => now()->addDays(30),
             'notes' => 'Generated from lead: ' . $lead->first_name . ' ' . $lead->last_name,

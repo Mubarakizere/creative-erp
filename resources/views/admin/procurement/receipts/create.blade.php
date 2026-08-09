@@ -33,6 +33,12 @@
                 <div class="p-6">
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         <div>
+                            <label for="code" class="block text-sm font-medium text-gray-700 mb-1">Receipt Number <span class="text-red-500">*</span></label>
+                            <input type="text" name="code" id="code" value="{{ old('code', $code ?? '') }}" required class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors">
+                            @error('code') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
+                        </div>
+
+                        <div>
                             <label for="receipt_date" class="block text-sm font-medium text-gray-700 mb-1">Receipt Date <span class="text-red-500">*</span></label>
                             <input type="date" name="receipt_date" id="receipt_date" value="{{ old('receipt_date', date('Y-m-d')) }}" required class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors">
                             @error('receipt_date') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror

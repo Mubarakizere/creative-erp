@@ -38,7 +38,10 @@ class RefundController extends Controller
             $preselectedPayment = Payment::findOrFail($request->payment_id);
         }
         
-        return view('admin.finance.refunds.create', compact('clients', 'preselectedPayment'));
+        $companyId = auth()->user()->company_id ?? 1;
+        $refund_number = app(\App\Services\SequenceService::class)->generate('refund', $companyId);
+        
+        return view('admin.finance.refunds.create', compact('clients', 'preselectedPayment', 'refund_number'));
     }
 
     public function store(Request $request)
@@ -46,6 +49,7 @@ class RefundController extends Controller
         $this->authorize('create', Refund::class);
         
         $request->validate([
+            'refund_number' => 'required|string|unique:refunds,refund_number',
             'client_id' => 'required|exists:clients,id',
             'amount' => 'required|numeric|min:0.01',
             'refund_date' => 'required|date',

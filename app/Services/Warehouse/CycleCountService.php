@@ -31,7 +31,7 @@ class CycleCountService
                 'company_id' => $data['company_id'],
                 'warehouse_id' => $data['warehouse_id'],
                 'stock_count_id' => $stockCount->id,
-                'count_number' => 'CC-' . strtoupper(uniqid()),
+                'count_number' => app(\App\Services\SequenceService::class)->generate('cycle_count', $data['company_id']),
                 'type' => $data['type'], // daily, weekly, monthly, abc
                 'status' => 'pending',
                 'assigned_to' => $data['assigned_to'] ?? null,

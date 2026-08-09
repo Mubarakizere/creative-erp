@@ -18,7 +18,7 @@ class ShippingService
             $shipment = WarehouseShipment::create([
                 'company_id' => $companyId,
                 'warehouse_id' => $warehouseId,
-                'shipment_number' => 'SHIP-' . strtoupper(uniqid()),
+                'shipment_number' => app(\App\Services\SequenceService::class)->generate('shipping', $companyId),
                 'status' => 'pending',
                 'created_by' => $userId,
             ]);

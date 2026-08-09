@@ -30,8 +30,21 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/executive', [\App\Http\Controllers\Dashboard\ExecutiveDashboardController::class, 'index'])->name('dashboard.executive');
     
+    // Profile
+    Route::get('/profile', [\App\Http\Controllers\Admin\ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [\App\Http\Controllers\Admin\ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/profile/password', [\App\Http\Controllers\Admin\ProfileController::class, 'updatePassword'])->name('profile.password.update');
+    Route::post('/profile/avatar', [\App\Http\Controllers\Admin\ProfileController::class, 'updateAvatar'])->name('profile.avatar.update');
+    Route::delete('/profile/avatar', [\App\Http\Controllers\Admin\ProfileController::class, 'destroyAvatar'])->name('profile.avatar.destroy');
     // Global Search
     Route::get('/search', [\App\Http\Controllers\Admin\SearchController::class, 'index'])->name('search');
+
+    // System Settings
+    Route::prefix('settings')->name('settings.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\SettingController::class, 'index'])->name('index')->middleware('can:settings.view');
+        Route::post('/', [\App\Http\Controllers\Admin\SettingController::class, 'update'])->name('update')->middleware('can:settings.manage');
+        Route::post('/sequences', [\App\Http\Controllers\Admin\SettingController::class, 'updateSequences'])->name('sequences.update')->middleware('can:settings.manage');
+    });
 
     // Website CMS
     Route::middleware(['role:Super Admin'])->group(function () {

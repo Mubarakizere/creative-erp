@@ -143,6 +143,7 @@ class WarehouseActivityLogTest extends TestCase
             'product_id' => $product->id,
             'source_warehouse_id' => $this->warehouse->id,
             'destination_warehouse_id' => $this->warehouse->id,
+            'movement_number' => 'MOV-001',
             'quantity' => 10,
             'type' => 'transfer',
             'status' => 'pending'

@@ -55,7 +55,7 @@ class InventoryController extends Controller
 
             $transfer = InventoryTransfer::create([
                 'company_id' => $companyId,
-                'tracking_number' => 'TRF-' . strtoupper(uniqid()),
+                'tracking_number' => app(\App\Services\SequenceService::class)->generate('inventory_transfer', $companyId),
                 'from_warehouse_id' => $validated['from_warehouse_id'],
                 'to_warehouse_id' => $validated['to_warehouse_id'],
                 'status' => 'pending',

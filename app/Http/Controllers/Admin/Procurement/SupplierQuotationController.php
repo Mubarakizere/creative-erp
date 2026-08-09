@@ -27,7 +27,8 @@ class SupplierQuotationController extends Controller
         $companyId = session('company_id') ?? auth()->user()->company_id ?? 1;
         $requisitions = PurchaseRequisition::where('company_id', $companyId)->where('status', 'approved')->get();
         $suppliers = Supplier::where('company_id', $companyId)->get();
-        return view('admin.procurement.rfqs.create', compact('requisitions', 'suppliers'));
+        $code = app(\App\Services\SequenceService::class)->generate('quotation', $companyId);
+        return view('admin.procurement.rfqs.create', compact('requisitions', 'suppliers', 'code'));
     }
 
         public function show(SupplierQuotation $rfq)

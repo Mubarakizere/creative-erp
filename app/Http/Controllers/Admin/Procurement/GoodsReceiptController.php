@@ -38,8 +38,10 @@ class GoodsReceiptController extends Controller
         // Load warehouses for receiving
         $companyId = session('company_id') ?? auth()->user()->company_id ?? 1;
         $warehouses = \App\Models\Warehouse::where('company_id', $companyId)->get();
+        
+        $code = app(\App\Services\SequenceService::class)->generate('goods_receipt', $companyId);
 
-        return view('admin.procurement.receipts.create', compact('po', 'warehouses'));
+        return view('admin.procurement.receipts.create', compact('po', 'warehouses', 'code'));
     }
 
     public function store(Request $request, GoodsReceiptService $service)
@@ -48,6 +50,7 @@ class GoodsReceiptController extends Controller
         $companyId = session('company_id') ?? auth()->user()->company_id ?? 1;
 
         $validated = $request->validate([
+            'code' => 'required|string|unique:goods_receipts,code',
             'purchase_order_id' => 'required|exists:purchase_orders,id',
             'warehouse_id' => [
                 'required',
@@ -104,7 +107,7 @@ class GoodsReceiptController extends Controller
             'warehouse_id' => $validated['warehouse_id'],
             'receipt_date' => $validated['receipt_date'],
             'delivery_note_number' => $validated['delivery_note_number'] ?? 'DN-' . time(),
-            'code' => 'GR-' . time(),
+            'code' => $validated['code'],
             'status' => 'completed',
             'created_by' => auth()->id(),
         ];

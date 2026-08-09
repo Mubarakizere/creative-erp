@@ -19,7 +19,7 @@ class PackingService
                 'company_id' => $picking->company_id,
                 'warehouse_id' => $picking->warehouse_id,
                 'warehouse_picking_id' => $picking->id,
-                'packing_number' => 'PACK-' . strtoupper(uniqid()),
+                'packing_number' => app(\App\Services\SequenceService::class)->generate('packing', $picking->company_id),
                 'status' => 'pending',
                 'created_by' => $userId,
             ]);

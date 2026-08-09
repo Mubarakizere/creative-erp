@@ -40,7 +40,9 @@ class JournalController extends Controller
         $fiscalYears = FiscalYear::where('company_id', $companyId)->where('is_closed', false)->get();
         $periods = AccountingPeriod::where('company_id', $companyId)->where('status', 'Open')->get();
 
-        return view('admin.finance.accounting.journals.create', compact('accounts', 'fiscalYears', 'periods'));
+        $journal_number = app(\App\Services\SequenceService::class)->generate('journal', $companyId);
+
+        return view('admin.finance.accounting.journals.create', compact('accounts', 'fiscalYears', 'periods', 'journal_number'));
     }
 
     public function store(Request $request)
@@ -48,6 +50,7 @@ class JournalController extends Controller
         $companyId = auth()->user()->company_id ?? 1;
 
         $validated = $request->validate([
+            'journal_number' => 'required|string|unique:journals,journal_number',
             'date' => 'required|date',
             'fiscal_year_id' => 'nullable|exists:fiscal_years,id',
             'accounting_period_id' => 'nullable|exists:accounting_periods,id',
@@ -62,6 +65,7 @@ class JournalController extends Controller
 
         $data = [
             'company_id' => $companyId,
+            'journal_number' => $validated['journal_number'],
             'date' => $validated['date'],
             'fiscal_year_id' => $validated['fiscal_year_id'],
             'accounting_period_id' => $validated['accounting_period_id'],

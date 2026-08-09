@@ -20,7 +20,7 @@ class WarehouseReturnService
             return WarehouseReturn::create([
                 'company_id' => $data['company_id'],
                 'warehouse_id' => $data['warehouse_id'],
-                'return_number' => 'RET-' . strtoupper(uniqid()),
+                'return_number' => app(\App\Services\SequenceService::class)->generate('warehouse_return', $data['company_id']),
                 'type' => $data['type'], // customer_return, supplier_return, damaged_stock
                 'status' => 'pending',
                 'returnable_type' => $data['returnable_type'] ?? null,

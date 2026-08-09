@@ -9,7 +9,7 @@
                     </svg>
                 </div>
                 <h2 class="mt-6 text-3xl font-extrabold text-gray-900">
-                    Creative <span class="text-blue-600">ERP</span>
+                    {{ system_name() }}
                 </h2>
             </div>
 
@@ -82,7 +82,7 @@
 
             {{-- Footer --}}
             <p class="text-center text-xs text-gray-400">
-                &copy; {{ date('Y') }} Creative Century Engineering. All rights reserved.
+                &copy; {{ date('Y') }} {{ system_name() }}. All rights reserved.
             </p>
         </div>
     </div>

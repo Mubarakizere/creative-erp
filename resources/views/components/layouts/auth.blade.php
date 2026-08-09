@@ -6,7 +6,7 @@
                 {{-- Logo / Branding --}}
                 <div class="mb-8">
                     <a href="{{ route('home') }}" class="inline-block hover:opacity-80 transition-opacity">
-                        <img src="{{ asset('images/logo.png') }}" alt="Creative Century Engineering" class="h-16 w-auto">
+                        <img src="{{ asset('images/logo.png') }}" alt="{{ system_name() }}" class="h-16 w-auto">
                     </a>
                     <p class="mt-4 text-sm text-gray-500 font-medium">Enterprise Management System</p>
                 </div>
@@ -17,7 +17,7 @@
 
                 {{-- Footer --}}
                 <p class="mt-10 text-sm text-gray-400">
-                    &copy; {{ date('Y') }} Creative Century Engineering. All rights reserved.
+                    &copy; {{ date('Y') }} {{ system_name() }}. All rights reserved.
                 </p>
             </div>
         </div>
@@ -32,11 +32,11 @@
             <div class="absolute bottom-12 left-12 right-12 text-white">
                 <blockquote class="space-y-4">
                     <p class="text-xl font-medium leading-relaxed">
-                        "Creative Century Engineering's enterprise system has completely transformed how we manage our engineering projects and resources. It's the backbone of our daily operations."
+                        "{{ system_name() }}'s enterprise system has completely transformed how we manage our engineering projects and resources. It's the backbone of our daily operations."
                     </p>
                     <footer class="flex items-center gap-3">
                         <div class="font-semibold text-white">Project Management Team</div>
-                        <div class="text-blue-200 text-sm">— Creative Century Engineering</div>
+                        <div class="text-blue-200 text-sm">— {{ system_name() }}</div>
                     </footer>
                 </blockquote>
             </div>

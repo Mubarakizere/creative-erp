@@ -68,7 +68,7 @@ class InventoryDashboardController extends Controller
 
         // 4. Recent Transactions
         $recentTransactions = InventoryTransaction::where('company_id', $companyId)
-            ->with(['inventory.product', 'inventory.warehouse'])
+            ->with(['inventory.product', 'inventory.warehouse', 'reference'])
             ->latest()
             ->take(5)
             ->get();

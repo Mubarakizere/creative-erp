@@ -37,6 +37,12 @@
                 
                 <div class="p-6 space-y-4">
                     <div>
+                        <label for="payment_number" class="block text-sm font-medium text-gray-700 mb-1">Payment Number <span class="text-red-500">*</span></label>
+                        <input type="text" name="payment_number" id="payment_number" value="{{ old('payment_number', $payment_number ?? '') }}" required class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors min-h-[42px]">
+                        @error('payment_number') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div>
                         <label for="client_id" class="block text-sm font-medium text-gray-700 mb-1">Client <span class="text-red-500">*</span></label>
                         <select name="client_id" id="client_id" x-model="selectedClient" @change="updateAvailableInvoices" required class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors bg-white min-h-[42px]">
                             <option value="">Select a Client</option>

@@ -28,7 +28,8 @@ class PurchaseRequisitionController extends Controller
         $this->authorize('create', PurchaseRequisition::class);
         $companyId = session('company_id') ?? auth()->user()->company_id ?? 1;
         $products = Product::where('company_id', $companyId)->get();
-        return view('admin.procurement.requisitions.create', compact('products'));
+        $code = app(\App\Services\SequenceService::class)->generate('purchase_requisition', $companyId);
+        return view('admin.procurement.requisitions.create', compact('products', 'code'));
     }
 
     public function store(Request $request)
@@ -93,7 +94,7 @@ class PurchaseRequisitionController extends Controller
         
         $po = \App\Models\PurchaseOrder::create([
             'company_id' => $quotation->company_id,
-            'code' => 'PO-' . time(),
+            'code' => app(\App\Services\SequenceService::class)->generate('purchase_order', $quotation->company_id),
             'supplier_id' => $quotation->supplier_id,
             'supplier_quotation_id' => $quotation->id,
             'order_date' => now(),

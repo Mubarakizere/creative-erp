@@ -17,14 +17,7 @@ class StoreProjectMaterialIssueRequest extends FormRequest
         return [
             'project_id' => ['required', 'exists:projects,id'],
             'warehouse_id' => ['required', 'exists:warehouses,id'],
-            'issue_number' => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('project_material_issues')->where(function ($query) {
-                    return $query->where('company_id', $this->user()->company_id);
-                })
-            ],
+            'issue_number' => ['nullable', 'string', 'max:255'],
             'issue_date' => ['required', 'date'],
             'notes' => ['nullable', 'string'],
             

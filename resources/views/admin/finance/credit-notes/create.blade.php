@@ -30,6 +30,11 @@
         <x-card>
             <div class="space-y-6">
                 <div>
+                    <label for="credit_note_number" class="block text-sm font-medium text-gray-700">Credit Note Number <span class="text-red-500">*</span></label>
+                    <input type="text" name="credit_note_number" id="credit_note_number" value="{{ old('credit_note_number', $credit_note_number ?? '') }}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                </div>
+
+                <div>
                     <label for="client_id" class="block text-sm font-medium text-gray-700">Client <span class="text-red-500">*</span></label>
                     <select name="client_id" id="client_id" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
                         <option value="">Select a Client</option>
@@ -45,7 +50,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Related Invoice</label>
                         <input type="hidden" name="invoice_id" value="{{ $preselectedInvoice->id }}">
-                        <p class="mt-2 text-sm text-gray-900">{{ $preselectedInvoice->invoice_number }} (Balance: ${{ number_format($preselectedInvoice->balance_due, 2) }})</p>
+                        <p class="mt-2 text-sm text-gray-900">{{ $preselectedInvoice->invoice_number }} (Balance: RWF {{ number_format($preselectedInvoice->balance_due, 2) }})</p>
                     </div>
                 @endif
 
@@ -54,10 +59,10 @@
                         <label for="amount" class="block text-sm font-medium text-gray-700">Credit Amount <span class="text-red-500">*</span></label>
                         <div class="mt-1 relative rounded-md shadow-sm">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <span class="text-gray-500 sm:text-sm">$</span>
+                                <span class="text-gray-500 sm:text-sm">RWF</span>
                             </div>
                             <input type="number" name="amount" id="amount" required min="0.01" step="0.01" value="{{ old('amount', $preselectedInvoice ? $preselectedInvoice->balance_due : '') }}"
-                                   class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-7 sm:text-sm border-gray-300 rounded-md" placeholder="0.00">
+                                   class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md" placeholder="0.00">
                         </div>
                     </div>
 

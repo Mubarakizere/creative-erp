@@ -68,9 +68,13 @@
                                 <p class="text-sm font-semibold text-gray-900 leading-none">{{ auth()->user()->full_name }}</p>
                                 <p class="text-xs text-gray-500 mt-1">{{ auth()->user()->roles->pluck('name')->filter(fn($name) => $name !== 'Employee')->first() ?? auth()->user()->roles->first()?->name ?? 'User' }}</p>
                             </div>
-                            <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-sm ring-2 ring-white">
-                                {{ auth()->user()->initials }}
-                            </div>
+                            @if(auth()->user()->avatar)
+                                <img src="{{ Storage::url(auth()->user()->avatar) }}" alt="{{ auth()->user()->full_name }}" class="w-10 h-10 rounded-full object-cover shadow-sm ring-2 ring-white">
+                            @else
+                                <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-sm ring-2 ring-white">
+                                    {{ auth()->user()->initials }}
+                                </div>
+                            @endif
                         </button>
                     </x-slot:trigger>
                     <x-slot:content>
@@ -79,7 +83,7 @@
                             <p class="text-xs text-gray-500 truncate mt-0.5">{{ auth()->user()->email }}</p>
                         </div>
                         <div class="py-1">
-                            <a href="#" class="group flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors">
+                            <a href="{{ route('admin.profile.edit') }}" class="group flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors">
                                 <svg class="w-4 h-4 mr-3 text-gray-400 group-hover:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                                 </svg>

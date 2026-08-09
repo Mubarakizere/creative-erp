@@ -52,7 +52,10 @@ class PaymentController extends Controller
                                ->whereNotIn('status', ['Draft', 'Cancelled'])
                                ->get();
 
-        return view('admin.finance.payments.create', compact('clients', 'paymentMethods', 'bankAccounts', 'preselectedInvoice', 'openInvoices'));
+        $companyId = auth()->user()->company_id ?? 1;
+        $payment_number = app(\App\Services\SequenceService::class)->generate('payment', $companyId);
+
+        return view('admin.finance.payments.create', compact('clients', 'paymentMethods', 'bankAccounts', 'preselectedInvoice', 'openInvoices', 'payment_number'));
     }
 
     public function store(Request $request)
@@ -60,6 +63,7 @@ class PaymentController extends Controller
         $this->authorize('create', Payment::class);
         
         $request->validate([
+            'payment_number' => 'required|string|unique:payments,payment_number',
             'client_id' => 'required|exists:clients,id',
             'payment_date' => 'required|date',
             'amount' => 'required|numeric|min:0.01',

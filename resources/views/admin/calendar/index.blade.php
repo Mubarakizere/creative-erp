@@ -100,7 +100,7 @@
                             <div class="flex items-center gap-2 mt-1.5 text-xs text-gray-500 font-medium">
                                 <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                 @if(!$event->allDay)
-                                    {{ $event->start->format('g:i A') }} to {{ $event->end?->format('g:i A') }}
+                                    {{ format_time($event->start) }} to {{ $event->end ? format_time($event->end) : '' }}
                                 @else
                                     All Day
                                 @endif
@@ -129,7 +129,7 @@
                             <div class="mt-1 w-2.5 h-2.5 rounded-full flex-shrink-0 shadow-sm" style="background-color: {{ $event->color }};"></div>
                             <div>
                                 <p class="text-sm font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">{{ $event->title }}</p>
-                                <p class="text-xs text-gray-500 mt-0.5 font-medium">{{ $event->start->format('M j, Y • g:i A') }}</p>
+                                <p class="text-xs text-gray-500 mt-0.5 font-medium">{{ format_datetime($event->start) }}</p>
                             </div>
                         </a>
                     @empty

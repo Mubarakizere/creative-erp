@@ -55,7 +55,10 @@ class ProjectMaterialRequestController extends Controller
         $selectedProject = $request->project_id ? Project::find($request->project_id) : null;
         $tasks = $selectedProject ? $selectedProject->tasks : collect();
 
-        return view('admin.projects.material-requests.create', compact('projects', 'products', 'selectedProject', 'tasks'));
+        $companyId = auth()->user()->company_id ?? 1;
+        $request_number = app(\App\Services\SequenceService::class)->generate('material_request', $companyId);
+
+        return view('admin.projects.material-requests.create', compact('projects', 'products', 'selectedProject', 'tasks', 'request_number'));
     }
 
     public function store(StoreProjectMaterialRequestRequest $request)

@@ -33,7 +33,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div>
                             <label for="code" class="block text-sm font-medium text-gray-700 mb-1">Requisition Code <span class="text-red-500">*</span></label>
-                            <input type="text" name="code" id="code" value="{{ old('code') }}" required class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors">
+                            <input type="text" name="code" id="code" value="{{ old('code', $code ?? '') }}" required class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors">
                             @error('code') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
                         </div>
 

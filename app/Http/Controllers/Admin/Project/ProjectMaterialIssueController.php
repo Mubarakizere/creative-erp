@@ -71,7 +71,7 @@ class ProjectMaterialIssueController extends Controller
             $products = Product::whereIn('id', $inventoryProductIds)->get();
         }
 
-        $issueNumber = 'PMI-' . strtoupper(substr(uniqid(), -6));
+        $issueNumber = 'Auto-generated upon save';
         $today = Carbon::today()->format('Y-m-d');
 
         return view('admin.project-material-issues.create', compact('projects', 'warehouses', 'products', 'tasks', 'issueNumber', 'today'));

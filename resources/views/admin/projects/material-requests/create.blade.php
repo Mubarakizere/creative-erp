@@ -32,7 +32,13 @@
                 </div>
                 <div class="p-6">
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6">
-                        <div class="col-span-1 sm:col-span-2 lg:col-span-3">
+                        <div class="col-span-1 sm:col-span-2 lg:col-span-2">
+                            <label for="request_number" class="block text-sm font-medium text-gray-700 mb-1">Request Number <span class="text-red-500">*</span></label>
+                            <input type="text" name="request_number" id="request_number" value="{{ old('request_number', $request_number ?? '') }}" required class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors bg-gray-50 cursor-not-allowed" readonly>
+                            @error('request_number') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
+                        </div>
+
+                        <div class="col-span-1 sm:col-span-2 lg:col-span-2">
                             <label for="project_id" class="block text-sm font-medium text-gray-700 mb-1">Project <span class="text-red-500">*</span></label>
                             <select id="project_id" name="project_id" required class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors bg-white">
                                 <option value="">Select a Project</option>
@@ -40,10 +46,10 @@
                                     <option value="{{ $project->id }}" {{ (old('project_id') == $project->id || ($selectedProject && $selectedProject->id == $project->id)) ? 'selected' : '' }}>{{ $project->name }} ({{ $project->project_code }})</option>
                                 @endforeach
                             </select>
-                                @error('project_id') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
-                            </div>
+                            @error('project_id') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
+                        </div>
 
-                        <div class="col-span-1 sm:col-span-2 lg:col-span-3">
+                        <div class="col-span-1 sm:col-span-2 lg:col-span-2">
                             <label for="task_id" class="block text-sm font-medium text-gray-700 mb-1">Task / Activity (Optional)</label>
                             <select id="task_id" name="task_id" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors bg-white">
                                 <option value="">Select a Task</option>
@@ -51,8 +57,8 @@
                                     <option value="{{ $task->id }}" {{ old('task_id') == $task->id ? 'selected' : '' }}>{{ $task->name }} ({{ $task->task_code }})</option>
                                 @endforeach
                             </select>
-                                @error('task_id') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
-                            </div>
+                            @error('task_id') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
+                        </div>
 
                         <div class="col-span-1 sm:col-span-2 lg:col-span-2">
                             <label for="request_date" class="block text-sm font-medium text-gray-700 mb-1">Request Date <span class="text-red-500">*</span></label>

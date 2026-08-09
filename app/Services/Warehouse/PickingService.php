@@ -20,7 +20,7 @@ class PickingService
             $picking = WarehousePicking::create([
                 'company_id' => $companyId,
                 'warehouse_id' => $warehouseId,
-                'picking_number' => 'PICK-' . strtoupper(uniqid()),
+                'picking_number' => app(\App\Services\SequenceService::class)->generate('picking', $companyId),
                 'type' => $type,
                 'status' => 'pending',
                 'pickable_type' => get_class($pickableModel),

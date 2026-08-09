@@ -30,7 +30,14 @@
             
             <x-card>
                 <h3 class="text-lg font-medium text-gray-900 mb-4 border-b border-gray-100 pb-2">Journal Details</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div>
+                        <label for="journal_number" class="block text-sm font-medium text-gray-700">Journal Number <span class="text-red-500">*</span></label>
+                        <input type="text" name="journal_number" id="journal_number" value="{{ old('journal_number', $journal_number ?? '') }}" required
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                        @error('journal_number') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
+                    </div>
+
                     <div>
                         <label for="date" class="block text-sm font-medium text-gray-700">Date <span class="text-red-500">*</span></label>
                         <input type="date" name="date" id="date" value="{{ old('date', date('Y-m-d')) }}" required
@@ -118,20 +125,20 @@
                                     </td>
                                     <td class="px-4 py-3">
                                         <div class="relative rounded-md shadow-sm">
-                                            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                                <span class="text-gray-500 sm:text-sm">$</span>
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <span class="text-gray-500 sm:text-sm">RWF</span>
                                             </div>
                                             <input type="number" step="0.01" min="0" x-model="line.debit" :name="`entries[${index}][debit]`" required @input="calculateTotals" @change="if(line.debit > 0) line.credit = 0; calculateTotals()"
-                                                   class="block w-full rounded-md border-gray-300 pl-7 py-1.5 pr-3 text-right text-sm focus:border-blue-500 focus:ring-blue-500">
+                                                   class="pl-12 block w-full rounded-md border-gray-300 py-1.5 pr-3 text-right text-sm focus:border-blue-500 focus:ring-blue-500">
                                         </div>
                                     </td>
                                     <td class="px-4 py-3">
                                         <div class="relative rounded-md shadow-sm">
-                                            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                                <span class="text-gray-500 sm:text-sm">$</span>
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <span class="text-gray-500 sm:text-sm">RWF</span>
                                             </div>
                                             <input type="number" step="0.01" min="0" x-model="line.credit" :name="`entries[${index}][credit]`" required @input="calculateTotals" @change="if(line.credit > 0) line.debit = 0; calculateTotals()"
-                                                   class="block w-full rounded-md border-gray-300 pl-7 py-1.5 pr-3 text-right text-sm focus:border-blue-500 focus:ring-blue-500">
+                                                   class="pl-12 block w-full rounded-md border-gray-300 py-1.5 pr-3 text-right text-sm focus:border-blue-500 focus:ring-blue-500">
                                         </div>
                                     </td>
                                     <td class="px-4 py-3 text-center">
@@ -145,14 +152,14 @@
                         <tfoot class="bg-gray-50">
                             <tr>
                                 <td colspan="2" class="px-4 py-3 text-right font-medium text-gray-700">Totals</td>
-                                <td class="px-4 py-3 text-right font-bold text-gray-900" x-text="'$' + totalDebit.toFixed(2)"></td>
-                                <td class="px-4 py-3 text-right font-bold text-gray-900" x-text="'$' + totalCredit.toFixed(2)"></td>
+                                <td class="px-4 py-3 text-right font-bold text-gray-900" x-text="'RWF ' + totalDebit.toFixed(2)"></td>
+                                <td class="px-4 py-3 text-right font-bold text-gray-900" x-text="'RWF ' + totalCredit.toFixed(2)"></td>
                                 <td></td>
                             </tr>
                             <tr x-show="!isBalanced()">
                                 <td colspan="5" class="px-4 py-3 text-center text-sm font-medium text-red-600 bg-red-50 border-t border-red-100">
                                     <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                                    Debits and Credits must be equal. Difference: <span x-text="'$' + Math.abs(totalDebit - totalCredit).toFixed(2)"></span>
+                                    Debits and Credits must be equal. Difference: <span x-text="'RWF ' + Math.abs(totalDebit - totalCredit).toFixed(2)"></span>
                                 </td>
                             </tr>
                         </tfoot>

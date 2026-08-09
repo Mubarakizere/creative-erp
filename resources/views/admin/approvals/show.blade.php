@@ -34,12 +34,12 @@
                     </div>
                     <div>
                         <span class="block text-gray-500 mb-1">Date Submitted</span>
-                        <span class="font-medium text-gray-900">{{ $approval->submitted_at->format('M j, Y g:i A') }}</span>
+                        <span class="font-medium text-gray-900">{{ format_datetime($approval->submitted_at) }}</span>
                     </div>
                     @if($approval->completed_at)
                     <div>
                         <span class="block text-gray-500 mb-1">Date Completed</span>
-                        <span class="font-medium text-gray-900">{{ $approval->completed_at->format('M j, Y g:i A') }}</span>
+                        <span class="font-medium text-gray-900">{{ $approval->completed_at ? format_datetime($approval->completed_at) : '-' }}</span>
                     </div>
                     @endif
                 </div>
@@ -71,7 +71,7 @@
                         <div class="flex-1">
                             <div class="flex justify-between">
                                 <h4 class="font-medium text-gray-900">{{ $action->user->full_name }} <span class="text-gray-500 font-normal">performed</span> {{ $action->action }}</h4>
-                                <span class="text-xs text-gray-500">{{ $action->created_at->format('M j, Y g:i A') }}</span>
+                                <span class="text-xs text-gray-500">{{ format_datetime($action->created_at) }}</span>
                             </div>
                             @if($action->step)
                             <p class="text-xs text-gray-500 mt-1">Step: {{ $action->step->name }}</p>

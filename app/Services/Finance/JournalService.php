@@ -22,7 +22,8 @@ class JournalService
     public function createManualJournal(array $data, array $entries): Journal
     {
         return DB::transaction(function () use ($data, $entries) {
-            $data['journal_number'] = $data['journal_number'] ?? $this->generateJournalNumber();
+            $data['company_id'] = $data['company_id'] ?? auth()->user()->company_id ?? 1;
+            $data['journal_number'] = $data['journal_number'] ?? $this->generateJournalNumber($data['company_id']);
             $data['status'] = $data['status'] ?? 'Draft';
             
             $journal = Journal::create($data);
@@ -114,7 +115,7 @@ class JournalService
                 'currency_code' => $journal->currency_code,
                 'fiscal_year_id' => $journal->fiscal_year_id,
                 'accounting_period_id' => $journal->accounting_period_id,
-                'journal_number' => $this->generateJournalNumber(),
+                'journal_number' => $this->generateJournalNumber($journal->company_id),
                 'reference_number' => 'REV-' . $journal->journal_number,
                 'date' => $reversalData['date'] ?? now(),
                 'memo' => 'Reversal of ' . $journal->journal_number,
@@ -167,8 +168,8 @@ class JournalService
         return $journal;
     }
 
-    private function generateJournalNumber(): string
+    private function generateJournalNumber($companyId): string
     {
-        return 'JRN-' . strtoupper(uniqid());
+        return app(\App\Services\SequenceService::class)->generate('journal', $companyId);
     }
 }

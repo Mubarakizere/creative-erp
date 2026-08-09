@@ -18,7 +18,7 @@ class WarehouseMovementService
         return DB::transaction(function () use ($data, $userId) {
             return WarehouseMovement::create([
                 'company_id' => $data['company_id'],
-                'movement_number' => 'MOV-' . strtoupper(uniqid()),
+                'movement_number' => app(\App\Services\SequenceService::class)->generate('warehouse_movement', $data['company_id']),
                 'type' => $data['type'], // bin_to_bin, zone_to_zone, warehouse_to_warehouse
                 'status' => 'pending',
                 'source_warehouse_id' => $data['source_warehouse_id'],
