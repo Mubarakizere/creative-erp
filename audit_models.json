@@ -1,0 +1,863 @@
+[
+    {
+        "Model": "Account",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "AccountType",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "AccountingPeriod",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "Activity",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "ActivityLog",
+        "Has company_id": "Yes",
+        "CompanyScoped": "No",
+        "Company Relationship": "Yes",
+        "Safe?": "No"
+    },
+    {
+        "Model": "Announcement",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "Approval",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "ApprovalAction",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "ApprovalWorkflow",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "Asset",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "AssetAssignment",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "AssetCategory",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "AssetDepreciation",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "AssetDisposal",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "AssetImpairment",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "AssetMaintenance",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "AssetTransfer",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "BankAccount",
+        "Has company_id": "Yes",
+        "CompanyScoped": "No",
+        "Company Relationship": "Yes",
+        "Safe?": "No"
+    },
+    {
+        "Model": "Barcode",
+        "Has company_id": "Yes",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "No"
+    },
+    {
+        "Model": "Branch",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "Brand",
+        "Has company_id": "Yes",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "No"
+    },
+    {
+        "Model": "Budget",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "BudgetCategory",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "BudgetLine",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "ChartOfAccount",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "Client",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "ClosingEntry",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "Comment",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "Company",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "Contact",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "CreditNote",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "Department",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "Document",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "DocumentCategory",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "ExpertiseCard",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "ExportHistory",
+        "Has company_id": "Yes",
+        "CompanyScoped": "No",
+        "Company Relationship": "Yes",
+        "Safe?": "No"
+    },
+    {
+        "Model": "FavoriteReport",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "FiscalYear",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "GeneralLedger",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "GoodsReceipt",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "GoodsReceiptItem",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "Industry",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "Inventory",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "No",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "InventoryAdjustment",
+        "Has company_id": "Yes",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "No"
+    },
+    {
+        "Model": "InventoryReservation",
+        "Has company_id": "Yes",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "No"
+    },
+    {
+        "Model": "InventoryTransaction",
+        "Has company_id": "Yes",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "No"
+    },
+    {
+        "Model": "InventoryTransfer",
+        "Has company_id": "Yes",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "No"
+    },
+    {
+        "Model": "InventoryValuation",
+        "Has company_id": "Yes",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "No"
+    },
+    {
+        "Model": "Invoice",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "InvoiceItem",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "Journal",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "JournalEntry",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "Lead",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "LeadSource",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "LoginHistory",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "Meeting",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "Milestone",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "Notification",
+        "Has company_id": "Yes",
+        "CompanyScoped": "No",
+        "Company Relationship": "Yes",
+        "Safe?": "No"
+    },
+    {
+        "Model": "NotificationPreference",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "OpeningBalance",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "Opportunity",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "Payment",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "PaymentAllocation",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "PaymentMethod",
+        "Has company_id": "Yes",
+        "CompanyScoped": "No",
+        "Company Relationship": "Yes",
+        "Safe?": "No"
+    },
+    {
+        "Model": "PaymentTerm",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "Pipeline",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "PipelineStage",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "Product",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "No",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "ProductCategory",
+        "Has company_id": "Yes",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "No"
+    },
+    {
+        "Model": "ProductVariant",
+        "Has company_id": "Yes",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "No"
+    },
+    {
+        "Model": "Project",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "ProjectMaterialIssue",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "ProjectMaterialIssueItem",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "ProjectMaterialRequest",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "ProjectMaterialRequestItem",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "ProjectMember",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "PurchaseInvoice",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "PurchaseInvoiceItem",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "PurchaseOrder",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "PurchaseOrderItem",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "PurchaseRequisition",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "PurchaseRequisitionItem",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "Quotation",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "QuotationApproval",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "QuotationItem",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "QuotationStatus",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "QuotationTemplate",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "Receipt",
+        "Has company_id": "Yes",
+        "CompanyScoped": "No",
+        "Company Relationship": "Yes",
+        "Safe?": "No"
+    },
+    {
+        "Model": "Refund",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "ReportTemplate",
+        "Has company_id": "Yes",
+        "CompanyScoped": "No",
+        "Company Relationship": "Yes",
+        "Safe?": "No"
+    },
+    {
+        "Model": "Sequence",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "Session",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "Setting",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "StockCount",
+        "Has company_id": "Yes",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "No"
+    },
+    {
+        "Model": "StockCountItem",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "Supplier",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "SupplierCategory",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "SupplierContact",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "SupplierPayment",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "SupplierPerformance",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "SupplierProduct",
+        "Has company_id": "Yes",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "No"
+    },
+    {
+        "Model": "SupplierQuotation",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "SupplierQuotationItem",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "Tag",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "Task",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "Tax",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "TimeEntry",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "UnitOfMeasure",
+        "Has company_id": "Yes",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "No"
+    },
+    {
+        "Model": "User",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "Yes",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "Warehouse",
+        "Has company_id": "Yes",
+        "CompanyScoped": "Yes",
+        "Company Relationship": "No",
+        "Safe?": "Yes"
+    },
+    {
+        "Model": "WarehouseAudit",
+        "Has company_id": "Yes",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "No"
+    },
+    {
+        "Model": "WarehouseBin",
+        "Has company_id": "Yes",
+        "CompanyScoped": "No",
+        "Company Relationship": "Yes",
+        "Safe?": "No"
+    },
+    {
+        "Model": "WarehouseCycleCount",
+        "Has company_id": "Yes",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "No"
+    },
+    {
+        "Model": "WarehouseMovement",
+        "Has company_id": "Yes",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "No"
+    },
+    {
+        "Model": "WarehousePacking",
+        "Has company_id": "Yes",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "No"
+    },
+    {
+        "Model": "WarehousePicking",
+        "Has company_id": "Yes",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "No"
+    },
+    {
+        "Model": "WarehouseReturn",
+        "Has company_id": "Yes",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "No"
+    },
+    {
+        "Model": "WarehouseShipment",
+        "Has company_id": "Yes",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "No"
+    },
+    {
+        "Model": "WarehouseTask",
+        "Has company_id": "Yes",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "No"
+    },
+    {
+        "Model": "WarehouseZone",
+        "Has company_id": "Yes",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "No"
+    },
+    {
+        "Model": "WebsiteProject",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "WebsiteSetting",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    },
+    {
+        "Model": "WorkflowStep",
+        "Has company_id": "No",
+        "CompanyScoped": "No",
+        "Company Relationship": "No",
+        "Safe?": "N\/A"
+    }
+]
