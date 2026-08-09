@@ -34,7 +34,8 @@ return new class extends Migration
         Schema::create('project_material_request_items', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
-            $table->foreignId('project_material_request_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('project_material_request_id');
+            $table->foreign('project_material_request_id', 'pmr_items_request_id_fk')->references('id')->on('project_material_requests')->cascadeOnDelete();
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
             $table->decimal('quantity_requested', 15, 2);
             $table->text('notes')->nullable();
