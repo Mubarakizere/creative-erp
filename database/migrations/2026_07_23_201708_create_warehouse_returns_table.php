@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('type'); // customer_return, supplier_return, damaged_stock
             $table->string('status')->default('pending'); // pending, inspected, approved, rejected, restocked, disposed
             $table->uuidMorphs('returnable'); // relates to SalesOrder, PurchaseOrder, etc.
-            $table->foreignUuid('inspected_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('inspected_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('inspected_at')->nullable();
             $table->text('inspection_notes')->nullable();
             $table->boolean('requires_accounting_adjustment')->default(false);

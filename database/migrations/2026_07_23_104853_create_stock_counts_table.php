@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('type');
             $table->string('status')->default('pending');
             $table->boolean('variance_detected')->default(false);
-            $table->foreignUuid('approved_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('approved_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
             $table->softDeletes();
             $table->foreignId('created_by')->nullable();

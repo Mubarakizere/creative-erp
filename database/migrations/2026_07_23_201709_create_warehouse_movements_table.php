@@ -23,7 +23,7 @@ return new class extends Migration
             $table->foreignUuid('destination_zone_id')->nullable()->constrained('warehouse_zones')->nullOnDelete();
             $table->foreignUuid('destination_bin_id')->nullable()->constrained('warehouse_bins')->nullOnDelete();
             
-            $table->foreignUuid('approved_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('approved_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('approved_at')->nullable();
             
             $table->text('reason')->nullable();

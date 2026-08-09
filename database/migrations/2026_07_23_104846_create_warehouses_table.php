@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->string('location')->nullable();
-            $table->foreignUuid('manager_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('manager_id')->nullable()->constrained('users')->nullOnDelete();
             $table->boolean('is_default')->default(false);
             $table->decimal('capacity', 15, 2)->nullable();
             $table->string('status')->default('active');

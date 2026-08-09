@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string('count_number')->unique();
             $table->string('type'); // daily, weekly, monthly, abc
             $table->string('status')->default('pending'); // pending, in_progress, variance_detected, approved, completed, cancelled
-            $table->foreignUuid('assigned_to')->nullable()->constrained('users')->nullOnDelete();
-            $table->foreignUuid('approved_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('assigned_to')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('approved_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('approved_at')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();

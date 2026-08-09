@@ -14,7 +14,7 @@ return new class extends Migration
             $table->foreignUuid('warehouse_id')->constrained('warehouses')->cascadeOnDelete();
             $table->string('reason');
             $table->string('status')->default('pending');
-            $table->foreignUuid('approved_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('approved_by')->nullable()->constrained('users')->nullOnDelete();
             $table->text('comments')->nullable();
             $table->string('attachments')->nullable();
             $table->timestamps();

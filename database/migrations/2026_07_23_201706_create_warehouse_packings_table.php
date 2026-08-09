@@ -21,7 +21,7 @@ return new class extends Migration
             $table->decimal('width', 15, 2)->nullable();
             $table->decimal('height', 15, 2)->nullable();
             $table->text('notes')->nullable();
-            $table->foreignUuid('packed_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('packed_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
             $table->softDeletes();
             $table->foreignId('created_by')->nullable();

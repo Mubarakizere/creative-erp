@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('type')->default('standard'); // standard, batch, wave, zone
             $table->string('status')->default('pending'); // pending, picking, partial, completed, cancelled
             $table->uuidMorphs('pickable'); // relates to SalesOrder, Transfer, etc.
-            $table->foreignUuid('assigned_to')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('assigned_to')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('started_at')->nullable();
             $table->timestamp('completed_at')->nullable();
             $table->timestamps();

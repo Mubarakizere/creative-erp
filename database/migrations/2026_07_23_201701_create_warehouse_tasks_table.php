@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('type'); // put_away, internal_movement, picking, etc.
             $table->string('status')->default('pending'); // pending, in_progress, completed, cancelled
             $table->uuidMorphs('taskable'); // polymorhpic relation to putaway, picking, etc.
-            $table->foreignUuid('assigned_to')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('assigned_to')->nullable()->constrained('users')->nullOnDelete();
             $table->integer('priority')->default(0);
             $table->timestamp('started_at')->nullable();
             $table->timestamp('completed_at')->nullable();

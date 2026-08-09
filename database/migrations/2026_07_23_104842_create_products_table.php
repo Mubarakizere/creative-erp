@@ -21,7 +21,7 @@ return new class extends Migration
             $table->foreignUuid('unit_of_measure_id')->nullable()->constrained('unit_of_measures')->nullOnDelete();
             $table->decimal('cost_price', 15, 2)->default(0);
             $table->decimal('selling_price', 15, 2)->default(0);
-            $table->foreignUuid('tax_id')->nullable()->constrained('taxes')->nullOnDelete();
+            $table->foreignId('tax_id')->nullable()->constrained('taxes')->nullOnDelete();
             $table->decimal('weight', 10, 2)->nullable();
             $table->string('dimensions')->nullable();
             $table->integer('reorder_level')->default(0);
