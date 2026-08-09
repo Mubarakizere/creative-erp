@@ -16,7 +16,6 @@ return new class extends Migration
             $table->unsignedBigInteger('department_id')->nullable()->index()->after('branch_id');
             $table->string('job_title')->nullable()->after('phone');
 
-            $table->foreign('company_id')->references('id')->on('companies')->onDelete('set null');
             $table->foreign('branch_id')->references('id')->on('branches')->onDelete('set null');
             $table->foreign('department_id')->references('id')->on('departments')->onDelete('set null');
         });
