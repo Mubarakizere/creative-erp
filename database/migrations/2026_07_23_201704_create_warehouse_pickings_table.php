@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('warehouse_pickings', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('company_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->foreignUuid('warehouse_id')->constrained('warehouses')->cascadeOnDelete();
             $table->string('picking_number')->unique();
             $table->string('type')->default('standard'); // standard, batch, wave, zone
@@ -21,8 +21,8 @@ return new class extends Migration
             $table->timestamp('completed_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
-            $table->uuid('created_by')->nullable();
-            $table->uuid('updated_by')->nullable();
+            $table->foreignId('created_by')->nullable();
+            $table->foreignId('updated_by')->nullable();
         });
     }
 

@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('warehouse_packings', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('company_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->foreignUuid('warehouse_id')->constrained('warehouses')->cascadeOnDelete();
             $table->foreignUuid('warehouse_picking_id')->nullable()->constrained('warehouse_pickings')->nullOnDelete();
             $table->foreignUuid('warehouse_shipment_id')->nullable()->constrained('warehouse_shipments')->nullOnDelete();
@@ -24,8 +24,8 @@ return new class extends Migration
             $table->foreignUuid('packed_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
             $table->softDeletes();
-            $table->uuid('created_by')->nullable();
-            $table->uuid('updated_by')->nullable();
+            $table->foreignId('created_by')->nullable();
+            $table->foreignId('updated_by')->nullable();
         });
     }
 

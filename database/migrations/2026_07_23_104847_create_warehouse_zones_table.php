@@ -10,15 +10,15 @@ return new class extends Migration
     {
         Schema::create('warehouse_zones', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('company_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->foreignUuid('warehouse_id')->constrained('warehouses')->cascadeOnDelete();
             $table->string('name');
             $table->text('description')->nullable();
             $table->string('status')->default('active');
             $table->timestamps();
             $table->softDeletes();
-            $table->uuid('created_by')->nullable();
-            $table->uuid('updated_by')->nullable();
+            $table->foreignId('created_by')->nullable();
+            $table->foreignId('updated_by')->nullable();
         });
     }
 

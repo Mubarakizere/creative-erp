@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('warehouse_returns', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('company_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->foreignUuid('warehouse_id')->constrained('warehouses')->cascadeOnDelete();
             $table->string('return_number')->unique();
             $table->string('type'); // customer_return, supplier_return, damaged_stock
@@ -22,8 +22,8 @@ return new class extends Migration
             $table->boolean('requires_accounting_adjustment')->default(false);
             $table->timestamps();
             $table->softDeletes();
-            $table->uuid('created_by')->nullable();
-            $table->uuid('updated_by')->nullable();
+            $table->foreignId('created_by')->nullable();
+            $table->foreignId('updated_by')->nullable();
         });
     }
 

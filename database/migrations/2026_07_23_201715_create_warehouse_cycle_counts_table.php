@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('warehouse_cycle_counts', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('company_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->foreignUuid('warehouse_id')->constrained('warehouses')->cascadeOnDelete();
             $table->foreignUuid('stock_count_id')->nullable()->constrained('stock_counts')->nullOnDelete(); // links to Inventory stock_counts
             $table->string('count_number')->unique();
@@ -22,8 +22,8 @@ return new class extends Migration
             $table->text('notes')->nullable();
             $table->timestamps();
             $table->softDeletes();
-            $table->uuid('created_by')->nullable();
-            $table->uuid('updated_by')->nullable();
+            $table->foreignId('created_by')->nullable();
+            $table->foreignId('updated_by')->nullable();
         });
     }
 

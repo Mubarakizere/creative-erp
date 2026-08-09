@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('warehouse_movements', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('company_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->string('movement_number')->unique();
             $table->string('type'); // bin_to_bin, zone_to_zone, warehouse_to_warehouse
             $table->string('status')->default('pending'); // pending, approved, in_transit, completed, cancelled
@@ -30,8 +30,8 @@ return new class extends Migration
             
             $table->timestamps();
             $table->softDeletes();
-            $table->uuid('created_by')->nullable();
-            $table->uuid('updated_by')->nullable();
+            $table->foreignId('created_by')->nullable();
+            $table->foreignId('updated_by')->nullable();
         });
     }
 

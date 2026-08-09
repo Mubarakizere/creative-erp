@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('warehouse_shipments', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('company_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->foreignUuid('warehouse_id')->constrained('warehouses')->cascadeOnDelete();
             $table->string('shipment_number')->unique();
             $table->string('status')->default('pending'); // pending, prepared, shipped, delivered, cancelled
@@ -21,8 +21,8 @@ return new class extends Migration
             $table->timestamp('delivered_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
-            $table->uuid('created_by')->nullable();
-            $table->uuid('updated_by')->nullable();
+            $table->foreignId('created_by')->nullable();
+            $table->foreignId('updated_by')->nullable();
         });
     }
 

@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('warehouse_bins', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('company_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->foreignUuid('warehouse_zone_id')->constrained('warehouse_zones')->cascadeOnDelete();
             $table->string('code');
             $table->string('aisle')->nullable();
@@ -22,8 +22,8 @@ return new class extends Migration
             $table->json('allowed_product_types')->nullable();
             $table->timestamps();
             $table->softDeletes();
-            $table->uuid('created_by')->nullable();
-            $table->uuid('updated_by')->nullable();
+            $table->foreignId('created_by')->nullable();
+            $table->foreignId('updated_by')->nullable();
             
             $table->unique(['warehouse_zone_id', 'code']);
         });

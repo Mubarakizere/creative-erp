@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('inventory_transfers', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('company_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->foreignUuid('from_warehouse_id')->constrained('warehouses')->cascadeOnDelete();
             $table->foreignUuid('to_warehouse_id')->constrained('warehouses')->cascadeOnDelete();
             $table->foreignUuid('from_zone_id')->nullable()->constrained('warehouse_zones')->nullOnDelete();
@@ -19,8 +19,8 @@ return new class extends Migration
             $table->string('tracking_number')->nullable();
             $table->timestamps();
             $table->softDeletes();
-            $table->uuid('created_by')->nullable();
-            $table->uuid('updated_by')->nullable();
+            $table->foreignId('created_by')->nullable();
+            $table->foreignId('updated_by')->nullable();
         });
     }
 
