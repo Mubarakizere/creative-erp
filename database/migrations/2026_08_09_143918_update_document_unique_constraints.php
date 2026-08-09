@@ -18,7 +18,7 @@ return new class extends Migration
         'warehouse_packings' => 'packing_number',
         'warehouse_returns' => 'return_number',
         'warehouse_movements' => 'movement_number',
-        'stock_counts' => 'count_number',
+
         'project_material_issues' => 'issue_number',
         'receipts' => 'receipt_number',
     ];
