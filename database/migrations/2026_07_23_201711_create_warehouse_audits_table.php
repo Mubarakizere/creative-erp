@@ -9,9 +9,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('warehouse_audits', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
+            $table->uuid('uuid')->unique();
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('warehouse_id')->constrained('warehouses')->cascadeOnDelete();
+            $table->foreignId('warehouse_id')->constrained('warehouses')->cascadeOnDelete();
             $table->string('action'); // e.g. put_away, picking, movement, adjustment
             $table->uuidMorphs('auditable'); // e.g. relates to WarehouseTask or WarehouseMovement
             $table->text('details')->nullable();

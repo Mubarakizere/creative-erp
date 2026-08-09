@@ -9,9 +9,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('stock_count_items', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->foreignUuid('stock_count_id')->constrained('stock_counts')->cascadeOnDelete();
-            $table->foreignUuid('product_id')->constrained('products')->cascadeOnDelete();
+            $table->id();
+            $table->uuid('uuid')->unique();
+            $table->foreignId('stock_count_id')->constrained('stock_counts')->cascadeOnDelete();
+            $table->foreignId('product_id')->constrained('products')->cascadeOnDelete();
             $table->decimal('system_quantity', 15, 4)->default(0);
             $table->decimal('counted_quantity', 15, 4)->nullable();
             $table->decimal('variance', 15, 4)->default(0);

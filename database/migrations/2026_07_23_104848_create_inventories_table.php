@@ -9,12 +9,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('inventories', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
+            $table->uuid('uuid')->unique();
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('product_id')->constrained('products')->cascadeOnDelete();
-            $table->foreignUuid('product_variant_id')->nullable()->constrained('product_variants')->cascadeOnDelete();
-            $table->foreignUuid('warehouse_id')->constrained('warehouses')->cascadeOnDelete();
-            $table->foreignUuid('warehouse_zone_id')->nullable()->constrained('warehouse_zones')->nullOnDelete();
+            $table->foreignId('product_id')->constrained('products')->cascadeOnDelete();
+            $table->foreignId('product_variant_id')->nullable()->constrained('product_variants')->cascadeOnDelete();
+            $table->foreignId('warehouse_id')->constrained('warehouses')->cascadeOnDelete();
+            $table->foreignId('warehouse_zone_id')->nullable()->constrained('warehouse_zones')->nullOnDelete();
             $table->decimal('available_quantity', 15, 4)->default(0);
             $table->decimal('reserved_quantity', 15, 4)->default(0);
             $table->decimal('allocated_quantity', 15, 4)->default(0);

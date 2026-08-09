@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('inventory_reservations', function (Blueprint $table) {
-            $table->foreignUuid('warehouse_id')->nullable()->constrained()->cascadeOnDelete();
-            $table->foreignUuid('zone_id')->nullable()->constrained('warehouse_zones')->nullOnDelete();
+            $table->foreignId('warehouse_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignId('zone_id')->nullable()->constrained('warehouse_zones')->nullOnDelete();
         });
     }
 

@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('warehouse_movements', function (Blueprint $table) {
-            $table->foreignUuid('product_id')->nullable()->after('destination_bin_id')->constrained('products')->nullOnDelete();
+            $table->foreignId('product_id')->nullable()->after('destination_bin_id')->constrained('products')->nullOnDelete();
             $table->decimal('quantity', 15, 2)->default(0)->after('product_id');
         });
     }

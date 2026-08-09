@@ -9,9 +9,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('warehouse_pickings', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
+            $table->uuid('uuid')->unique();
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('warehouse_id')->constrained('warehouses')->cascadeOnDelete();
+            $table->foreignId('warehouse_id')->constrained('warehouses')->cascadeOnDelete();
             $table->string('picking_number')->unique();
             $table->string('type')->default('standard'); // standard, batch, wave, zone
             $table->string('status')->default('pending'); // pending, picking, partial, completed, cancelled

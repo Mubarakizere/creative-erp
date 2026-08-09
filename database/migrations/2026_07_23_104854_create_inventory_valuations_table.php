@@ -9,10 +9,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('inventory_valuations', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
+            $table->uuid('uuid')->unique();
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('product_id')->constrained('products')->cascadeOnDelete();
-            $table->foreignUuid('warehouse_id')->constrained('warehouses')->cascadeOnDelete();
+            $table->foreignId('product_id')->constrained('products')->cascadeOnDelete();
+            $table->foreignId('warehouse_id')->constrained('warehouses')->cascadeOnDelete();
             $table->string('method')->default('FIFO');
             $table->decimal('total_value', 15, 2)->default(0);
             $table->timestamps();

@@ -9,12 +9,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('inventory_transfers', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
+            $table->uuid('uuid')->unique();
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('from_warehouse_id')->constrained('warehouses')->cascadeOnDelete();
-            $table->foreignUuid('to_warehouse_id')->constrained('warehouses')->cascadeOnDelete();
-            $table->foreignUuid('from_zone_id')->nullable()->constrained('warehouse_zones')->nullOnDelete();
-            $table->foreignUuid('to_zone_id')->nullable()->constrained('warehouse_zones')->nullOnDelete();
+            $table->foreignId('from_warehouse_id')->constrained('warehouses')->cascadeOnDelete();
+            $table->foreignId('to_warehouse_id')->constrained('warehouses')->cascadeOnDelete();
+            $table->foreignId('from_zone_id')->nullable()->constrained('warehouse_zones')->nullOnDelete();
+            $table->foreignId('to_zone_id')->nullable()->constrained('warehouse_zones')->nullOnDelete();
             $table->string('status')->default('pending');
             $table->string('tracking_number')->nullable();
             $table->timestamps();

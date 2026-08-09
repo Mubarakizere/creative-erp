@@ -9,9 +9,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('warehouse_returns', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
+            $table->uuid('uuid')->unique();
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('warehouse_id')->constrained('warehouses')->cascadeOnDelete();
+            $table->foreignId('warehouse_id')->constrained('warehouses')->cascadeOnDelete();
             $table->string('return_number')->unique();
             $table->string('type'); // customer_return, supplier_return, damaged_stock
             $table->string('status')->default('pending'); // pending, inspected, approved, rejected, restocked, disposed

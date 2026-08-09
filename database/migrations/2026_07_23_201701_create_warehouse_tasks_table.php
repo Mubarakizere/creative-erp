@@ -9,9 +9,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('warehouse_tasks', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
+            $table->uuid('uuid')->unique();
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('warehouse_id')->constrained('warehouses')->cascadeOnDelete();
+            $table->foreignId('warehouse_id')->constrained('warehouses')->cascadeOnDelete();
             $table->string('type'); // put_away, internal_movement, picking, etc.
             $table->string('status')->default('pending'); // pending, in_progress, completed, cancelled
             $table->uuidMorphs('taskable'); // polymorhpic relation to putaway, picking, etc.

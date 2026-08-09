@@ -9,9 +9,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('stock_counts', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
+            $table->uuid('uuid')->unique();
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('warehouse_id')->constrained('warehouses')->cascadeOnDelete();
+            $table->foreignId('warehouse_id')->constrained('warehouses')->cascadeOnDelete();
             $table->string('type');
             $table->string('status')->default('pending');
             $table->boolean('variance_detected')->default(false);

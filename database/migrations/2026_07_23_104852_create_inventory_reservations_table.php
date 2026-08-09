@@ -9,9 +9,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('inventory_reservations', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
+            $table->uuid('uuid')->unique();
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('product_id')->constrained('products')->cascadeOnDelete();
+            $table->foreignId('product_id')->constrained('products')->cascadeOnDelete();
             $table->decimal('quantity', 15, 4);
             $table->nullableUuidMorphs('reference');
             $table->dateTime('expires_at')->nullable();

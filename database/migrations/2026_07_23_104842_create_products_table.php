@@ -9,16 +9,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('products', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
+            $table->uuid('uuid')->unique();
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->string('sku')->unique();
             $table->string('barcode')->nullable()->unique();
             $table->string('name');
             $table->text('description')->nullable();
             $table->string('type')->default('physical');
-            $table->foreignUuid('product_category_id')->nullable()->constrained('product_categories')->nullOnDelete();
-            $table->foreignUuid('brand_id')->nullable()->constrained('brands')->nullOnDelete();
-            $table->foreignUuid('unit_of_measure_id')->nullable()->constrained('unit_of_measures')->nullOnDelete();
+            $table->foreignId('product_category_id')->nullable()->constrained('product_categories')->nullOnDelete();
+            $table->foreignId('brand_id')->nullable()->constrained('brands')->nullOnDelete();
+            $table->foreignId('unit_of_measure_id')->nullable()->constrained('unit_of_measures')->nullOnDelete();
             $table->decimal('cost_price', 15, 2)->default(0);
             $table->decimal('selling_price', 15, 2)->default(0);
             $table->foreignId('tax_id')->nullable()->constrained('taxes')->nullOnDelete();

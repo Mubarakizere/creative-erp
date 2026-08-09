@@ -9,11 +9,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('warehouse_packings', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
+            $table->uuid('uuid')->unique();
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('warehouse_id')->constrained('warehouses')->cascadeOnDelete();
-            $table->foreignUuid('warehouse_picking_id')->nullable()->constrained('warehouse_pickings')->nullOnDelete();
-            $table->foreignUuid('warehouse_shipment_id')->nullable()->constrained('warehouse_shipments')->nullOnDelete();
+            $table->foreignId('warehouse_id')->constrained('warehouses')->cascadeOnDelete();
+            $table->foreignId('warehouse_picking_id')->nullable()->constrained('warehouse_pickings')->nullOnDelete();
+            $table->foreignId('warehouse_shipment_id')->nullable()->constrained('warehouse_shipments')->nullOnDelete();
             $table->string('packing_number')->unique();
             $table->string('status')->default('pending'); // pending, packing, completed
             $table->decimal('total_weight', 15, 2)->default(0); // weight

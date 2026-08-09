@@ -9,9 +9,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('inventory_transactions', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
+            $table->uuid('uuid')->unique();
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('inventory_id')->constrained('inventories')->cascadeOnDelete();
+            $table->foreignId('inventory_id')->constrained('inventories')->cascadeOnDelete();
             $table->string('type');
             $table->decimal('quantity', 15, 4);
             $table->nullableUuidMorphs('reference');

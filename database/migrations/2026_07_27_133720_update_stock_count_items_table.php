@@ -12,7 +12,7 @@ return new class extends Migration
             $table->dropForeign(['product_id']);
             $table->dropColumn(['product_id', 'system_quantity']);
             
-            $table->foreignUuid('inventory_id')->nullable()->after('stock_count_id')->constrained('inventories')->cascadeOnDelete();
+            $table->foreignId('inventory_id')->nullable()->after('stock_count_id')->constrained('inventories')->cascadeOnDelete();
             $table->decimal('expected_quantity', 15, 4)->default(0)->after('inventory_id');
         });
     }
@@ -23,7 +23,7 @@ return new class extends Migration
             $table->dropForeign(['inventory_id']);
             $table->dropColumn(['inventory_id', 'expected_quantity']);
             
-            $table->foreignUuid('product_id')->nullable()->constrained('products')->cascadeOnDelete();
+            $table->foreignId('product_id')->nullable()->constrained('products')->cascadeOnDelete();
             $table->decimal('system_quantity', 15, 4)->default(0);
         });
     }

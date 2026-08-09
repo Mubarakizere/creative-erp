@@ -9,10 +9,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('warehouse_cycle_counts', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
+            $table->uuid('uuid')->unique();
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('warehouse_id')->constrained('warehouses')->cascadeOnDelete();
-            $table->foreignUuid('stock_count_id')->nullable()->constrained('stock_counts')->nullOnDelete(); // links to Inventory stock_counts
+            $table->foreignId('warehouse_id')->constrained('warehouses')->cascadeOnDelete();
+            $table->foreignId('stock_count_id')->nullable()->constrained('stock_counts')->nullOnDelete(); // links to Inventory stock_counts
             $table->string('count_number')->unique();
             $table->string('type'); // daily, weekly, monthly, abc
             $table->string('status')->default('pending'); // pending, in_progress, variance_detected, approved, completed, cancelled
