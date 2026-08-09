@@ -1,7 +1,7 @@
 <table>
     <!-- Company Information -->
     <tr>
-        <td colspan="6" style="font-size: 18px; font-weight: bold;">{{ $quotation->company->name ?? 'Creative ERP' }}</td>
+        <td colspan="6" style="font-size: 18px; font-weight: bold;">{{ $quotation->company->name ?? 'Creative Century Engineering' }}</td>
     </tr>
     <tr>
         <td colspan="6">{{ str_replace("\n", ", ", $quotation->company->address ?? '') }}</td>
@@ -158,7 +158,7 @@
     <!-- Footer -->
     <tr>
         <td colspan="6" align="center" style="color: #666666; font-size: 10px;">
-            Generated on {{ now()->format('M d, Y h:i A') }} • Prepared by {{ $quotation->owner->name ?? 'System' }} • {{ $quotation->company->name ?? 'Creative ERP' }}
+            Generated on {{ now()->format('M d, Y h:i A') }} • Prepared by {{ $quotation->owner->name ?? 'System' }} • {{ $quotation->company->name ?? 'Creative Century Engineering' }}
         </td>
     </tr>
 </table>

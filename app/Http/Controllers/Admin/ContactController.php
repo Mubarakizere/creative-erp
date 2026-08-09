@@ -27,7 +27,10 @@ class ContactController extends Controller
     public function create()
     {
         $companies = \App\Models\Company::where('status', 'active')->orderBy('name')->get();
-        return view('admin.crm.contacts.create', compact('companies'));
+        $accounts = \App\Models\Account::when(auth()->user()->company_id, function($q, $cid) {
+            return $q->where('company_id', $cid);
+        })->orderBy('name')->get();
+        return view('admin.crm.contacts.create', compact('companies', 'accounts'));
     }
 
     public function store(Request $request)
@@ -45,7 +48,10 @@ class ContactController extends Controller
     public function edit(Contact $contact)
     {
         $companies = \App\Models\Company::where('status', 'active')->orderBy('name')->get();
-        return view('admin.crm.contacts.edit', compact('contact', 'companies'));
+        $accounts = \App\Models\Account::when(auth()->user()->company_id, function($q, $cid) {
+            return $q->where('company_id', $cid);
+        })->orderBy('name')->get();
+        return view('admin.crm.contacts.edit', compact('contact', 'companies', 'accounts'));
     }
 
     public function update(Request $request, Contact $contact)

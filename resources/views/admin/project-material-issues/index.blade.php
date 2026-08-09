@@ -1,8 +1,4 @@
-@extends('layouts.admin')
-
-@section('title', 'Project Material Issues')
-
-@section('content')
+<x-layouts.admin title="Project Material Issues">
 <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
@@ -65,4 +61,4 @@
         {{ $issues->links() }}
     </div>
 </div>
-@endsection
+</x-layouts.admin>

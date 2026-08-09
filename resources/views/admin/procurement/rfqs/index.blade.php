@@ -75,20 +75,22 @@
                             <span class="text-sm text-gray-600">{{ $rfq->valid_until }}</span>
                         </td>
                         <td class="px-6 py-4 text-right">
-                            <div x-data="{ open: false }" class="relative inline-block text-left">
-                                <button @click="open = !open" @click.outside="open = false" class="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/></svg>
-                                </button>
-                                <div x-show="open" class="absolute right-0 z-10 mt-2 w-48 rounded-xl bg-white shadow-lg ring-1 ring-black/5 py-1" style="display: none;">
+                            
+<div class="flex items-center justify-end gap-2">
+
                                     @can('view', $rfq)
-                                        <a href="{{ route('admin.procurement.rfqs.show', $rfq) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">View</a>
+                                        <a href="{{ route('admin.procurement.rfqs.show', $rfq) }}" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center" title="View">
+View
+</a>
                                     @endcan
                                     @can('update', $rfq)
-                                        <a href="{{ route('admin.procurement.rfqs.edit', $rfq) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Edit</a>
+                                        <a href="{{ route('admin.procurement.rfqs.edit', $rfq) }}" class="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors flex items-center justify-center" title="Edit">
+Edit
+</a>
                                     @endcan
-                                </div>
-                            </div>
-                        </td>
+                                
+</div>
+</td>
                     </tr>
                     @empty
                     <tr>

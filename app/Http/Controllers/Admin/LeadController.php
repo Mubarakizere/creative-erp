@@ -27,7 +27,8 @@ class LeadController extends Controller
     public function create()
     {
         $companies = \App\Models\Company::where('status', 'active')->orderBy('name')->get();
-        return view('admin.crm.leads.create', compact('companies'));
+        $accounts = \App\Models\Account::orderBy('name')->pluck('name', 'name')->toArray();
+        return view('admin.crm.leads.create', compact('companies', 'accounts'));
     }
 
     public function store(Request $request)
@@ -45,7 +46,8 @@ class LeadController extends Controller
     public function edit(Lead $lead)
     {
         $companies = \App\Models\Company::where('status', 'active')->orderBy('name')->get();
-        return view('admin.crm.leads.edit', compact('lead', 'companies'));
+        $accounts = \App\Models\Account::orderBy('name')->pluck('name', 'name')->toArray();
+        return view('admin.crm.leads.edit', compact('lead', 'companies', 'accounts'));
     }
 
     public function update(Request $request, Lead $lead)

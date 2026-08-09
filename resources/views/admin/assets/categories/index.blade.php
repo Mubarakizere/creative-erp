@@ -1,8 +1,4 @@
-@extends('layouts.admin')
-
-@section('title', 'Asset Categories')
-
-@section('content')
+<x-layouts.admin title="Asset Categories">
 <div class="space-y-6">
     <div class="flex items-center justify-between">
         <div>
@@ -72,4 +68,4 @@
         </table>
     </div>
 </div>
-@endsection
+</x-layouts.admin>

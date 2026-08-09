@@ -49,7 +49,7 @@
                         <p class="text-sm font-medium text-gray-500 mt-1">{{ $creditNote->credit_note_number }}</p>
                     </div>
                     <div class="text-right text-sm text-gray-600">
-                        <p class="font-semibold text-gray-900">{{ $creditNote->company->name ?? 'Creative ERP' }}</p>
+                        <p class="font-semibold text-gray-900">{{ $creditNote->company->name ?? 'Creative Century Engineering' }}</p>
                     </div>
                 </div>
 

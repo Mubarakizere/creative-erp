@@ -70,7 +70,7 @@
                     </div>
                     <div>
                         <span class="text-gray-500 block">Expected Value</span>
-                        <span class="font-medium text-gray-900">{{ $lead->expected_value ? '$' . number_format($lead->expected_value, 2) : 'N/A' }}</span>
+                        <span class="font-medium text-gray-900">{{ $lead->expected_value ? number_format($lead->expected_value, 2) . ' RWF' : 'N/A' }}</span>
                     </div>
                     <div>
                         <span class="text-gray-500 block">Probability</span>

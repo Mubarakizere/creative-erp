@@ -32,7 +32,7 @@
                     <x-select name="company_id" label="Company Context" :options="$companies->pluck('name', 'id')->toArray()" :selected="$opportunity->company_id" required />
                 @endif
                 <x-input name="name" label="Opportunity Name" :value="$opportunity->name" required />
-                <x-input name="expected_revenue" label="Expected Revenue ($)" type="number" step="0.01" :value="$opportunity->expected_revenue" />
+                <x-input name="expected_revenue" label="Expected Revenue (RWF)" type="number" step="0.01" :value="$opportunity->expected_revenue" />
                 <x-input name="probability" label="Probability (%)" type="number" min="0" max="100" :value="$opportunity->probability" />
                 
                 <div class="col-span-1">

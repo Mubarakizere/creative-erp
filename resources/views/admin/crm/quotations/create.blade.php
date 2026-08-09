@@ -42,30 +42,10 @@
                             <div class="sm:col-span-2">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Customer (Select One)</label>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <x-select name="account_id" label="Account">
-                                        <option value="">Select Account</option>
-                                        @foreach($accounts as $account)
-                                            <option value="{{ $account->id }}" @selected(old('account_id', $selectedAccountId ?? null) == $account->id)>{{ $account->name }}</option>
-                                        @endforeach
-                                    </x-select>
-                                    <x-select name="opportunity_id" label="Opportunity" :selected="$selectedOpportunityId ?? null">
-                                        <option value="">Select Opportunity</option>
-                                        @foreach($opportunities as $opportunity)
-                                            <option value="{{ $opportunity->id }}" @selected(old('opportunity_id', $selectedOpportunityId ?? null) == $opportunity->id)>{{ $opportunity->name }}</option>
-                                        @endforeach
-                                    </x-select>
-                                    <x-select name="lead_id" label="Lead">
-                                        <option value="">Select Lead</option>
-                                        @foreach($leads as $lead)
-                                            <option value="{{ $lead->id }}" @selected(old('lead_id') == $lead->id)>{{ $lead->first_name }} {{ $lead->last_name }}</option>
-                                        @endforeach
-                                    </x-select>
-                                    <x-select name="contact_id" label="Contact">
-                                        <option value="">Select Contact</option>
-                                        @foreach($contacts as $contact)
-                                            <option value="{{ $contact->id }}" @selected(old('contact_id') == $contact->id)>{{ $contact->first_name }} {{ $contact->last_name }}</option>
-                                        @endforeach
-                                    </x-select>
+                                    <x-select name="account_id" label="Account" placeholder="Select Account" :options="$accounts->pluck('name', 'id')->toArray()" :selected="old('account_id', $selectedAccountId ?? null)" />
+                                    <x-select name="opportunity_id" label="Opportunity" placeholder="Select Opportunity" :options="$opportunities->pluck('name', 'id')->toArray()" :selected="old('opportunity_id', $selectedOpportunityId ?? null)" />
+                                    <x-select name="lead_id" label="Lead" placeholder="Select Lead" :options="$leads->mapWithKeys(fn($l) => [$l->id => $l->first_name . ' ' . $l->last_name])->toArray()" :selected="old('lead_id')" />
+                                    <x-select name="contact_id" label="Contact" placeholder="Select Contact" :options="$contacts->mapWithKeys(fn($c) => [$c->id => $c->first_name . ' ' . $c->last_name])->toArray()" :selected="old('contact_id')" />
                                 </div>
                                 <p class="text-xs text-gray-500 mt-1">Select the primary entity this quotation is for.</p>
                             </div>
@@ -169,7 +149,6 @@
                                 <span x-text="'RWF ' + summary.grandTotal.toFixed(2)"></span>
                             </div>
                         </div>
-                    </div>
                     </div>
                 </div>
 

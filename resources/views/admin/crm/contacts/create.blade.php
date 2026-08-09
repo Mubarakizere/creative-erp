@@ -27,6 +27,9 @@
                             <x-select name="company_id" label="Company Context" :options="$companies->pluck('name', 'id')->toArray()" required />
                         </div>
                     @endif
+                    <div class="sm:col-span-2">
+                        <x-select name="account_id" label="Related Account" placeholder="Select Account (Optional)" :options="$accounts->pluck('name', 'id')->toArray()" :selected="old('account_id', request('account_id'))" />
+                    </div>
                     <div>
                         <x-input name="first_name" label="First Name" required />
                     </div>

@@ -89,10 +89,10 @@
                                     </td>
                                     <td class="py-2 px-3 text-right">
                                         @if($variant->selling_price)
-                                            <div class="text-sm font-medium text-gray-900">${{ number_format($variant->selling_price, 2) }}</div>
+                                            <div class="text-sm font-medium text-gray-900">{{ number_format($variant->selling_price, 0) }} RWF</div>
                                         @elseif($variant->price_adjustment != 0)
                                             <div class="text-sm font-medium {{ $variant->price_adjustment > 0 ? 'text-green-600' : 'text-red-600' }}">
-                                                {{ $variant->price_adjustment > 0 ? '+' : '' }}${{ number_format($variant->price_adjustment, 2) }}
+                                                {{ $variant->price_adjustment > 0 ? '+' : '' }}{{ number_format($variant->price_adjustment, 0) }} RWF
                                             </div>
                                         @else
                                             <div class="text-sm text-gray-500">Same as Base</div>

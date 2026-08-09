@@ -1,4 +1,4 @@
-<x-layouts.website title="About Us - Creative Engineering Rwanda">
+<x-layouts.website title="About Us - Creative Century Engineering">
     {{-- Hero Section --}}
     <section class="relative pt-32 pb-20 lg:pt-40 lg:pb-28 bg-slate-900 overflow-hidden">
         <div class="absolute inset-0 z-0">
@@ -9,7 +9,7 @@
 
         <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight animate-fade-in-up tracking-tight">
-                About <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">Creative Engineering</span>
+                About <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">Creative Century Engineering</span>
             </h1>
             <p class="mt-6 text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto animate-fade-in-up animation-delay-100">
                 Pioneering excellence in engineering across Rwanda. We are a team of dedicated professionals committed to building the infrastructure of tomorrow.
@@ -29,7 +29,7 @@
                     <h2 class="text-sm font-bold tracking-widest text-blue-600 uppercase mb-3">Who We Are</h2>
                     <h3 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-6">Building the Future of Rwanda</h3>
                     <p class="text-lg text-gray-600 mb-6 leading-relaxed">
-                        Founded with a vision to transform the engineering landscape, Creative Engineering Rwanda has grown into a leading firm renowned for delivering complex projects with precision. Our multidisciplinary approach combines civil, electrical, and mechanical engineering to provide holistic solutions.
+                        Founded with a vision to transform the engineering landscape, Creative Century Engineering has grown into a leading firm renowned for delivering complex projects with precision. Our multidisciplinary approach combines civil, electrical, and mechanical engineering to provide holistic solutions.
                     </p>
                     <p class="text-lg text-gray-600 mb-8 leading-relaxed">
                         We believe that great infrastructure is the foundation of a thriving society. That is why every project we undertake is driven by a commitment to sustainability, safety, and innovation. We don't just build structures; we create environments where people and businesses can flourish.

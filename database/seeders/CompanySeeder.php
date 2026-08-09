@@ -17,8 +17,8 @@ class CompanySeeder extends Seeder
             ['email' => 'info@creative-engineering.com'],
             [
                 'uuid' => (string) Str::uuid(),
-                'name' => 'Creative Engineering',
-                'legal_name' => 'Creative Engineering & Construction LLC',
+                'name' => 'Creative Century Engineering',
+                'legal_name' => 'Creative Century Engineering & Construction LLC',
                 'slug' => 'creative-engineering',
                 'email' => 'info@creative-engineering.com',
                 'phone' => '+971 4 123 4567',

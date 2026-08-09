@@ -64,7 +64,7 @@
         <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 class="text-3xl sm:text-5xl font-bold text-white mb-6">Ready to Start Your Next Project?</h2>
             <p class="text-blue-100 text-lg sm:text-xl mb-10 max-w-2xl mx-auto">
-                Partner with Creative Engineering Rwanda to bring your vision to life.
+                Partner with Creative Century Engineering to bring your vision to life.
             </p>
             <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
                 <a href="{{ route('contact') }}" class="px-8 py-4 bg-white text-blue-600 font-bold rounded-xl hover:bg-gray-50 shadow-lg shadow-blue-900/20 transition-all duration-300 transform hover:-translate-y-1">

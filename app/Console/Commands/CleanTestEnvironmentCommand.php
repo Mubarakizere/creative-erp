@@ -80,7 +80,7 @@ class CleanTestEnvironmentCommand extends Command
         $this->info('Creating company...');
         
         $company = Company::create([
-            'name' => 'Creative Engineering Rwanda',
+            'name' => 'Creative Century Engineering',
             'email' => 'info@creative-engineering.rw',
             'currency' => 'RWF',
             'timezone' => 'Africa/Kigali',

@@ -4,9 +4,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    
+    <!-- PWA Settings -->
+    <meta name="theme-color" content="#2563eb">
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo.png') }}">
 
-    <title>{{ $title ?? 'Creative ERP' }} - Creative ERP</title>
-    <meta name="description" content="{{ $description ?? 'Creative ERP - Enterprise Resource Planning for Engineering & Construction' }}">
+    <title>{{ $title ?? 'Creative Century Engineering' }} - Creative Century Engineering</title>
+    <meta name="description" content="{{ $description ?? 'Creative Century Engineering - Enterprise Resource Planning for Engineering & Construction' }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -126,6 +131,19 @@
                 }
             }
         });
+    </script>
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').then(registration => {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                }).catch(err => {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
     </script>
 </body>
 </html>

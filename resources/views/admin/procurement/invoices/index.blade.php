@@ -97,25 +97,29 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 text-right">
-                            <div x-data="{ open: false }" class="relative inline-block text-left">
-                                <button @click="open = !open" @click.outside="open = false" class="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/></svg>
-                                </button>
-                                <div x-show="open" class="absolute right-0 z-10 mt-2 w-48 rounded-xl bg-white shadow-lg ring-1 ring-black/5 py-1" style="display: none;">
+                            
+<div class="flex items-center justify-end gap-2">
+
                                     @can('view', $invoice)
-                                        <a href="{{ route('admin.procurement.invoices.show', $invoice->id) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">View Details</a>
+                                        <a href="{{ route('admin.procurement.invoices.show', $invoice->id) }}" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center" title="View Details">
+View Details
+</a>
                                     @endcan
                                     @can('update', $invoice)
-                                        <a href="{{ route('admin.procurement.invoices.edit', $invoice->id) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Edit Invoice</a>
+                                        <a href="{{ route('admin.procurement.invoices.edit', $invoice->id) }}" class="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors flex items-center justify-center" title="Edit Invoice">
+Edit Invoice
+</a>
                                     @endcan
                                     @if(in_array(strtolower($invoice->status), ['unpaid', 'partially_paid']))
                                         @can('create', App\Models\SupplierPayment::class)
-                                            <a href="{{ route('admin.procurement.payments.create', ['invoice_id' => $invoice->id]) }}" class="block px-4 py-2 text-sm text-green-600 hover:bg-gray-50">Record Payment</a>
+                                            <a href="{{ route('admin.procurement.payments.create', ['invoice_id' => $invoice->id]) }}" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center" title="Record Payment">
+Record Payment
+</a>
                                         @endcan
                                     @endif
-                                </div>
-                            </div>
-                        </td>
+                                
+</div>
+</td>
                     </tr>
                     @empty
                     <tr>

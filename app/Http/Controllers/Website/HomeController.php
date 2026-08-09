@@ -39,6 +39,7 @@ class HomeController extends Controller
 
     public function contact(): View
     {
-        return view('website.contact');
+        $settings = \App\Models\WebsiteSetting::pluck('value', 'key')->toArray();
+        return view('website.contact', compact('settings'));
     }
 }

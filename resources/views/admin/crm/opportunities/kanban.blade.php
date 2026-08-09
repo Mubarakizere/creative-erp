@@ -43,7 +43,7 @@
                         <span class="w-2.5 h-2.5 rounded-full {{ $stage['color'] ?? 'bg-blue-500' }}"></span>
                         {{ $stage['name'] }}
                     </h3>
-                    <span class="bg-gray-100 text-gray-600 text-xs py-1 px-2.5 rounded-full font-bold">
+                    <span class="stage-count-badge bg-gray-100 text-gray-600 text-xs py-1 px-2.5 rounded-full font-bold">
                         {{ count($stage['opportunities']) }}
                     </span>
                 </div>
@@ -56,7 +56,7 @@
                             </div>
                             <div class="text-xs font-medium text-gray-500 mb-3">{{ $opp->account?->name ?? 'No Account' }}</div>
                             <div class="flex justify-between items-center mt-2 pt-3 border-t border-gray-100">
-                                <span class="text-sm font-bold text-gray-700">${{ number_format($opp->expected_revenue, 2) }}</span>
+                                <span class="text-sm font-bold text-gray-700">{{ number_format($opp->expected_revenue, 2) }} RWF</span>
                                 <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-600">
                                     {{ $opp->probability }}%
                                 </span>
@@ -97,10 +97,12 @@
                         
                         if(evt.from !== toList) {
                             // Update the stage count numbers immediately (optimistic UI)
-                            const oldBadge = evt.from.previousElementSibling.querySelector('span');
-                            const newBadge = toList.previousElementSibling.querySelector('span');
-                            oldBadge.innerText = parseInt(oldBadge.innerText) - 1;
-                            newBadge.innerText = parseInt(newBadge.innerText) + 1;
+                            const oldBadge = evt.from.previousElementSibling.querySelector('.stage-count-badge');
+                            const newBadge = toList.previousElementSibling.querySelector('.stage-count-badge');
+                            if(oldBadge && newBadge) {
+                                oldBadge.innerText = parseInt(oldBadge.innerText || 0) - 1;
+                                newBadge.innerText = parseInt(newBadge.innerText || 0) + 1;
+                            }
 
                             // Send AJAX request
                             fetch(`/admin/crm/opportunities/${opportunityId}/kanban-update`, {

@@ -64,6 +64,11 @@ class Project extends Model
         });
     }
 
+    public function scopeActive($query)
+    {
+        return $query->whereNotIn('status', ['Completed', 'Cancelled', 'Closed']);
+    }
+
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);

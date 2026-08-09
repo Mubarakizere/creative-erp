@@ -82,7 +82,7 @@
 
             {{-- Footer --}}
             <p class="text-center text-xs text-gray-400">
-                &copy; {{ date('Y') }} Creative ERP. All rights reserved.
+                &copy; {{ date('Y') }} Creative Century Engineering. All rights reserved.
             </p>
         </div>
     </div>

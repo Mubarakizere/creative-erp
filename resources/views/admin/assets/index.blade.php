@@ -1,8 +1,4 @@
-@extends('layouts.admin')
-
-@section('title', 'Fixed Assets')
-
-@section('content')
+<x-layouts.admin title="Fixed Assets">
 <div class="space-y-6">
     <div class="flex items-center justify-between">
         <div>
@@ -173,4 +169,4 @@
         {{ $assets->links() }}
     </div>
 </div>
-@endsection
+</x-layouts.admin>

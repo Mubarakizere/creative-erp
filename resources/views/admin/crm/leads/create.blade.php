@@ -46,7 +46,12 @@
                         <x-input name="phone" label="Phone" />
                     </div>
                     <div>
-                        <x-input name="company_name" label="Company Name" />
+                        <x-input name="company_name" label="Company Name" list="accounts-list" />
+                        <datalist id="accounts-list">
+                            @foreach($accounts as $accountName)
+                                <option value="{{ $accountName }}">
+                            @endforeach
+                        </datalist>
                     </div>
                     <div>
                         <x-input name="title" label="Job Title" />
@@ -62,7 +67,7 @@
                                 <x-select name="rating" label="Rating" :options="['Hot' => 'Hot', 'Warm' => 'Warm', 'Cold' => 'Cold']" />
                             </div>
                             <div>
-                                <x-input name="expected_value" label="Expected Value ($)" type="number" step="0.01" />
+                                <x-input name="expected_value" label="Expected Value (RWF)" type="number" step="0.01" />
                             </div>
                             <div>
                                 <x-input name="probability" label="Probability (%)" type="number" min="0" max="100" value="0" />

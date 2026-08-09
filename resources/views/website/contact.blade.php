@@ -1,4 +1,4 @@
-<x-layouts.website title="Contact Us - Creative Engineering Rwanda">
+<x-layouts.website title="Contact Us - Creative Century Engineering">
     {{-- Hero Section --}}
     <section class="relative pt-32 pb-20 lg:pt-40 lg:pb-28 bg-slate-900 overflow-hidden">
         <div class="absolute inset-0 z-0">
@@ -42,8 +42,8 @@
                                 </div>
                                 <div class="ml-6">
                                     <h4 class="text-lg font-semibold mb-1">Phone</h4>
-                                    <p class="text-blue-100">+250 788 123 456</p>
-                                    <p class="text-blue-100">+250 733 123 456</p>
+                                    <p class="text-blue-100">{{ $settings['contact_phone_1'] ?? '+250 788 123 456' }}</p>
+                                    <p class="text-blue-100">{{ $settings['contact_phone_2'] ?? '+250 733 123 456' }}</p>
                                 </div>
                             </div>
 
@@ -53,8 +53,8 @@
                                 </div>
                                 <div class="ml-6">
                                     <h4 class="text-lg font-semibold mb-1">Email</h4>
-                                    <p class="text-blue-100">contact@creativeengineering.rw</p>
-                                    <p class="text-blue-100">info@creativeengineering.rw</p>
+                                    <p class="text-blue-100">{{ $settings['contact_email_1'] ?? 'contact@creativeengineering.rw' }}</p>
+                                    <p class="text-blue-100">{{ $settings['contact_email_2'] ?? 'info@creativeengineering.rw' }}</p>
                                 </div>
                             </div>
 
@@ -64,8 +64,8 @@
                                 </div>
                                 <div class="ml-6">
                                     <h4 class="text-lg font-semibold mb-1">Office</h4>
-                                    <p class="text-blue-100">KN 5 Rd, Kigali Business Center (KBC)</p>
-                                    <p class="text-blue-100">6th Floor, Kigali, Rwanda</p>
+                                    <p class="text-blue-100">{{ $settings['contact_address_line_1'] ?? 'KN 5 Rd, Kigali Business Center (KBC)' }}</p>
+                                    <p class="text-blue-100">{{ $settings['contact_address_line_2'] ?? '6th Floor, Kigali, Rwanda' }}</p>
                                 </div>
                             </div>
                         </div>

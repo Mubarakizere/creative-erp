@@ -148,7 +148,7 @@
     <table class="header">
         <tr>
             <td>
-                <div class="company-name">{{ $quotation->company->name ?? 'Creative ERP' }}</div>
+                <div class="company-name">{{ $quotation->company->name ?? 'Creative Century Engineering' }}</div>
                 @if(isset($quotation->company->address))
                     <div class="company-details">
                         {!! nl2br(e($quotation->company->address)) !!}
@@ -313,7 +313,7 @@
     @endif
 
     <div class="footer">
-        Generated on {{ now()->format('M d, Y h:i A') }} • {{ $quotation->company->name ?? 'Creative ERP' }}
+        Generated on {{ now()->format('M d, Y h:i A') }} • {{ $quotation->company->name ?? 'Creative Century Engineering' }}
     </div>
 
 </body>

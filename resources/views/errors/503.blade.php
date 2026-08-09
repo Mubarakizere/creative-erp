@@ -3,7 +3,7 @@
 @section('title', __('Service Unavailable'))
 @section('code', '503')
 @section('message', __('Under Maintenance'))
-@section('description', __('Creative ERP is currently down for scheduled maintenance. We expect to be back online shortly. Thank you for your patience.'))
+@section('description', __('Creative Century Engineering is currently down for scheduled maintenance. We expect to be back online shortly. Thank you for your patience.'))
 
 @section('illustration')
 <div class="p-6 bg-teal-50 rounded-full inline-block">

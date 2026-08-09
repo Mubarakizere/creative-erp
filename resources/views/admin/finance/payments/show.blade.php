@@ -80,7 +80,7 @@
                         <p class="text-sm font-medium text-gray-500 mt-1">Payment Ref: <span class="text-gray-900">{{ $payment->reference_number }}</span></p>
                     </div>
                     <div class="text-right text-sm text-gray-600">
-                        <p class="font-bold text-gray-900 text-lg tracking-tight">{{ $payment->company->name ?? 'Creative ERP' }}</p>
+                        <p class="font-bold text-gray-900 text-lg tracking-tight">{{ $payment->company->name ?? 'Creative Century Engineering' }}</p>
                     </div>
                 </div>
 

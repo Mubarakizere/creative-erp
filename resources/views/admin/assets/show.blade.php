@@ -1,8 +1,4 @@
-@extends('layouts.admin')
-
-@section('title', 'Asset Details - ' . $asset->name)
-
-@section('content')
+<x-layouts.admin :title="'Asset Details - ' . $asset->name">
 <div class="space-y-6">
     <div class="flex items-center justify-between">
         <div>
@@ -237,4 +233,4 @@
         </div>
     </div>
 </div>
-@endsection
+</x-layouts.admin>

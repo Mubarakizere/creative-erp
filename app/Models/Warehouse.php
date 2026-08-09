@@ -20,6 +20,11 @@ class Warehouse extends Model
     public function zones() { return $this->hasMany(WarehouseZone::class); }
     public function inventories() { return $this->hasMany(Inventory::class); }
 
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
+
     public function isActive(): bool
     {
         return $this->status === 'active';

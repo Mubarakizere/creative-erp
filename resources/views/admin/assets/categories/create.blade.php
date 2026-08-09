@@ -1,8 +1,4 @@
-@extends('layouts.admin')
-
-@section('title', 'Add Asset Category')
-
-@section('content')
+<x-layouts.admin title="Add Asset Category">
 <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
     <div class="md:grid md:grid-cols-3 md:gap-6">
         <div class="md:col-span-1">
@@ -108,4 +104,4 @@
         </div>
     </div>
 </div>
-@endsection
+</x-layouts.admin>

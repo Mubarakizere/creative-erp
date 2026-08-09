@@ -1,8 +1,4 @@
-@extends('layouts.admin')
-
-@section('title', 'Project Material Issue Details')
-
-@section('content')
+<x-layouts.admin title="Project Material Issue Details">
 <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="md:flex md:items-center md:justify-between mb-6">
         <div class="min-w-0 flex-1">
@@ -91,4 +87,4 @@
         </div>
     </div>
 </div>
-@endsection
+</x-layouts.admin>

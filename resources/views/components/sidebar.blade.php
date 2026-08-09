@@ -27,9 +27,7 @@
     {{-- Header / Logo --}}
     <div class="flex items-center justify-between h-16 px-4 border-b border-white/10 flex-shrink-0">
         <div class="flex items-center">
-            <span class="text-lg font-bold whitespace-nowrap">
-                Creative <span class="text-blue-400">MS</span>
-            </span>
+            <img src="{{ asset('images/logo.png') }}" alt="Creative Century Engineering" class="h-10 w-auto">
         </div>
         <button @click="mobileMenuOpen = false" class="lg:hidden text-gray-400 hover:text-white transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

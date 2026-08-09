@@ -55,8 +55,31 @@ class PipelineController extends Controller
 
     public function show(Pipeline $pipeline)
     {
-        $pipeline->load('stages');
-        return view('admin.crm.pipelines.show', compact('pipeline'));
+        $pipeline->load(['stages' => function ($query) {
+            $query->withCount(['opportunities' => function ($q) {
+                $q->where('status', 'Open');
+            }]);
+        }]);
+
+        $activeDeals = \App\Models\Opportunity::where('pipeline_id', $pipeline->id)
+            ->where('status', 'Open')
+            ->count();
+            
+        $pipelineValue = \App\Models\Opportunity::where('pipeline_id', $pipeline->id)
+            ->where('status', 'Open')
+            ->sum('expected_revenue');
+            
+        $wonDeals = \App\Models\Opportunity::where('pipeline_id', $pipeline->id)
+            ->where('status', 'Won')
+            ->count();
+            
+        $closedDeals = \App\Models\Opportunity::where('pipeline_id', $pipeline->id)
+            ->whereIn('status', ['Won', 'Lost'])
+            ->count();
+            
+        $winRate = $closedDeals > 0 ? round(($wonDeals / $closedDeals) * 100) : 0;
+
+        return view('admin.crm.pipelines.show', compact('pipeline', 'activeDeals', 'pipelineValue', 'winRate'));
     }
 
     public function edit(Pipeline $pipeline)

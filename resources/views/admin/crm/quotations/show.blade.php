@@ -137,7 +137,7 @@
                         <p class="text-sm font-medium text-gray-500 mt-1">{{ $quotation->quotation_number }}</p>
                     </div>
                     <div class="text-right text-sm text-gray-600">
-                        <p class="font-semibold text-gray-900">{{ $quotation->company->name ?? 'Creative ERP' }}</p>
+                        <p class="font-semibold text-gray-900">{{ $quotation->company->name ?? 'Creative Century Engineering' }}</p>
                         @if(isset($quotation->company->address))
                             <p>{!! nl2br(e($quotation->company->address)) !!}</p>
                         @endif
@@ -211,10 +211,10 @@
                                 <tr>
                                     <td class="py-4 px-4 text-sm font-medium text-gray-900">{{ $item->product_name }}</td>
                                     <td class="py-4 px-4 text-sm text-gray-600 text-center">{{ $item->quantity }}</td>
-                                    <td class="py-4 px-4 text-sm text-gray-600 text-right">${{ number_format($item->unit_price, 2) }}</td>
+                                    <td class="py-4 px-4 text-sm text-gray-600 text-right">RWF {{ number_format($item->unit_price, 2) }}</td>
                                     <td class="py-4 px-4 text-sm text-gray-600 text-right">
                                         @if($item->discount > 0)
-                                            {{ $item->discount_type === 'percentage' ? $item->discount . '%' : '$' . number_format($item->discount, 2) }}
+                                            {{ $item->discount_type === 'percentage' ? $item->discount . '%' : 'RWF ' . number_format($item->discount, 2) }}
                                         @else
                                             -
                                         @endif
@@ -226,7 +226,7 @@
                                             -
                                         @endif
                                     </td>
-                                    <td class="py-4 px-4 text-sm font-semibold text-gray-900 text-right">${{ number_format($item->total, 2) }}</td>
+                                    <td class="py-4 px-4 text-sm font-semibold text-gray-900 text-right">RWF {{ number_format($item->total, 2) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -239,27 +239,27 @@
                         <div class="bg-gray-50 rounded-xl p-5 space-y-3">
                             <div class="flex justify-between text-sm text-gray-600">
                                 <span>Subtotal</span>
-                                <span class="font-medium">${{ number_format($quotation->subtotal, 2) }}</span>
+                                <span class="font-medium">RWF {{ number_format($quotation->subtotal, 2) }}</span>
                             </div>
                             
                             @if($quotation->total_discount > 0)
                                 <div class="flex justify-between text-sm text-green-600">
                                     <span>Total Savings</span>
-                                    <span class="font-medium">${{ number_format($quotation->total_discount, 2) }}</span>
+                                    <span class="font-medium">RWF {{ number_format($quotation->total_discount, 2) }}</span>
                                 </div>
                             @endif
 
                             @if($quotation->total_tax > 0)
                                 <div class="flex justify-between text-sm text-gray-600">
                                     <span>Total Tax</span>
-                                    <span class="font-medium">${{ number_format($quotation->total_tax, 2) }}</span>
+                                    <span class="font-medium">RWF {{ number_format($quotation->total_tax, 2) }}</span>
                                 </div>
                             @endif
                             
                             <div class="border-t border-gray-200 pt-3 mt-3">
                                 <div class="flex justify-between items-center">
                                     <span class="text-base font-bold text-gray-900">Grand Total</span>
-                                    <span class="text-xl font-black text-gray-900">${{ number_format($quotation->grand_total, 2) }}</span>
+                                    <span class="text-xl font-black text-gray-900">RWF {{ number_format($quotation->grand_total, 2) }}</span>
                                 </div>
                                 <p class="text-xs text-right text-gray-500 mt-1">All amounts in {{ $quotation->currency ?? 'USD' }}</p>
                             </div>

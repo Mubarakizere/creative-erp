@@ -26,13 +26,20 @@
                 <x-input name="last_name" label="Last Name" :value="$lead->last_name" />
                 <x-input name="email" label="Email" type="email" :value="$lead->email" />
                 <x-input name="phone" label="Phone" :value="$lead->phone" />
-                <x-input name="company_name" label="Company Name" :value="$lead->company_name" />
+                <div>
+                    <x-input name="company_name" label="Company Name" :value="$lead->company_name" list="accounts-list-edit" />
+                    <datalist id="accounts-list-edit">
+                        @foreach($accounts as $accountName)
+                            <option value="{{ $accountName }}">
+                        @endforeach
+                    </datalist>
+                </div>
                 <x-input name="title" label="Job Title" :value="$lead->title" />
                 
                 <x-select name="status" label="Status" :options="['New' => 'New', 'Contacted' => 'Contacted', 'Qualified' => 'Qualified', 'Lost' => 'Lost', 'Converted' => 'Converted']" :selected="$lead->status" />
                 <x-select name="rating" label="Rating" :options="['Hot' => 'Hot', 'Warm' => 'Warm', 'Cold' => 'Cold']" :selected="$lead->rating" />
                 
-                <x-input name="expected_value" label="Expected Value ($)" type="number" step="0.01" :value="$lead->expected_value" />
+                <x-input name="expected_value" label="Expected Value (RWF)" type="number" step="0.01" :value="$lead->expected_value" />
                 <x-input name="probability" label="Probability (%)" type="number" min="0" max="100" :value="$lead->probability" />
             </div>
 

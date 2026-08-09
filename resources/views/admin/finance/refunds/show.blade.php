@@ -68,7 +68,7 @@
                         <p class="text-sm font-medium text-gray-500 mt-1">{{ $refund->refund_number }}</p>
                     </div>
                     <div class="text-right text-sm text-gray-600">
-                        <p class="font-semibold text-gray-900">{{ $refund->company->name ?? 'Creative ERP' }}</p>
+                        <p class="font-semibold text-gray-900">{{ $refund->company->name ?? 'Creative Century Engineering' }}</p>
                     </div>
                 </div>
 

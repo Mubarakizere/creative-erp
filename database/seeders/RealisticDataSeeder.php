@@ -22,7 +22,7 @@ class RealisticDataSeeder extends Seeder
     public function run()
     {
         // ─── COMPANY & BRANCH SETUP ──────────────────────────────────────
-        $company = Company::find(1); // Creative Engineering
+        $company = Company::find(1); // Creative Century Engineering
         if (!$company) {
             $this->command->error("No company found. Aborting.");
             return;

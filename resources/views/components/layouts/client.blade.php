@@ -8,12 +8,7 @@
                     <div class="flex items-center">
                         {{-- Logo --}}
                         <div class="flex-shrink-0 flex items-center">
-                            <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg flex items-center justify-center">
-                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                                </svg>
-                            </div>
-                            <span class="ml-3 text-lg font-semibold text-gray-900">Creative ERP</span>
+                            <img src="{{ asset('images/logo.png') }}" alt="Creative Century Engineering" class="h-8 w-auto">
                             <span class="ml-2 px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">Client</span>
                         </div>
 
@@ -62,7 +57,7 @@
         <footer class="border-t border-gray-200 bg-white">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                 <p class="text-sm text-gray-500 text-center">
-                    &copy; {{ date('Y') }} Creative ERP. All rights reserved.
+                    &copy; {{ date('Y') }} Creative Century Engineering. All rights reserved.
                 </p>
             </div>
         </footer>

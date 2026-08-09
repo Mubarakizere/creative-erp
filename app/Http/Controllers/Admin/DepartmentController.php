@@ -47,8 +47,9 @@ class DepartmentController extends Controller
 
         $companies = Company::where('status', 'active')->orderBy('name')->pluck('name', 'id')->toArray();
         $branches = Branch::where('status', 'active')->orderBy('name')->pluck('name', 'id')->toArray();
+        $users = \App\Models\User::where('status', 'active')->orderBy('first_name')->get()->pluck('full_name', 'full_name')->toArray();
 
-        return view('admin.departments.create', compact('companies', 'branches'));
+        return view('admin.departments.create', compact('companies', 'branches', 'users'));
     }
 
     /**
@@ -86,8 +87,9 @@ class DepartmentController extends Controller
 
         $companies = Company::where('status', 'active')->orderBy('name')->pluck('name', 'id')->toArray();
         $branches = Branch::where('status', 'active')->orderBy('name')->pluck('name', 'id')->toArray();
+        $users = \App\Models\User::where('status', 'active')->orderBy('first_name')->get()->pluck('full_name', 'full_name')->toArray();
 
-        return view('admin.departments.edit', compact('department', 'companies', 'branches'));
+        return view('admin.departments.edit', compact('department', 'companies', 'branches', 'users'));
     }
 
     /**

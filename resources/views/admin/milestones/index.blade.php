@@ -106,23 +106,27 @@
                     </div>
                 </td>
                 <td class="px-6 py-4 text-right">
-                    <div x-data="{ open: false }" class="relative inline-block text-left">
-                        <button @click="open = !open" @click.outside="open = false" class="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/></svg>
-                        </button>
-                        <div x-show="open" class="absolute right-0 z-10 mt-2 w-48 rounded-xl bg-white shadow-lg ring-1 ring-black/5 py-1" style="display: none;">
+                    
+<div class="flex items-center justify-end gap-2">
+
                             @can('view', $milestone)
-                                <a href="{{ route('admin.milestones.show', $milestone) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">View</a>
+                                <a href="{{ route('admin.milestones.show', $milestone) }}" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center" title="View">
+View
+</a>
                             @endcan
                             @if(!$milestone->trashed())
                                 @can('update', $milestone)
-                                    <a href="{{ route('admin.milestones.edit', $milestone) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Edit</a>
+                                    <a href="{{ route('admin.milestones.edit', $milestone) }}" class="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors flex items-center justify-center" title="Edit">
+Edit
+</a>
                                 @endcan
                                 @can('delete', $milestone)
                                     <form method="POST" action="{{ route('admin.milestones.destroy', $milestone) }}">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Archive</button>
+                                        <button type="submit" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center" title="Archive">
+Archive
+</button>
                                     </form>
                                 @endcan
                             @else
@@ -130,13 +134,15 @@
                                     <form method="POST" action="{{ route('admin.milestones.restore', $milestone) }}">
                                         @csrf
                                         @method('PATCH')
-                                        <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-blue-50">Restore</button>
+                                        <button type="submit" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center" title="Restore">
+Restore
+</button>
                                     </form>
                                 @endcan
                             @endif
-                        </div>
-                    </div>
-                </td>
+                        
+</div>
+</td>
             </tr>
             </tr>
         @empty

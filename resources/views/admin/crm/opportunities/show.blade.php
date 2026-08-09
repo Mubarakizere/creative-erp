@@ -23,7 +23,7 @@
     <x-card>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             <div><span class="text-gray-500 block">Name</span><span class="font-medium text-gray-900">{{ $opportunity->name }}</span></div>
-            <div><span class="text-gray-500 block">Expected Revenue</span><span class="font-medium text-gray-900">${{ number_format($opportunity->expected_revenue, 2) }}</span></div>
+            <div><span class="text-gray-500 block">Expected Revenue</span><span class="font-medium text-gray-900">{{ number_format($opportunity->expected_revenue, 2) }} RWF</span></div>
             <div><span class="text-gray-500 block">Probability</span><span class="font-medium text-gray-900">{{ $opportunity->probability }}%</span></div>
             <div><span class="text-gray-500 block">Status</span><span class="font-medium text-gray-900">{{ $opportunity->status }}</span></div>
         </div>

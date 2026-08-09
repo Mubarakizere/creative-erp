@@ -1,4 +1,4 @@
-<x-layouts.app :title="$title ?? 'Creative ERP'">
+<x-layouts.app :title="$title ?? 'Creative Century Engineering'">
     <div class="min-h-screen flex flex-col">
 
         {{-- Website Header --}}
@@ -6,8 +6,8 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between items-center h-16">
                     {{-- Logo --}}
-                    <a href="{{ route('home') }}" class="flex items-center space-x-3 group">
-                        <span class="text-xl font-bold text-gray-900">Creative <span class="text-blue-600">Engineering</span> <span class="text-gray-600 text-sm">Rwanda</span></span>
+                    <a href="{{ route('home') }}" class="flex items-center group">
+                        <img src="{{ asset('images/logo.png') }}" alt="Creative Century Engineering" class="h-12 w-auto">
                     </a>
 
                     {{-- Navigation --}}
@@ -21,6 +21,9 @@
                     {{-- Auth Actions --}}
                     <div class="flex items-center space-x-3">
                         @auth
+                            <a href="{{ route('contact') }}" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
+                                Contact Us
+                            </a>
                             <a href="{{ route('admin.dashboard') }}" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
                                 Dashboard
                             </a>
@@ -48,8 +51,8 @@
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                     {{-- Brand --}}
                     <div class="col-span-1 md:col-span-2">
-                        <div class="flex items-center space-x-3 mb-4">
-                            <span class="text-lg font-bold text-white">Creative Engineering</span>
+                        <div class="flex items-center mb-4">
+                            <img src="{{ asset('images/logo.png') }}" alt="Creative Century Engineering" class="h-10 w-auto bg-white/10 rounded px-2">
                         </div>
                         <p class="text-sm max-w-md">
                             Leading the future of construction and engineering in Rwanda with innovative solutions and unmatched excellence.
@@ -78,7 +81,7 @@
                 </div>
 
                 <div class="mt-8 pt-8 border-t border-gray-800 text-center text-sm">
-                    <p>&copy; {{ date('Y') }} Creative Engineering Rwanda. All rights reserved.</p>
+                    <p>&copy; {{ date('Y') }} Creative Century Engineering. All rights reserved.</p>
                 </div>
             </div>
         </footer>
