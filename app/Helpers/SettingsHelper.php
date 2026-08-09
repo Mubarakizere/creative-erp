@@ -12,7 +12,7 @@ if (!function_exists('system_name')) {
      */
     function system_name(?string $default = null): string
     {
-        return app(SettingsService::class)->get('system_name', $default ?? config('app.name', 'Creative ERP'));
+        return app(SettingsService::class)->get('system_name', $default ?? config('app.name', 'Creative Century Engineering'));
     }
 }
 

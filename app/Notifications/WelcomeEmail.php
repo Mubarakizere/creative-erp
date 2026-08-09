@@ -23,7 +23,7 @@ class WelcomeEmail extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->subject('Welcome to Creative ERP')
+                    ->subject('Welcome to Creative Century Engineering')
                     ->greeting("Hello {$notifiable->first_name},")
                     ->line('Your account has been created successfully.')
                     ->line('Your temporary password is: ' . $this->password)

@@ -50,5 +50,15 @@ trait CompanyScoped
                 $checkingScope = false;
             }
         });
+
+        static::creating(function ($model) {
+            if (Auth::hasUser()) {
+                $user = Auth::user();
+                // Force the user's company_id on creation unless they are Super Admin
+                if ($user && $user->company_id && !$user->hasRole('Super Admin')) {
+                    $model->company_id = $user->company_id;
+                }
+            }
+        });
     }
 }

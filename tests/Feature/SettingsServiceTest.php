@@ -23,13 +23,13 @@ class SettingsServiceTest extends TestCase
 
     public function test_can_set_and_get_text_setting()
     {
-        $this->settingsService->set('app_name', 'Creative ERP');
+        $this->settingsService->set('app_name', 'Creative Century Engineering');
 
-        $this->assertEquals('Creative ERP', $this->settingsService->get('app_name'));
+        $this->assertEquals('Creative Century Engineering', $this->settingsService->get('app_name'));
         
         $this->assertDatabaseHas('settings', [
             'key' => 'app_name',
-            'value' => 'Creative ERP',
+            'value' => 'Creative Century Engineering',
             'type' => 'text',
         ]);
     }

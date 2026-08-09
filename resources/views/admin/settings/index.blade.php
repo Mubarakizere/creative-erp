@@ -100,15 +100,15 @@
                                             type="text"
                                             name="settings[system_name]"
                                             id="settings_system_name"
-                                            value="{{ old('settings.system_name', $settings['system_name'] ?? 'Creative ERP') }}"
-                                            placeholder="e.g. Creative ERP"
+                                            value="{{ old('settings.system_name', $settings['system_name'] ?? 'Creative Century Engineering') }}"
+                                            placeholder="e.g. Creative Century Engineering"
                                             maxlength="255"
                                             x-on:input="markDirty()"
                                             class="block w-full rounded-xl border {{ $errors->has('settings.system_name') ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500' }} shadow-sm text-sm py-2.5 pl-3 pr-3 transition-colors duration-200 min-h-[42px]"
                                         >
                                     @else
                                         <div class="block w-full rounded-xl border border-gray-200 bg-gray-50 text-gray-600 shadow-sm text-sm py-2.5 px-3 min-h-[42px]">
-                                            {{ $settings['system_name'] ?? 'Creative ERP' }}
+                                            {{ $settings['system_name'] ?? 'Creative Century Engineering' }}
                                         </div>
                                     @endif
                                     @error('settings.system_name')

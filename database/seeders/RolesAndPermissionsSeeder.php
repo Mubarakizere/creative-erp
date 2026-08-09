@@ -81,6 +81,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'credit_note.view',
             'crm.create',
             'crm.delete',
+            'crm.pipeline',
             'crm.restore',
             'crm.update',
             'crm.view',
@@ -183,6 +184,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'milestone.restore',
             'milestone.update',
             'milestone.view',
+            'notification.announcement',
             'notification.create',
             'notification.delete',
             'notification.restore',
@@ -320,8 +322,25 @@ class RolesAndPermissionsSeeder extends Seeder
             'workflow.view',
         ];
 
+        // Auto-discover missing permissions from policies
+        $discoveredPermissions = [];
+        $files = glob(app_path('Policies/*.php'));
+        foreach($files as $file) {
+            $content = file_get_contents($file);
+            preg_match_all('/hasPermissionTo\(\'([a-zA-Z0-9_\-\.]+)\'\)/', $content, $matches);
+            if (!empty($matches[1])) {
+                $discoveredPermissions = array_merge($discoveredPermissions, $matches[1]);
+            }
+        }
+        
+        foreach (array_unique($discoveredPermissions) as $dp) {
+            if (!in_array($dp, $permissions)) {
+                $permissions[] = $dp;
+            }
+        }
+
         // 2. Create Permissions
-        foreach ($permissions as $permission) {
+        foreach (array_unique($permissions) as $permission) {
             Permission::firstOrCreate(['name' => $permission]);
         }
 
@@ -364,17 +383,68 @@ class RolesAndPermissionsSeeder extends Seeder
             $admin->syncPermissions(Permission::all());
         }
 
-        $warehouseManager = Role::where('name', 'Warehouse Manager')->first();
-        if ($warehouseManager) {
-            $warehousePerms = Permission::whereIn('name', [
-                'warehouse.view', 'warehouse.create', 'warehouse.update', 'warehouse.delete',
-                'inventory.view', 'inventory.create', 'inventory.update', 'inventory.delete',
-                'stock.view', 'stock.create', 'stock.update', 'stock.delete',
-                'product.view', 'product.create', 'product.update', 'product.delete',
-                'material_request.view', 'material_issue.view', 'material_issue.create',
-                'goods_receipt.view', 'goods_receipt.create', 'goods_receipt.update'
+        $ceo = Role::where('name', 'CEO')->first();
+        if ($ceo) {
+            $ceoPerms = Permission::where(function($q) {
+                $q->where('name', 'like', '%.view')
+                  ->orWhere('name', 'like', '%.approve')
+                  ->orWhere('name', 'like', 'dashboard.%')
+                  ->orWhere('name', 'notification.announcement')
+                  ->orWhere('name', 'like', 'report.%');
+            })->get();
+            $ceo->syncPermissions($ceoPerms);
+        }
+
+        $financeManager = Role::where('name', 'Finance Manager')->first();
+        if ($financeManager) {
+            $financePerms = Permission::where(function($q) {
+                $q->where('name', 'like', 'account.%')
+                  ->orWhere('name', 'like', 'journal.%')
+                  ->orWhere('name', 'like', 'expense.%')
+                  ->orWhere('name', 'like', 'invoice.%')
+                  ->orWhere('name', 'like', 'payment.%')
+                  ->orWhere('name', 'like', 'tax.%')
+                  ->orWhere('name', 'like', 'budget.%')
+                  ->orWhere('name', 'like', 'depreciation.%')
+                  ->orWhere('name', 'like', 'report.%')
+                  ->orWhere('name', 'like', 'dashboard.%');
+            })->get();
+            $financeManager->syncPermissions($financePerms);
+        }
+
+        $accountant = Role::where('name', 'Accountant')->first();
+        if ($accountant) {
+            $accountantPerms = Permission::where(function($q) {
+                $q->where('name', 'like', 'account.%')
+                  ->orWhere('name', 'like', 'journal.%')
+                  ->orWhere('name', 'like', 'expense.%')
+                  ->orWhere('name', 'like', 'invoice.%')
+                  ->orWhere('name', 'like', 'payment.%')
+                  ->orWhere('name', 'like', 'tax.%')
+                  ->orWhere('name', 'like', 'report.%')
+                  ->orWhere('name', 'like', 'dashboard.%');
+            })->get();
+            $accountant->syncPermissions($accountantPerms);
+        }
+
+        $hrManager = Role::where('name', 'HR Manager')->first();
+        if ($hrManager) {
+            $hrPerms = Permission::where(function($q) {
+                $q->where('name', 'like', 'department.%')
+                  ->orWhere('name', 'like', 'user.%')
+                  ->orWhere('name', 'like', 'time.%')
+                  ->orWhere('name', 'notification.announcement')
+                  ->orWhere('name', 'like', 'dashboard.%');
+            })->get();
+            $hrManager->syncPermissions($hrPerms);
+        }
+
+        $hrOfficer = Role::where('name', 'HR Officer')->first();
+        if ($hrOfficer) {
+            $hrOfficerPerms = Permission::whereIn('name', [
+                'department.view', 'user.view', 'user.create', 'time.view', 'time.approve', 'dashboard.view'
             ])->get();
-            $warehouseManager->syncPermissions($warehousePerms);
+            $hrOfficer->syncPermissions($hrOfficerPerms);
         }
 
         $projectManager = Role::where('name', 'Project Manager')->first();
@@ -385,23 +455,142 @@ class RolesAndPermissionsSeeder extends Seeder
                   ->orWhere('name', 'like', 'milestone.%')
                   ->orWhere('name', 'like', 'material_request.%')
                   ->orWhere('name', 'like', 'report.%')
-                  ->orWhere('name', 'like', 'document.%');
+                  ->orWhere('name', 'like', 'document.%')
+                  ->orWhere('name', 'like', 'dashboard.%');
             })->get();
             $projectManager->syncPermissions($pmPerms);
         }
 
-        $accountant = Role::where('name', 'Accountant')->first();
-        if ($accountant) {
-            $financePerms = Permission::where(function($q) {
-                $q->where('name', 'like', 'account.%')
-                  ->orWhere('name', 'like', 'journal.%')
-                  ->orWhere('name', 'like', 'expense.%')
-                  ->orWhere('name', 'like', 'invoice.%')
-                  ->orWhere('name', 'like', 'payment.%')
-                  ->orWhere('name', 'like', 'tax.%')
-                  ->orWhere('name', 'like', 'report.%');
+        $engineer = Role::where('name', 'Engineer')->first();
+        if ($engineer) {
+            $engineerPerms = Permission::whereIn('name', [
+                'project.view', 'project_task.view', 'project_task.update',
+                'material_request.create', 'material_request.view', 'document.view', 'dashboard.view'
+            ])->get();
+            $engineer->syncPermissions($engineerPerms);
+        }
+
+        $siteEngineer = Role::where('name', 'Site Engineer')->first();
+        if ($siteEngineer) {
+            $siteEngineerPerms = Permission::whereIn('name', [
+                'project.view', 'project_task.view', 'project_task.update',
+                'material_request.create', 'material_request.view', 'dashboard.view'
+            ])->get();
+            $siteEngineer->syncPermissions($siteEngineerPerms);
+        }
+
+        $procurementManager = Role::where('name', 'Procurement Manager')->first();
+        if ($procurementManager) {
+            $procurementPerms = Permission::where(function($q) {
+                $q->where('name', 'like', 'procurement.%')
+                  ->orWhere('name', 'like', 'purchase_order.%')
+                  ->orWhere('name', 'like', 'purchase_requisition.%')
+                  ->orWhere('name', 'like', 'supplier.%')
+                  ->orWhere('name', 'like', 'supplier_payment.%')
+                  ->orWhere('name', 'like', 'report.%')
+                  ->orWhere('name', 'like', 'dashboard.%');
             })->get();
-            $accountant->syncPermissions($financePerms);
+            $procurementManager->syncPermissions($procurementPerms);
+        }
+
+        $procurementOfficer = Role::where('name', 'Procurement Officer')->first();
+        if ($procurementOfficer) {
+            $poPerms = Permission::where(function($q) {
+                $q->where('name', 'like', 'purchase_order.create')
+                  ->orWhere('name', 'like', 'purchase_order.view')
+                  ->orWhere('name', 'like', 'purchase_requisition.create')
+                  ->orWhere('name', 'like', 'purchase_requisition.view')
+                  ->orWhere('name', 'like', 'supplier.view')
+                  ->orWhere('name', 'like', 'dashboard.%');
+            })->get();
+            $procurementOfficer->syncPermissions($poPerms);
+        }
+
+        $warehouseManager = Role::where('name', 'Warehouse Manager')->first();
+        if ($warehouseManager) {
+            $warehousePerms = Permission::where(function($q) {
+                $q->where('name', 'like', 'warehouse.%')
+                  ->orWhere('name', 'like', 'inventory.%')
+                  ->orWhere('name', 'like', 'stock.%')
+                  ->orWhere('name', 'like', 'product.%')
+                  ->orWhere('name', 'like', 'goods_receipt.%')
+                  ->orWhere('name', 'like', 'material_issue.%')
+                  ->orWhere('name', 'like', 'material_request.view')
+                  ->orWhere('name', 'like', 'dashboard.%');
+            })->get();
+            $warehouseManager->syncPermissions($warehousePerms);
+        }
+
+        $inventoryManager = Role::where('name', 'Inventory Manager')->first();
+        if ($inventoryManager) {
+            $inventoryPerms = Permission::where(function($q) {
+                $q->where('name', 'like', 'inventory.%')
+                  ->orWhere('name', 'like', 'stock.%')
+                  ->orWhere('name', 'like', 'product.%')
+                  ->orWhere('name', 'like', 'dashboard.%');
+            })->get();
+            $inventoryManager->syncPermissions($inventoryPerms);
+        }
+
+        $storeKeeper = Role::where('name', 'Store Keeper')->first();
+        if ($storeKeeper) {
+            $storePerms = Permission::whereIn('name', [
+                'warehouse.view', 'inventory.view', 'inventory.update', 'stock.view', 'stock.update',
+                'product.view', 'goods_receipt.create', 'goods_receipt.view',
+                'material_issue.create', 'material_issue.view', 'dashboard.view'
+            ])->get();
+            $storeKeeper->syncPermissions($storePerms);
+        }
+
+        $assetManager = Role::where('name', 'Asset Manager')->first();
+        if ($assetManager) {
+            $assetPerms = Permission::where(function($q) {
+                $q->where('name', 'like', 'asset.%')
+                  ->orWhere('name', 'like', 'asset_category.%')
+                  ->orWhere('name', 'like', 'depreciation.%')
+                  ->orWhere('name', 'like', 'maintenance.%')
+                  ->orWhere('name', 'like', 'dashboard.%');
+            })->get();
+            $assetManager->syncPermissions($assetPerms);
+        }
+
+        $salesManager = Role::where('name', 'Sales Manager')->first();
+        if ($salesManager) {
+            $salesPerms = Permission::where(function($q) {
+                $q->where('name', 'like', 'crm.%')
+                  ->orWhere('name', 'like', 'lead.%')
+                  ->orWhere('name', 'like', 'opportunity.%')
+                  ->orWhere('name', 'like', 'quotation.%')
+                  ->orWhere('name', 'like', 'customer.%')
+                  ->orWhere('name', 'like', 'dashboard.%');
+            })->get();
+            $salesManager->syncPermissions($salesPerms);
+        }
+
+        $auditor = Role::where('name', 'Auditor')->first();
+        if ($auditor) {
+            $auditorPerms = Permission::where(function($q) {
+                $q->where('name', 'like', '%.view')
+                  ->orWhere('name', 'like', 'report.%')
+                  ->orWhere('name', 'like', 'dashboard.%');
+            })->get();
+            $auditor->syncPermissions($auditorPerms);
+        }
+
+        $employee = Role::where('name', 'Employee')->first();
+        if ($employee) {
+            $employeePerms = Permission::whereIn('name', [
+                'time.create', 'time.view', 'dashboard.view'
+            ])->get();
+            $employee->syncPermissions($employeePerms);
+        }
+
+        $client = Role::where('name', 'Client')->first();
+        if ($client) {
+            $clientPerms = Permission::whereIn('name', [
+                'project.view', 'invoice.view', 'quotation.view', 'dashboard.view'
+            ])->get();
+            $client->syncPermissions($clientPerms);
         }
     }
 }

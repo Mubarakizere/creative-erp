@@ -97,4 +97,7 @@ return [
         ['route' => 'admin.document-categories.index', 'label' => 'Document Categories', 'model' => \App\Models\DocumentCategory::class, 'active' => 'admin.document-categories.*'],
         ['route' => 'admin.documents.index', 'label' => 'Documents', 'model' => \App\Models\Document::class, 'active' => 'admin.documents.*'],
     ],
+    'Help & Documentation' => [
+        ['route' => 'admin.documentation.index', 'label' => 'Help Center', 'permission' => 'documentation.view', 'active' => 'admin.documentation.*'],
+    ],
 ];

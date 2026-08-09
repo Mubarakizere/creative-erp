@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
+use App\Models\Traits\CompanyScoped;
 use App\Traits\LogsActivity;
 
 class Product extends Model
 {
-    use HasFactory, SoftDeletes, HasUuids, LogsActivity;
+    use HasFactory, SoftDeletes, HasUuids, LogsActivity, CompanyScoped;
 
     protected $guarded = ['id'];
 

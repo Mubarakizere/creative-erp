@@ -39,7 +39,11 @@ class SequenceService
      */
     public function generate(string $documentType, ?int $companyId = null): string
     {
-        $companyId = $companyId ?? auth()->user()->company_id;
+        if (auth()->hasUser() && !auth()->user()->hasRole('Super Admin')) {
+            $companyId = auth()->user()->company_id;
+        } else {
+            $companyId = $companyId ?? (auth()->hasUser() ? auth()->user()->company_id : null);
+        }
 
         if (!$companyId) {
             throw new \Exception("Company ID is required to generate a sequence for {$documentType}");
@@ -82,6 +86,12 @@ class SequenceService
      */
     public function getSequencesForCompany(int $companyId)
     {
+        if (auth()->hasUser() && !auth()->user()->hasRole('Super Admin')) {
+            if ($companyId !== auth()->user()->company_id) {
+                throw new \Exception("Unauthorized access to company sequences.");
+            }
+        }
+
         // First, ensure all default document types have a sequence record
         foreach ($this->defaults as $type => $config) {
             Sequence::firstOrCreate(
