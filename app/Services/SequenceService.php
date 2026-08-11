@@ -84,8 +84,12 @@ class SequenceService
     /**
      * Get all configurable sequences for a company
      */
-    public function getSequencesForCompany(int $companyId)
+    public function getSequencesForCompany(?int $companyId)
     {
+        if (!$companyId) {
+            return collect();
+        }
+
         if (auth()->hasUser() && !auth()->user()->hasRole('Super Admin')) {
             if ($companyId !== auth()->user()->company_id) {
                 throw new \Exception("Unauthorized access to company sequences.");
