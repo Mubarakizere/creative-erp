@@ -440,14 +440,17 @@
                     </div>
                     <div class="p-4 space-y-3">
                         @php
-                            $pendingApprovals = \App\Models\Approval::with('requester')->where('status', 'pending')
-                                ->where('approver_id', auth()->id())
+                            $pendingApprovals = \App\Models\Approval::with('submitter')->where('status', 'pending')
+                                ->whereHas('currentStep', function($q) {
+                                    $q->where('approver_user_id', auth()->id())
+                                      ->orWhereIn('approver_role_id', auth()->user()->roles->pluck('id'));
+                                })
                                 ->latest()->take(4)->get();
                         @endphp
                         @forelse($pendingApprovals as $approval)
                         <div class="p-3 bg-white rounded-lg border border-gray-100 shadow-sm hover:border-amber-200 hover:shadow-md transition-all">
                             <p class="text-sm font-semibold text-gray-900">{{ class_basename($approval->approvable_type) }} #{{ $approval->approvable_id }}</p>
-                            <p class="text-xs text-gray-500 mt-1">Req. by {{ $approval->requester->first_name ?? 'System' }}</p>
+                            <p class="text-xs text-gray-500 mt-1">Req. by {{ $approval->submitter->first_name ?? 'System' }}</p>
                             <div class="mt-3 flex gap-2">
                                 <a href="#" class="px-3 py-1.5 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded hover:bg-emerald-100 transition-colors w-full text-center">Approve</a>
                                 <a href="#" class="px-3 py-1.5 bg-rose-50 text-rose-700 text-xs font-semibold rounded hover:bg-rose-100 transition-colors w-full text-center">Reject</a>
