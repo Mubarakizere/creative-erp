@@ -44,7 +44,7 @@ trait LogsActivity
 
         // Don't log if running from console without an authenticated user, unless we specifically want to
         $userId = auth()->id() ?? 1; // Fallback to 1 for system/seeders
-        $companyId = session('company_id') ?? ($model->company_id ?? ($this->company_id ?? 1));
+        $companyId = session('company_id') ?? ($model->company_id ?? ($this->company_id ?? auth()->user()?->company_id));
 
         ActivityLog::create([
             'user_id' => $userId,

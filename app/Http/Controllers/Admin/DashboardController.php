@@ -40,15 +40,15 @@ class DashboardController extends Controller
 
         $data = $this->dashboardService->getDashboardData($filters);
         
-        $companyId = auth()->user()->company_id ?? 1;
+        $companyId = auth()->user()->company_id;
         
         $data['filters'] = $filters;
-        $data['fiscalYears'] = \App\Models\FiscalYear::where('company_id', $companyId)->orderBy('start_date', 'desc')->get();
+        $data['fiscalYears'] = $companyId ? \App\Models\FiscalYear::where('company_id', $companyId)->orderBy('start_date', 'desc')->get() : collect();
         $data['fiscalYearId'] = $request->input('fiscal_year_id');
-        $data['branches'] = \App\Models\Branch::where('company_id', $companyId)->get();
-        $data['departments'] = \App\Models\Department::where('company_id', $companyId)->get();
-        $data['projects'] = \App\Models\Project::where('company_id', $companyId)->get();
-        $data['clients'] = \App\Models\Client::where('company_id', $companyId)->get();
+        $data['branches'] = $companyId ? \App\Models\Branch::where('company_id', $companyId)->get() : collect();
+        $data['departments'] = $companyId ? \App\Models\Department::where('company_id', $companyId)->get() : collect();
+        $data['projects'] = $companyId ? \App\Models\Project::where('company_id', $companyId)->get() : collect();
+        $data['clients'] = $companyId ? \App\Models\Client::where('company_id', $companyId)->get() : collect();
 
         $this->logActivity('dashboard_accessed', ['user_id' => auth()->id()]);
 
