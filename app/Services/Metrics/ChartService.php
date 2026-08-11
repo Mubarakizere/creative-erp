@@ -3,6 +3,7 @@
 namespace App\Services\Metrics;
 
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class ChartService
 {
@@ -162,10 +163,11 @@ class ChartService
 
     private function getMonthlyTrend(string $category, array $filters = []): array
     {
+        $monthExpr = $this->monthExpression('date');
         $query = \App\Models\GeneralLedger::select(
-            \Illuminate\Support\Facades\DB::raw("strftime('%m', date) as month"),
-            \Illuminate\Support\Facades\DB::raw("SUM(credit - debit) as net_credit"),
-            \Illuminate\Support\Facades\DB::raw("SUM(debit - credit) as net_debit")
+            DB::raw("{$monthExpr} as month"),
+            DB::raw("SUM(credit - debit) as net_credit"),
+            DB::raw("SUM(debit - credit) as net_debit")
         )
         ->whereHas('chartOfAccount.accountType', function($q) use ($category) {
             $q->where('category', $category);
@@ -283,9 +285,10 @@ class ChartService
 
     private function purchaseTrends(array $filters = []): array
     {
+        $monthExpr = $this->monthExpression('order_date');
         $query = \App\Models\PurchaseOrder::select(
-            \Illuminate\Support\Facades\DB::raw("strftime('%m', order_date) as month"),
-            \Illuminate\Support\Facades\DB::raw("SUM(grand_total) as total_value")
+            DB::raw("{$monthExpr} as month"),
+            DB::raw("SUM(grand_total) as total_value")
         )
         ->whereNotIn('status', ['draft', 'cancelled'])
         ->whereDate('order_date', '>=', now()->subMonths(5)->startOfMonth())
@@ -430,9 +433,10 @@ class ChartService
 
     private function getWmsMonthlyTrend(string $modelClass, string $dateColumn, array $filters = []): array
     {
+        $monthExpr = $this->monthExpression($dateColumn);
         $query = $modelClass::select(
-            \Illuminate\Support\Facades\DB::raw("strftime('%m', {$dateColumn}) as month"),
-            \Illuminate\Support\Facades\DB::raw("COUNT(*) as total_count")
+            DB::raw("{$monthExpr} as month"),
+            DB::raw("COUNT(*) as total_count")
         )
         ->whereDate($dateColumn, '>=', now()->subMonths(5)->startOfMonth())
         ->whereDate($dateColumn, '<=', now()->endOfMonth())
@@ -516,9 +520,10 @@ class ChartService
 
     private function projectCostTrend(array $filters = []): array
     {
+        $monthExpr = $this->monthExpression('date');
         $query = \App\Models\GeneralLedger::select(
-            \Illuminate\Support\Facades\DB::raw("strftime('%m', date) as month"),
-            \Illuminate\Support\Facades\DB::raw("SUM(debit) as total_cost")
+            DB::raw("{$monthExpr} as month"),
+            DB::raw("SUM(debit) as total_cost")
         )
         ->whereHas('chartOfAccount.accountType', function($q) {
             $q->where('category', 'Expense');
@@ -561,5 +566,19 @@ class ChartService
     {
         // Re-use materialCostByActivity for now or expand if labor exists
         return $this->materialCostByActivity($filters);
+    }
+
+    /**
+     * Get the correct SQL expression for extracting a zero-padded month number,
+     * compatible with both MySQL and SQLite.
+     */
+    private function monthExpression(string $column): string
+    {
+        $driver = DB::connection()->getDriverName();
+
+        return match ($driver) {
+            'mysql', 'mariadb' => "LPAD(MONTH({$column}), 2, '0')",
+            default => "strftime('%m', {$column})",  // SQLite
+        };
     }
 }

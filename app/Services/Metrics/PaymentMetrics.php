@@ -68,8 +68,14 @@ class PaymentMetrics implements MetricProvider
         $companyId = $filters['company_id'] ?? (auth()->user() ? auth()->user()->company_id : null);
         if (!$companyId) return [];
 
+        $driver = \Illuminate\Support\Facades\DB::connection()->getDriverName();
+        $monthExpr = match ($driver) {
+            'mysql', 'mariadb' => "LPAD(MONTH(payment_date), 2, '0')",
+            default => "strftime('%m', payment_date)",
+        };
+
         $query = Payment::select(
-            \Illuminate\Support\Facades\DB::raw("strftime('%m', payment_date) as month"),
+            \Illuminate\Support\Facades\DB::raw("{$monthExpr} as month"),
             \Illuminate\Support\Facades\DB::raw("SUM(amount) as total")
         )
         ->where('company_id', $companyId)
