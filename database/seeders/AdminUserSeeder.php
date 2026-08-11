@@ -13,12 +13,12 @@ class AdminUserSeeder extends Seeder
     public function run(): void
     {
         $user = User::updateOrCreate(
-            ['email' => 'admin@creative-erp.com'],
+            ['email' => 'info@creativecenturyengineering.com'],
             [
                 'first_name' => 'System',
                 'last_name' => 'Administrator',
-                'email' => 'admin@creative-erp.com',
-                'password' => bcrypt('password'),
+                'email' => 'info@creativecenturyengineering.com',
+                'password' => bcrypt('cce@2026'),
                 'status' => 'active',
                 'email_verified_at' => now(),
             ]

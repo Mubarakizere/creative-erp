@@ -14,21 +14,6 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RolesAndPermissionsSeeder::class,
             AdminUserSeeder::class,
-            CompanySeeder::class,
-            BranchSeeder::class,
-            DepartmentSeeder::class,
-            UserSeeder::class,
-            ClientSeeder::class,
-            ProjectSeeder::class,
-            ProjectMemberSeeder::class,
-            TaskSeeder::class,
-            MilestoneSeeder::class,
-            DocumentSeeder::class,
-            CommentSeeder::class,
-            MeetingSeeder::class,
-            TimeEntrySeeder::class,
-            WorkflowSeeder::class,
-            ReportTemplateSeeder::class,
         ]);
     }
 }

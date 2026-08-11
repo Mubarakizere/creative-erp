@@ -85,6 +85,28 @@
                 </div>
             </div>
         </footer>
+
+
+        {{-- Back to Top Button --}}
+        <div x-data="{ showBackToTop: false }"
+             x-init="window.addEventListener('scroll', () => { showBackToTop = window.scrollY > 300 })"
+             class="fixed bottom-8 right-8 z-50">
+            <button x-show="showBackToTop"
+                    x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0 translate-y-4 scale-90"
+                    x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                    x-transition:leave="transition ease-in duration-200"
+                    x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                    x-transition:leave-end="opacity-0 translate-y-4 scale-90"
+                    @click="window.scrollTo({ top: 0, behavior: 'smooth' })"
+                    class="group flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-full shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:from-blue-600 hover:to-blue-700 transition-all duration-300 transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+                    aria-label="Back to top"
+                    title="Back to top">
+                <svg class="w-5 h-5 group-hover:-translate-y-0.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"></path>
+                </svg>
+            </button>
+        </div>
     </div>
 
     <style>

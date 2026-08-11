@@ -92,38 +92,63 @@
                 <div class="w-full lg:w-3/5 p-10 lg:p-16">
                     <h3 class="text-2xl font-bold text-slate-900 mb-6">Send us a Message</h3>
                     
-                    <form action="#" method="POST" class="space-y-6">
+                    {{-- Success Message --}}
+                    @if(session('success'))
+                        <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl flex items-start">
+                            <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <p class="ml-3 text-sm text-green-700 font-medium">{{ session('success') }}</p>
+                        </div>
+                    @endif
+
+                    {{-- Validation Errors --}}
+                    @if($errors->any())
+                        <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+                            <div class="flex items-start">
+                                <svg class="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <div class="ml-3">
+                                    <p class="text-sm text-red-700 font-medium">Please fix the following errors:</p>
+                                    <ul class="mt-2 text-sm text-red-600 list-disc list-inside">
+                                        @foreach($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                    <form action="{{ route('contact.send') }}" method="POST" class="space-y-6">
                         @csrf
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label for="first_name" class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-                                <input type="text" name="first_name" id="first_name" class="block w-full rounded-xl border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 py-3 px-4" placeholder="John" required>
+                                <input type="text" name="first_name" id="first_name" value="{{ old('first_name') }}" class="block w-full rounded-xl border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 py-3 px-4" placeholder="John" required>
                             </div>
                             <div>
                                 <label for="last_name" class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                                <input type="text" name="last_name" id="last_name" class="block w-full rounded-xl border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 py-3 px-4" placeholder="Doe" required>
+                                <input type="text" name="last_name" id="last_name" value="{{ old('last_name') }}" class="block w-full rounded-xl border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 py-3 px-4" placeholder="Doe" required>
                             </div>
                         </div>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                                <input type="email" name="email" id="email" class="block w-full rounded-xl border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 py-3 px-4" placeholder="john@example.com" required>
+                                <input type="email" name="email" id="email" value="{{ old('email') }}" class="block w-full rounded-xl border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 py-3 px-4" placeholder="john@example.com" required>
                             </div>
                             <div>
                                 <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number (Optional)</label>
-                                <input type="tel" name="phone" id="phone" class="block w-full rounded-xl border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 py-3 px-4" placeholder="+250 788 123 456">
+                                <input type="tel" name="phone" id="phone" value="{{ old('phone') }}" class="block w-full rounded-xl border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 py-3 px-4" placeholder="+250 788 123 456">
                             </div>
                         </div>
                         
                         <div>
                             <label for="subject" class="block text-sm font-medium text-gray-700 mb-1">Subject</label>
-                            <input type="text" name="subject" id="subject" class="block w-full rounded-xl border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 py-3 px-4" placeholder="How can we help?" required>
+                            <input type="text" name="subject" id="subject" value="{{ old('subject') }}" class="block w-full rounded-xl border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 py-3 px-4" placeholder="How can we help?" required>
                         </div>
                         
                         <div>
                             <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Message</label>
-                            <textarea id="message" name="message" rows="5" class="block w-full rounded-xl border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 py-3 px-4 resize-none" placeholder="Tell us more about your inquiry..." required></textarea>
+                            <textarea id="message" name="message" rows="5" class="block w-full rounded-xl border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 py-3 px-4 resize-none" placeholder="Tell us more about your inquiry..." required>{{ old('message') }}</textarea>
                         </div>
                         
                         <div>

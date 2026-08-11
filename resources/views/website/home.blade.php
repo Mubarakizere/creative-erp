@@ -1,12 +1,12 @@
 <x-layouts.website title="Home">
     {{-- Hero Section --}}
-    <section class="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
+    <section class="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden pb-40">
         {{-- Background Image Carousel with Overlay --}}
         <div class="absolute inset-0 z-0" x-data="{
             images: [
-                'https://images.unsplash.com/photo-1508450859948-4e04fabaa4ea?auto=format&fit=crop&w=1920&q=80',
-                'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1920&q=80',
-                'https://images.unsplash.com/photo-1428366890462-dd4baecf492b?auto=format&fit=crop&w=1920&q=80'
+                'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                'https://images.unsplash.com/photo-1687986261123-b17f08f2796c?q=80&w=1331&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                'https://images.unsplash.com/photo-1508450859948-4e04fabaa4ea?q=80&w=779&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
             ],
             active: 0,
             init() {
@@ -46,7 +46,7 @@
                 Creative Century Engineering delivers top-tier civil, structural, and mechanical engineering solutions. We transform bold visions into enduring realities.
             </p>
 
-            <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up animation-delay-300">
+            <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up animation-delay-300 relative z-40">
                 <a href="{{ route('projects') }}" class="px-8 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-blue-700 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-all duration-300 transform hover:-translate-y-1">
                     View Our Projects
                 </a>
@@ -55,18 +55,12 @@
                 </a>
             </div>
         </div>
-        
-        {{-- Scroll Indicator --}}
-        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex flex-col items-center animate-fade-in-up animation-delay-500">
-            <span class="text-white/60 text-sm mb-2 font-medium tracking-widest uppercase">Scroll</span>
-            <div class="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center p-1">
-                <div class="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce"></div>
-            </div>
-        </div>
+
+
     </section>
 
     {{-- Stats Section --}}
-    <section class="relative z-20 -mt-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section class="relative z-40 -mt-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-8 sm:p-12 border border-gray-100 backdrop-blur-xl">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 divide-y sm:divide-y-0 sm:divide-x divide-gray-100">
                 <div class="text-center sm:px-4 pt-4 sm:pt-0">

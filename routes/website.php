@@ -18,3 +18,4 @@ Route::get('/expertise', [HomeController::class, 'expertise'])->name('expertise'
 Route::get('/projects', [HomeController::class, 'projects'])->name('projects');
 Route::get('/about', [HomeController::class, 'about'])->name('about');
 Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
+Route::post('/contact', [HomeController::class, 'sendContact'])->name('contact.send');
