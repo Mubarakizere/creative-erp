@@ -296,162 +296,7 @@
                     </x-card>
                 </div>
 
-                {{-- =============== EMAIL & INTEGRATIONS =============== --}}
-                <div x-show="activeTab === 'email'" x-cloak>
-                    <x-card>
-                        <div class="border-b border-gray-200 pb-4 mb-6">
-                            <div class="flex items-center gap-3">
-                                <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-violet-50 text-violet-600">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h3 class="text-lg font-semibold text-gray-900">Email & Integrations</h3>
-                                    <p class="text-sm text-gray-500">Mail delivery and third-party integration settings.</p>
-                                </div>
-                            </div>
-                        </div>
 
-                        <x-empty-state
-                            title="Not Yet Configured"
-                            description="Email and integration configuration options will appear here when supported by the backend."
-                        >
-                            <x-slot:icon>
-                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                                </svg>
-                            </x-slot:icon>
-                        </x-empty-state>
-                    </x-card>
-                </div>
-
-                {{-- =============== INVENTORY =============== --}}
-                <div x-show="activeTab === 'inventory'" x-cloak>
-                    <x-card>
-                        <div class="border-b border-gray-200 pb-4 mb-6">
-                            <div class="flex items-center gap-3">
-                                <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-amber-50 text-amber-600">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h3 class="text-lg font-semibold text-gray-900">Inventory Configuration</h3>
-                                    <p class="text-sm text-gray-500">Global inventory behavior and policies.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <x-empty-state
-                            title="Coming Soon"
-                            description="Global inventory configuration settings are not yet available. Products, warehouses, and stock operations are managed within the Inventory module."
-                        >
-                            <x-slot:icon>
-                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                                </svg>
-                            </x-slot:icon>
-                            <x-slot:action>
-                                @if(Route::has('admin.inventory.dashboard'))
-                                    <x-button type="outline" size="sm" :href="route('admin.inventory.dashboard')">
-                                        View Inventory
-                                    </x-button>
-                                @endif
-                            </x-slot:action>
-                        </x-empty-state>
-                    </x-card>
-                </div>
-
-                {{-- =============== PROCUREMENT =============== --}}
-                <div x-show="activeTab === 'procurement'" x-cloak>
-                    <x-card>
-                        <div class="border-b border-gray-200 pb-4 mb-6">
-                            <div class="flex items-center gap-3">
-                                <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-cyan-50 text-cyan-600">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h3 class="text-lg font-semibold text-gray-900">Procurement Configuration</h3>
-                                    <p class="text-sm text-gray-500">Purchasing policies and procurement workflow settings.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <x-empty-state
-                            title="Coming Soon"
-                            description="Global procurement configuration is not yet available. Requisitions, RFQs, and purchase orders are managed within the Procurement module."
-                        >
-                            <x-slot:icon>
-                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/>
-                                </svg>
-                            </x-slot:icon>
-                        </x-empty-state>
-                    </x-card>
-                </div>
-
-                {{-- =============== PROJECTS =============== --}}
-                <div x-show="activeTab === 'projects'" x-cloak>
-                    <x-card>
-                        <div class="border-b border-gray-200 pb-4 mb-6">
-                            <div class="flex items-center gap-3">
-                                <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h3 class="text-lg font-semibold text-gray-900">Project Configuration</h3>
-                                    <p class="text-sm text-gray-500">Default project behavior and policies.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <x-empty-state
-                            title="Coming Soon"
-                            description="Global project configuration is not yet available. Projects, tasks, and milestones are managed within the Projects module."
-                        >
-                            <x-slot:icon>
-                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                                </svg>
-                            </x-slot:icon>
-                        </x-empty-state>
-                    </x-card>
-                </div>
-
-                {{-- =============== DOCUMENTS =============== --}}
-                <div x-show="activeTab === 'documents'" x-cloak>
-                    <x-card>
-                        <div class="border-b border-gray-200 pb-4 mb-6">
-                            <div class="flex items-center gap-3">
-                                <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-rose-50 text-rose-600">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h3 class="text-lg font-semibold text-gray-900">Document Configuration</h3>
-                                    <p class="text-sm text-gray-500">Document management policies and defaults.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <x-empty-state
-                            title="Coming Soon"
-                            description="Global document configuration is not yet available. Documents and categories are managed within the Documents module."
-                        >
-                            <x-slot:icon>
-                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                </svg>
-                            </x-slot:icon>
-                        </x-empty-state>
-                    </x-card>
-                </div>
 
                 {{-- =============== DOCUMENT NUMBERING =============== --}}
                 <div x-show="activeTab === 'numbering'" x-cloak>
@@ -516,35 +361,6 @@
                     </x-card>
                 </div>
 
-                {{-- =============== SECURITY =============== --}}
-                <div x-show="activeTab === 'security'" x-cloak>
-                    <x-card>
-                        <div class="border-b border-gray-200 pb-4 mb-6">
-                            <div class="flex items-center gap-3">
-                                <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-red-50 text-red-600">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h3 class="text-lg font-semibold text-gray-900">Security Configuration</h3>
-                                    <p class="text-sm text-gray-500">Authentication and access control policies.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <x-empty-state
-                            title="Coming Soon"
-                            description="Global security configuration is not yet available. Users, roles, and permissions are managed within their dedicated modules."
-                        >
-                            <x-slot:icon>
-                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                                </svg>
-                            </x-slot:icon>
-                        </x-empty-state>
-                    </x-card>
-                </div>
             </div>
         </div>
     </div>
@@ -569,47 +385,11 @@
                         icon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
                     },
                     {
-                        id: 'email',
-                        label: 'Email & Integrations',
-                        badge: 'Soon',
-                        icon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>'
-                    },
-                    {
-                        id: 'inventory',
-                        label: 'Inventory',
-                        badge: 'Soon',
-                        icon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>'
-                    },
-                    {
-                        id: 'procurement',
-                        label: 'Procurement',
-                        badge: 'Soon',
-                        icon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>'
-                    },
-                    {
-                        id: 'projects',
-                        label: 'Projects',
-                        badge: 'Soon',
-                        icon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>'
-                    },
-                    {
-                        id: 'documents',
-                        label: 'Documents',
-                        badge: 'Soon',
-                        icon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>'
-                    },
-                    {
                         id: 'numbering',
                         label: 'Numbering',
                         badge: null,
                         icon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/></svg>'
-                    },
-                    {
-                        id: 'security',
-                        label: 'Security',
-                        badge: 'Soon',
-                        icon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>'
-                    },
+                    }
                 ],
                 markDirty() {
                     this.isDirty = true;

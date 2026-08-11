@@ -50,8 +50,7 @@
                 </svg>
             </button>
 
-            {{-- Timer --}}
-            <x-timer />
+
 
             {{-- Notifications --}}
             @can('notification.view')
