@@ -99,7 +99,7 @@ class AccountingMetrics implements MetricProvider
                 'trend' => '+0%',
             ],
             'Open Fiscal Periods' => [
-                'value' => AccountingPeriod::where('company_id', $companyId)->where('is_locked', false)->count(),
+                'value' => AccountingPeriod::where('company_id', $companyId)->where('status', 'Open')->count(),
                 'icon' => 'calendar-days',
                 'color' => 'teal',
                 'trend' => '+0%',
