@@ -29,6 +29,7 @@ class PurchaseOrder extends Model
     public function items() { return $this->hasMany(PurchaseOrderItem::class); }
     public function goodsReceipts() { return $this->hasMany(GoodsReceipt::class); }
     public function invoices() { return $this->hasMany(PurchaseInvoice::class); }
+    public function project() { return $this->belongsTo(Project::class); }
     public function creator() { return $this->belongsTo(User::class, 'created_by'); }
     public function updater() { return $this->belongsTo(User::class, 'updated_by'); }
 }
