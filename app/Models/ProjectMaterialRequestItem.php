@@ -4,11 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use App\Models\Traits\HasUuidColumn;
 
 class ProjectMaterialRequestItem extends Model
 {
-    use HasFactory, HasUuids;
+    use HasFactory, HasUuidColumn;
 
     protected $guarded = ['id'];
 

@@ -5,14 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use App\Models\Traits\HasUuidColumn;
 use App\Models\Traits\CompanyScoped;
 use App\Models\Traits\BranchScoped;
 use App\Traits\LogsActivity;
 
 class ProjectMaterialRequest extends Model
 {
-    use HasFactory, SoftDeletes, HasUuids, CompanyScoped, LogsActivity;
+    use HasFactory, SoftDeletes, HasUuidColumn, CompanyScoped, LogsActivity;
 
     protected $guarded = ['id'];
 

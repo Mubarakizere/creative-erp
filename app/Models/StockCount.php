@@ -3,12 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use App\Models\Traits\HasUuidColumn;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class StockCount extends Model
 {
-    use HasUuids, SoftDeletes;
+    use HasUuidColumn, SoftDeletes;
 
     protected $guarded = ['id'];
 

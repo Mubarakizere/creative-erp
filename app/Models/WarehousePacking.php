@@ -4,13 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use App\Models\Traits\HasUuidColumn;
 
 use App\Traits\LogsActivity;
 
 class WarehousePacking extends Model
 {
-    use HasUuids, LogsActivity;
+    use HasUuidColumn, LogsActivity;
 
     protected $guarded = ['id'];
     

@@ -4,13 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use App\Models\Traits\HasUuidColumn;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Traits\LogsActivity;
 
 class WarehouseBin extends Model
 {
-    use HasFactory, SoftDeletes, HasUuids, LogsActivity;
+    use HasFactory, SoftDeletes, HasUuidColumn, LogsActivity;
 
     protected $guarded = ['id'];
 

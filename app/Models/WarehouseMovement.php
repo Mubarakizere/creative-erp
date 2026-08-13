@@ -3,13 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use App\Models\Traits\HasUuidColumn;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\LogsActivity;
 
 class WarehouseMovement extends Model
 {
-    use HasUuids, SoftDeletes, LogsActivity;
+    use HasUuidColumn, SoftDeletes, LogsActivity;
 
     protected $guarded = ['id'];
 

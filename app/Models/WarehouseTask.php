@@ -8,7 +8,7 @@ use App\Traits\LogsActivity;
 
 class WarehouseTask extends Model
 {
-    use \Illuminate\Database\Eloquent\Factories\HasFactory, \Illuminate\Database\Eloquent\Concerns\HasUuids, \Illuminate\Database\Eloquent\SoftDeletes, LogsActivity;
+    use \Illuminate\Database\Eloquent\Factories\HasFactory, \App\Models\Traits\HasUuidColumn, \Illuminate\Database\Eloquent\SoftDeletes, LogsActivity;
 
     protected $guarded = ['id'];
 

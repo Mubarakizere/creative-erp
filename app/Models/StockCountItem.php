@@ -3,11 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use App\Models\Traits\HasUuidColumn;
 
 class StockCountItem extends Model
 {
-    use HasUuids;
+    use HasUuidColumn;
 
     protected $guarded = ['id'];
 
