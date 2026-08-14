@@ -64,7 +64,6 @@ class WarehouseDashboardTest extends TestCase
         // Bin 1: Full
         WarehouseBin::create([
             'company_id' => $this->company->id,
-            'warehouse_id' => $warehouse->id,
             'warehouse_zone_id' => $zone->id,
             'code' => 'FULL-01',
             'capacity' => 100,
@@ -75,7 +74,6 @@ class WarehouseDashboardTest extends TestCase
         // Bin 2: Partial
         WarehouseBin::create([
             'company_id' => $this->company->id,
-            'warehouse_id' => $warehouse->id,
             'warehouse_zone_id' => $zone->id,
             'code' => 'PARTIAL-01',
             'capacity' => 100,
@@ -86,7 +84,6 @@ class WarehouseDashboardTest extends TestCase
         // Bin 3: Empty
         WarehouseBin::create([
             'company_id' => $this->company->id,
-            'warehouse_id' => $warehouse->id,
             'warehouse_zone_id' => $zone->id,
             'code' => 'EMPTY-01',
             'capacity' => 100,

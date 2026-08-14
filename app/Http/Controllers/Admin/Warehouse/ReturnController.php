@@ -82,7 +82,7 @@ class ReturnController extends Controller
 
         $return->load(['warehouse', 'inspectedBy']);
         
-        $bins = WarehouseBin::where('warehouse_id', $return->warehouse_id)->get();
+        $bins = $return->warehouse ? $return->warehouse->bins : WarehouseBin::forWarehouse($return->warehouse_id)->get();
         $products = Product::whereIn('id', collect($return->items)->pluck('product_id'))->get()->keyBy('id');
 
         return view('admin.warehouse.returns.show', compact('return', 'bins', 'products'));

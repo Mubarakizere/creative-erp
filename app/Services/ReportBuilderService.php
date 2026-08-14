@@ -879,7 +879,9 @@ class ReportBuilderService
         $this->applyCommonFilters($query, $filters);
         
         if (!empty($filters['warehouse_id'])) {
-            $query->whereIn('warehouse_id', (array) $filters['warehouse_id']);
+            $query->whereHas('zone', function ($q) use ($filters) {
+                $q->whereIn('warehouse_id', (array) $filters['warehouse_id']);
+            });
         }
 
         $bins = $query->get();
@@ -902,7 +904,7 @@ class ReportBuilderService
         $warehouses = $query->get();
         
         $warehouses->each(function($warehouse) {
-            $bins = \App\Models\WarehouseBin::where('warehouse_id', $warehouse->id)->get();
+            $bins = $warehouse->bins;
             $totalCapacity = $bins->sum('capacity');
             $currentQuantity = $bins->sum('current_quantity');
             $activeBins = $bins->where('status', 'active')->count();

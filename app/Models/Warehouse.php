@@ -19,6 +19,7 @@ class Warehouse extends Model
     ];
     public function manager() { return $this->belongsTo(User::class, 'manager_id'); }
     public function zones() { return $this->hasMany(WarehouseZone::class); }
+    public function bins() { return $this->hasManyThrough(WarehouseBin::class, WarehouseZone::class); }
     public function inventories() { return $this->hasMany(Inventory::class); }
 
     public function scopeActive($query)

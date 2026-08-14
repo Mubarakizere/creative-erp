@@ -19,6 +19,25 @@ class WarehouseBin extends Model
         return $this->belongsTo(WarehouseZone::class, 'warehouse_zone_id');
     }
 
+    public function warehouse()
+    {
+        return $this->hasOneThrough(
+            Warehouse::class,
+            WarehouseZone::class,
+            'id',
+            'id',
+            'warehouse_zone_id',
+            'warehouse_id'
+        );
+    }
+
+    public function scopeForWarehouse($query, $warehouseId)
+    {
+        return $query->whereHas('zone', function ($q) use ($warehouseId) {
+            $q->where('warehouse_id', $warehouseId);
+        });
+    }
+
     public function company()
     {
         return $this->belongsTo(Company::class);

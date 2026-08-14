@@ -37,7 +37,7 @@ $inventories = Inventory::where('company_id', $company->id)
 
 if ($inventories->isEmpty()) {
     echo "No bin inventory found. Generating dummy bin inventory...\n";
-    $bin = WarehouseBin::where('warehouse_id', $warehouse->id)->first();
+    $bin = $warehouse->bins()->first();
     if (!$bin) {
         $zone = \App\Models\WarehouseZone::firstOrCreate([
             'warehouse_id' => $warehouse->id,
@@ -48,7 +48,6 @@ if ($inventories->isEmpty()) {
         ]);
         $bin = WarehouseBin::create([
             'company_id' => $company->id,
-            'warehouse_id' => $warehouse->id,
             'warehouse_zone_id' => $zone->id,
             'code' => 'BIN-999',
             'status' => 'active',

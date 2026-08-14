@@ -383,7 +383,7 @@ class ChartService
         $data = [];
         
         foreach ($warehouses as $warehouse) {
-            $totalCapacity = \App\Models\WarehouseBin::where('warehouse_id', $warehouse->id)->sum('capacity');
+            $totalCapacity = $warehouse->bins()->sum('capacity');
             $data[$warehouse->name] = (float) $totalCapacity;
         }
         
@@ -402,8 +402,8 @@ class ChartService
         $data = [];
         
         foreach ($warehouses as $warehouse) {
-            $totalCapacity = \App\Models\WarehouseBin::where('warehouse_id', $warehouse->id)->sum('capacity');
-            $currentQuantity = \App\Models\WarehouseBin::where('warehouse_id', $warehouse->id)->sum('current_quantity');
+            $totalCapacity = $warehouse->bins()->sum('capacity');
+            $currentQuantity = $warehouse->bins()->sum('current_quantity');
             $utilization = $totalCapacity > 0 ? ($currentQuantity / $totalCapacity) * 100 : 0;
             $data[$warehouse->name] = round($utilization, 2);
         }
