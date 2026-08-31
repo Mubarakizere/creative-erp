@@ -26,6 +26,10 @@ class ProjectMaterialRequestController extends Controller
         $query = ProjectMaterialRequest::with(['project', 'requestedBy', 'items'])
             ->orderBy('created_at', 'desc');
 
+        if (!auth()->user()->hasRole('Super Admin') && !auth()->user()->hasRole('CEO')) {
+            $query->whereHas('project', fn($q) => $q->accessibleBy(auth()->user()));
+        }
+
         if ($request->filled('project_id')) {
             $query->where('project_id', $request->project_id);
         }
@@ -39,7 +43,7 @@ class ProjectMaterialRequestController extends Controller
         }
 
         $requests = $query->paginate(15);
-        $projects = Project::where('status', '!=', 'Closed')->get();
+        $projects = auth()->user()->accessibleProjects()->where('status', '!=', 'Closed')->get();
 
         return view('admin.projects.material-requests.index', compact('requests', 'projects'));
     }
@@ -48,11 +52,14 @@ class ProjectMaterialRequestController extends Controller
     {
         Gate::authorize('create', ProjectMaterialRequest::class);
 
-        $projects = Project::where('status', '!=', 'Closed')->get();
+        $projects = auth()->user()->accessibleProjects()->where('status', '!=', 'Closed')->get();
         // Ideally we would load products via ajax depending on project/branch, but for this foundation we can load active products
         $products = Product::where('status', 'active')->get(); 
         
         $selectedProject = $request->project_id ? Project::find($request->project_id) : null;
+        if ($selectedProject && !$selectedProject->isAssignedTo(auth()->user())) {
+            abort(403);
+        }
         $tasks = $selectedProject ? $selectedProject->tasks : collect();
 
         $companyId = auth()->user()->company_id ?? 1;
@@ -65,7 +72,13 @@ class ProjectMaterialRequestController extends Controller
     {
         Gate::authorize('create', ProjectMaterialRequest::class);
 
-        $materialRequest = $this->service->create($request->validated());
+        $data = $request->validated();
+        $project = Project::findOrFail($data['project_id']);
+        if (!$project->isAssignedTo(auth()->user())) {
+            abort(403);
+        }
+
+        $materialRequest = $this->service->create($data);
 
         return redirect()
             ->route('admin.material-requests.show', $materialRequest)
@@ -85,7 +98,7 @@ class ProjectMaterialRequestController extends Controller
     {
         Gate::authorize('update', $materialRequest);
 
-        $projects = Project::where('status', '!=', 'Closed')->get();
+        $projects = auth()->user()->accessibleProjects()->where('status', '!=', 'Closed')->get();
         $products = Product::where('status', 'active')->get(); 
         $materialRequest->load('items', 'task');
         $tasks = $materialRequest->project_id ? Task::where('project_id', $materialRequest->project_id)->get() : collect();

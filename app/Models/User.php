@@ -203,6 +203,15 @@ class User extends Authenticatable
                     ->withTimestamps();
     }
 
+    public function accessibleProjects()
+    {
+        if ($this->hasRole('Super Admin') || $this->hasRole('CEO')) {
+            return Project::query();
+        }
+
+        return Project::accessibleBy($this);
+    }
+
     /**
      * Get all meetings where the user is an attendee.
      */

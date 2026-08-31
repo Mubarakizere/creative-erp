@@ -18,7 +18,11 @@ class ProjectPolicy
             return false;
         }
 
-        return $user->hasPermissionTo('project.view');
+        if (!$user->hasPermissionTo('project.view')) {
+            return false;
+        }
+
+        return $project->isAssignedTo($user);
     }
 
     public function create(User $user): bool
@@ -37,7 +41,11 @@ class ProjectPolicy
             return false;
         }
 
-        return $user->hasPermissionTo('project.update');
+        if (!$user->hasPermissionTo('project.update')) {
+            return false;
+        }
+
+        return $project->isAssignedTo($user);
     }
 
     public function delete(User $user, Project $project): bool
@@ -50,7 +58,11 @@ class ProjectPolicy
             return false;
         }
 
-        return $user->hasPermissionTo('project.delete') || $user->hasPermissionTo('project.archive');
+        if (!$user->hasPermissionTo('project.delete') && !$user->hasPermissionTo('project.archive')) {
+            return false;
+        }
+
+        return $project->isAssignedTo($user);
     }
 
     public function restore(User $user, Project $project): bool
@@ -59,7 +71,11 @@ class ProjectPolicy
             return false;
         }
 
-        return $user->hasPermissionTo('project.restore');
+        if (!$user->hasPermissionTo('project.restore')) {
+            return false;
+        }
+
+        return $project->isAssignedTo($user);
     }
 
     public function forceDelete(User $user, Project $project): bool
@@ -69,7 +85,11 @@ class ProjectPolicy
             return false;
         }
 
-        return $user->hasPermissionTo('project.delete');
+        if (!$user->hasPermissionTo('project.delete')) {
+            return false;
+        }
+
+        return $project->isAssignedTo($user);
     }
     
     public function close(User $user, Project $project): bool
@@ -78,7 +98,11 @@ class ProjectPolicy
             return false;
         }
 
-        return $user->hasPermissionTo('project.close');
+        if (!$user->hasPermissionTo('project.close')) {
+            return false;
+        }
+
+        return $project->isAssignedTo($user);
     }
     
     public function reopen(User $user, Project $project): bool
@@ -87,6 +111,10 @@ class ProjectPolicy
             return false;
         }
 
-        return $user->hasPermissionTo('project.reopen');
+        if (!$user->hasPermissionTo('project.reopen')) {
+            return false;
+        }
+
+        return $project->isAssignedTo($user);
     }
 }

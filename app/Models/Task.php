@@ -53,6 +53,30 @@ class Task extends Model
         });
     }
 
+    public function getTitleAttribute(): string
+    {
+        return $this->name ?? '';
+    }
+
+    public function scopeAccessibleBy($query, ?User $user = null)
+    {
+        $user = $user ?? auth()->user();
+        if (!$user) {
+            return $query;
+        }
+
+        if ($user->hasRole('Super Admin') || $user->hasRole('CEO')) {
+            return $query;
+        }
+
+        return $query->where(function ($q) use ($user) {
+            $q->where('assigned_to', $user->id)
+              ->orWhereHas('project', function ($pQuery) use ($user) {
+                  $pQuery->accessibleBy($user);
+              });
+        });
+    }
+
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);

@@ -18,7 +18,10 @@ class TaskCalendarProvider implements CalendarEventProvider
             ->where('status', '!=', 'Completed');
 
         if ($userId) {
-            $query->where('assigned_to', $userId);
+            $user = \App\Models\User::find($userId);
+            if ($user) {
+                $query->accessibleBy($user);
+            }
         }
 
         if ($companyId) {

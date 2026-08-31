@@ -48,6 +48,22 @@ class Milestone extends Model
         });
     }
 
+    public function scopeAccessibleBy($query, ?User $user = null)
+    {
+        $user = $user ?? auth()->user();
+        if (!$user) {
+            return $query;
+        }
+
+        if ($user->hasRole('Super Admin') || $user->hasRole('CEO')) {
+            return $query;
+        }
+
+        return $query->whereHas('project', function ($pQuery) use ($user) {
+            $pQuery->accessibleBy($user);
+        });
+    }
+
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);

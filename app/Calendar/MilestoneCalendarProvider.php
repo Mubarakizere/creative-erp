@@ -21,11 +21,11 @@ class MilestoneCalendarProvider implements CalendarEventProvider
             $query->where('company_id', $companyId);
         }
 
-        // Milestones are not user-specific, but we can filter by project membership if needed
         if ($userId) {
-            $query->whereHas('project.projectMembers', function ($q) use ($userId) {
-                $q->where('user_id', $userId)->where('status', 'Active');
-            });
+            $user = \App\Models\User::find($userId);
+            if ($user) {
+                $query->accessibleBy($user);
+            }
         }
 
         return $query->get()->map(function (Milestone $milestone) {

@@ -9,7 +9,7 @@ class ActivityPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasPermissionTo('crm.activities');
+        return $user->hasPermissionTo('activity.view') || $user->hasPermissionTo('crm.activities');
     }
 
     public function view(User $user, Activity $activity): bool
@@ -18,7 +18,7 @@ class ActivityPolicy
             return false;
         }
 
-        return $user->hasPermissionTo('crm.activities');
+        return $user->hasPermissionTo('activity.view') || $user->hasPermissionTo('crm.activities');
     }
 
     public function create(User $user): bool

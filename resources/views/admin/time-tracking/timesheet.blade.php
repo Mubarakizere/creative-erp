@@ -149,7 +149,7 @@
         <form id="create-time-entry-form" method="POST" action="{{ route('admin.time-tracking.store') }}">
             @csrf
             <div class="space-y-4 py-2 px-1">
-                <x-project-task-search />
+                <x-project-task-search :projects="$projects" />
                 <div class="grid grid-cols-2 gap-4">
                     <x-input type="datetime-local" name="start_time" label="Start Time" required />
                     <x-input type="datetime-local" name="end_time" label="End Time" required />

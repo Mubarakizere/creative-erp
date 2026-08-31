@@ -34,7 +34,7 @@ class BudgetController extends Controller
         $this->authorize('create', Budget::class);
         $companyId = auth()->user()->company_id ?? 1;
         $fiscalYears = \App\Models\FiscalYear::where('company_id', $companyId)->get();
-        $accounts = \App\Models\ChartOfAccount::where('company_id', $companyId)->where('status', 'active')->get();
+        $accounts = \App\Models\ChartOfAccount::where('company_id', $companyId)->where('is_active', true)->get();
         $categories = \App\Models\BudgetCategory::where('company_id', $companyId)->get();
 
         return view('admin.finance.budgets.create', compact('fiscalYears', 'accounts', 'categories'));

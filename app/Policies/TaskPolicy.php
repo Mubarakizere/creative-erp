@@ -23,10 +23,19 @@ class TaskPolicy
      */
     public function view(User $user, Task $task): bool
     {
-        if ($user->company_id !== $task->company_id) {
+        if ($user->company_id && $user->company_id !== $task->company_id) {
             return false;
         }
-        return $user->hasPermissionTo('project_task.view');
+
+        if (!$user->hasPermissionTo('project_task.view')) {
+            return false;
+        }
+
+        if ($task->project && !$task->project->isAssignedTo($user)) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -42,10 +51,19 @@ class TaskPolicy
      */
     public function update(User $user, Task $task): bool
     {
-        if ($user->company_id !== $task->company_id) {
+        if ($user->company_id && $user->company_id !== $task->company_id) {
             return false;
         }
-        return $user->hasPermissionTo('project_task.update');
+
+        if (!$user->hasPermissionTo('project_task.update')) {
+            return false;
+        }
+
+        if ($task->project && !$task->project->isAssignedTo($user)) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -53,10 +71,19 @@ class TaskPolicy
      */
     public function delete(User $user, Task $task): bool
     {
-        if ($user->company_id !== $task->company_id) {
+        if ($user->company_id && $user->company_id !== $task->company_id) {
             return false;
         }
-        return $user->hasPermissionTo('project_task.delete');
+
+        if (!$user->hasPermissionTo('project_task.delete')) {
+            return false;
+        }
+
+        if ($task->project && !$task->project->isAssignedTo($user)) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

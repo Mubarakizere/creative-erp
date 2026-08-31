@@ -13,9 +13,14 @@ class ProjectService
      *
      * @param array<string, mixed> $filters
      */
-    public function list(array $filters = []): LengthAwarePaginator
+    public function list(array $filters = [], ?\App\Models\User $user = null): LengthAwarePaginator
     {
+        $user = $user ?? auth()->user();
         $query = Project::with(['company', 'branch', 'client', 'manager']);
+
+        if ($user) {
+            $query->accessibleBy($user);
+        }
 
         if (!empty($filters['search'])) {
             $search = $filters['search'];

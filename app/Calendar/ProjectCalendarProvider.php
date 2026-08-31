@@ -22,12 +22,10 @@ class ProjectCalendarProvider implements CalendarEventProvider
         }
 
         if ($userId) {
-            $query->where(function ($q) use ($userId) {
-                $q->where('project_manager_id', $userId)
-                  ->orWhereHas('projectMembers', function ($q2) use ($userId) {
-                      $q2->where('user_id', $userId)->where('status', 'Active');
-                  });
-            });
+            $user = \App\Models\User::find($userId);
+            if ($user) {
+                $query->accessibleBy($user);
+            }
         }
 
         return $query->get()->map(function (Project $project) {

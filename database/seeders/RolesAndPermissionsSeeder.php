@@ -349,11 +349,13 @@ class RolesAndPermissionsSeeder extends Seeder
             'Super Admin',
             'Administrator',
             'CEO',
+            'Company Admin',
             'Finance Manager',
             'Accountant',
             'HR Manager',
             'HR Officer',
             'Project Manager',
+            'Supervisor',
             'Engineer',
             'Site Engineer',
             'Procurement Manager',
@@ -388,11 +390,32 @@ class RolesAndPermissionsSeeder extends Seeder
             $ceoPerms = Permission::where(function($q) {
                 $q->where('name', 'like', '%.view')
                   ->orWhere('name', 'like', '%.approve')
+                  ->orWhere('name', 'like', 'project.%')
+                  ->orWhere('name', 'like', 'project_task.%')
+                  ->orWhere('name', 'like', 'milestone.%')
                   ->orWhere('name', 'like', 'dashboard.%')
                   ->orWhere('name', 'notification.announcement')
-                  ->orWhere('name', 'like', 'report.%');
+                  ->orWhere('name', 'like', 'report.%')
+                  ->orWhere('name', 'like', 'analytics.%');
             })->get();
             $ceo->syncPermissions($ceoPerms);
+        }
+
+        $companyAdmin = Role::where('name', 'Company Admin')->first();
+        if ($companyAdmin) {
+            $companyAdminPerms = Permission::where(function($q) {
+                $q->where('name', 'like', 'company.view')
+                  ->orWhere('name', 'like', 'company.update')
+                  ->orWhere('name', 'like', 'branch.%')
+                  ->orWhere('name', 'like', 'department.%')
+                  ->orWhere('name', 'like', 'user.%')
+                  ->orWhere('name', 'like', 'project.%')
+                  ->orWhere('name', 'like', 'project_task.%')
+                  ->orWhere('name', 'like', 'milestone.%')
+                  ->orWhere('name', 'like', 'dashboard.%')
+                  ->orWhere('name', 'like', 'report.%');
+            })->get();
+            $companyAdmin->syncPermissions($companyAdminPerms);
         }
 
         $financeManager = Role::where('name', 'Finance Manager')->first();
@@ -461,11 +484,46 @@ class RolesAndPermissionsSeeder extends Seeder
             $projectManager->syncPermissions($pmPerms);
         }
 
+        $supervisor = Role::where('name', 'Supervisor')->first();
+        if ($supervisor) {
+            $supervisorPerms = Permission::whereIn('name', [
+                'project.view',
+                'document.view',
+                'document.download',
+                'project_task.view',
+                'project_task.update',
+                'milestone.view',
+                'time.view',
+                'report.view',
+                'dashboard.view',
+            ])->get();
+            $supervisor->syncPermissions($supervisorPerms);
+        }
+
         $engineer = Role::where('name', 'Engineer')->first();
         if ($engineer) {
             $engineerPerms = Permission::whereIn('name', [
-                'project.view', 'project_task.view', 'project_task.update',
-                'material_request.create', 'material_request.view', 'document.view', 'dashboard.view'
+                'calendar.view',
+                'comment.create',
+                'comment.view',
+                'document.view',
+                'document.download',
+                'document.create',
+                'document.upload',
+                'goods_receipt.view',
+                'material_request.create',
+                'material_request.view',
+                'material_request.submit',
+                'meeting.view',
+                'milestone.view',
+                'notification.announcement',
+                'notification.view',
+                'project.view',
+                'project_task.view',
+                'project_task.update',
+                'time.create',
+                'time.view',
+                'dashboard.view',
             ])->get();
             $engineer->syncPermissions($engineerPerms);
         }
@@ -473,8 +531,27 @@ class RolesAndPermissionsSeeder extends Seeder
         $siteEngineer = Role::where('name', 'Site Engineer')->first();
         if ($siteEngineer) {
             $siteEngineerPerms = Permission::whereIn('name', [
-                'project.view', 'project_task.view', 'project_task.update',
-                'material_request.create', 'material_request.view', 'dashboard.view'
+                'calendar.view',
+                'comment.create',
+                'comment.view',
+                'document.view',
+                'document.download',
+                'document.create',
+                'document.upload',
+                'goods_receipt.view',
+                'material_request.create',
+                'material_request.view',
+                'material_request.submit',
+                'meeting.view',
+                'milestone.view',
+                'notification.announcement',
+                'notification.view',
+                'project.view',
+                'project_task.view',
+                'project_task.update',
+                'time.create',
+                'time.view',
+                'dashboard.view',
             ])->get();
             $siteEngineer->syncPermissions($siteEngineerPerms);
         }
@@ -580,7 +657,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $employee = Role::where('name', 'Employee')->first();
         if ($employee) {
             $employeePerms = Permission::whereIn('name', [
-                'time.create', 'time.view', 'dashboard.view'
+                'time.create', 'time.view', 'calendar.view', 'meeting.view', 'dashboard.view'
             ])->get();
             $employee->syncPermissions($employeePerms);
         }
@@ -588,7 +665,22 @@ class RolesAndPermissionsSeeder extends Seeder
         $client = Role::where('name', 'Client')->first();
         if ($client) {
             $clientPerms = Permission::whereIn('name', [
-                'project.view', 'invoice.view', 'quotation.view', 'dashboard.view'
+                'calendar.view',
+                'activity.view',
+                'crm.activities',
+                'document.view',
+                'document.download',
+                'milestone.view',
+                'notification.view',
+                'notification.announcement',
+                'project_task.view',
+                'meeting.view',
+                'report.view',
+                'time.view',
+                'project.view',
+                'invoice.view',
+                'quotation.view',
+                'dashboard.view',
             ])->get();
             $client->syncPermissions($clientPerms);
         }

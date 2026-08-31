@@ -69,6 +69,49 @@ class Project extends Model
         return $query->whereNotIn('status', ['Completed', 'Cancelled', 'Closed']);
     }
 
+    public function scopeAccessibleBy($query, ?User $user = null)
+    {
+        $user = $user ?? auth()->user();
+        if (!$user) {
+            return $query;
+        }
+
+        if ($user->hasRole('Super Admin') || $user->hasRole('CEO')) {
+            return $query;
+        }
+
+        return $query->where(function ($q) use ($user) {
+            $q->where('project_manager_id', $user->id)
+              ->orWhereHas('projectMembers', function ($sub) use ($user) {
+                  $sub->where('user_id', $user->id);
+              })
+              ->orWhereHas('client', function ($sub) use ($user) {
+                  $sub->where('email', $user->email);
+              });
+        });
+    }
+
+    public function isAssignedTo(User $user): bool
+    {
+        if ($user->hasRole('Super Admin') || $user->hasRole('CEO')) {
+            return true;
+        }
+
+        if ($this->project_manager_id === $user->id) {
+            return true;
+        }
+
+        if ($this->projectMembers()->where('user_id', $user->id)->exists()) {
+            return true;
+        }
+
+        if ($this->client_id && $this->client && $this->client->email === $user->email) {
+            return true;
+        }
+
+        return false;
+    }
+
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);

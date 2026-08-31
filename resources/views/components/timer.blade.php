@@ -1,14 +1,14 @@
 @php
     $runningTimer = app(\App\Services\TimerService::class)->getRunningTimer(auth()->id());
-    // Fetch user's assigned projects with their tasks
-    $userProjects = auth()->user()->projects()->with('tasks')->get();
+    // Fetch user's assigned/accessible projects with their tasks
+    $userProjects = auth()->user() ? auth()->user()->accessibleProjects()->with('tasks')->get() : collect();
     
     $mappedProjects = $userProjects->map(function($p) {
         return [
             'id' => $p->id,
             'name' => $p->name,
             'tasks' => $p->tasks->map(function($t) {
-                return ['id' => $t->id, 'title' => $t->title];
+                return ['id' => $t->id, 'title' => $t->name ?? $t->title ?? ''];
             })->values()->toArray()
         ];
     })->values()->toArray();

@@ -17,10 +17,19 @@ class MilestonePolicy
 
     public function view(User $user, Milestone $milestone): bool
     {
-        if ($user->company_id !== $milestone->company_id) {
+        if ($user->company_id && $user->company_id !== $milestone->company_id) {
             return false;
         }
-        return $user->hasPermissionTo('milestone.view');
+
+        if (!$user->hasPermissionTo('milestone.view')) {
+            return false;
+        }
+
+        if ($milestone->project && !$milestone->project->isAssignedTo($user)) {
+            return false;
+        }
+
+        return true;
     }
 
     public function create(User $user): bool
@@ -30,26 +39,53 @@ class MilestonePolicy
 
     public function update(User $user, Milestone $milestone): bool
     {
-        if ($user->company_id !== $milestone->company_id) {
+        if ($user->company_id && $user->company_id !== $milestone->company_id) {
             return false;
         }
-        return $user->hasPermissionTo('milestone.update');
+
+        if (!$user->hasPermissionTo('milestone.update')) {
+            return false;
+        }
+
+        if ($milestone->project && !$milestone->project->isAssignedTo($user)) {
+            return false;
+        }
+
+        return true;
     }
 
     public function delete(User $user, Milestone $milestone): bool
     {
-        if ($user->company_id !== $milestone->company_id) {
+        if ($user->company_id && $user->company_id !== $milestone->company_id) {
             return false;
         }
-        return $user->hasPermissionTo('milestone.delete');
+
+        if (!$user->hasPermissionTo('milestone.delete')) {
+            return false;
+        }
+
+        if ($milestone->project && !$milestone->project->isAssignedTo($user)) {
+            return false;
+        }
+
+        return true;
     }
 
     public function restore(User $user, Milestone $milestone): bool
     {
-        if ($user->company_id !== $milestone->company_id) {
+        if ($user->company_id && $user->company_id !== $milestone->company_id) {
             return false;
         }
-        return $user->hasPermissionTo('milestone.restore');
+
+        if (!$user->hasPermissionTo('milestone.restore')) {
+            return false;
+        }
+
+        if ($milestone->project && !$milestone->project->isAssignedTo($user)) {
+            return false;
+        }
+
+        return true;
     }
 
     public function forceDelete(User $user, Milestone $milestone): bool
@@ -59,9 +95,18 @@ class MilestonePolicy
 
     public function assignTasks(User $user, Milestone $milestone): bool
     {
-        if ($user->company_id !== $milestone->company_id) {
+        if ($user->company_id && $user->company_id !== $milestone->company_id) {
             return false;
         }
-        return $user->hasPermissionTo('milestone.update');
+
+        if (!$user->hasPermissionTo('milestone.update')) {
+            return false;
+        }
+
+        if ($milestone->project && !$milestone->project->isAssignedTo($user)) {
+            return false;
+        }
+
+        return true;
     }
 }

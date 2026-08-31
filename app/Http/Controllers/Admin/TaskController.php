@@ -35,6 +35,8 @@ class TaskController extends Controller
             $query->where('company_id', auth()->user()->company_id);
         }
 
+        $query->accessibleBy(auth()->user());
+
         if ($request->has('project_id')) {
             $query->where('project_id', $request->project_id);
         }
@@ -53,11 +55,7 @@ class TaskController extends Controller
 
         $tasks = $query->orderBy('due_date', 'asc')->paginate(15);
         
-        $projectQuery = Project::query();
-        if (!auth()->user()->hasRole('Super Admin') && auth()->user()->company_id) {
-            $projectQuery->where('company_id', auth()->user()->company_id);
-        }
-        $projects = $projectQuery->orderBy('name')->get();
+        $projects = auth()->user()->accessibleProjects()->orderBy('name')->get();
 
         return view('admin.projects.tasks.index', compact('tasks', 'projects'));
     }
@@ -69,15 +67,14 @@ class TaskController extends Controller
     {
         $this->authorize('create', Task::class);
 
-        $projectQuery = Project::query();
-        if (!auth()->user()->hasRole('Super Admin') && auth()->user()->company_id) {
-            $projectQuery->where('company_id', auth()->user()->company_id);
-        }
-        $projects = $projectQuery->orderBy('name')->get();
+        $projects = auth()->user()->accessibleProjects()->orderBy('name')->get();
         $selectedProject = null;
         
         if ($request->has('project_id')) {
             $selectedProject = Project::with('projectMembers.user')->findOrFail($request->project_id);
+            if (!$selectedProject->isAssignedTo(auth()->user())) {
+                abort(403);
+            }
         }
 
         return view('admin.projects.tasks.create', compact('projects', 'selectedProject'));
@@ -92,6 +89,9 @@ class TaskController extends Controller
 
         $data = $request->validated();
         $project = Project::findOrFail($data['project_id']);
+        if (!$project->isAssignedTo(auth()->user())) {
+            abort(403);
+        }
         $data['company_id'] = $project->company_id;
         $data['created_by'] = auth()->id();
         $data['updated_by'] = auth()->id();
@@ -128,11 +128,7 @@ class TaskController extends Controller
         $this->authorize('update', $task);
         $task->load(['project.projectMembers.user']);
         
-        $projectQuery = Project::query();
-        if (!auth()->user()->hasRole('Super Admin') && auth()->user()->company_id) {
-            $projectQuery->where('company_id', auth()->user()->company_id);
-        }
-        $projects = $projectQuery->orderBy('name')->get();
+        $projects = auth()->user()->accessibleProjects()->orderBy('name')->get();
 
         return view('admin.projects.tasks.edit', compact('task', 'projects'));
     }

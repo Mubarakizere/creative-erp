@@ -17,6 +17,8 @@ class MilestoneController extends Controller
 
         $query = \App\Models\Milestone::with(['project', 'company'])->latest();
 
+        $query->accessibleBy(auth()->user());
+
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
@@ -30,7 +32,7 @@ class MilestoneController extends Controller
         }
 
         $milestones = $query->paginate(15);
-        $projects = \App\Models\Project::orderBy('name')->get();
+        $projects = auth()->user()->accessibleProjects()->orderBy('name')->get();
 
         return view('admin.milestones.index', compact('milestones', 'projects'));
     }
@@ -38,7 +40,7 @@ class MilestoneController extends Controller
     public function create(): \Illuminate\View\View
     {
         \Illuminate\Support\Facades\Gate::authorize('create', \App\Models\Milestone::class);
-        $projects = \App\Models\Project::orderBy('name')->get();
+        $projects = auth()->user()->accessibleProjects()->orderBy('name')->get();
         return view('admin.milestones.create', compact('projects'));
     }
 
@@ -48,6 +50,9 @@ class MilestoneController extends Controller
 
         $data = $request->validated();
         $project = \App\Models\Project::findOrFail($data['project_id']);
+        if (!$project->isAssignedTo(auth()->user())) {
+            abort(403);
+        }
         $data['company_id'] = $project->company_id;
         $data['created_by'] = auth()->id();
         
@@ -75,7 +80,7 @@ class MilestoneController extends Controller
     public function edit(\App\Models\Milestone $milestone): \Illuminate\View\View
     {
         \Illuminate\Support\Facades\Gate::authorize('update', $milestone);
-        $projects = \App\Models\Project::orderBy('name')->get();
+        $projects = auth()->user()->accessibleProjects()->orderBy('name')->get();
         return view('admin.milestones.edit', compact('milestone', 'projects'));
     }
 

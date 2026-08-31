@@ -28,7 +28,7 @@
     {{-- Filters --}}
     <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm p-5 mb-6">
         <form method="GET" action="{{ route('admin.time-tracking.index') }}" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <x-select name="project_id" placeholder="All Projects" :options="auth()->user()->can('time.approve') ? App\Models\Project::pluck('name', 'id')->toArray() : auth()->user()->projects()->pluck('name', 'projects.id')->toArray()" :selected="request('project_id')" />
+            <x-select name="project_id" placeholder="All Projects" :options="$projects->pluck('name', 'id')->toArray()" :selected="request('project_id')" />
             
             @if(auth()->user()->can('time.approve'))
                 <x-select name="user_id" placeholder="All Users" :options="App\Models\User::get()->mapWithKeys(fn($u) => [$u->id => $u->full_name])->toArray()" :selected="request('user_id')" />
@@ -150,7 +150,7 @@
         <form id="create-time-entry-form" method="POST" action="{{ route('admin.time-tracking.store') }}">
             @csrf
             <div class="space-y-4 py-2 px-1">
-                <x-project-task-search />
+                <x-project-task-search :projects="$projects" />
                 <div class="grid grid-cols-2 gap-4">
                     <x-input type="datetime-local" name="start_time" label="Start Time" required />
                     <x-input type="datetime-local" name="end_time" label="End Time" required />

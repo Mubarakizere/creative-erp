@@ -48,7 +48,10 @@ class TimeEntryController extends Controller
 
         $entries = $query->latest('start_time')->paginate(25)->withQueryString();
 
-        return view('admin.time-tracking.index', compact('entries'));
+        // Fetch projects for the Log Time modal and filter dropdown
+        $projects = auth()->user()->accessibleProjects()->with('tasks')->orderBy('name')->get();
+
+        return view('admin.time-tracking.index', compact('entries', 'projects'));
     }
     
     public function timesheet(Request $request)
@@ -78,13 +81,16 @@ class TimeEntryController extends Controller
             ->when($period === 'weekly', fn($q) => $q->whereBetween('start_time', [$now->startOfWeek(), $now->endOfWeek()]))
             ->when($period === 'monthly', fn($q) => $q->whereMonth('start_time', $now->month)->whereYear('start_time', $now->year))
             ->sum('duration_minutes');
+
+        // Fetch projects for the Log Time modal
+        $projects = auth()->user()->accessibleProjects()->with('tasks')->orderBy('name')->get();
             
-        return view('admin.time-tracking.timesheet', compact('entries', 'period', 'totalMinutes'));
+        return view('admin.time-tracking.timesheet', compact('entries', 'period', 'totalMinutes', 'projects'));
     }
     
     public function reports(Request $request)
     {
-        $this->authorize('export', TimeEntry::class);
+        $this->authorize('viewReports', TimeEntry::class);
         return view('admin.time-tracking.reports');
     }
 
@@ -100,6 +106,11 @@ class TimeEntryController extends Controller
             'description' => 'nullable|string',
             'billable' => 'boolean',
         ]);
+
+        $project = Project::findOrFail($validated['project_id']);
+        if (!$project->isAssignedTo(auth()->user())) {
+            return redirect()->back()->with('error', 'You are not assigned to this project.');
+        }
 
         try {
             $this->timeService->createEntry($validated);
@@ -121,6 +132,11 @@ class TimeEntryController extends Controller
             'description' => 'nullable|string',
             'billable' => 'boolean',
         ]);
+
+        $project = Project::findOrFail($validated['project_id']);
+        if (!$project->isAssignedTo(auth()->user())) {
+            return redirect()->back()->with('error', 'You are not assigned to this project.');
+        }
 
         try {
             $this->timeService->updateEntry($timeEntry, $validated);
@@ -148,6 +164,11 @@ class TimeEntryController extends Controller
             'description' => 'nullable|string',
             'billable' => 'boolean',
         ]);
+
+        $project = Project::findOrFail($validated['project_id']);
+        if (!$project->isAssignedTo(auth()->user())) {
+            return redirect()->back()->with('error', 'You are not assigned to this project.');
+        }
 
         try {
             $this->timerService->startTimer($validated);

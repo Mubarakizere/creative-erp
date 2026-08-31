@@ -84,6 +84,11 @@ class TimeEntryPolicy
 
     public function export(User $user): bool
     {
-        return $user->can('time.export');
+        return $user->can('time.export') || $user->can('time.view') || $user->can('report.view');
+    }
+
+    public function viewReports(User $user): bool
+    {
+        return $user->can('time.view') || $user->can('report.view') || $user->can('time.export');
     }
 }

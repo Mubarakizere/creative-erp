@@ -35,7 +35,7 @@
     </div>
 
     @php
-        $projects = \App\Models\Project::where('company_id', auth()->user()->company_id)
+        $projects = auth()->user()->accessibleProjects()
             ->withSum(['timeEntries' => fn($q) => $q->where('status', 'completed')], 'duration_minutes')
             ->get();
         

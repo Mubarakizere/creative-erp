@@ -21,11 +21,19 @@ class ProjectMaterialRequestPolicy
      */
     public function view(User $user, ProjectMaterialRequest $request): bool
     {
-        if ($user->company_id !== $request->company_id) {
+        if ($user->company_id && $user->company_id !== $request->company_id) {
             return false;
         }
 
-        return $user->hasPermissionTo('material_request.view');
+        if (!$user->hasPermissionTo('material_request.view')) {
+            return false;
+        }
+
+        if ($request->project && !$request->project->isAssignedTo($user)) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -41,7 +49,7 @@ class ProjectMaterialRequestPolicy
      */
     public function update(User $user, ProjectMaterialRequest $request): bool
     {
-        if ($user->company_id !== $request->company_id) {
+        if ($user->company_id && $user->company_id !== $request->company_id) {
             return false;
         }
 
@@ -49,7 +57,15 @@ class ProjectMaterialRequestPolicy
             return false;
         }
 
-        return $user->hasPermissionTo('material_request.update');
+        if (!$user->hasPermissionTo('material_request.update')) {
+            return false;
+        }
+
+        if ($request->project && !$request->project->isAssignedTo($user)) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -57,7 +73,7 @@ class ProjectMaterialRequestPolicy
      */
     public function delete(User $user, ProjectMaterialRequest $request): bool
     {
-        if ($user->company_id !== $request->company_id) {
+        if ($user->company_id && $user->company_id !== $request->company_id) {
             return false;
         }
 
@@ -65,7 +81,15 @@ class ProjectMaterialRequestPolicy
             return false;
         }
 
-        return $user->hasPermissionTo('material_request.delete');
+        if (!$user->hasPermissionTo('material_request.delete')) {
+            return false;
+        }
+
+        if ($request->project && !$request->project->isAssignedTo($user)) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -73,7 +97,7 @@ class ProjectMaterialRequestPolicy
      */
     public function submit(User $user, ProjectMaterialRequest $request): bool
     {
-        if ($user->company_id !== $request->company_id) {
+        if ($user->company_id && $user->company_id !== $request->company_id) {
             return false;
         }
 
@@ -81,7 +105,15 @@ class ProjectMaterialRequestPolicy
             return false;
         }
 
-        return $user->hasPermissionTo('material_request.submit') || $user->hasPermissionTo('material_request.update');
+        if (!$user->hasPermissionTo('material_request.submit') && !$user->hasPermissionTo('material_request.update')) {
+            return false;
+        }
+
+        if ($request->project && !$request->project->isAssignedTo($user)) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

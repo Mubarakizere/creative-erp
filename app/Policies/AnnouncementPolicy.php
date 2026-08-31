@@ -12,7 +12,7 @@ class AnnouncementPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasPermissionTo('notification.announcement');
+        return $user->hasPermissionTo('notification.announcement') || $user->hasPermissionTo('notification.view');
     }
 
     /**

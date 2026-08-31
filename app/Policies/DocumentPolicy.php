@@ -20,7 +20,27 @@ class DocumentPolicy
      */
     public function view(User $user, Document $document): bool
     {
-        return $user->hasPermissionTo('document.view');
+        if (!$user->hasPermissionTo('document.view')) {
+            return false;
+        }
+
+        if ($user->hasRole('Super Admin') || $user->hasRole('CEO')) {
+            return true;
+        }
+
+        if ($document->documentable instanceof \App\Models\Project) {
+            return $document->documentable->isAssignedTo($user);
+        }
+
+        if ($document->documentable instanceof \App\Models\Task && $document->documentable->project) {
+            return $document->documentable->project->isAssignedTo($user);
+        }
+
+        if ($document->documentable instanceof \App\Models\Milestone && $document->documentable->project) {
+            return $document->documentable->project->isAssignedTo($user);
+        }
+
+        return true;
     }
 
     /**
@@ -68,7 +88,11 @@ class DocumentPolicy
      */
     public function download(User $user, Document $document): bool
     {
-        return $user->hasPermissionTo('document.download');
+        if (!$user->hasPermissionTo('document.download') && !$user->hasPermissionTo('document.view')) {
+            return false;
+        }
+
+        return $this->view($user, $document);
     }
     
     /**
