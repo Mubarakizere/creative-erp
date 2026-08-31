@@ -147,7 +147,7 @@
                                                 <x-slot:footer>
                                                     <div class="flex items-center gap-3 w-full justify-end">
                                                         <button type="button" @click="open = false" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors shadow-sm">Cancel</button>
-                                                        <form method="POST" action="{{ route('admin.finance.bank-accounts.destroy', $account->id) }}" class="inline">
+                                                        <form method="POST" action="{{ route('admin.finance.settings.bank-accounts.destroy', $account->id) }}" class="inline">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-xl hover:bg-red-700 transition-colors shadow-sm">Delete Account</button>
@@ -271,7 +271,7 @@
     {{-- Add Bank Account Modal --}}
     <x-modal id="add-bank-account" maxWidth="md">
         <x-slot:header>Add Bank Account</x-slot:header>
-        <form method="POST" action="{{ route('admin.finance.bank-accounts.store') }}" class="p-6 space-y-4">
+        <form method="POST" action="{{ route('admin.finance.settings.bank-accounts.store') }}" class="p-6 space-y-4">
             @csrf
             <div>
                 <label for="account_name" class="block text-sm font-medium text-gray-700 mb-1">Account Name <span class="text-red-500">*</span></label>

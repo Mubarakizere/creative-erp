@@ -281,8 +281,8 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
         Route::get('settings', [\App\Http\Controllers\Finance\FinanceSettingsController::class, 'index'])->name('settings');
         Route::post('settings/payment-methods', [\App\Http\Controllers\Finance\FinanceSettingsController::class, 'storePaymentMethod'])->name('payment-methods.store');
         Route::delete('settings/payment-methods/{id}', [\App\Http\Controllers\Finance\FinanceSettingsController::class, 'destroyPaymentMethod'])->name('payment-methods.destroy');
-        Route::post('settings/bank-accounts', [\App\Http\Controllers\Finance\FinanceSettingsController::class, 'storeBankAccount'])->name('bank-accounts.store');
-        Route::delete('settings/bank-accounts/{id}', [\App\Http\Controllers\Finance\FinanceSettingsController::class, 'destroyBankAccount'])->name('bank-accounts.destroy');
+        Route::post('settings/bank-accounts', [\App\Http\Controllers\Finance\FinanceSettingsController::class, 'storeBankAccount'])->name('settings.bank-accounts.store');
+        Route::delete('settings/bank-accounts/{id}', [\App\Http\Controllers\Finance\FinanceSettingsController::class, 'destroyBankAccount'])->name('settings.bank-accounts.destroy');
         Route::post('settings/taxes', [\App\Http\Controllers\Finance\FinanceSettingsController::class, 'storeTax'])->name('taxes.store');
         Route::delete('settings/taxes/{id}', [\App\Http\Controllers\Finance\FinanceSettingsController::class, 'destroyTax'])->name('taxes.destroy');
 
