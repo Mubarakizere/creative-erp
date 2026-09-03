@@ -9,11 +9,23 @@ use Illuminate\Auth\Access\Response;
 class ReportPolicy
 {
     /**
+     * Perform pre-authorization checks.
+     */
+    public function before(User $user, string $ability): bool|null
+    {
+        if ($user->hasRole('Super Admin') || $user->hasRole('CEO')) {
+            return true;
+        }
+
+        return null;
+    }
+
+    /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasPermissionTo('report.view');
+        return $user->hasPermissionTo('report.view') || $user->hasPermissionTo('analytics.view') || $user->hasPermissionTo('inventory.view') || $user->hasPermissionTo('time.view');
     }
 
     /**
@@ -21,7 +33,11 @@ class ReportPolicy
      */
     public function view(User $user, ReportTemplate $reportTemplate): bool
     {
-        if (!$user->hasPermissionTo('report.view')) {
+        if ($user->hasRole('Super Admin') || $user->hasRole('CEO')) {
+            return true;
+        }
+
+        if (!$user->hasPermissionTo('report.view') && !$user->hasPermissionTo('analytics.view') && !$user->hasPermissionTo('inventory.view') && !$user->hasPermissionTo('time.view')) {
             return false;
         }
 

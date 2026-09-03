@@ -86,33 +86,29 @@
                 </td>
 
                 <td class="px-4 py-3 text-right">
-                    
-<div class="flex items-center justify-end gap-2">
-
-                            @can('view', $document)
-                                <a href="{{ route('admin.documents.show', $document) }}" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center" title="View">
-View
-</a>
-                            @endcan
-                            @can('download', $document)
-                                <a href="{{ route('admin.documents.download', $document) }}" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center" title="Download">
-Download
-</a>
-                            @endcan
-                            @can('update', $document)
-                                <a href="{{ route('admin.documents.edit', $document) }}" class="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors flex items-center justify-center" title="Edit">
-Edit
-</a>
-                            @endcan
-                            
-                            @can('delete', $document)
-                                <button @click="$dispatch('open-modal', 'delete-document-{{ $document->id }}')" class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center" title="Delete">
-Delete
-</button>
-                            @endcan
-                        
-</div>
-</td>
+                    <x-action-dropdown>
+                        @can('view', $document)
+                            <x-action-dropdown-item href="{{ route('admin.documents.show', $document) }}" icon="view">
+                                View Document
+                            </x-action-dropdown-item>
+                        @endcan
+                        @can('download', $document)
+                            <x-action-dropdown-item href="{{ route('admin.documents.download', $document) }}">
+                                Download File
+                            </x-action-dropdown-item>
+                        @endcan
+                        @can('update', $document)
+                            <x-action-dropdown-item href="{{ route('admin.documents.edit', $document) }}" icon="edit">
+                                Edit Document
+                            </x-action-dropdown-item>
+                        @endcan
+                        @can('delete', $document)
+                            <x-action-dropdown-item @click="$dispatch('open-modal', 'delete-document-{{ $document->id }}')" icon="delete" variant="danger">
+                                Delete Document
+                            </x-action-dropdown-item>
+                        @endcan
+                    </x-action-dropdown>
+                </td>
             </tr>
 
             @can('delete', $document)

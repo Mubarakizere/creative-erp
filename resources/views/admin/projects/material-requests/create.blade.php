@@ -9,7 +9,7 @@
         @endphp
     </x-slot:breadcrumbs>
 
-    @can('create', App\Models\MaterialRequest::class)
+    @can('create', App\Models\ProjectMaterialRequest::class)
     <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <a href="{{ route('admin.material-requests.index') }}" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 mb-2 transition-colors">

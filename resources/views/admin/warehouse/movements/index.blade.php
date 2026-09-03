@@ -75,7 +75,23 @@
                             </td>
                             <td class="py-3 px-4 text-sm text-gray-500">{{ $item->created_at->format('M d, Y') }}</td>
                             <td class="py-3 px-4 text-right">
-                                <a href="{{ route('admin.warehouse.movements.show', $item) }}" class="px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">View</a>
+                                <x-action-dropdown>
+                                    @can('view', $item)
+                                        <x-action-dropdown-item href="{{ route('admin.warehouse.movements.show', $item) }}" icon="view">
+                                            View Details
+                                        </x-action-dropdown-item>
+                                    @endcan
+
+                                    @can('delete', $item)
+                                        <form method="POST" action="{{ route('admin.warehouse.movements.destroy', $item) }}" id="delete-movement-form-{{ $item->id }}">
+                                            @csrf
+                                            @method('DELETE')
+                                        </form>
+                                        <x-action-dropdown-item onclick="document.getElementById('delete-movement-form-{{ $item->id }}').submit()" icon="delete" variant="danger">
+                                            Delete Movement
+                                        </x-action-dropdown-item>
+                                    @endcan
+                                </x-action-dropdown>
                             </td>
                         </tr>
                     @empty

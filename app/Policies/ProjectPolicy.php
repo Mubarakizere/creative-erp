@@ -14,15 +14,7 @@ class ProjectPolicy
 
     public function view(User $user, Project $project): bool
     {
-        if ($user->company_id && $user->company_id !== $project->company_id) {
-            return false;
-        }
-
-        if (!$user->hasPermissionTo('project.view')) {
-            return false;
-        }
-
-        return $project->isAssignedTo($user);
+        return $project->hasPermissionForUser($user, 'project.view');
     }
 
     public function create(User $user): bool
@@ -37,15 +29,7 @@ class ProjectPolicy
             return false;
         }
 
-        if ($user->company_id && $user->company_id !== $project->company_id) {
-            return false;
-        }
-
-        if (!$user->hasPermissionTo('project.update')) {
-            return false;
-        }
-
-        return $project->isAssignedTo($user);
+        return $project->hasPermissionForUser($user, 'project.update');
     }
 
     public function delete(User $user, Project $project): bool
@@ -54,28 +38,12 @@ class ProjectPolicy
             return false;
         }
 
-        if ($user->company_id && $user->company_id !== $project->company_id) {
-            return false;
-        }
-
-        if (!$user->hasPermissionTo('project.delete') && !$user->hasPermissionTo('project.archive')) {
-            return false;
-        }
-
-        return $project->isAssignedTo($user);
+        return $project->hasPermissionForUser($user, 'project.delete') || $project->hasPermissionForUser($user, 'project.archive');
     }
 
     public function restore(User $user, Project $project): bool
     {
-        if ($user->company_id && $user->company_id !== $project->company_id) {
-            return false;
-        }
-
-        if (!$user->hasPermissionTo('project.restore')) {
-            return false;
-        }
-
-        return $project->isAssignedTo($user);
+        return $project->hasPermissionForUser($user, 'project.restore');
     }
 
     public function forceDelete(User $user, Project $project): bool
@@ -85,36 +53,16 @@ class ProjectPolicy
             return false;
         }
 
-        if (!$user->hasPermissionTo('project.delete')) {
-            return false;
-        }
-
-        return $project->isAssignedTo($user);
+        return $project->hasPermissionForUser($user, 'project.delete');
     }
     
     public function close(User $user, Project $project): bool
     {
-        if ($user->company_id && $user->company_id !== $project->company_id) {
-            return false;
-        }
-
-        if (!$user->hasPermissionTo('project.close')) {
-            return false;
-        }
-
-        return $project->isAssignedTo($user);
+        return $project->hasPermissionForUser($user, 'project.close') || $project->hasPermissionForUser($user, 'project.update');
     }
     
     public function reopen(User $user, Project $project): bool
     {
-        if ($user->company_id && $user->company_id !== $project->company_id) {
-            return false;
-        }
-
-        if (!$user->hasPermissionTo('project.reopen')) {
-            return false;
-        }
-
-        return $project->isAssignedTo($user);
+        return $project->hasPermissionForUser($user, 'project.reopen') || $project->hasPermissionForUser($user, 'project.update');
     }
 }

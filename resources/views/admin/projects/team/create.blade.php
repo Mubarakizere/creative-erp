@@ -31,7 +31,18 @@
             <div class="bg-gray-50/50 border-b border-gray-100 px-6 py-4">
                 <h3 class="text-lg font-bold text-gray-900 tracking-tight">Assignment Details</h3>
             </div>
-            <form action="{{ route('admin.projects.team.store') }}" method="POST" id="team-form" x-data="{ allocation: 100 }">
+            <form action="{{ route('admin.projects.team.store') }}" method="POST" id="team-form" 
+                  x-data="{ 
+                      allocation: 100, 
+                      usersMap: {{ json_encode($usersMap ?? []) }}, 
+                      selectedRole: '{{ old('project_role') }}',
+                      onUserChange(event) {
+                          const uid = event.target.value;
+                          if (uid && this.usersMap[uid] && this.usersMap[uid].role) {
+                              this.selectedRole = this.usersMap[uid].role;
+                          }
+                      }
+                  }">
                 @csrf
                 <div class="p-6">
                 
@@ -42,7 +53,7 @@
                             <input type="hidden" name="project_id" value="{{ $selectedProject->id }}">
                             <div class="mb-4">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Project</label>
-                                <div class="w-full rounded-lg border-gray-300 bg-gray-50 px-4 py-2 text-gray-700">
+                                <div class="w-full rounded-lg border-gray-300 bg-gray-50 px-4 py-2 text-gray-700 font-semibold">
                                     {{ $selectedProject->name }}
                                 </div>
                             </div>
@@ -53,7 +64,7 @@
 
                     {{-- User Selection --}}
                     <div>
-                        <x-select name="user_id" label="User" :options="$users->pluck('first_name', 'id')->map(function($name, $id) use ($users) { $u = $users->firstWhere('id', $id); return $u->first_name . ' ' . $u->last_name; })->toArray()" :selected="old('user_id')" required />
+                        <x-select name="user_id" label="User" :options="$users->pluck('first_name', 'id')->map(function($name, $id) use ($users) { $u = $users->firstWhere('id', $id); return $u->first_name . ' ' . $u->last_name; })->toArray()" :selected="old('user_id')" required @change="onUserChange($event)" />
                     </div>
 
                     {{-- Department Selection --}}
@@ -63,27 +74,7 @@
 
                     {{-- Role Selection --}}
                     <div>
-                        <x-select name="project_role" label="Project Role" :options="[
-                            'Project Manager' => 'Project Manager',
-                            'Assistant Project Manager' => 'Assistant Project Manager',
-                            'Architect' => 'Architect',
-                            'Engineer' => 'Engineer',
-                            'Site Engineer' => 'Site Engineer',
-                            'Civil Engineer' => 'Civil Engineer',
-                            'Electrical Engineer' => 'Electrical Engineer',
-                            'Mechanical Engineer' => 'Mechanical Engineer',
-                            'Quantity Surveyor' => 'Quantity Surveyor',
-                            'Procurement Officer' => 'Procurement Officer',
-                            'Accountant' => 'Accountant',
-                            'HR Representative' => 'HR Representative',
-                            'Quality Controller' => 'Quality Controller',
-                            'Safety Officer' => 'Safety Officer',
-                            'Supervisor' => 'Supervisor',
-                            'Foreman' => 'Foreman',
-                            'Technician' => 'Technician',
-                            'Viewer' => 'Viewer',
-                            'Administrator' => 'Administrator'
-                        ]" :selected="old('project_role')" required />
+                        <x-select name="project_role" label="Project Role" :options="$roles" x-model="selectedRole" required />
                     </div>
 
                     {{-- Joined Date --}}

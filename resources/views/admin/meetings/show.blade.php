@@ -15,19 +15,43 @@
                     <span class="text-sm text-gray-500">{{ $meeting->formatted_duration }}</span>
                 </div>
             </div>
-            <div class="flex items-center gap-2 flex-shrink-0">
+            <div class="flex items-center gap-2 flex-shrink-0" x-data>
                 @if($meeting->status !== 'cancelled')
-                    <a href="{{ route('admin.meetings.edit', $meeting) }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                        Edit
-                    </a>
-                    <form method="POST" action="{{ route('admin.meetings.cancel', $meeting) }}" onsubmit="return confirm('Cancel this meeting?')">
-                        @csrf @method('PATCH')
-                        <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors">
+                    @can('update', $meeting)
+                        <a href="{{ route('admin.meetings.edit', $meeting) }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            Edit
+                        </a>
+                    @endcan
+                    @can('cancel', $meeting)
+                        <button type="button" @click="$dispatch('open-modal', 'cancel-meeting-modal')" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                             Cancel Meeting
                         </button>
-                    </form>
+
+                        <x-modal id="cancel-meeting-modal" maxWidth="md">
+                            <x-slot:header>Cancel Meeting</x-slot:header>
+
+                            <div class="text-center py-4">
+                                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                                    <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-900 mb-2">Cancel "{{ $meeting->title }}"?</h3>
+                                <p class="text-sm text-gray-500">Are you sure you want to cancel this meeting? Attendees will be notified.</p>
+                            </div>
+
+                            <x-slot:footer>
+                                <x-button type="ghost" @click="show = false">Keep Meeting</x-button>
+                                <form method="POST" action="{{ route('admin.meetings.cancel', $meeting) }}" class="inline">
+                                    @csrf
+                                    @method('PATCH')
+                                    <x-button type="danger" submit="true">Cancel Meeting</x-button>
+                                </form>
+                            </x-slot:footer>
+                        </x-modal>
+                    @endcan
                 @endif
             </div>
         </div>

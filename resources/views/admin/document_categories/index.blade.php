@@ -92,27 +92,24 @@
                 </td>
 
                 <td class="px-4 py-3 text-right">
-                    
-<div class="flex items-center justify-end gap-2">
-
-                            @can('view', $category)
-                                <a href="{{ route('admin.document-categories.show', $category) }}" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center" title="View">
-View
-</a>
-                            @endcan
-                            @can('update', $category)
-                                <a href="{{ route('admin.document-categories.edit', $category) }}" class="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors flex items-center justify-center" title="Edit">
-Edit
-</a>
-                            @endcan
-                            @can('delete', $category)
-                                <button @click="$dispatch('open-modal', 'delete-category-{{ $category->id }}')" class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center" title="Delete">
-Delete
-</button>
-                            @endcan
-                        
-</div>
-</td>
+                    <x-action-dropdown>
+                        @can('view', $category)
+                            <x-action-dropdown-item href="{{ route('admin.document-categories.show', $category) }}" icon="view">
+                                View Category
+                            </x-action-dropdown-item>
+                        @endcan
+                        @can('update', $category)
+                            <x-action-dropdown-item href="{{ route('admin.document-categories.edit', $category) }}" icon="edit">
+                                Edit Category
+                            </x-action-dropdown-item>
+                        @endcan
+                        @can('delete', $category)
+                            <x-action-dropdown-item @click="$dispatch('open-modal', 'delete-category-{{ $category->id }}')" icon="delete" variant="danger">
+                                Delete Category
+                            </x-action-dropdown-item>
+                        @endcan
+                    </x-action-dropdown>
+                </td>
             </tr>
             
             @can('delete', $category)

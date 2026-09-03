@@ -47,7 +47,7 @@ class DashboardController extends Controller
         $data['fiscalYearId'] = $request->input('fiscal_year_id');
         $data['branches'] = $companyId ? \App\Models\Branch::where('company_id', $companyId)->get() : collect();
         $data['departments'] = $companyId ? \App\Models\Department::where('company_id', $companyId)->get() : collect();
-        $data['projects'] = $companyId ? \App\Models\Project::where('company_id', $companyId)->get() : collect();
+        $data['projects'] = $companyId ? \App\Models\Project::where('company_id', $companyId)->accessibleBy(auth()->user())->get() : collect();
         $data['clients'] = $companyId ? \App\Models\Client::where('company_id', $companyId)->get() : collect();
 
         $this->logActivity('dashboard_accessed', ['user_id' => auth()->id()]);

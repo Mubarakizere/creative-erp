@@ -21,7 +21,16 @@ class AnnouncementService
      */
     public function getPaginated(array $filters = []): LengthAwarePaginator
     {
+        $user = auth()->user();
         $query = Announcement::with(['creator', 'company']);
+
+        if ($user && !$user->hasRole('Super Admin') && !$user->hasRole('CEO') && !$user->hasPermissionTo('notification.announcement')) {
+            $query->where('is_published', true);
+        } elseif ($user && !$user->hasRole('Super Admin') && $user->company_id) {
+            $query->where(function ($q) use ($user) {
+                $q->whereNull('company_id')->orWhere('company_id', $user->company_id);
+            });
+        }
 
         if (!empty($filters['search'])) {
             $query->where('title', 'like', '%' . $filters['search'] . '%');

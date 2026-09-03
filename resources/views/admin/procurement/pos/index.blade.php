@@ -94,38 +94,47 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 text-right">
-                            
-<div class="flex items-center justify-end gap-2">
+                            <x-action-dropdown>
+                                @can('view', $po)
+                                    <x-action-dropdown-item href="{{ route('admin.procurement.pos.show', $po->id) }}" icon="view">
+                                        View Details
+                                    </x-action-dropdown-item>
+                                @endcan
 
-                                    @can('view', $po)
-                                        <a href="{{ route('admin.procurement.pos.show', $po->id) }}" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center" title="View">
-View
-</a>
-                                    @endcan
-                                    @can('update', $po)
-                                        <a href="{{ route('admin.procurement.pos.edit', $po->id) }}" class="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors flex items-center justify-center" title="Edit">
-Edit
-</a>
-                                    @endcan
-                                    @if(strtolower($po->status) === 'draft')
-                                        @can('approve', $po)
-                                        <form action="{{ route('admin.procurement.pos.approve', $po->id) }}" method="POST" class="block w-full text-left">
+                                @can('update', $po)
+                                    <x-action-dropdown-item href="{{ route('admin.procurement.pos.edit', $po->id) }}" icon="edit">
+                                        Edit PO
+                                    </x-action-dropdown-item>
+                                @endcan
+
+                                @if(strtolower($po->status) === 'draft')
+                                    @can('approve', $po)
+                                        <form action="{{ route('admin.procurement.pos.approve', $po->id) }}" method="POST" id="approve-po-form-{{ $po->id }}">
                                             @csrf
-                                            <button type="submit" class="p-1.5 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors flex items-center justify-center" title="Approve PO">
-Approve PO
-</button>
                                         </form>
-                                        @endcan
-                                    @elseif(in_array(strtolower($po->status), ['approved', 'partially_received']))
-                                        @can('create', App\Models\GoodsReceipt::class)
-                                        <a href="{{ route('admin.procurement.receipts.create', ['po_id' => $po->id]) }}" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center" title="Receive Goods">
-Receive Goods
-</a>
-                                        @endcan
-                                    @endif
-                                
-</div>
-</td>
+                                        <x-action-dropdown-item onclick="document.getElementById('approve-po-form-{{ $po->id }}').submit()">
+                                            Approve PO
+                                        </x-action-dropdown-item>
+                                    @endcan
+                                @elseif(in_array(strtolower($po->status), ['approved', 'partially_received']))
+                                    @can('create', App\Models\GoodsReceipt::class)
+                                        <x-action-dropdown-item href="{{ route('admin.procurement.receipts.create', ['po_id' => $po->id]) }}">
+                                            Receive Goods
+                                        </x-action-dropdown-item>
+                                    @endcan
+                                @endif
+
+                                @can('delete', $po)
+                                    <form action="{{ route('admin.procurement.pos.destroy', $po->id) }}" method="POST" id="delete-po-form-{{ $po->id }}">
+                                        @csrf
+                                        @method('DELETE')
+                                    </form>
+                                    <x-action-dropdown-item onclick="document.getElementById('delete-po-form-{{ $po->id }}').submit()" icon="delete" variant="danger">
+                                        Delete PO
+                                    </x-action-dropdown-item>
+                                @endcan
+                            </x-action-dropdown>
+                        </td>
                     </tr>
                     @empty
                     <tr>

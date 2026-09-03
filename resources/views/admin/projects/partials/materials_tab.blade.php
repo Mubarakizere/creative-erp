@@ -1,11 +1,11 @@
 <x-card>
     <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-medium text-gray-900">Project Material Issues</h3>
-        @can('material_issue.create')
+        @if($project->hasPermissionForUser(auth()->user(), 'material_request.create') || $project->hasPermissionForUser(auth()->user(), 'material_issue.create'))
             <x-button type="primary" href="{{ route('admin.project-material-issues.create') }}?project_id={{ $project->id }}" size="sm">
                 Issue Material
             </x-button>
-        @endcan
+        @endif
     </div>
     
     <div class="mb-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">

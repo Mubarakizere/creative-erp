@@ -67,12 +67,26 @@
                                 @endif
                             </td>
                             <td class="py-3 px-4 text-right">
-                                @if($reservation->status === 'active')
-                                    <form action="{{ route('admin.inventory.reservations.release', $reservation) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to release this stock back to available?');">
-                                        @csrf
-                                        <button type="submit" class="text-xs font-medium text-red-600 hover:text-red-900">Release</button>
-                                    </form>
-                                @endif
+                                <x-action-dropdown>
+                                    @if($reservation->status === 'active')
+                                        <form action="{{ route('admin.inventory.reservations.release', $reservation) }}" method="POST" id="release-reservation-form-{{ $reservation->id }}">
+                                            @csrf
+                                        </form>
+                                        <x-action-dropdown-item onclick="document.getElementById('release-reservation-form-{{ $reservation->id }}').submit()" variant="danger">
+                                            Release Reservation
+                                        </x-action-dropdown-item>
+                                    @endif
+
+                                    @can('delete', $reservation)
+                                        <form action="{{ route('admin.inventory.reservations.destroy', $reservation) }}" method="POST" id="delete-reservation-form-{{ $reservation->id }}">
+                                            @csrf
+                                            @method('DELETE')
+                                        </form>
+                                        <x-action-dropdown-item onclick="document.getElementById('delete-reservation-form-{{ $reservation->id }}').submit()" icon="delete" variant="danger">
+                                            Delete Reservation
+                                        </x-action-dropdown-item>
+                                    @endcan
+                                </x-action-dropdown>
                             </td>
                         </tr>
                     @empty

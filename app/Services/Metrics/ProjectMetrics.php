@@ -23,7 +23,8 @@ class ProjectMetrics implements MetricProvider
 
     public function cards(array $filters = []): array
     {
-        if (!auth()->user()?->can('project.view')) {
+        $user = auth()->user();
+        if (!$user?->can('project.view')) {
             return [];
         }
 
@@ -31,11 +32,16 @@ class ProjectMetrics implements MetricProvider
         if ($this->companyId) {
             $projectQuery->where('company_id', $this->companyId);
         }
+        $projectQuery->accessibleBy($user);
 
         $memberQuery = ProjectMember::query();
         if ($this->companyId) {
-            $memberQuery->whereHas('project', function ($q) {
-                $q->where('company_id', $this->companyId);
+            $memberQuery->whereHas('project', function ($q) use ($user) {
+                $q->where('company_id', $this->companyId)->accessibleBy($user);
+            });
+        } else {
+            $memberQuery->whereHas('project', function ($q) use ($user) {
+                $q->accessibleBy($user);
             });
         }
 
@@ -65,7 +71,8 @@ class ProjectMetrics implements MetricProvider
 
     public function widgets(array $filters = []): array
     {
-        if (!auth()->user()?->can('project.view')) {
+        $user = auth()->user();
+        if (!$user?->can('project.view')) {
             return [];
         }
 
@@ -73,11 +80,16 @@ class ProjectMetrics implements MetricProvider
         if ($this->companyId) {
             $projectQuery->where('company_id', $this->companyId);
         }
+        $projectQuery->accessibleBy($user);
 
         $memberQuery = ProjectMember::with(['user', 'project', 'department']);
         if ($this->companyId) {
-            $memberQuery->whereHas('project', function ($q) {
-                $q->where('company_id', $this->companyId);
+            $memberQuery->whereHas('project', function ($q) use ($user) {
+                $q->where('company_id', $this->companyId)->accessibleBy($user);
+            });
+        } else {
+            $memberQuery->whereHas('project', function ($q) use ($user) {
+                $q->accessibleBy($user);
             });
         }
 

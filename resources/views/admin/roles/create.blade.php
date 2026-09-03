@@ -1,16 +1,16 @@
 <x-layouts.admin title="Create Role">
-    <div class="mb-8 flex items-center justify-between">
-        <div class="flex items-center gap-4">
-            <a href="{{ route('admin.roles.index') }}" class="text-gray-500 hover:text-gray-700">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                </svg>
-            </a>
-            <div>
-                <h1 class="text-2xl font-bold text-gray-900">Create Role</h1>
-                <p class="mt-1 text-sm text-gray-500">Add a new role and configure its permissions.</p>
-            </div>
-        </div>
+    <x-slot:breadcrumbs>
+        @php
+            $breadcrumbs = [
+                ['label' => 'Roles', 'url' => route('admin.roles.index')],
+                ['label' => 'Create Role'],
+            ];
+        @endphp
+    </x-slot:breadcrumbs>
+
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Create Access Role</h1>
+        <p class="mt-1 text-sm text-slate-500 font-medium">Define new security role and configure system module permissions.</p>
     </div>
 
     <form action="{{ route('admin.roles.store') }}" method="POST">
@@ -18,66 +18,59 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-1 space-y-6">
-                <x-card>
-                    <x-slot:header>
-                        <h3 class="text-lg font-medium text-gray-900">Role Details</h3>
-                    </x-slot:header>
-
+                <x-card title="Role Identification" description="Basic name and authentication guard scope.">
                     <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Role Name</label>
-                            <x-input name="name" value="{{ old('name') }}" placeholder="e.g. Project Manager" required />
-                            @error('name') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                        </div>
+                        <x-input name="name" label="Role Name" value="{{ old('name') }}" placeholder="e.g. Finance Officer, Site Engineer" required />
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Guard Name</label>
-                            <x-select name="guard_name" required>
-                                <option value="web" {{ old('guard_name') === 'web' ? 'selected' : '' }}>Web</option>
-                                <option value="api" {{ old('guard_name') === 'api' ? 'selected' : '' }}>API</option>
-                            </x-select>
-                            @error('guard_name') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                        </div>
+                        <x-select name="guard_name" label="Guard Name" required>
+                            <option value="web" @selected(old('guard_name') === 'web')>Web (Standard UI)</option>
+                            <option value="api" @selected(old('guard_name') === 'api')>API (Mobile / Rest)</option>
+                        </x-select>
                     </div>
                 </x-card>
             </div>
 
-            <div class="lg:col-span-2">
-                <x-card>
+            <div class="lg:col-span-2 space-y-6">
+                <x-card title="Permissions Configuration" description="Enable access rights for each operational module.">
                     <x-slot:header>
                         <div class="flex items-center justify-between">
-                            <h3 class="text-lg font-medium text-gray-900">Permissions Configuration</h3>
-                            <button type="button" onclick="document.querySelectorAll('.permission-checkbox').forEach(cb => cb.checked = true)" class="text-sm text-blue-600 hover:text-blue-800 font-medium">Select All</button>
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-900">Module Permissions</h3>
+                                <p class="text-xs text-slate-500 mt-0.5">Toggle access capabilities per module.</p>
+                            </div>
+                            <button type="button" onclick="document.querySelectorAll('.permission-checkbox').forEach(cb => cb.checked = true)" class="text-xs font-bold text-blue-600 hover:underline">Select All</button>
                         </div>
                     </x-slot:header>
 
                     <div class="space-y-6">
                         @foreach($permissionsGrouped as $module => $permissions)
                             <div>
-                                <div class="flex items-center justify-between border-b border-gray-200 pb-2 mb-3">
-                                    <h4 class="text-md font-semibold text-gray-800 capitalize">{{ $module }} Permissions</h4>
+                                <div class="flex items-center justify-between border-b border-slate-100 pb-2 mb-3">
+                                    <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">{{ $module }} Permissions</h4>
                                 </div>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
                                     @foreach($permissions as $permission)
-                                        <label class="inline-flex items-center">
+                                        <label class="inline-flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-700 hover:text-slate-900">
                                             <input type="checkbox" name="permissions[]" value="{{ $permission->name }}" 
-                                                class="permission-checkbox rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                                                {{ is_array(old('permissions')) && in_array($permission->name, old('permissions')) ? 'checked' : '' }}>
-                                            <span class="ml-2 text-sm text-gray-700">{{ $permission->name }}</span>
+                                                class="permission-checkbox w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500"
+                                                @checked(is_array(old('permissions')) && in_array($permission->name, old('permissions')))>
+                                            <span>{{ $permission->name }}</span>
                                         </label>
                                     @endforeach
                                 </div>
                             </div>
                         @endforeach
                         
-                        @error('permissions') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                        @error('permissions') <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p> @enderror
                     </div>
+
+                    <x-slot:footer>
+                        <a href="{{ route('admin.roles.index') }}">
+                            <x-button type="ghost">Cancel</x-button>
+                        </a>
+                        <x-button type="primary" submit>Create Role</x-button>
+                    </x-slot:footer>
                 </x-card>
-                
-                <div class="mt-6 flex justify-end gap-3">
-                    <x-button type="a" href="{{ route('admin.roles.index') }}" color="secondary">Cancel</x-button>
-                    <x-button type="submit" color="primary">Save Role</x-button>
-                </div>
             </div>
         </div>
     </form>

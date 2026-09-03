@@ -5,8 +5,8 @@
         <x-sidebar />
 
         {{-- Main Content Area --}}
-        <div class="flex-1 flex flex-col min-w-0 transition-all duration-300"
-             :class="sidebarOpen ? 'lg:ml-64' : 'lg:ml-0'">
+        <div class="flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out"
+             :class="sidebarOpen ? 'lg:ml-[260px]' : 'lg:ml-[68px]'">
 
 
             {{-- Top Navbar --}}

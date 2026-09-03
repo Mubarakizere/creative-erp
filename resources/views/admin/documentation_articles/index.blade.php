@@ -47,14 +47,41 @@
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <div class="flex justify-end gap-3">
-                                <a href="{{ route('admin.documentation-articles.edit', $article) }}" class="text-blue-600 hover:text-blue-900">Edit</a>
-                                <form action="{{ route('admin.documentation-articles.destroy', $article) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this article?');" class="inline-block">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
-                                </form>
-                            </div>
+                            <x-action-dropdown>
+                                @can('update', $article)
+                                    <x-action-dropdown-item href="{{ route('admin.documentation-articles.edit', $article) }}" icon="edit">
+                                        Edit Article
+                                    </x-action-dropdown-item>
+                                @endcan
+                                @can('delete', $article)
+                                    <x-action-dropdown-item @click="$dispatch('open-modal', 'delete-doc-article-{{ $article->id }}')" icon="delete" variant="danger">
+                                        Delete Article
+                                    </x-action-dropdown-item>
+                                @endcan
+                            </x-action-dropdown>
+
+                            @can('delete', $article)
+                            <x-modal id="delete-doc-article-{{ $article->id }}" maxWidth="md">
+                                <x-slot:header>Delete Documentation Article</x-slot:header>
+                                <div class="text-center py-4">
+                                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                                        <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                        </svg>
+                                    </div>
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Delete "{{ $article->title }}"?</h3>
+                                    <p class="text-sm text-gray-500">Are you sure you want to delete this documentation article? This action cannot be undone.</p>
+                                </div>
+                                <x-slot:footer>
+                                    <x-button type="ghost" @click="open = false">Cancel</x-button>
+                                    <form method="POST" action="{{ route('admin.documentation-articles.destroy', $article) }}" class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <x-button type="danger" submit>Delete Article</x-button>
+                                    </form>
+                                </x-slot:footer>
+                            </x-modal>
+                            @endcan
                         </td>
                     </tr>
                 @empty

@@ -40,14 +40,26 @@
                                 {{ $workflow->is_active ? 'Active' : 'Inactive' }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 text-right space-x-2">
-                            <a href="{{ route('admin.workflows.show', $workflow) }}" class="text-blue-600 hover:text-blue-900">View</a>
-                            @can('update', $workflow)
-                            <a href="{{ route('admin.workflows.edit', $workflow) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
-                            @endcan
-                            @can('delete', $workflow)
-                            <button x-data type="button" @click="$dispatch('open-modal', 'delete-workflow-{{ $workflow->id }}')" class="text-red-600 hover:text-red-900">Delete</button>
+                        <td class="px-6 py-4 text-right">
+                            <x-action-dropdown>
+                                @can('view', $workflow)
+                                    <x-action-dropdown-item href="{{ route('admin.workflows.show', $workflow) }}" icon="view">
+                                        View Workflow
+                                    </x-action-dropdown-item>
+                                @endcan
+                                @can('update', $workflow)
+                                    <x-action-dropdown-item href="{{ route('admin.workflows.edit', $workflow) }}" icon="edit">
+                                        Edit Workflow
+                                    </x-action-dropdown-item>
+                                @endcan
+                                @can('delete', $workflow)
+                                    <x-action-dropdown-item @click="$dispatch('open-modal', 'delete-workflow-{{ $workflow->id }}')" icon="delete" variant="danger">
+                                        Delete Workflow
+                                    </x-action-dropdown-item>
+                                @endcan
+                            </x-action-dropdown>
 
+                            @can('delete', $workflow)
                             <x-modal id="delete-workflow-{{ $workflow->id }}" maxWidth="md">
                                 <x-slot:header>Delete Workflow</x-slot:header>
                                 <div class="text-center py-4">

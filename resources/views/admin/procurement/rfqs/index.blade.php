@@ -75,22 +75,30 @@
                             <span class="text-sm text-gray-600">{{ $rfq->valid_until }}</span>
                         </td>
                         <td class="px-6 py-4 text-right">
-                            
-<div class="flex items-center justify-end gap-2">
+                            <x-action-dropdown>
+                                @can('view', $rfq)
+                                    <x-action-dropdown-item href="{{ route('admin.procurement.rfqs.show', $rfq) }}" icon="view">
+                                        View Details
+                                    </x-action-dropdown-item>
+                                @endcan
 
-                                    @can('view', $rfq)
-                                        <a href="{{ route('admin.procurement.rfqs.show', $rfq) }}" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center" title="View">
-View
-</a>
-                                    @endcan
-                                    @can('update', $rfq)
-                                        <a href="{{ route('admin.procurement.rfqs.edit', $rfq) }}" class="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors flex items-center justify-center" title="Edit">
-Edit
-</a>
-                                    @endcan
-                                
-</div>
-</td>
+                                @can('update', $rfq)
+                                    <x-action-dropdown-item href="{{ route('admin.procurement.rfqs.edit', $rfq) }}" icon="edit">
+                                        Edit RFQ
+                                    </x-action-dropdown-item>
+                                @endcan
+
+                                @can('delete', $rfq)
+                                    <form method="POST" action="{{ route('admin.procurement.rfqs.destroy', $rfq) }}" id="delete-rfq-form-{{ $rfq->id }}">
+                                        @csrf
+                                        @method('DELETE')
+                                    </form>
+                                    <x-action-dropdown-item onclick="document.getElementById('delete-rfq-form-{{ $rfq->id }}').submit()" icon="delete" variant="danger">
+                                        Delete RFQ
+                                    </x-action-dropdown-item>
+                                @endcan
+                            </x-action-dropdown>
+                        </td>
                     </tr>
                     @empty
                     <tr>

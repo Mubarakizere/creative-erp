@@ -128,63 +128,64 @@
                     </div>
                 </td>
                 <td class="px-6 py-4 text-right">
-                    
-<div class="flex items-center justify-end gap-2">
-
-
-                            @can('view', $task)
-                                <a href="{{ route('admin.projects.tasks.show', $task) }}" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center" title="View">
-<svg class="w-4 h-4 mr-3 " fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <x-action-dropdown>
+                        @can('view', $task)
+                            <x-action-dropdown-item :href="route('admin.projects.tasks.show', $task)">
+                                <x-slot:icon>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                     </svg>
-</a>
-                            @endcan
+                                </x-slot:icon>
+                                View Details
+                            </x-action-dropdown-item>
+                        @endcan
 
-                            @if(!$task->trashed())
-                                @can('update', $task)
-                                    <a href="{{ route('admin.projects.tasks.edit', $task) }}" class="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors flex items-center justify-center" title="Edit">
-<svg class="w-4 h-4 mr-3 " fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        @if(!$task->trashed())
+                            @can('update', $task)
+                                <x-action-dropdown-item :href="route('admin.projects.tasks.edit', $task)" warning>
+                                    <x-slot:icon>
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                         </svg>
-</a>
-                                @endcan
+                                    </x-slot:icon>
+                                    Edit Task
+                                </x-action-dropdown-item>
+                            @endcan
 
-                                @can('create', App\Models\Task::class)
-                                    <form method="POST" action="{{ route('admin.projects.tasks.duplicate', $task) }}">
-                                        @csrf
-                                        <button type="submit" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center" title="Duplicate">
-<svg class="w-4 h-4 mr-3 " fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-4M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
-</button>
-                                    </form>
-                                @endcan
+                            @can('create', App\Models\Task::class)
+                                <x-action-dropdown-item type="form" :action="route('admin.projects.tasks.duplicate', $task)">
+                                    <x-slot:icon>
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-4M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
+                                    </x-slot:icon>
+                                    Duplicate Task
+                                </x-action-dropdown-item>
+                            @endcan
 
-                                
-
-                                @can('delete', $task)
-                                    <button @click="open = false; $dispatch('open-modal', 'archive-task-{{ $task->id }}')"
-                                            class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center" title="Archive">
-<svg class="w-4 h-4 mr-3 " fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            @can('delete', $task)
+                                <x-action-dropdown-item type="button" @click="open = false; $dispatch('open-modal', 'archive-task-{{ $task->id }}')" danger>
+                                    <x-slot:icon>
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                         </svg>
-</button>
-                                @endcan
-                            @else
-                                @can('restore', $task)
-                                    <form method="POST" action="{{ route('admin.projects.tasks.restore', $task) }}">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center" title="Restore">
-<svg class="w-4 h-4 mr-3 " fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                                            </svg>
-</button>
-                                    </form>
-                                @endcan
-                            @endif
-                        
-</div>
-</td>
+                                    </x-slot:icon>
+                                    Archive Task
+                                </x-action-dropdown-item>
+                            @endcan
+                        @else
+                            @can('restore', $task)
+                                <x-action-dropdown-item type="form" method="PATCH" :action="route('admin.projects.tasks.restore', $task)">
+                                    <x-slot:icon>
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                        </svg>
+                                    </x-slot:icon>
+                                    Restore Task
+                                </x-action-dropdown-item>
+                            @endcan
+                        @endif
+                    </x-action-dropdown>
+                </td>
             </tr>
 
             {{-- Archive Modal --}}

@@ -43,10 +43,29 @@
                                 </span>
                             </td>
                             <td class="py-3 px-4 text-right">
-                                <div class="flex items-center justify-end gap-2">
-                                    <a href="{{ route('admin.warehouse.pickings.show', $item) }}" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">View</a>
-                                    <a href="{{ route('admin.warehouse.pickings.edit', $item) }}" class="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">Edit</a>
-                                </div>
+                                <x-action-dropdown>
+                                    @can('view', $item)
+                                        <x-action-dropdown-item href="{{ route('admin.warehouse.pickings.show', $item) }}" icon="view">
+                                            View Details
+                                        </x-action-dropdown-item>
+                                    @endcan
+
+                                    @can('update', $item)
+                                        <x-action-dropdown-item href="{{ route('admin.warehouse.pickings.edit', $item) }}" icon="edit">
+                                            Edit Picking
+                                        </x-action-dropdown-item>
+                                    @endcan
+
+                                    @can('delete', $item)
+                                        <form method="POST" action="{{ route('admin.warehouse.pickings.destroy', $item) }}" id="delete-picking-form-{{ $item->id }}">
+                                            @csrf
+                                            @method('DELETE')
+                                        </form>
+                                        <x-action-dropdown-item onclick="document.getElementById('delete-picking-form-{{ $item->id }}').submit()" icon="delete" variant="danger">
+                                            Delete Picking
+                                        </x-action-dropdown-item>
+                                    @endcan
+                                </x-action-dropdown>
                             </td>
                         </tr>
                     @empty

@@ -60,12 +60,31 @@
                             </td>
                             <td class="py-3 px-4 text-sm text-gray-500">{{ $item->created_at->format('M d, Y') }}</td>
                             <td class="py-3 px-4 text-right">
-                                <div class="flex items-center justify-end gap-2">
-                                    <a href="{{ route('admin.warehouse.shipments.show', $item) }}" class="px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">View</a>
+                                <x-action-dropdown>
+                                    @can('view', $item)
+                                        <x-action-dropdown-item href="{{ route('admin.warehouse.shipments.show', $item) }}" icon="view">
+                                            View Details
+                                        </x-action-dropdown-item>
+                                    @endcan
+
                                     @if(in_array($item->status, ['pending', 'prepared']))
-                                        <a href="{{ route('admin.warehouse.shipments.edit', $item) }}" class="px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">Edit</a>
+                                        @can('update', $item)
+                                            <x-action-dropdown-item href="{{ route('admin.warehouse.shipments.edit', $item) }}" icon="edit">
+                                                Edit Shipment
+                                            </x-action-dropdown-item>
+                                        @endcan
                                     @endif
-                                </div>
+
+                                    @can('delete', $item)
+                                        <form method="POST" action="{{ route('admin.warehouse.shipments.destroy', $item) }}" id="delete-shipment-form-{{ $item->id }}">
+                                            @csrf
+                                            @method('DELETE')
+                                        </form>
+                                        <x-action-dropdown-item onclick="document.getElementById('delete-shipment-form-{{ $item->id }}').submit()" icon="delete" variant="danger">
+                                            Delete Shipment
+                                        </x-action-dropdown-item>
+                                    @endcan
+                                </x-action-dropdown>
                             </td>
                         </tr>
                     @empty

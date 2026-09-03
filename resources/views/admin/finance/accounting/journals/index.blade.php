@@ -65,18 +65,35 @@
                                 @endphp
                                 <x-badge :type="$statusType">{{ $journal->status }}</x-badge>
                             </td>
-                            <td class="py-4 px-4 text-sm text-right flex justify-end space-x-2">
-                                <a href="{{ route('admin.finance.accounting.journals.show', $journal) }}" class="text-indigo-600 hover:text-indigo-900" title="View">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                </a>
-                                @if($journal->status === 'Draft' || $journal->status === 'Pending')
-                                    <form action="{{ route('admin.finance.accounting.journals.post', $journal) }}" method="POST" onsubmit="return confirm('Are you sure you want to post this journal entry to the ledger?');">
-                                        @csrf
-                                        <button type="submit" class="text-green-600 hover:text-green-900" title="Post to Ledger">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                                        </button>
-                                    </form>
-                                @endif
+                            <td class="py-4 px-4 text-sm text-right">
+                                <x-action-dropdown>
+                                    @can('view', $journal)
+                                        <x-action-dropdown-item href="{{ route('admin.finance.accounting.journals.show', $journal) }}" icon="view">
+                                            View Details
+                                        </x-action-dropdown-item>
+                                    @endcan
+
+                                    @if($journal->status === 'Draft' || $journal->status === 'Pending')
+                                        @can('post', $journal)
+                                            <form action="{{ route('admin.finance.accounting.journals.post', $journal) }}" method="POST" id="post-journal-form-{{ $journal->id }}">
+                                                @csrf
+                                            </form>
+                                            <x-action-dropdown-item onclick="document.getElementById('post-journal-form-{{ $journal->id }}').submit()">
+                                                Post to Ledger
+                                            </x-action-dropdown-item>
+                                        @endcan
+                                    @endif
+
+                                    @can('delete', $journal)
+                                        <form action="{{ route('admin.finance.accounting.journals.destroy', $journal) }}" method="POST" id="delete-journal-form-{{ $journal->id }}">
+                                            @csrf
+                                            @method('DELETE')
+                                        </form>
+                                        <x-action-dropdown-item onclick="document.getElementById('delete-journal-form-{{ $journal->id }}').submit()" icon="delete" variant="danger">
+                                            Delete Entry
+                                        </x-action-dropdown-item>
+                                    @endcan
+                                </x-action-dropdown>
                             </td>
                         </tr>
                     @empty

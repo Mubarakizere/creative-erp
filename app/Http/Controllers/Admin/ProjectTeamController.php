@@ -10,6 +10,7 @@ use App\Models\Department;
 use App\Services\ProjectTeamService;
 use App\Http\Requests\Admin\StoreProjectMemberRequest;
 use App\Http\Requests\Admin\UpdateProjectMemberRequest;
+use Spatie\Permission\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -27,12 +28,63 @@ class ProjectTeamController extends Controller
     }
 
     /**
+     * Helper to get merged project roles (DB System Roles + Operational Roles)
+     */
+    protected function getProjectRoles(): array
+    {
+        $systemRoles = Role::orderBy('name')->pluck('name', 'name')->toArray();
+        $operationalRoles = [
+            'Assistant Project Manager' => 'Assistant Project Manager',
+            'Architect' => 'Architect',
+            'Civil Engineer' => 'Civil Engineer',
+            'Electrical Engineer' => 'Electrical Engineer',
+            'Mechanical Engineer' => 'Mechanical Engineer',
+            'Quantity Surveyor' => 'Quantity Surveyor',
+            'Quality Controller' => 'Quality Controller',
+            'Safety Officer' => 'Safety Officer',
+            'Foreman' => 'Foreman',
+            'Technician' => 'Technician',
+            'Viewer' => 'Viewer',
+        ];
+
+        $roles = array_merge($systemRoles, $operationalRoles);
+        ksort($roles);
+        return $roles;
+    }
+
+    /**
      * Display a listing of project teams across all projects.
      */
     public function index(Request $request): View
     {
         Gate::authorize('viewAny', ProjectMember::class);
 
+        $viewMode = $request->get('view', 'projects'); // 'projects' or 'members'
+
+        // Grouped Project Teams Query
+        $projectTeamsQuery = Project::with(['manager', 'projectMembers' => function ($q) {
+            $q->with(['user', 'department'])->whereNull('deleted_at');
+        }])->where('company_id', auth()->user()->company_id);
+
+        if ($request->search) {
+            $search = $request->search;
+            $projectTeamsQuery->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('project_code', 'like', "%{$search}%")
+                  ->orWhereHas('projectMembers.user', function ($sub) use ($search) {
+                      $sub->where('first_name', 'like', "%{$search}%")
+                          ->orWhere('last_name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        if ($request->project_id) {
+            $projectTeamsQuery->where('id', $request->project_id);
+        }
+
+        $projectTeams = $projectTeamsQuery->orderBy('name')->paginate(12)->withQueryString();
+
+        // Flat Members Query
         $query = ProjectMember::with(['project', 'user', 'department'])
             ->when($request->search, function ($q, $search) {
                 $q->whereHas('user', function ($q) use ($search) {
@@ -57,7 +109,7 @@ class ProjectTeamController extends Controller
         $projects = Project::select('id', 'name')->orderBy('name')->get();
         $departments = Department::select('id', 'name')->orderBy('name')->get();
 
-        return view('admin.projects.team.index', compact('members', 'projects', 'departments'));
+        return view('admin.projects.team.index', compact('members', 'projectTeams', 'projects', 'departments', 'viewMode'));
     }
 
     /**
@@ -68,12 +120,19 @@ class ProjectTeamController extends Controller
         Gate::authorize('create', ProjectMember::class);
         
         $projects = Project::select('id', 'name')->orderBy('name')->get();
-        $users = User::select('id', 'first_name', 'last_name')->orderBy('first_name')->get();
+        $users = User::with('roles')->select('id', 'first_name', 'last_name')->orderBy('first_name')->get();
+        $usersMap = $users->mapWithKeys(function($u) {
+            return [$u->id => [
+                'name' => $u->first_name . ' ' . $u->last_name,
+                'role' => $u->roles->first()?->name ?? ''
+            ]];
+        });
         $departments = Department::select('id', 'name')->orderBy('name')->get();
+        $roles = $this->getProjectRoles();
         
         $selectedProject = $request->project_id ? Project::find($request->project_id) : null;
 
-        return view('admin.projects.team.create', compact('projects', 'users', 'departments', 'selectedProject'));
+        return view('admin.projects.team.create', compact('projects', 'users', 'usersMap', 'departments', 'roles', 'selectedProject'));
     }
 
     /**
@@ -85,7 +144,7 @@ class ProjectTeamController extends Controller
         
         try {
             $this->teamService->assignMember($project, $request->validated());
-            return redirect()->route('admin.projects.show', $project)->with('success', 'Team member assigned successfully.');
+            return redirect()->route('admin.projects.team.index')->with('success', 'Team member assigned successfully.');
         } catch (ValidationException $e) {
             return back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
@@ -113,9 +172,10 @@ class ProjectTeamController extends Controller
         Gate::authorize('update', $teamMember);
         
         $departments = Department::select('id', 'name')->orderBy('name')->get();
+        $roles = $this->getProjectRoles();
         $teamMember->load(['project', 'user']);
 
-        return view('admin.projects.team.edit', compact('teamMember', 'departments'));
+        return view('admin.projects.team.edit', compact('teamMember', 'departments', 'roles'));
     }
 
     /**
@@ -125,7 +185,7 @@ class ProjectTeamController extends Controller
     {
         try {
             $this->teamService->updateAssignment($teamMember, $request->validated());
-            return redirect()->route('admin.projects.show', $teamMember->project_id)->with('success', 'Team member updated successfully.');
+            return redirect()->route('admin.projects.team.index')->with('success', 'Team member updated successfully.');
         } catch (ValidationException $e) {
             return back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
@@ -140,10 +200,9 @@ class ProjectTeamController extends Controller
     {
         Gate::authorize('remove', $teamMember);
         
-        $projectId = $teamMember->project_id;
         $this->teamService->removeMember($teamMember);
         
-        return redirect()->route('admin.projects.show', $projectId)->with('success', 'Team member removed successfully.');
+        return redirect()->route('admin.projects.team.index')->with('success', 'Team member removed successfully.');
     }
     
     /**

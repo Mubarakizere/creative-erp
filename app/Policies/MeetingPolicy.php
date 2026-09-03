@@ -15,7 +15,7 @@ class MeetingPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasPermissionTo('meeting.view');
+        return true;
     }
 
     /**
@@ -23,17 +23,27 @@ class MeetingPolicy
      */
     public function view(User $user, Meeting $meeting): bool
     {
-        if ($user->company_id !== $meeting->company_id) {
+        if ($user->hasRole('Super Admin') || $user->hasRole('CEO')) {
+            return true;
+        }
+        if ($user->company_id && $meeting->company_id && $user->company_id !== $meeting->company_id) {
             return false;
         }
-        return $user->hasPermissionTo('meeting.view');
+        if ($meeting->project) {
+            return $meeting->project->hasPermissionForUser($user, 'meeting.view');
+        }
+        return $user->hasPermissionTo('meeting.view') || $meeting->isOrganizer($user) || $meeting->attendees()->where('users.id', $user->id)->exists();
     }
 
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): bool
+    public function create(User $user, mixed $arg1 = null, mixed $arg2 = null): bool
     {
+        $project = $arg1 instanceof \App\Models\Project ? $arg1 : ($arg2 instanceof \App\Models\Project ? $arg2 : null);
+        if ($project) {
+            return $project->hasPermissionForUser($user, 'meeting.create');
+        }
         return $user->hasPermissionTo('meeting.create');
     }
 
@@ -42,10 +52,16 @@ class MeetingPolicy
      */
     public function update(User $user, Meeting $meeting): bool
     {
-        if ($user->company_id !== $meeting->company_id) {
+        if ($user->hasRole('Super Admin') || $user->hasRole('CEO')) {
+            return true;
+        }
+        if ($user->company_id && $meeting->company_id && $user->company_id !== $meeting->company_id) {
             return false;
         }
-        return $user->hasPermissionTo('meeting.update');
+        if ($meeting->project) {
+            return $meeting->project->hasPermissionForUser($user, 'meeting.update') || $meeting->isOrganizer($user);
+        }
+        return $user->hasPermissionTo('meeting.update') || $meeting->isOrganizer($user);
     }
 
     /**
@@ -53,10 +69,16 @@ class MeetingPolicy
      */
     public function delete(User $user, Meeting $meeting): bool
     {
-        if ($user->company_id !== $meeting->company_id) {
+        if ($user->hasRole('Super Admin') || $user->hasRole('CEO')) {
+            return true;
+        }
+        if ($user->company_id && $meeting->company_id && $user->company_id !== $meeting->company_id) {
             return false;
         }
-        return $user->hasPermissionTo('meeting.delete');
+        if ($meeting->project) {
+            return $meeting->project->hasPermissionForUser($user, 'meeting.delete') || $meeting->isOrganizer($user);
+        }
+        return $user->hasPermissionTo('meeting.delete') || $meeting->isOrganizer($user);
     }
 
     /**
@@ -64,7 +86,10 @@ class MeetingPolicy
      */
     public function restore(User $user, Meeting $meeting): bool
     {
-        if ($user->company_id !== $meeting->company_id) {
+        if ($user->hasRole('Super Admin') || $user->hasRole('CEO')) {
+            return true;
+        }
+        if ($user->company_id && $meeting->company_id && $user->company_id !== $meeting->company_id) {
             return false;
         }
         return $user->hasPermissionTo('meeting.restore');
@@ -83,7 +108,10 @@ class MeetingPolicy
      */
     public function invite(User $user, Meeting $meeting): bool
     {
-        if ($user->company_id !== $meeting->company_id) {
+        if ($user->hasRole('Super Admin') || $user->hasRole('CEO')) {
+            return true;
+        }
+        if ($user->company_id && $meeting->company_id && $user->company_id !== $meeting->company_id) {
             return false;
         }
         return $user->hasPermissionTo('meeting.invite') || $meeting->isOrganizer($user);
@@ -94,10 +122,16 @@ class MeetingPolicy
      */
     public function cancel(User $user, Meeting $meeting): bool
     {
-        if ($user->company_id !== $meeting->company_id) {
+        if ($user->hasRole('Super Admin') || $user->hasRole('CEO')) {
+            return true;
+        }
+        if ($user->company_id && $meeting->company_id && $user->company_id !== $meeting->company_id) {
             return false;
         }
-        return $user->hasPermissionTo('meeting.cancel') || $meeting->isOrganizer($user);
+        if ($meeting->project) {
+            return $meeting->project->hasPermissionForUser($user, 'meeting.cancel') || $meeting->project->hasPermissionForUser($user, 'meeting.update') || $meeting->isOrganizer($user);
+        }
+        return $user->hasPermissionTo('meeting.cancel') || $user->hasPermissionTo('meeting.update') || $meeting->isOrganizer($user);
     }
 
     /**
@@ -105,7 +139,6 @@ class MeetingPolicy
      */
     public function respond(User $user, Meeting $meeting): bool
     {
-        // User must be an attendee to respond
         return $meeting->attendees()->where('users.id', $user->id)->exists();
     }
 }

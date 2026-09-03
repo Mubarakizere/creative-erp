@@ -1,136 +1,175 @@
 <x-layouts.admin title="Add Fixed Asset">
-<div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-    <div class="md:grid md:grid-cols-3 md:gap-6">
-        <div class="md:col-span-1">
-            <div class="px-4 sm:px-0">
-                <h3 class="text-lg font-medium leading-6 text-gray-900">Asset Information</h3>
-                <p class="mt-1 text-sm text-gray-600">
-                    Enter the details of the new fixed asset.
-                </p>
-            </div>
-        </div>
-        <div class="mt-5 md:mt-0 md:col-span-2">
-            <form action="{{ route('admin.assets.store') }}" method="POST">
-                @csrf
-                <div class="shadow sm:rounded-md sm:overflow-hidden">
-                    <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
-                        
-                        <div class="grid grid-cols-6 gap-6">
-                            <div class="col-span-6 sm:col-span-3">
-                                <label for="asset_number" class="block text-sm font-medium text-gray-700">Asset Number</label>
-                                <input type="text" name="asset_number" id="asset_number" value="{{ old('asset_number', 'AST-'.str_pad(mt_rand(1,9999), 4, '0', STR_PAD_LEFT)) }}" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
-                            </div>
-                            
-                            <div class="col-span-6 sm:col-span-3">
-                                <label for="name" class="block text-sm font-medium text-gray-700">Asset Name</label>
-                                <input type="text" name="name" id="name" value="{{ old('name') }}" required class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
-                            </div>
+    <x-slot:breadcrumbs>
+        @php
+            $breadcrumbs = [
+                ['label' => 'Equipment', 'url' => route('admin.assets.index')],
+                ['label' => 'Add Fixed Asset'],
+            ];
+        @endphp
+    </x-slot:breadcrumbs>
 
-                            <div class="col-span-6 sm:col-span-3">
-                                <label for="asset_category_id" class="block text-sm font-medium text-gray-700">Category</label>
-                                <select id="asset_category_id" name="asset_category_id" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                    <option value="">Select Category</option>
-                                    @foreach($categories as $category)
-                                        <option value="{{ $category->id }}">{{ $category->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="col-span-6 sm:col-span-3">
-                                <label for="serial_number" class="block text-sm font-medium text-gray-700">Serial Number</label>
-                                <input type="text" name="serial_number" id="serial_number" value="{{ old('serial_number') }}" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
-                            </div>
-
-                            <div class="col-span-6 sm:col-span-2">
-                                <label for="purchase_cost" class="block text-sm font-medium text-gray-700">Purchase Cost</label>
-                                <input type="number" step="0.01" name="purchase_cost" id="purchase_cost" value="{{ old('purchase_cost') }}" required class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
-                            </div>
-
-                            <div class="col-span-6 sm:col-span-2">
-                                <label for="residual_value" class="block text-sm font-medium text-gray-700">Residual Value</label>
-                                <input type="number" step="0.01" name="residual_value" id="residual_value" value="{{ old('residual_value', 0) }}" required class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
-                            </div>
-
-                            <div class="col-span-6 sm:col-span-2">
-                                <label for="useful_life" class="block text-sm font-medium text-gray-700">Useful Life (Months)</label>
-                                <input type="number" name="useful_life" id="useful_life" value="{{ old('useful_life') }}" required class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
-                            </div>
-
-                            <div class="col-span-6 sm:col-span-3">
-                                <label for="purchase_date" class="block text-sm font-medium text-gray-700">Purchase Date</label>
-                                <input type="date" name="purchase_date" id="purchase_date" value="{{ old('purchase_date') }}" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
-                            </div>
-
-                            <div class="col-span-6 sm:col-span-3">
-                                <label for="in_service_date" class="block text-sm font-medium text-gray-700">In Service Date</label>
-                                <input type="date" name="in_service_date" id="in_service_date" value="{{ old('in_service_date') }}" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
-                            </div>
-                            
-                            <div class="col-span-6 sm:col-span-3">
-                                <label for="depreciation_method" class="block text-sm font-medium text-gray-700">Depreciation Method</label>
-                                <select id="depreciation_method" name="depreciation_method" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                    <option value="straight_line">Straight Line</option>
-                                    <option value="declining_balance">Declining Balance</option>
-                                    <option value="double_declining_balance">Double Declining Balance</option>
-                                </select>
-                            </div>
-                            
-                            <div class="col-span-6 mt-4">
-                                <h4 class="font-medium text-gray-900 border-b pb-2">Assignments (Optional)</h4>
-                            </div>
-
-                            <div class="col-span-6 sm:col-span-2">
-                                <label for="branch_id" class="block text-sm font-medium text-gray-700">Branch</label>
-                                <select id="branch_id" name="branch_id" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                    <option value="">Select Branch</option>
-                                    @foreach($branches as $branch)
-                                        <option value="{{ $branch->id }}">{{ $branch->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="col-span-6 sm:col-span-2">
-                                <label for="department_id" class="block text-sm font-medium text-gray-700">Department</label>
-                                <select id="department_id" name="department_id" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                    <option value="">Select Department</option>
-                                    @foreach($departments as $department)
-                                        <option value="{{ $department->id }}">{{ $department->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="col-span-6 sm:col-span-2">
-                                <label for="assigned_user_id" class="block text-sm font-medium text-gray-700">Assign to User</label>
-                                <select id="assigned_user_id" name="assigned_user_id" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                    <option value="">Select User</option>
-                                    @foreach($users as $u)
-                                        <option value="{{ $u->id }}">{{ $u->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            
-                            <div class="col-span-6 mt-4">
-                                <div class="flex items-start">
-                                    <div class="flex items-center h-5">
-                                        <input id="auto_capitalize" name="auto_capitalize" type="checkbox" value="1" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
-                                    </div>
-                                    <div class="ml-3 text-sm">
-                                        <label for="auto_capitalize" class="font-medium text-gray-700">Auto-Capitalize Asset</label>
-                                        <p class="text-gray-500">Automatically create a journal entry to capitalize this asset and set its status to Active.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                    </div>
-                    <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
-                        <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            Save Asset
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Register New Fixed Asset</h1>
+        <p class="mt-1 text-sm text-gray-500">Record financial cost, depreciation terms, and initial custody assignment.</p>
     </div>
-</div>
+
+    <form action="{{ route('admin.assets.store') }}" method="POST">
+        @csrf
+        <div class="space-y-8">
+            <x-form-section 
+                title="Asset Identification & Valuation" 
+                description="Core asset details including serial numbers, classification category, purchase cost, and residual value.">
+                
+                <x-card>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                        <x-input 
+                            label="Asset Number" 
+                            name="asset_number" 
+                            value="{{ old('asset_number', 'AST-'.str_pad(mt_rand(1,9999), 4, '0', STR_PAD_LEFT)) }}" 
+                            required 
+                        />
+
+                        <x-input 
+                            label="Asset Name" 
+                            name="name" 
+                            placeholder="e.g. Heavy Duty Generator, MacBook Pro" 
+                            required 
+                        />
+
+                        <x-select 
+                            label="Category" 
+                            name="asset_category_id" 
+                            required
+                            placeholder="Select asset category..."
+                        >
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}" @selected(old('asset_category_id') == $category->id)>
+                                    {{ $category->name }}
+                                </option>
+                            @endforeach
+                        </x-select>
+
+                        <x-input 
+                            label="Serial Number" 
+                            name="serial_number" 
+                            placeholder="e.g. SN-98234-X" 
+                        />
+
+                        <x-input 
+                            label="Purchase Cost" 
+                            name="purchase_cost" 
+                            type="number" 
+                            step="0.01" 
+                            placeholder="0.00" 
+                            required 
+                        />
+
+                        <x-input 
+                            label="Residual Value" 
+                            name="residual_value" 
+                            type="number" 
+                            step="0.01" 
+                            value="0" 
+                            required 
+                            hint="Scrap value at end of useful life"
+                        />
+
+                        <x-input 
+                            label="Useful Life (Months)" 
+                            name="useful_life" 
+                            type="number" 
+                            placeholder="36" 
+                            required 
+                        />
+
+                        <x-input 
+                            label="Purchase Date" 
+                            name="purchase_date" 
+                            type="date" 
+                        />
+
+                        <x-input 
+                            label="In Service Date" 
+                            name="in_service_date" 
+                            type="date" 
+                        />
+
+                        <div class="md:col-span-2 lg:col-span-3">
+                            <x-select 
+                                label="Depreciation Method" 
+                                name="depreciation_method" 
+                                required
+                            >
+                                <option value="straight_line" @selected(old('depreciation_method') == 'straight_line')>Straight Line</option>
+                                <option value="declining_balance" @selected(old('depreciation_method') == 'declining_balance')>Declining Balance</option>
+                                <option value="double_declining_balance" @selected(old('depreciation_method') == 'double_declining_balance')>Double Declining Balance</option>
+                            </x-select>
+                        </div>
+                    </div>
+                </x-card>
+            </x-form-section>
+
+            <x-form-section 
+                title="Custody & Location Assignment" 
+                description="Assign initial branch, department, or individual custodian responsible for the equipment.">
+                
+                <x-card>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        <x-select 
+                            label="Branch" 
+                            name="branch_id" 
+                            placeholder="Select branch..."
+                        >
+                            @foreach($branches as $branch)
+                                <option value="{{ $branch->id }}" @selected(old('branch_id') == $branch->id)>
+                                    {{ $branch->name }}
+                                </option>
+                            @endforeach
+                        </x-select>
+
+                        <x-select 
+                            label="Department" 
+                            name="department_id" 
+                            placeholder="Select department..."
+                        >
+                            @foreach($departments as $department)
+                                <option value="{{ $department->id }}" @selected(old('department_id') == $department->id)>
+                                    {{ $department->name }}
+                                </option>
+                            @endforeach
+                        </x-select>
+
+                        <x-select 
+                            label="Assign to User" 
+                            name="assigned_user_id" 
+                            placeholder="Select custodian..."
+                        >
+                            @foreach($users as $u)
+                                <option value="{{ $u->id }}" @selected(old('assigned_user_id') == $u->id)>
+                                    {{ $u->name }}
+                                </option>
+                            @endforeach
+                        </x-select>
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-gray-100">
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            <input type="checkbox" name="auto_capitalize" value="1" class="w-4 h-4 rounded text-blue-600 border-gray-300 focus:ring-blue-500">
+                            <div>
+                                <span class="text-sm font-semibold text-gray-900">Auto-Capitalize Asset</span>
+                                <p class="text-xs text-gray-500">Automatically post journal entry to capitalize asset and set status to Active</p>
+                            </div>
+                        </label>
+                    </div>
+
+                    <x-slot:footer>
+                        <a href="{{ route('admin.assets.index') }}">
+                            <x-button type="ghost">Cancel</x-button>
+                        </a>
+                        <x-button type="primary" submit>Register Asset</x-button>
+                    </x-slot:footer>
+                </x-card>
+            </x-form-section>
+        </div>
+    </form>
 </x-layouts.admin>

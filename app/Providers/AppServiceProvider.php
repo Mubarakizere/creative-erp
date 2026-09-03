@@ -36,6 +36,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Role::class, RolePolicy::class);
         Gate::policy(Permission::class, PermissionPolicy::class);
         Gate::policy(Meeting::class, MeetingPolicy::class);
+        Gate::policy(\App\Models\ProjectMember::class, \App\Policies\ProjectTeamPolicy::class);
 
         // Comment Events
         Event::listen(\App\Events\CommentCreated::class, \App\Listeners\LogActivityListener::class);

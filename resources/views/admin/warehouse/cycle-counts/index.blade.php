@@ -63,7 +63,23 @@
                             </td>
                             <td class="py-3 px-4 text-sm text-gray-500">{{ $count->created_at->format('M d, Y') }}</td>
                             <td class="py-3 px-4 text-right">
-                                <a href="{{ route('admin.warehouse.cycle-counts.show', $count) }}" class="px-3 py-1.5 text-xs font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors">Manage</a>
+                                <x-action-dropdown>
+                                    @can('view', $count)
+                                        <x-action-dropdown-item href="{{ route('admin.warehouse.cycle-counts.show', $count) }}" icon="view">
+                                            Manage Count
+                                        </x-action-dropdown-item>
+                                    @endcan
+
+                                    @can('delete', $count)
+                                        <form method="POST" action="{{ route('admin.warehouse.cycle-counts.destroy', $count) }}" id="delete-cyclecount-form-{{ $count->id }}">
+                                            @csrf
+                                            @method('DELETE')
+                                        </form>
+                                        <x-action-dropdown-item onclick="document.getElementById('delete-cyclecount-form-{{ $count->id }}').submit()" icon="delete" variant="danger">
+                                            Delete Count
+                                        </x-action-dropdown-item>
+                                    @endcan
+                                </x-action-dropdown>
                             </td>
                         </tr>
                     @empty

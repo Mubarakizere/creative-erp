@@ -74,7 +74,23 @@
                             </td>
                             <td class="py-3 px-4 text-sm text-gray-500">{{ $return->created_at->format('M d, Y') }}</td>
                             <td class="py-3 px-4 text-right">
-                                <a href="{{ route('admin.warehouse.returns.show', $return) }}" class="px-3 py-1.5 text-xs font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors">Inspect</a>
+                                <x-action-dropdown>
+                                    @can('view', $return)
+                                        <x-action-dropdown-item href="{{ route('admin.warehouse.returns.show', $return) }}" icon="view">
+                                            Inspect Return
+                                        </x-action-dropdown-item>
+                                    @endcan
+
+                                    @can('delete', $return)
+                                        <form method="POST" action="{{ route('admin.warehouse.returns.destroy', $return) }}" id="delete-return-form-{{ $return->id }}">
+                                            @csrf
+                                            @method('DELETE')
+                                        </form>
+                                        <x-action-dropdown-item onclick="document.getElementById('delete-return-form-{{ $return->id }}').submit()" icon="delete" variant="danger">
+                                            Delete Return
+                                        </x-action-dropdown-item>
+                                    @endcan
+                                </x-action-dropdown>
                             </td>
                         </tr>
                     @empty

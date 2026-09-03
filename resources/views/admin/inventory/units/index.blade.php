@@ -91,34 +91,38 @@
                                     </td>
                                     <td class="px-6 py-4 text-right">
                                         @can('delete', $unit)
-                                        <button x-data @click="$dispatch('open-modal', 'delete-unit-{{ $unit->id }}')" class="p-1.5 rounded-lg text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors inline-flex items-center justify-center">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                        </button>
+                                        <x-action-dropdown>
+                                            <x-action-dropdown-item onclick="Alpine.$data(document.getElementById('modal-delete-unit-{{ $unit->id }}')).open = true" icon="delete" variant="danger">
+                                                Delete Unit
+                                            </x-action-dropdown-item>
+                                        </x-action-dropdown>
 
-                                        <x-modal id="delete-unit-{{ $unit->id }}" maxWidth="md">
-                                            <x-slot:header>Delete Unit</x-slot:header>
+                                        <div id="modal-delete-unit-{{ $unit->id }}">
+                                            <x-modal id="delete-unit-{{ $unit->id }}" maxWidth="md">
+                                                <x-slot:header>Delete Unit</x-slot:header>
 
-                                            <div class="text-center py-4 whitespace-normal">
-                                                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4 border border-red-200">
-                                                    <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                                                    </svg>
+                                                <div class="text-center py-4 whitespace-normal">
+                                                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4 border border-red-200">
+                                                        <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                                        </svg>
+                                                    </div>
+                                                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Delete "{{ $unit->name }}"?</h3>
+                                                    <p class="text-sm text-gray-500">Are you sure you want to delete this unit of measure? This action cannot be undone and may affect associated inventory items.</p>
                                                 </div>
-                                                <h3 class="text-lg font-semibold text-gray-900 mb-2">Delete "{{ $unit->name }}"?</h3>
-                                                <p class="text-sm text-gray-500">Are you sure you want to delete this unit of measure? This action cannot be undone and may affect associated inventory items.</p>
-                                            </div>
 
-                                            <x-slot:footer>
-                                                <div class="flex items-center gap-3 w-full justify-end">
-                                                    <button type="button" @click="open = false" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors shadow-sm">Cancel</button>
-                                                    <form method="POST" action="{{ route('admin.inventory.units.destroy', $unit) }}" class="inline">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-xl hover:bg-red-700 transition-colors shadow-sm">Delete Unit</button>
-                                                    </form>
-                                                </div>
-                                            </x-slot:footer>
-                                        </x-modal>
+                                                <x-slot:footer>
+                                                    <div class="flex items-center gap-3 w-full justify-end">
+                                                        <button type="button" @click="open = false" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors shadow-sm">Cancel</button>
+                                                        <form method="POST" action="{{ route('admin.inventory.units.destroy', $unit) }}" class="inline">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-xl hover:bg-red-700 transition-colors shadow-sm">Delete Unit</button>
+                                                        </form>
+                                                    </div>
+                                                </x-slot:footer>
+                                            </x-modal>
+                                        </div>
                                         @endcan
                                     </td>
                                 </tr>

@@ -67,12 +67,21 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="flex items-center justify-end space-x-3">
-                                    <a href="{{ route('admin.expertise-cards.edit', $card) }}" class="text-blue-600 hover:text-blue-900 transition-colors">Edit</a>
-                                    <button @click="$dispatch('open-modal', 'delete-card-{{ $card->id }}')" class="text-red-600 hover:text-red-900 transition-colors">Delete</button>
-                                </div>
+                                <x-action-dropdown>
+                                    @can('update', $card)
+                                        <x-action-dropdown-item href="{{ route('admin.expertise-cards.edit', $card) }}" icon="edit">
+                                            Edit Card
+                                        </x-action-dropdown-item>
+                                    @endcan
+                                    @can('delete', $card)
+                                        <x-action-dropdown-item @click="$dispatch('open-modal', 'delete-card-{{ $card->id }}')" icon="delete" variant="danger">
+                                            Delete Card
+                                        </x-action-dropdown-item>
+                                    @endcan
+                                </x-action-dropdown>
 
                                 {{-- Delete Modal --}}
+                                @can('delete', $card)
                                 <x-modal id="delete-card-{{ $card->id }}" maxWidth="md">
                                     <x-slot:header>Delete Expertise Card</x-slot:header>
 
@@ -87,7 +96,7 @@
                                     </div>
 
                                     <x-slot:footer>
-                                        <x-button type="ghost" @click="show = false">Cancel</x-button>
+                                        <x-button type="ghost" @click="open = false">Cancel</x-button>
                                         <form method="POST" action="{{ route('admin.expertise-cards.destroy', $card) }}" class="inline">
                                             @csrf
                                             @method('DELETE')
@@ -95,6 +104,7 @@
                                         </form>
                                     </x-slot:footer>
                                 </x-modal>
+                                @endcan
                             </td>
                         </tr>
                     @empty

@@ -60,30 +60,38 @@
                         </td>
                         <td class="px-6 py-4 text-sm font-medium text-gray-600">{{ $announcement->created_at->format('M j, Y') }}</td>
                         <td class="px-6 py-4 text-right">
-                            <div class="flex items-center justify-end space-x-2">
+                            <x-action-dropdown>
                                 @can('view', $announcement)
-                                <a href="{{ route('admin.announcements.show', $announcement) }}" class="inline-flex items-center px-3 py-1.5 text-xs font-bold text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors" title="View">View</a>
+                                    <x-action-dropdown-item href="{{ route('admin.announcements.show', $announcement) }}" icon="view">
+                                        View Details
+                                    </x-action-dropdown-item>
                                 @endcan
+
                                 @can('update', $announcement)
-                                <a href="{{ route('admin.announcements.edit', $announcement) }}" class="inline-flex items-center px-3 py-1.5 text-xs font-bold text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors" title="Edit">Edit</a>
+                                    <x-action-dropdown-item href="{{ route('admin.announcements.edit', $announcement) }}" icon="edit">
+                                        Edit Announcement
+                                    </x-action-dropdown-item>
                                 @endcan
-                                
-                                {{-- Publish/Unpublish Buttons --}}
+
                                 @can('publish', $announcement)
                                     @if($announcement->is_published)
-                                        <button type="button" x-data @click="$dispatch('open-modal', 'unpublish-announcement-{{ $announcement->id }}')" class="inline-flex items-center px-3 py-1.5 text-xs font-bold text-amber-700 bg-amber-50 rounded-lg hover:bg-amber-100 transition-colors" title="Unpublish">Unpublish</button>
+                                        <x-action-dropdown-item @click="$dispatch('open-modal', 'unpublish-announcement-{{ $announcement->id }}')">
+                                            Unpublish
+                                        </x-action-dropdown-item>
                                     @else
-                                        <button type="button" x-data @click="$dispatch('open-modal', 'publish-announcement-{{ $announcement->id }}')" class="inline-flex items-center px-3 py-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 rounded-lg hover:bg-emerald-100 transition-colors" title="Publish">Publish</button>
+                                        <x-action-dropdown-item @click="$dispatch('open-modal', 'publish-announcement-{{ $announcement->id }}')">
+                                            Publish
+                                        </x-action-dropdown-item>
                                     @endif
                                 @endcan
-                                
-                                {{-- Delete Button --}}
+
                                 @can('delete', $announcement)
-                                <button type="button" x-data @click="$dispatch('open-modal', 'delete-announcement-{{ $announcement->id }}')" class="text-red-500 hover:text-red-700 transition-colors ml-2" title="Delete">
-                                    <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                </button>
+                                    <x-action-dropdown-item @click="$dispatch('open-modal', 'delete-announcement-{{ $announcement->id }}')" icon="delete" variant="danger">
+                                        Delete Announcement
+                                    </x-action-dropdown-item>
                                 @endcan
-                            </div>
+                            </x-action-dropdown>
+                        </td>
 
                             {{-- Modals --}}
                             @can('publish', $announcement)

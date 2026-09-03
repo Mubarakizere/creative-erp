@@ -8,11 +8,23 @@ use App\Models\User;
 class AnnouncementPolicy
 {
     /**
+     * Perform pre-authorization checks.
+     */
+    public function before(User $user, string $ability): bool|null
+    {
+        if ($user->hasRole('Super Admin') || $user->hasRole('CEO')) {
+            return true;
+        }
+
+        return null;
+    }
+
+    /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasPermissionTo('notification.announcement') || $user->hasPermissionTo('notification.view');
+        return true;
     }
 
     /**
@@ -20,9 +32,15 @@ class AnnouncementPolicy
      */
     public function view(User $user, Announcement $announcement): bool
     {
-        // For now, any authenticated user can view an announcement if they have the link.
-        // We can add stricter audience checks here if required.
-        return true;
+        if ($user->hasRole('Super Admin') || $user->hasRole('CEO')) {
+            return true;
+        }
+
+        if ($user->hasPermissionTo('notification.announcement') || $user->hasPermissionTo('notification.view')) {
+            return true;
+        }
+
+        return (bool) $announcement->is_published;
     }
 
     /**

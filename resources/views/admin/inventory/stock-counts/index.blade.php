@@ -65,7 +65,20 @@
                                 @endif
                             </td>
                             <td class="py-3 px-4 text-right">
-                                <a href="{{ route('admin.inventory.stock-counts.show', $count) }}" class="text-xs font-medium text-blue-600 hover:text-blue-900">View</a>
+                                <x-action-dropdown>
+                                    <x-action-dropdown-item href="{{ route('admin.inventory.stock-counts.show', $count) }}" icon="view">
+                                        View Details
+                                    </x-action-dropdown-item>
+                                    @can('delete', $count)
+                                        <form action="{{ route('admin.inventory.stock-counts.destroy', $count) }}" method="POST" id="delete-count-form-{{ $count->id }}">
+                                            @csrf
+                                            @method('DELETE')
+                                        </form>
+                                        <x-action-dropdown-item onclick="document.getElementById('delete-count-form-{{ $count->id }}').submit()" icon="delete" variant="danger">
+                                            Delete Count
+                                        </x-action-dropdown-item>
+                                    @endcan
+                                </x-action-dropdown>
                             </td>
                         </tr>
                     @empty

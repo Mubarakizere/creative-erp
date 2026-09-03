@@ -97,29 +97,38 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 text-right">
-                            
-<div class="flex items-center justify-end gap-2">
+                            <x-action-dropdown>
+                                @can('view', $invoice)
+                                    <x-action-dropdown-item href="{{ route('admin.procurement.invoices.show', $invoice->id) }}" icon="view">
+                                        View Details
+                                    </x-action-dropdown-item>
+                                @endcan
 
-                                    @can('view', $invoice)
-                                        <a href="{{ route('admin.procurement.invoices.show', $invoice->id) }}" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center" title="View Details">
-View Details
-</a>
+                                @can('update', $invoice)
+                                    <x-action-dropdown-item href="{{ route('admin.procurement.invoices.edit', $invoice->id) }}" icon="edit">
+                                        Edit Invoice
+                                    </x-action-dropdown-item>
+                                @endcan
+
+                                @if(in_array(strtolower($invoice->status), ['unpaid', 'partially_paid']))
+                                    @can('create', App\Models\SupplierPayment::class)
+                                        <x-action-dropdown-item href="{{ route('admin.procurement.payments.create', ['invoice_id' => $invoice->id]) }}">
+                                            Record Payment
+                                        </x-action-dropdown-item>
                                     @endcan
-                                    @can('update', $invoice)
-                                        <a href="{{ route('admin.procurement.invoices.edit', $invoice->id) }}" class="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors flex items-center justify-center" title="Edit Invoice">
-Edit Invoice
-</a>
-                                    @endcan
-                                    @if(in_array(strtolower($invoice->status), ['unpaid', 'partially_paid']))
-                                        @can('create', App\Models\SupplierPayment::class)
-                                            <a href="{{ route('admin.procurement.payments.create', ['invoice_id' => $invoice->id]) }}" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center" title="Record Payment">
-Record Payment
-</a>
-                                        @endcan
-                                    @endif
-                                
-</div>
-</td>
+                                @endif
+
+                                @can('delete', $invoice)
+                                    <form action="{{ route('admin.procurement.invoices.destroy', $invoice->id) }}" method="POST" id="delete-invoice-form-{{ $invoice->id }}">
+                                        @csrf
+                                        @method('DELETE')
+                                    </form>
+                                    <x-action-dropdown-item onclick="document.getElementById('delete-invoice-form-{{ $invoice->id }}').submit()" icon="delete" variant="danger">
+                                        Delete Invoice
+                                    </x-action-dropdown-item>
+                                @endcan
+                            </x-action-dropdown>
+                        </td>
                     </tr>
                     @empty
                     <tr>

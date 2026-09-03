@@ -1,7 +1,7 @@
 <x-card>
     <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-medium text-gray-900">Documents</h3>
-        @can('create', App\Models\Document::class)
+        @can('create', [App\Models\Document::class, $documentable])
             <x-button type="primary" href="{{ route('admin.documents.create', ['documentable_type' => get_class($documentable), 'documentable_id' => $documentable->id]) }}" size="sm">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>

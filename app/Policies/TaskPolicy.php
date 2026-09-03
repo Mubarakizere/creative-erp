@@ -4,11 +4,24 @@ namespace App\Policies;
 
 use App\Models\Task;
 use App\Models\User;
+use App\Models\Project;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class TaskPolicy
 {
     use HandlesAuthorization;
+
+    /**
+     * Perform pre-authorization checks.
+     */
+    public function before(User $user, string $ability): bool|null
+    {
+        if ($user->hasRole('Super Admin') || $user->hasRole('CEO')) {
+            return true;
+        }
+
+        return null;
+    }
 
     /**
      * Determine whether the user can view any models.
@@ -23,26 +36,20 @@ class TaskPolicy
      */
     public function view(User $user, Task $task): bool
     {
-        if ($user->company_id && $user->company_id !== $task->company_id) {
-            return false;
+        if ($task->project) {
+            return $task->project->hasPermissionForUser($user, 'project_task.view');
         }
-
-        if (!$user->hasPermissionTo('project_task.view')) {
-            return false;
-        }
-
-        if ($task->project && !$task->project->isAssignedTo($user)) {
-            return false;
-        }
-
-        return true;
+        return $user->hasPermissionTo('project_task.view');
     }
 
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): bool
+    public function create(User $user, ?Project $project = null): bool
     {
+        if ($project) {
+            return $project->hasPermissionForUser($user, 'project_task.create');
+        }
         return $user->hasPermissionTo('project_task.create');
     }
 
@@ -51,19 +58,10 @@ class TaskPolicy
      */
     public function update(User $user, Task $task): bool
     {
-        if ($user->company_id && $user->company_id !== $task->company_id) {
-            return false;
+        if ($task->project) {
+            return $task->project->hasPermissionForUser($user, 'project_task.update');
         }
-
-        if (!$user->hasPermissionTo('project_task.update')) {
-            return false;
-        }
-
-        if ($task->project && !$task->project->isAssignedTo($user)) {
-            return false;
-        }
-
-        return true;
+        return $user->hasPermissionTo('project_task.update');
     }
 
     /**
@@ -71,19 +69,10 @@ class TaskPolicy
      */
     public function delete(User $user, Task $task): bool
     {
-        if ($user->company_id && $user->company_id !== $task->company_id) {
-            return false;
+        if ($task->project) {
+            return $task->project->hasPermissionForUser($user, 'project_task.delete');
         }
-
-        if (!$user->hasPermissionTo('project_task.delete')) {
-            return false;
-        }
-
-        if ($task->project && !$task->project->isAssignedTo($user)) {
-            return false;
-        }
-
-        return true;
+        return $user->hasPermissionTo('project_task.delete');
     }
 
     /**

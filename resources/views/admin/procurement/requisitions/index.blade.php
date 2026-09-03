@@ -87,32 +87,41 @@
                             <span class="text-sm text-gray-600 font-medium">{{ $pr->requestedBy?->name ?? 'N/A' }}</span>
                         </td>
                         <td class="px-6 py-4 text-right">
-                            
-<div class="flex items-center justify-end gap-2">
+                            <x-action-dropdown>
+                                @can('view', $pr)
+                                    <x-action-dropdown-item href="{{ route('admin.procurement.requisitions.show', $pr->id) }}" icon="view">
+                                        View Details
+                                    </x-action-dropdown-item>
+                                @endcan
 
-                                    @can('view', $pr)
-                                        <a href="{{ route('admin.procurement.requisitions.show', $pr->id) }}" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center" title="View">
-View
-</a>
-                                    @endcan
-                                    @can('update', $pr)
-                                        <a href="{{ route('admin.procurement.requisitions.edit', $pr->id) }}" class="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors flex items-center justify-center" title="Edit">
-Edit
-</a>
-                                    @endcan
-                                    @if(strtolower($pr->status) === 'submitted')
-                                        @can('approve', $pr)
-                                        <form action="{{ route('admin.procurement.requisitions.approve', $pr->id) }}" method="POST" class="block w-full text-left">
+                                @can('update', $pr)
+                                    <x-action-dropdown-item href="{{ route('admin.procurement.requisitions.edit', $pr->id) }}" icon="edit">
+                                        Edit Requisition
+                                    </x-action-dropdown-item>
+                                @endcan
+
+                                @if(strtolower($pr->status) === 'submitted')
+                                    @can('approve', $pr)
+                                        <form action="{{ route('admin.procurement.requisitions.approve', $pr->id) }}" method="POST" id="approve-pr-form-{{ $pr->id }}">
                                             @csrf
-                                            <button type="submit" class="p-1.5 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors flex items-center justify-center" title="Approve">
-Approve
-</button>
                                         </form>
-                                        @endcan
-                                    @endif
-                                
-</div>
-</td>
+                                        <x-action-dropdown-item onclick="document.getElementById('approve-pr-form-{{ $pr->id }}').submit()">
+                                            Approve Requisition
+                                        </x-action-dropdown-item>
+                                    @endcan
+                                @endif
+
+                                @can('delete', $pr)
+                                    <form action="{{ route('admin.procurement.requisitions.destroy', $pr->id) }}" method="POST" id="delete-pr-form-{{ $pr->id }}">
+                                        @csrf
+                                        @method('DELETE')
+                                    </form>
+                                    <x-action-dropdown-item onclick="document.getElementById('delete-pr-form-{{ $pr->id }}').submit()" icon="delete" variant="danger">
+                                        Delete Requisition
+                                    </x-action-dropdown-item>
+                                @endcan
+                            </x-action-dropdown>
+                        </td>
                     </tr>
                     @empty
                     <tr>

@@ -68,8 +68,24 @@
                                 @endphp
                                 <x-badge :type="$statusType">{{ $note->status }}</x-badge>
                             </td>
-                            <td class="py-4 px-4 text-sm text-right space-x-2">
-                                <a href="{{ route('admin.finance.credit-notes.show', $note) }}" class="text-blue-600 hover:text-blue-900 font-medium">View</a>
+                            <td class="py-4 px-4 text-sm text-right">
+                                <x-action-dropdown>
+                                    @can('view', $note)
+                                        <x-action-dropdown-item href="{{ route('admin.finance.credit-notes.show', $note) }}" icon="view">
+                                            View Details
+                                        </x-action-dropdown-item>
+                                    @endcan
+
+                                    @can('delete', $note)
+                                        <form action="{{ route('admin.finance.credit-notes.destroy', $note) }}" method="POST" id="delete-creditnote-form-{{ $note->id }}">
+                                            @csrf
+                                            @method('DELETE')
+                                        </form>
+                                        <x-action-dropdown-item onclick="document.getElementById('delete-creditnote-form-{{ $note->id }}').submit()" icon="delete" variant="danger">
+                                            Delete Note
+                                        </x-action-dropdown-item>
+                                    @endcan
+                                </x-action-dropdown>
                             </td>
                         </tr>
                     @empty

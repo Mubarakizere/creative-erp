@@ -82,22 +82,30 @@
                             <span class="text-sm text-gray-600">{{ $gr->receipt_date }}</span>
                         </td>
                         <td class="px-6 py-4 text-right">
-                            
-<div class="flex items-center justify-end gap-2">
+                            <x-action-dropdown>
+                                @can('view', $gr)
+                                    <x-action-dropdown-item href="{{ route('admin.procurement.receipts.show', $gr->id) }}" icon="view">
+                                        View Details
+                                    </x-action-dropdown-item>
+                                @endcan
 
-                                    @can('view', $gr)
-                                        <a href="{{ route('admin.procurement.receipts.show', $gr->id) }}" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center" title="View">
-View
-</a>
-                                    @endcan
-                                    @can('update', $gr)
-                                        <a href="{{ route('admin.procurement.receipts.edit', $gr->id) }}" class="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors flex items-center justify-center" title="Edit">
-Edit
-</a>
-                                    @endcan
-                                
-</div>
-</td>
+                                @can('update', $gr)
+                                    <x-action-dropdown-item href="{{ route('admin.procurement.receipts.edit', $gr->id) }}" icon="edit">
+                                        Edit Receipt
+                                    </x-action-dropdown-item>
+                                @endcan
+
+                                @can('delete', $gr)
+                                    <form method="POST" action="{{ route('admin.procurement.receipts.destroy', $gr->id) }}" id="delete-gr-form-{{ $gr->id }}">
+                                        @csrf
+                                        @method('DELETE')
+                                    </form>
+                                    <x-action-dropdown-item onclick="document.getElementById('delete-gr-form-{{ $gr->id }}').submit()" icon="delete" variant="danger">
+                                        Delete Receipt
+                                    </x-action-dropdown-item>
+                                @endcan
+                            </x-action-dropdown>
+                        </td>
                     </tr>
                     @empty
                     <tr>

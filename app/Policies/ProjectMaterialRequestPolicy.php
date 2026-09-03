@@ -9,6 +9,18 @@ use Illuminate\Auth\Access\Response;
 class ProjectMaterialRequestPolicy
 {
     /**
+     * Perform pre-authorization checks.
+     */
+    public function before(User $user, string $ability): bool|null
+    {
+        if ($user->hasRole('Super Admin') || $user->hasRole('CEO')) {
+            return true;
+        }
+
+        return null;
+    }
+
+    /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
@@ -21,19 +33,10 @@ class ProjectMaterialRequestPolicy
      */
     public function view(User $user, ProjectMaterialRequest $request): bool
     {
-        if ($user->company_id && $user->company_id !== $request->company_id) {
-            return false;
+        if ($request->project) {
+            return $request->project->hasPermissionForUser($user, 'material_request.view');
         }
-
-        if (!$user->hasPermissionTo('material_request.view')) {
-            return false;
-        }
-
-        if ($request->project && !$request->project->isAssignedTo($user)) {
-            return false;
-        }
-
-        return true;
+        return $user->hasPermissionTo('material_request.view');
     }
 
     /**
@@ -49,23 +52,15 @@ class ProjectMaterialRequestPolicy
      */
     public function update(User $user, ProjectMaterialRequest $request): bool
     {
-        if ($user->company_id && $user->company_id !== $request->company_id) {
-            return false;
-        }
-
         if ($request->status !== 'Draft') {
             return false;
         }
 
-        if (!$user->hasPermissionTo('material_request.update')) {
-            return false;
+        if ($request->project) {
+            return $request->project->hasPermissionForUser($user, 'material_request.update');
         }
 
-        if ($request->project && !$request->project->isAssignedTo($user)) {
-            return false;
-        }
-
-        return true;
+        return $user->hasPermissionTo('material_request.update');
     }
 
     /**
@@ -73,23 +68,15 @@ class ProjectMaterialRequestPolicy
      */
     public function delete(User $user, ProjectMaterialRequest $request): bool
     {
-        if ($user->company_id && $user->company_id !== $request->company_id) {
-            return false;
-        }
-
         if ($request->status !== 'Draft') {
             return false;
         }
 
-        if (!$user->hasPermissionTo('material_request.delete')) {
-            return false;
+        if ($request->project) {
+            return $request->project->hasPermissionForUser($user, 'material_request.delete');
         }
 
-        if ($request->project && !$request->project->isAssignedTo($user)) {
-            return false;
-        }
-
-        return true;
+        return $user->hasPermissionTo('material_request.delete');
     }
 
     /**
@@ -97,23 +84,15 @@ class ProjectMaterialRequestPolicy
      */
     public function submit(User $user, ProjectMaterialRequest $request): bool
     {
-        if ($user->company_id && $user->company_id !== $request->company_id) {
-            return false;
-        }
-
         if ($request->status !== 'Draft' && $request->status !== 'Rejected') {
             return false;
         }
 
-        if (!$user->hasPermissionTo('material_request.submit') && !$user->hasPermissionTo('material_request.update')) {
-            return false;
+        if ($request->project) {
+            return $request->project->hasPermissionForUser($user, 'material_request.submit') || $request->project->hasPermissionForUser($user, 'material_request.update');
         }
 
-        if ($request->project && !$request->project->isAssignedTo($user)) {
-            return false;
-        }
-
-        return true;
+        return $user->hasPermissionTo('material_request.submit') || $user->hasPermissionTo('material_request.update');
     }
 
     /**
@@ -121,12 +100,12 @@ class ProjectMaterialRequestPolicy
      */
     public function approve(User $user, ProjectMaterialRequest $request): bool
     {
-        if ($user->company_id !== $request->company_id) {
+        if ($request->status !== 'Submitted' && $request->status !== 'Under Review') {
             return false;
         }
 
-        if ($request->status !== 'Submitted' && $request->status !== 'Under Review') {
-            return false;
+        if ($request->project) {
+            return $request->project->hasPermissionForUser($user, 'material_request.approve');
         }
 
         return $user->hasPermissionTo('material_request.approve');

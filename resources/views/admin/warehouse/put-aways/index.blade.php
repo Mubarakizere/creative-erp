@@ -49,15 +49,23 @@
                                 </span>
                             </td>
                             <td class="py-3 px-4 text-right">
-                                <div class="flex items-center justify-end gap-2">
+                                <x-action-dropdown>
                                     @if($item->status === 'pending')
-                                        <a href="{{ route('admin.warehouse.put-away.edit', $item) }}" class="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all">
+                                        <x-action-dropdown-item href="{{ route('admin.warehouse.put-away.edit', $item) }}">
                                             Assign Bin
-                                        </a>
-                                    @else
-                                        <span class="text-xs text-gray-400">Completed</span>
+                                        </x-action-dropdown-item>
                                     @endif
-                                </div>
+
+                                    @can('delete', $item)
+                                        <form method="POST" action="{{ route('admin.warehouse.put-away.destroy', $item) }}" id="delete-putaway-form-{{ $item->id }}">
+                                            @csrf
+                                            @method('DELETE')
+                                        </form>
+                                        <x-action-dropdown-item onclick="document.getElementById('delete-putaway-form-{{ $item->id }}').submit()" icon="delete" variant="danger">
+                                            Delete Task
+                                        </x-action-dropdown-item>
+                                    @endcan
+                                </x-action-dropdown>
                             </td>
                         </tr>
                     @empty

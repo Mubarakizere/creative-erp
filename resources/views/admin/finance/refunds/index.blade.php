@@ -54,8 +54,24 @@
                             <td class="py-4 px-4 text-sm font-medium text-gray-900 text-right">
                                 ${{ number_format($refund->amount, 2) }}
                             </td>
-                            <td class="py-4 px-4 text-sm text-right space-x-2">
-                                <a href="{{ route('admin.finance.refunds.show', $refund) }}" class="text-blue-600 hover:text-blue-900 font-medium">View</a>
+                            <td class="py-4 px-4 text-sm text-right">
+                                <x-action-dropdown>
+                                    @can('view', $refund)
+                                        <x-action-dropdown-item href="{{ route('admin.finance.refunds.show', $refund) }}" icon="view">
+                                            View Details
+                                        </x-action-dropdown-item>
+                                    @endcan
+
+                                    @can('delete', $refund)
+                                        <form action="{{ route('admin.finance.refunds.destroy', $refund) }}" method="POST" id="delete-refund-form-{{ $refund->id }}">
+                                            @csrf
+                                            @method('DELETE')
+                                        </form>
+                                        <x-action-dropdown-item onclick="document.getElementById('delete-refund-form-{{ $refund->id }}').submit()" icon="delete" variant="danger">
+                                            Delete Refund
+                                        </x-action-dropdown-item>
+                                    @endcan
+                                </x-action-dropdown>
                             </td>
                         </tr>
                     @empty

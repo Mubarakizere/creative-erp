@@ -85,22 +85,30 @@
                             <span class="text-sm font-semibold text-green-600">RWF {{ number_format($payment->amount, 2) }}</span>
                         </td>
                         <td class="px-6 py-4 text-right">
-                            
-<div class="flex items-center justify-end gap-2">
+                            <x-action-dropdown>
+                                @can('view', $payment)
+                                    <x-action-dropdown-item href="{{ route('admin.procurement.payments.show', $payment->id) }}" icon="view">
+                                        View Details
+                                    </x-action-dropdown-item>
+                                @endcan
 
-                                    @can('view', $payment)
-                                        <a href="{{ route('admin.procurement.payments.show', $payment->id) }}" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center" title="View Details">
-View Details
-</a>
-                                    @endcan
-                                    @can('update', $payment)
-                                        <a href="{{ route('admin.procurement.payments.edit', $payment->id) }}" class="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors flex items-center justify-center" title="Edit Payment">
-Edit Payment
-</a>
-                                    @endcan
-                                
-</div>
-</td>
+                                @can('update', $payment)
+                                    <x-action-dropdown-item href="{{ route('admin.procurement.payments.edit', $payment->id) }}" icon="edit">
+                                        Edit Payment
+                                    </x-action-dropdown-item>
+                                @endcan
+
+                                @can('delete', $payment)
+                                    <form action="{{ route('admin.procurement.payments.destroy', $payment->id) }}" method="POST" id="delete-payment-form-{{ $payment->id }}">
+                                        @csrf
+                                        @method('DELETE')
+                                    </form>
+                                    <x-action-dropdown-item onclick="document.getElementById('delete-payment-form-{{ $payment->id }}').submit()" icon="delete" variant="danger">
+                                        Delete Payment
+                                    </x-action-dropdown-item>
+                                @endcan
+                            </x-action-dropdown>
+                        </td>
                     </tr>
                     @empty
                     <tr>

@@ -106,43 +106,42 @@
                     </div>
                 </td>
                 <td class="px-6 py-4 text-right">
-                    
-<div class="flex items-center justify-end gap-2">
+                    <x-action-dropdown>
+                        @can('view', $milestone)
+                            <x-action-dropdown-item href="{{ route('admin.milestones.show', $milestone) }}" icon="view">
+                                View Details
+                            </x-action-dropdown-item>
+                        @endcan
 
-                            @can('view', $milestone)
-                                <a href="{{ route('admin.milestones.show', $milestone) }}" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center" title="View">
-View
-</a>
+                        @if(!$milestone->trashed())
+                            @can('update', $milestone)
+                                <x-action-dropdown-item href="{{ route('admin.milestones.edit', $milestone) }}" icon="edit">
+                                    Edit Milestone
+                                </x-action-dropdown-item>
                             @endcan
-                            @if(!$milestone->trashed())
-                                @can('update', $milestone)
-                                    <a href="{{ route('admin.milestones.edit', $milestone) }}" class="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors flex items-center justify-center" title="Edit">
-Edit
-</a>
-                                @endcan
-                                @can('delete', $milestone)
-                                    <form method="POST" action="{{ route('admin.milestones.destroy', $milestone) }}">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center" title="Archive">
-Archive
-</button>
-                                    </form>
-                                @endcan
-                            @else
-                                @can('restore', $milestone)
-                                    <form method="POST" action="{{ route('admin.milestones.restore', $milestone) }}">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center" title="Restore">
-Restore
-</button>
-                                    </form>
-                                @endcan
-                            @endif
-                        
-</div>
-</td>
+
+                            @can('delete', $milestone)
+                                <form method="POST" action="{{ route('admin.milestones.destroy', $milestone) }}" id="archive-milestone-form-{{ $milestone->id }}">
+                                    @csrf
+                                    @method('DELETE')
+                                </form>
+                                <x-action-dropdown-item onclick="document.getElementById('archive-milestone-form-{{ $milestone->id }}').submit()" icon="delete" variant="danger">
+                                    Archive Milestone
+                                </x-action-dropdown-item>
+                            @endcan
+                        @else
+                            @can('restore', $milestone)
+                                <form method="POST" action="{{ route('admin.milestones.restore', $milestone) }}" id="restore-milestone-form-{{ $milestone->id }}">
+                                    @csrf
+                                    @method('PATCH')
+                                </form>
+                                <x-action-dropdown-item onclick="document.getElementById('restore-milestone-form-{{ $milestone->id }}').submit()">
+                                    Restore Milestone
+                                </x-action-dropdown-item>
+                            @endcan
+                        @endif
+                    </x-action-dropdown>
+                </td>
             </tr>
             </tr>
         @empty

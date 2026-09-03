@@ -112,33 +112,30 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 text-right">
-                            
-<div class="flex items-center justify-end gap-2">
+                            <x-action-dropdown>
+                                @if(Route::has('admin.inventory.transfers.show'))
+                                    <x-action-dropdown-item href="{{ route('admin.inventory.transfers.show', $transfer->id) }}" icon="view">
+                                        View Details
+                                    </x-action-dropdown-item>
+                                @endif
 
-                                    @if(Route::has('admin.inventory.transfers.show'))
-                                    <a href="{{ route('admin.inventory.transfers.show', $transfer->id) }}" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center" title="View Details">
-View Details
-</a>
-                                    @else
-                                    <a href="#" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center" title="View Details" title="Details view coming soon">
-View Details
-</a>
-                                    @endif
-                                    
-                                    @if($transfer->status === 'pending')
-                                        @if(Route::has('admin.inventory.transfers.edit'))
-                                        <a href="{{ route('admin.inventory.transfers.edit', $transfer->id) }}" class="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors flex items-center justify-center" title="Edit Transfer">
-Edit Transfer
-</a>
-                                        @else
-                                        <a href="#" class="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors flex items-center justify-center" title="Edit Transfer" title="Edit view coming soon">
-Edit Transfer
-</a>
-                                        @endif
-                                    @endif
-                                
-</div>
-</td>
+                                @if($transfer->status === 'pending' && Route::has('admin.inventory.transfers.edit'))
+                                    <x-action-dropdown-item href="{{ route('admin.inventory.transfers.edit', $transfer->id) }}" icon="edit">
+                                        Edit Transfer
+                                    </x-action-dropdown-item>
+                                @endif
+
+                                @can('delete', $transfer)
+                                    <form method="POST" action="{{ route('admin.inventory.transfers.destroy', $transfer->id) }}" id="delete-transfer-form-{{ $transfer->id }}">
+                                        @csrf
+                                        @method('DELETE')
+                                    </form>
+                                    <x-action-dropdown-item onclick="document.getElementById('delete-transfer-form-{{ $transfer->id }}').submit()" icon="delete" variant="danger">
+                                        Delete Transfer
+                                    </x-action-dropdown-item>
+                                @endcan
+                            </x-action-dropdown>
+                        </td>
                     </tr>
                     @empty
                     <tr>

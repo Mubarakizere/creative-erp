@@ -494,7 +494,6 @@ class RolesAndPermissionsSeeder extends Seeder
                 'project_task.update',
                 'milestone.view',
                 'time.view',
-                'report.view',
                 'dashboard.view',
             ])->get();
             $supervisor->syncPermissions($supervisorPerms);

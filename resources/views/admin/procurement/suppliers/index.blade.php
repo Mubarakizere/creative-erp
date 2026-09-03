@@ -79,17 +79,24 @@
                             @endif
                         </td>
                         <td class="px-6 py-4 text-right">
-                            
-<div class="flex items-center justify-end gap-2">
+                            <x-action-dropdown>
+                                @can('update', $supplier)
+                                    <x-action-dropdown-item href="{{ route('admin.procurement.suppliers.edit', $supplier) }}" icon="edit">
+                                        Edit Supplier
+                                    </x-action-dropdown-item>
+                                @endcan
 
-                                    @can('update', $supplier)
-                                        <a href="{{ route('admin.procurement.suppliers.edit', $supplier) }}" class="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors flex items-center justify-center" title="Edit">
-Edit
-</a>
-                                    @endcan
-                                
-</div>
-</td>
+                                @can('delete', $supplier)
+                                    <form method="POST" action="{{ route('admin.procurement.suppliers.destroy', $supplier) }}" id="delete-supplier-form-{{ $supplier->id }}">
+                                        @csrf
+                                        @method('DELETE')
+                                    </form>
+                                    <x-action-dropdown-item onclick="document.getElementById('delete-supplier-form-{{ $supplier->id }}').submit()" icon="delete" variant="danger">
+                                        Delete Supplier
+                                    </x-action-dropdown-item>
+                                @endcan
+                            </x-action-dropdown>
+                        </td>
                     </tr>
                     @empty
                     <tr>

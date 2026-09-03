@@ -47,27 +47,7 @@
 
                     {{-- Role Selection --}}
                     <div>
-                        <x-select name="project_role" label="Project Role" :options="[
-                            'Project Manager' => 'Project Manager',
-                            'Assistant Project Manager' => 'Assistant Project Manager',
-                            'Architect' => 'Architect',
-                            'Engineer' => 'Engineer',
-                            'Site Engineer' => 'Site Engineer',
-                            'Civil Engineer' => 'Civil Engineer',
-                            'Electrical Engineer' => 'Electrical Engineer',
-                            'Mechanical Engineer' => 'Mechanical Engineer',
-                            'Quantity Surveyor' => 'Quantity Surveyor',
-                            'Procurement Officer' => 'Procurement Officer',
-                            'Accountant' => 'Accountant',
-                            'HR Representative' => 'HR Representative',
-                            'Quality Controller' => 'Quality Controller',
-                            'Safety Officer' => 'Safety Officer',
-                            'Supervisor' => 'Supervisor',
-                            'Foreman' => 'Foreman',
-                            'Technician' => 'Technician',
-                            'Viewer' => 'Viewer',
-                            'Administrator' => 'Administrator'
-                        ]" :selected="old('project_role', $teamMember->project_role)" required />
+                        <x-select name="project_role" label="Project Role" :options="$roles" :selected="old('project_role', $teamMember->project_role)" required />
                     </div>
 
                     {{-- Joined Date --}}

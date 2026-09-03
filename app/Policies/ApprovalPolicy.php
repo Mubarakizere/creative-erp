@@ -8,11 +8,23 @@ use App\Models\User;
 class ApprovalPolicy
 {
     /**
+     * Perform pre-authorization checks.
+     */
+    public function before(User $user, string $ability): bool|null
+    {
+        if ($user->hasRole('Super Admin') || $user->hasRole('CEO')) {
+            return true;
+        }
+
+        return null;
+    }
+
+    /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasPermissionTo('approval.view');
+        return true;
     }
 
     /**
@@ -20,6 +32,10 @@ class ApprovalPolicy
      */
     public function view(User $user, Approval $approval): bool
     {
+        if ($user->hasRole('Super Admin') || $user->hasRole('CEO')) {
+            return true;
+        }
+
         if ($approval->submitted_by === $user->id) return true;
         if ($user->hasPermissionTo('approval.view')) return true;
         

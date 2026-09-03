@@ -9,11 +9,23 @@ use Illuminate\Auth\Access\Response;
 class SupplierQuotationPolicy
 {
     /**
+     * Perform pre-authorization checks.
+     */
+    public function before(User $user, string $ability): bool|null
+    {
+        if ($user->hasRole('Super Admin') || $user->hasRole('CEO')) {
+            return true;
+        }
+
+        return null;
+    }
+
+    /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasPermissionTo('quotation.view');
+        return $user->hasPermissionTo('procurement.view') || $user->hasPermissionTo('quotation.view');
     }
 
     /**
@@ -21,7 +33,15 @@ class SupplierQuotationPolicy
      */
     public function view(User $user, SupplierQuotation $supplierQuotation): bool
     {
-        return $user->hasPermissionTo('quotation.view') && $user->company_id === $supplierQuotation->company_id;
+        if ($user->hasRole('Super Admin') || $user->hasRole('CEO')) {
+            return true;
+        }
+
+        if ($user->company_id && $supplierQuotation->company_id && $user->company_id !== $supplierQuotation->company_id) {
+            return false;
+        }
+
+        return $user->hasPermissionTo('procurement.view') || $user->hasPermissionTo('quotation.view');
     }
 
     /**
@@ -29,7 +49,7 @@ class SupplierQuotationPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasPermissionTo('quotation.create');
+        return $user->hasPermissionTo('procurement.create') || $user->hasPermissionTo('quotation.create');
     }
 
     /**
@@ -37,7 +57,15 @@ class SupplierQuotationPolicy
      */
     public function update(User $user, SupplierQuotation $supplierQuotation): bool
     {
-        return $user->hasPermissionTo('quotation.update') && $user->company_id === $supplierQuotation->company_id;
+        if ($user->hasRole('Super Admin') || $user->hasRole('CEO')) {
+            return true;
+        }
+
+        if ($user->company_id && $supplierQuotation->company_id && $user->company_id !== $supplierQuotation->company_id) {
+            return false;
+        }
+
+        return $user->hasPermissionTo('procurement.update') || $user->hasPermissionTo('quotation.update');
     }
 
     /**
@@ -45,7 +73,15 @@ class SupplierQuotationPolicy
      */
     public function delete(User $user, SupplierQuotation $supplierQuotation): bool
     {
-        return $user->hasPermissionTo('quotation.delete') && $user->company_id === $supplierQuotation->company_id;
+        if ($user->hasRole('Super Admin') || $user->hasRole('CEO')) {
+            return true;
+        }
+
+        if ($user->company_id && $supplierQuotation->company_id && $user->company_id !== $supplierQuotation->company_id) {
+            return false;
+        }
+
+        return $user->hasPermissionTo('procurement.delete') || $user->hasPermissionTo('quotation.delete');
     }
 
     /**

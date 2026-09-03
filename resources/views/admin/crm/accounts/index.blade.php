@@ -74,24 +74,47 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 text-right">
-                                
-<div class="flex items-center justify-end gap-2">
+                                <x-action-dropdown>
+                                    @can('view', $account)
+                                        <x-action-dropdown-item href="{{ route('admin.crm.accounts.show', $account) }}" icon="view">
+                                            View Details
+                                        </x-action-dropdown-item>
+                                    @endcan
 
-                                         
-                                        @can('view', $account)
-                                        <a href="{{ route('admin.crm.accounts.show', $account) }}" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center" title="View">
-<svg class="w-4 h-4 mr-3 " fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-</a>
-                                        @endcan
-                                        
-                                        @can('update', $account)
-                                        <a href="{{ route('admin.crm.accounts.edit', $account) }}" class="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors flex items-center justify-center" title="Edit">
-<svg class="w-4 h-4 mr-3 " fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-</a>
-                                        @endcan
-                                    
-</div>
-</td>
+                                    @can('update', $account)
+                                        <x-action-dropdown-item href="{{ route('admin.crm.accounts.edit', $account) }}" icon="edit">
+                                            Edit Account
+                                        </x-action-dropdown-item>
+                                    @endcan
+
+                                    @can('delete', $account)
+                                        <x-action-dropdown-item @click="$dispatch('open-modal', 'archive-account-{{ $account->id }}')" icon="delete" variant="danger">
+                                            Archive Account
+                                        </x-action-dropdown-item>
+                                    @endcan
+                                </x-action-dropdown>
+
+                                @can('delete', $account)
+                                    <x-modal id="archive-account-{{ $account->id }}" maxWidth="md">
+                                        <x-slot:header>Archive Account</x-slot:header>
+                                        <div class="text-center py-4">
+                                            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4 border border-red-200">
+                                                <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                            </div>
+                                            <h3 class="text-lg font-bold text-gray-900 mb-2 tracking-tight">Archive Account?</h3>
+                                            <p class="text-sm text-gray-500 font-medium">Are you sure you want to archive <strong>{{ $account->name }}</strong>? You can restore it later.</p>
+                                        </div>
+                                        <x-slot:footer>
+                                            <button type="button" @click="open = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors">Cancel</button>
+                                            <form method="POST" action="{{ route('admin.crm.accounts.destroy', $account) }}" class="inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-xl hover:bg-red-700 transition-colors shadow-sm">Archive</button>
+                                            </form>
+                                        </x-slot:footer>
+                                    </x-modal>
+                                @endcan
+                            </td>
                         </tr>
                     @empty
                         <tr>

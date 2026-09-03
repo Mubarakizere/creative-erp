@@ -58,11 +58,15 @@
                                 <a href="{{ $brand->website }}" target="_blank" class="text-xs text-blue-500 hover:underline mt-1">{{ parse_url($brand->website, PHP_URL_HOST) }}</a>
                             @endif
                             <div class="mt-4 pt-3 border-t border-gray-100 w-full flex justify-end">
-                                <form action="{{ route('admin.inventory.brands.destroy', $brand) }}" method="POST">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-xs text-red-500 hover:text-red-700">Delete</button>
-                                </form>
+                                <x-action-dropdown>
+                                    <form action="{{ route('admin.inventory.brands.destroy', $brand) }}" method="POST" id="delete-brand-form-{{ $brand->id }}">
+                                        @csrf
+                                        @method('DELETE')
+                                    </form>
+                                    <x-action-dropdown-item onclick="document.getElementById('delete-brand-form-{{ $brand->id }}').submit()" icon="delete" variant="danger">
+                                        Delete Brand
+                                    </x-action-dropdown-item>
+                                </x-action-dropdown>
                             </div>
                         </div>
                     @empty

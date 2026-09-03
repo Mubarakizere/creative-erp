@@ -57,11 +57,15 @@
                                     <td class="py-2 px-3 text-sm text-gray-500">{{ Str::limit($category->description, 50) }}</td>
                                     <td class="py-2 px-3 text-sm text-gray-500">{{ $category->parent?->name ?? '-' }}</td>
                                     <td class="py-2 px-3 text-right">
-                                        <form action="{{ route('admin.inventory.categories.destroy', $category) }}" method="POST" class="inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-500 hover:text-red-700 text-sm font-medium">Delete</button>
-                                        </form>
+                                        <x-action-dropdown>
+                                            <form action="{{ route('admin.inventory.categories.destroy', $category) }}" method="POST" id="delete-category-form-{{ $category->id }}">
+                                                @csrf
+                                                @method('DELETE')
+                                            </form>
+                                            <x-action-dropdown-item onclick="document.getElementById('delete-category-form-{{ $category->id }}').submit()" icon="delete" variant="danger">
+                                                Delete Category
+                                            </x-action-dropdown-item>
+                                        </x-action-dropdown>
                                     </td>
                                 </tr>
                             @empty

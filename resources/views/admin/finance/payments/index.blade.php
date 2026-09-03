@@ -64,9 +64,23 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-right">
-                                <a href="{{ route('admin.finance.payments.show', $payment) }}" class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                    View
-                                </a>
+                                <x-action-dropdown>
+                                    @can('view', $payment)
+                                        <x-action-dropdown-item href="{{ route('admin.finance.payments.show', $payment) }}" icon="view">
+                                            View Details
+                                        </x-action-dropdown-item>
+                                    @endcan
+
+                                    @can('delete', $payment)
+                                        <form action="{{ route('admin.finance.payments.destroy', $payment) }}" method="POST" id="delete-payment-form-{{ $payment->id }}">
+                                            @csrf
+                                            @method('DELETE')
+                                        </form>
+                                        <x-action-dropdown-item onclick="document.getElementById('delete-payment-form-{{ $payment->id }}').submit()" icon="delete" variant="danger">
+                                            Delete Payment
+                                        </x-action-dropdown-item>
+                                    @endcan
+                                </x-action-dropdown>
                             </td>
                         </tr>
                     @empty

@@ -37,7 +37,7 @@
 
     --color-sidebar: #0f172a;
     --color-sidebar-hover: #1e293b;
-    --color-sidebar-active: #1e3a8a;
+    --color-sidebar-active: #2563eb;
 }
 
 /* Smooth page transitions */
@@ -71,3 +71,81 @@
         background-color: rgba(156, 163, 175, 0.8);
     }
 }
+
+/* Global Select & Dropdown Styling System-Wide */
+select, select.form-select {
+    border-radius: 0.75rem !important; /* rounded-xl */
+    padding-top: 0.625rem !important;
+    padding-bottom: 0.625rem !important;
+    padding-left: 0.875rem !important;
+    padding-right: 2.5rem !important;
+    min-height: 42px !important;
+    background-color: rgba(249, 250, 251, 0.6) !important; /* bg-gray-50/60 */
+    border: 1px solid #e5e7eb !important; /* border-gray-200 */
+    font-size: 0.875rem !important; /* text-sm */
+    color: #111827 !important;
+    transition: all 0.2s ease-in-out !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3e%3c/svg%3e") !important;
+    background-position: right 0.75rem center !important;
+    background-repeat: no-repeat !important;
+    background-size: 1.125rem 1.125rem !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    cursor: pointer !important;
+}
+
+select:hover, select.form-select:hover {
+    background-color: #ffffff !important;
+    border-color: #d1d5db !important;
+}
+
+select:focus, select.form-select:focus {
+    background-color: #ffffff !important;
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1) !important;
+    outline: none !important;
+}
+
+/* TomSelect Styling Overrides */
+.ts-wrapper {
+    width: 100%;
+}
+.ts-control {
+    border-radius: 0.75rem !important; /* rounded-xl */
+    padding: 0.625rem 0.875rem !important; /* py-2.5 px-3.5 */
+    min-height: 42px !important;
+    background-color: rgba(249, 250, 251, 0.6) !important; /* bg-gray-50/60 */
+    border: 1px solid #e5e7eb !important; /* border-gray-200 */
+    font-size: 0.875rem !important; /* text-sm */
+    color: #111827 !important;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+    transition: all 0.2s ease-in-out !important;
+}
+.ts-control:hover {
+    background-color: #ffffff !important;
+    border-color: #d1d5db !important;
+}
+.ts-wrapper.focus .ts-control {
+    background-color: #ffffff !important;
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1) !important;
+}
+.ts-dropdown {
+    border-radius: 0.75rem !important;
+    border: 1px solid #f3f4f6 !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+    padding: 0.375rem !important;
+    margin-top: 0.25rem !important;
+}
+.ts-dropdown .option {
+    border-radius: 0.5rem !important;
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.875rem !important;
+}
+.ts-dropdown .option.active, .ts-dropdown .option:hover {
+    background-color: #eff6ff !important;
+    color: #1d4ed8 !important;
+}
+
+
+

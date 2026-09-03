@@ -43,9 +43,25 @@
  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 ">
  ${{ number_format($budget->total_amount, 2) }}
  </td>
- <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
- <a href="{{ route('admin.finance.budgets.show', $budget) }}" class="text-blue-600 hover:text-blue-900 :text-blue-300">View vs Actuals</a>
- </td>
+  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+    <x-action-dropdown>
+      @can('view', $budget)
+        <x-action-dropdown-item href="{{ route('admin.finance.budgets.show', $budget) }}" icon="view">
+          View vs Actuals
+        </x-action-dropdown-item>
+      @endcan
+
+      @can('delete', $budget)
+        <form action="{{ route('admin.finance.budgets.destroy', $budget) }}" method="POST" id="delete-budget-form-{{ $budget->id }}">
+          @csrf
+          @method('DELETE')
+        </form>
+        <x-action-dropdown-item onclick="document.getElementById('delete-budget-form-{{ $budget->id }}').submit()" icon="delete" variant="danger">
+          Delete Budget
+        </x-action-dropdown-item>
+      @endcan
+    </x-action-dropdown>
+  </td>
  </tr>
  @empty
  <tr>

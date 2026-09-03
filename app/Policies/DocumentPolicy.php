@@ -8,10 +8,40 @@ use App\Models\User;
 class DocumentPolicy
 {
     /**
+     * Perform pre-authorization checks.
+     */
+    public function before(User $user, string $ability): bool|null
+    {
+        if ($user->hasRole('Super Admin') || $user->hasRole('CEO')) {
+            return true;
+        }
+
+        return null;
+    }
+
+    protected function resolveProject(mixed $arg1, mixed $arg2): ?\App\Models\Project
+    {
+        if ($arg1 instanceof \App\Models\Project) {
+            return $arg1;
+        }
+        if ($arg2 instanceof \App\Models\Project) {
+            return $arg2;
+        }
+        if ($arg1 instanceof Document && $arg1->documentable instanceof \App\Models\Project) {
+            return $arg1->documentable;
+        }
+        return null;
+    }
+
+    /**
      * Determine whether the user can view any models.
      */
-    public function viewAny(User $user): bool
+    public function viewAny(User $user, mixed $arg1 = null, mixed $arg2 = null): bool
     {
+        $project = $this->resolveProject($arg1, $arg2);
+        if ($project) {
+            return $project->hasPermissionForUser($user, 'document.view');
+        }
         return $user->hasPermissionTo('document.view');
     }
 
@@ -20,6 +50,10 @@ class DocumentPolicy
      */
     public function view(User $user, Document $document): bool
     {
+        if ($document->documentable instanceof \App\Models\Project) {
+            return $document->documentable->hasPermissionForUser($user, 'document.view');
+        }
+
         if (!$user->hasPermissionTo('document.view')) {
             return false;
         }
@@ -28,26 +62,18 @@ class DocumentPolicy
             return true;
         }
 
-        if ($document->documentable instanceof \App\Models\Project) {
-            return $document->documentable->isAssignedTo($user);
-        }
-
-        if ($document->documentable instanceof \App\Models\Task && $document->documentable->project) {
-            return $document->documentable->project->isAssignedTo($user);
-        }
-
-        if ($document->documentable instanceof \App\Models\Milestone && $document->documentable->project) {
-            return $document->documentable->project->isAssignedTo($user);
-        }
-
         return true;
     }
 
     /**
      * Determine whether the user can create models (upload).
      */
-    public function create(User $user): bool
+    public function create(User $user, mixed $arg1 = null, mixed $arg2 = null): bool
     {
+        $project = $this->resolveProject($arg1, $arg2);
+        if ($project) {
+            return $project->hasPermissionForUser($user, 'document.create') || $project->hasPermissionForUser($user, 'document.upload');
+        }
         return $user->hasPermissionTo('document.create') || $user->hasPermissionTo('document.upload');
     }
 

@@ -16,7 +16,7 @@ class ProjectService
     public function list(array $filters = [], ?\App\Models\User $user = null): LengthAwarePaginator
     {
         $user = $user ?? auth()->user();
-        $query = Project::with(['company', 'branch', 'client', 'manager']);
+        $query = Project::with(['company', 'branch', 'client', 'manager', 'projectMembers']);
 
         if ($user) {
             $query->accessibleBy($user);

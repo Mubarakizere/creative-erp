@@ -112,6 +112,53 @@ class Project extends Model
         return false;
     }
 
+    /**
+     * Check if a user has a specific permission for this project,
+     * either through their global system role OR their assigned project_role.
+     */
+    public function hasPermissionForUser(?User $user, string $permission): bool
+    {
+        if (!$user) {
+            return false;
+        }
+
+        if ($this->company_id && $user->company_id && $user->company_id !== $this->company_id) {
+            return false;
+        }
+
+        if ($user->hasRole('Super Admin') || $user->hasRole('CEO')) {
+            return true;
+        }
+
+        if (!$this->isAssignedTo($user)) {
+            return false;
+        }
+
+        // Determine user's assigned role on THIS project
+        $projectRoleName = null;
+        if ($this->project_manager_id === $user->id) {
+            $projectRoleName = 'Project Manager';
+        } else {
+            $member = $this->relationLoaded('projectMembers')
+                ? $this->projectMembers->firstWhere('user_id', $user->id)
+                : $this->projectMembers()->where('user_id', $user->id)->where('status', 'Active')->first();
+            $projectRoleName = $member?->project_role;
+        }
+
+        if ($projectRoleName) {
+            if ($projectRoleName === 'Super Admin') {
+                return true;
+            }
+
+            $spatieRole = \Spatie\Permission\Models\Role::where('name', $projectRoleName)->first();
+            if ($spatieRole && $spatieRole->hasPermissionTo($permission)) {
+                return true;
+            }
+        }
+
+        return $user->hasPermissionTo($permission);
+    }
+
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);

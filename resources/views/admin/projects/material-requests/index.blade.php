@@ -8,14 +8,14 @@
         @endphp
     </x-slot:breadcrumbs>
 
-    @can('viewAny', App\Models\MaterialRequest::class)
+    @can('viewAny', App\Models\ProjectMaterialRequest::class)
     <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Material Requests</h1>
             <p class="mt-1 text-sm text-gray-500 font-medium">A list of all material requests in your account.</p>
         </div>
         <div class="flex items-center gap-3">
-            @can('create', App\Models\MaterialRequest::class)
+            @can('create', App\Models\ProjectMaterialRequest::class)
                 <a href="{{ route('admin.material-requests.create') }}" class="inline-flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 shadow-sm transition-all hover:shadow-md focus:ring-2 focus:ring-blue-500 focus:outline-none shrink-0">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
                     Create Request
@@ -126,22 +126,30 @@
                             @endif
                         </td>
                         <td class="px-6 py-4 text-right">
-                            
-<div class="flex items-center justify-end gap-2">
+                            <x-action-dropdown>
+                                @can('view', $request)
+                                    <x-action-dropdown-item href="{{ route('admin.material-requests.show', $request) }}" icon="view">
+                                        View Details
+                                    </x-action-dropdown-item>
+                                @endcan
 
-                                    @can('view', $request)
-                                        <a href="{{ route('admin.material-requests.show', $request) }}" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center" title="View">
-View
-</a>
-                                    @endcan
-                                    @can('update', $request)
-                                        <a href="{{ route('admin.material-requests.edit', $request) }}" class="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors flex items-center justify-center" title="Edit">
-Edit
-</a>
-                                    @endcan
-                                
-</div>
-</td>
+                                @can('update', $request)
+                                    <x-action-dropdown-item href="{{ route('admin.material-requests.edit', $request) }}" icon="edit">
+                                        Edit Request
+                                    </x-action-dropdown-item>
+                                @endcan
+
+                                @can('delete', $request)
+                                    <form method="POST" action="{{ route('admin.material-requests.destroy', $request) }}" id="delete-request-form-{{ $request->id }}">
+                                        @csrf
+                                        @method('DELETE')
+                                    </form>
+                                    <x-action-dropdown-item onclick="document.getElementById('delete-request-form-{{ $request->id }}').submit()" icon="delete" variant="danger">
+                                        Delete Request
+                                    </x-action-dropdown-item>
+                                @endcan
+                            </x-action-dropdown>
+                        </td>
                     </tr>
                     @empty
                     <tr>
@@ -151,7 +159,7 @@ Edit
                             </div>
                             <h3 class="text-lg font-bold text-gray-900 mb-1">No material requests found</h3>
                             <p class="text-sm text-gray-500 font-medium">Create your first material request to get started.</p>
-                            @can('create', App\Models\MaterialRequest::class)
+                            @can('create', App\Models\ProjectMaterialRequest::class)
                                 <a href="{{ route('admin.material-requests.create') }}" class="mt-4 inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 shadow-sm transition-all focus:ring-2 focus:ring-blue-500 focus:outline-none">
                                     Create Request
                                 </a>

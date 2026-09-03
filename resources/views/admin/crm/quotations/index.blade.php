@@ -120,95 +120,76 @@
                             </td>
 
                             <td class="px-6 py-4 text-right">
-                    
-<div class="flex items-center justify-end gap-2">
-
-
-                            @can('view', $quotation)
-                                <a href="{{ route('admin.crm.quotations.show', $quotation) }}" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center" title="View">
-<svg class="w-4 h-4 mr-3 " fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                    </svg>
-</a>
-                            @endcan
-
-                            @if(!$quotation->trashed())
-                                @can('update', $quotation)
-                                    <a href="{{ route('admin.crm.quotations.edit', $quotation) }}" class="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors flex items-center justify-center" title="Edit">
-<svg class="w-4 h-4 mr-3 " fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                        </svg>
-</a>
-                                @endcan
-                                
-                                @can('export', $quotation)
-                                    <form method="POST" action="{{ route('admin.crm.quotations.export', $quotation) }}">
-                                        @csrf
-                                        <button type="submit" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center" title="Export PDF">
-<svg class="w-4 h-4 mr-3 " fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                                            </svg>
-</button>
-                                    </form>
-                                @endcan
-
-                                @if($quotation->status?->name === 'Pending Approval')
-                                    @can('approve', $quotation)
-                                        
-                                        <form method="POST" action="{{ route('admin.crm.quotations.approve', $quotation) }}" class="inline">
-                                            @csrf
-                                            <button type="submit" class="p-1.5 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors flex items-center justify-center" title="Approve">
-<svg class="w-4 h-4 mr-3 " fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-</button>
-                                        </form>
-                                        <form method="POST" action="{{ route('admin.crm.quotations.reject', $quotation) }}" class="inline">
-                                            @csrf
-                                            <button type="submit" class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center" title="Reject">
-<svg class="w-4 h-4 mr-3 " fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-</button>
-                                        </form>
+                                <x-action-dropdown>
+                                    @can('view', $quotation)
+                                        <x-action-dropdown-item href="{{ route('admin.crm.quotations.show', $quotation) }}" icon="view">
+                                            View Details
+                                        </x-action-dropdown-item>
                                     @endcan
-                                @endif
 
-                                @can('create', App\Models\Invoice::class)
-                                    @if($quotation->status?->name === 'Approved')
-                                        <a href="{{ route('admin.finance.invoices.create', ['quotation_id' => $quotation->id]) }}" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center" title="Generate Invoice">
-<svg class="w-4 h-4 mr-3 " fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-</a>
+                                    @if(!$quotation->trashed())
+                                        @can('update', $quotation)
+                                            <x-action-dropdown-item href="{{ route('admin.crm.quotations.edit', $quotation) }}" icon="edit">
+                                                Edit Quotation
+                                            </x-action-dropdown-item>
+                                        @endcan
+
+                                        @can('export', $quotation)
+                                            <form method="POST" action="{{ route('admin.crm.quotations.export', $quotation) }}" id="export-quotation-form-{{ $quotation->id }}">
+                                                @csrf
+                                            </form>
+                                            <x-action-dropdown-item onclick="document.getElementById('export-quotation-form-{{ $quotation->id }}').submit()">
+                                                Export PDF
+                                            </x-action-dropdown-item>
+                                        @endcan
+
+                                        @if($quotation->status?->name === 'Pending Approval')
+                                            @can('approve', $quotation)
+                                                <form method="POST" action="{{ route('admin.crm.quotations.approve', $quotation) }}" id="approve-quotation-form-{{ $quotation->id }}">
+                                                    @csrf
+                                                </form>
+                                                <x-action-dropdown-item onclick="document.getElementById('approve-quotation-form-{{ $quotation->id }}').submit()">
+                                                    Approve
+                                                </x-action-dropdown-item>
+
+                                                <form method="POST" action="{{ route('admin.crm.quotations.reject', $quotation) }}" id="reject-quotation-form-{{ $quotation->id }}">
+                                                    @csrf
+                                                </form>
+                                                <x-action-dropdown-item onclick="document.getElementById('reject-quotation-form-{{ $quotation->id }}').submit()">
+                                                    Reject
+                                                </x-action-dropdown-item>
+                                            @endcan
+                                        @endif
+
+                                        @can('create', App\Models\Invoice::class)
+                                            @if($quotation->status?->name === 'Approved')
+                                                <x-action-dropdown-item href="{{ route('admin.finance.invoices.create', ['quotation_id' => $quotation->id]) }}">
+                                                    Generate Invoice
+                                                </x-action-dropdown-item>
+                                            @endif
+                                        @endcan
+
+                                        @can('create', App\Models\Quotation::class)
+                                            <form method="POST" action="{{ route('admin.crm.quotations.duplicate', $quotation) }}" id="duplicate-quotation-form-{{ $quotation->id }}">
+                                                @csrf
+                                            </form>
+                                            <x-action-dropdown-item onclick="document.getElementById('duplicate-quotation-form-{{ $quotation->id }}').submit()">
+                                                Duplicate
+                                            </x-action-dropdown-item>
+                                        @endcan
+
+                                        @can('delete', $quotation)
+                                            <x-action-dropdown-item @click="$dispatch('open-modal', 'archive-quotation-{{ $quotation->id }}')">
+                                                Archive Quotation
+                                            </x-action-dropdown-item>
+
+                                            <x-action-dropdown-item @click="$dispatch('open-modal', 'delete-quotation-{{ $quotation->id }}')" icon="delete" variant="danger">
+                                                Delete Quotation
+                                            </x-action-dropdown-item>
+                                        @endcan
                                     @endif
-                                @endcan
-
-                                @can('create', App\Models\Quotation::class)
-                                    <form method="POST" action="{{ route('admin.crm.quotations.duplicate', $quotation) }}">
-                                        @csrf
-                                        <button type="submit" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center" title="Duplicate">
-<svg class="w-4 h-4 mr-3 " fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-4a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                                            </svg>
-</button>
-                                    </form>
-                                @endcan
-
-                                @can('delete', $quotation)
-                                    
-                                    <button @click="open = false; $dispatch('open-modal', 'archive-quotation-{{ $quotation->id }}')"
-                                            class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center" title="Archive">
-<svg class="w-4 h-4 mr-3 " fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                        </svg>
-</button>
-                                    <button @click="open = false; $dispatch('open-modal', 'delete-quotation-{{ $quotation->id }}')"
-                                            class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center" title="Delete">
-<svg class="w-4 h-4 mr-3 " fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                        </svg>
-</button>
-                                @endcan
-                            @endif
-                        
-</div>
-</td>
+                                </x-action-dropdown>
+                            </td>
             </tr>
 
             {{-- Archive Modal --}}

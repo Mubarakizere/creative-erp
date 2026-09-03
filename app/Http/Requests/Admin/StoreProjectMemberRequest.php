@@ -11,7 +11,14 @@ class StoreProjectMemberRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('project-team.assign');
+        $projectId = $this->input('project_id');
+        if ($projectId) {
+            $project = \App\Models\Project::find($projectId);
+            if ($project) {
+                return $project->hasPermissionForUser($this->user(), 'project.update') || $project->hasPermissionForUser($this->user(), 'project.create');
+            }
+        }
+        return $this->user()->hasPermissionTo('project.update') || $this->user()->hasPermissionTo('project.create');
     }
 
     /**

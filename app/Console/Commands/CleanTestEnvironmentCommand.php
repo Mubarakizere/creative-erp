@@ -99,6 +99,7 @@ class CleanTestEnvironmentCommand extends Command
             ['role' => 'HR Manager', 'first' => 'HR', 'last' => 'Manager', 'email' => 'hrmanager@example.com'],
             ['role' => 'HR Officer', 'first' => 'HR', 'last' => 'Officer', 'email' => 'hrofficer@example.com'],
             ['role' => 'Project Manager', 'first' => 'Project', 'last' => 'Manager', 'email' => 'projectmanager@example.com'],
+            ['role' => 'Supervisor', 'first' => 'Site', 'last' => 'Supervisor', 'email' => 'supervisor@example.com'],
             ['role' => 'Engineer', 'first' => 'Project', 'last' => 'Engineer', 'email' => 'engineer@example.com'],
             ['role' => 'Site Engineer', 'first' => 'Site', 'last' => 'Engineer', 'email' => 'siteengineer@example.com'],
             ['role' => 'Procurement Manager', 'first' => 'Procurement', 'last' => 'Manager', 'email' => 'procurementmanager@example.com'],

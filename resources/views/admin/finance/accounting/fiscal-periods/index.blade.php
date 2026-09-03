@@ -78,13 +78,17 @@
                                         @endif
                                     </td>
                                     <td class="py-3 px-4 text-sm text-right">
-                                        @if($period->status === 'Open' && !$year->is_closed)
-                                            <form action="{{ route('admin.finance.accounting.fiscal-periods.periods.close', $period) }}" method="POST" onsubmit="return confirm('Are you sure you want to close this period? No more journal entries can be posted.');">
-                                                @csrf
-                                                @method('PATCH')
-                                                <button type="submit" class="text-yellow-600 hover:text-yellow-900 font-medium">Close</button>
-                                            </form>
-                                        @endif
+                                        <x-action-dropdown>
+                                            @if($period->status === 'Open' && !$year->is_closed)
+                                                <form action="{{ route('admin.finance.accounting.fiscal-periods.periods.close', $period) }}" method="POST" id="close-period-form-{{ $period->id }}">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                </form>
+                                                <x-action-dropdown-item onclick="document.getElementById('close-period-form-{{ $period->id }}').submit()" variant="danger">
+                                                    Close Period
+                                                </x-action-dropdown-item>
+                                            @endif
+                                        </x-action-dropdown>
                                     </td>
                                 </tr>
                             @empty

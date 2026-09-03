@@ -34,9 +34,18 @@ class MeetingController extends Controller
 
         $query = Meeting::with(['company', 'branch', 'project', 'creator', 'attendees']);
 
-        // Company scope
-        if (!auth()->user()->hasRole('Super Admin') && auth()->user()->company_id) {
-            $query->where('company_id', auth()->user()->company_id);
+        $user = auth()->user();
+        if (!$user->hasRole('Super Admin') && !$user->hasRole('CEO')) {
+            if ($user->company_id) {
+                $query->where('company_id', $user->company_id);
+            }
+            if (!$user->hasPermissionTo('meeting.view')) {
+                $query->where(function ($q) use ($user) {
+                    $q->where('created_by', $user->id)
+                      ->orWhereHas('attendees', fn($q2) => $q2->where('users.id', $user->id))
+                      ->orWhereHas('project.members', fn($q3) => $q3->where('user_id', $user->id));
+                });
+            }
         }
 
         // Search
