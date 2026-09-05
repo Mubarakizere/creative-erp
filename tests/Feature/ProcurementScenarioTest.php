@@ -60,9 +60,8 @@ class ProcurementScenarioTest extends TestCase
             'name' => 'Server Rack',
             'code' => 'PRD-SRV-01',
             'sku' => 'SKU-001',
-            'type' => 'goods',
+            'type' => 'raw_material',
             'cost_price' => 500,
-            'selling_price' => 700,
             'created_by' => $this->user->id,
         ]);
 
@@ -71,9 +70,8 @@ class ProcurementScenarioTest extends TestCase
             'name' => 'Network Switch',
             'code' => 'PRD-NET-01',
             'sku' => 'SKU-002',
-            'type' => 'goods',
+            'type' => 'raw_material',
             'cost_price' => 200,
-            'selling_price' => 300,
             'created_by' => $this->user->id,
         ]);
 
@@ -105,6 +103,9 @@ class ProcurementScenarioTest extends TestCase
             'purchase_requisition_id' => $requisition->id,
             'issue_date' => now()->toDateString(),
             'valid_until' => now()->addDays(7)->toDateString(),
+            'items' => [
+                ['product_id' => $product1->id, 'quantity' => 2, 'unit_price' => 500],
+            ]
         ]);
         
         $response->assertRedirect(route('admin.procurement.rfqs.index'));

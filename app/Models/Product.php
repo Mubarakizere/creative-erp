@@ -10,11 +10,45 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Traits\CompanyScoped;
 use App\Traits\LogsActivity;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+
 class Product extends Model
 {
-    use HasFactory, SoftDeletes, HasUuidColumn, LogsActivity, CompanyScoped;
+    use HasFactory, SoftDeletes, LogsActivity, CompanyScoped, HasUuidColumn;
 
-    protected $guarded = ['id'];
+    protected $guarded = [];
+
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            try {
+                if (\Illuminate\Support\Facades\Schema::hasColumn($model->getTable(), 'uuid') && empty($model->uuid)) {
+                    $model->uuid = (string) \Illuminate\Support\Str::orderedUuid();
+                }
+
+                if (empty($model->id)) {
+                    $type = \Illuminate\Support\Facades\Schema::getColumnType($model->getTable(), 'id');
+                    if (in_array($type, ['string', 'text', 'varchar'])) {
+                        $model->id = (string) \Illuminate\Support\Str::orderedUuid();
+                        $model->keyType = 'string';
+                        $model->incrementing = false;
+                    }
+                }
+            } catch (\Throwable $e) {
+                //
+            }
+        });
+
+        static::retrieved(function ($model) {
+            if (is_string($model->id) && !is_numeric($model->id)) {
+                $model->keyType = 'string';
+                $model->incrementing = false;
+            }
+        });
+    }
 
     protected $casts = [
         'track_inventory' => 'boolean',
@@ -27,10 +61,13 @@ class Product extends Model
     public function brand() { return $this->belongsTo(Brand::class); }
     public function unit() { return $this->belongsTo(UnitOfMeasure::class, 'unit_of_measure_id'); }
     public function tax() { return $this->belongsTo(Tax::class); }
+    public function defaultSupplier() { return $this->belongsTo(Supplier::class, 'default_supplier_id'); }
     public function variants() { return $this->hasMany(ProductVariant::class); }
     public function barcodes() { return $this->hasMany(Barcode::class); }
     public function supplierProducts() { return $this->hasMany(SupplierProduct::class); }
     public function inventory() { return $this->hasMany(Inventory::class); }
     public function inventoryReservations() { return $this->hasMany(InventoryReservation::class); }
     public function inventoryTransactions() { return $this->hasManyThrough(InventoryTransaction::class, Inventory::class); }
+    public function purchaseOrderItems() { return $this->hasMany(PurchaseOrderItem::class); }
+    public function materialIssueItems() { return $this->hasMany(ProjectMaterialIssueItem::class); }
 }

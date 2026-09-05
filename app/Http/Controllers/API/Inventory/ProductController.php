@@ -36,9 +36,10 @@ class ProductController extends Controller
             'product_category_id' => 'required|exists:product_categories,id',
             'brand_id' => 'nullable|exists:brands,id',
             'unit_of_measure_id' => 'required|exists:unit_of_measures,id',
-            'type' => 'required|in:goods,service',
+            'default_supplier_id' => 'nullable|exists:suppliers,id',
+            'supplier_sku' => 'nullable|string|max:100',
+            'type' => 'required|in:raw_material,consumable,equipment,service',
             'cost_price' => 'nullable|numeric|min:0',
-            'selling_price' => 'required|numeric|min:0',
             'minimum_stock' => 'nullable|numeric|min:0',
             'track_inventory' => 'boolean',
         ]);
@@ -52,7 +53,7 @@ class ProductController extends Controller
 
     public function show(Product $product): JsonResponse
     {
-        $product->load(['category', 'brand', 'unit', 'variants', 'barcodes', 'inventory.warehouse']);
+        $product->load(['category', 'brand', 'unit', 'defaultSupplier', 'variants', 'barcodes', 'inventory.warehouse']);
         return response()->json($product);
     }
 
@@ -64,9 +65,10 @@ class ProductController extends Controller
             'product_category_id' => 'sometimes|exists:product_categories,id',
             'brand_id' => 'nullable|exists:brands,id',
             'unit_of_measure_id' => 'sometimes|exists:unit_of_measures,id',
-            'type' => 'sometimes|in:goods,service',
+            'default_supplier_id' => 'nullable|exists:suppliers,id',
+            'supplier_sku' => 'nullable|string|max:100',
+            'type' => 'sometimes|in:raw_material,consumable,equipment,service',
             'cost_price' => 'nullable|numeric|min:0',
-            'selling_price' => 'sometimes|numeric|min:0',
             'minimum_stock' => 'nullable|numeric|min:0',
             'track_inventory' => 'boolean',
         ]);

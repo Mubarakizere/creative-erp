@@ -41,9 +41,8 @@ class InventoryManagementTest extends TestCase
             'sku' => 'LP-001',
             'product_category_id' => $category->id,
             'unit_of_measure_id' => $uom->id,
-            'type' => 'goods',
+            'type' => 'raw_material',
             'cost_price' => 500,
-            'selling_price' => 1000,
             'track_inventory' => true,
         ]);
 
@@ -79,8 +78,8 @@ class InventoryManagementTest extends TestCase
             'company_id' => $this->company->id,
             'product_category_id' => $category->id,
             'unit_of_measure_id' => $uom->id,
-            'type' => 'goods',
-            'selling_price' => 1000,
+            'type' => 'raw_material',
+            'cost_price' => 1000,
         ]);
 
         $w1 = Warehouse::create(['name' => 'W1', 'company_id' => $this->company->id, 'status' => 'active']);

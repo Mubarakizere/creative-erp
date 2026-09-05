@@ -152,23 +152,83 @@
             <x-slot:footer>
                 <div class="flex justify-end gap-3 w-full">
                     <a href="{{ route('admin.project-material-issues.index') }}" class="inline-flex justify-center items-center rounded-xl border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all">Cancel</a>
-                    <x-button type="submit" variant="primary" onclick="return confirm('Are you sure you want to issue this material? This will deduct inventory and add cost to the project.')">
+                    <x-button type="button" variant="primary" @click="$dispatch('open-issue-confirm')">
                         Issue Material
                     </x-button>
                 </div>
             </x-slot:footer>
         </x-card>
     </form>
+
+    {{-- Issue Confirmation Modal --}}
+    <div x-data="{ open: false }"
+         x-on:open-issue-confirm.window="open = true"
+         x-on:keydown.escape.window="open = false">
+
+        <template x-teleport="body">
+            <div x-show="open"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 class="fixed inset-0 z-50 overflow-y-auto"
+                 style="display: none;">
+
+                {{-- Backdrop --}}
+                <div class="fixed inset-0 bg-black/50 backdrop-blur-xs" @click="open = false"></div>
+
+                {{-- Modal --}}
+                <div class="flex min-h-full items-center justify-center p-4">
+                    <div class="relative w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden" @click.stop>
+                        {{-- Header --}}
+                        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                            <div class="text-lg font-bold text-gray-900">Confirm Material Issue</div>
+                            <button @click="open = false" type="button" class="text-gray-400 hover:text-gray-600 transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                        {{-- Content --}}
+                        <div class="px-6 py-5">
+                            <div class="flex items-start gap-4">
+                                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-semibold text-gray-900 mb-1">Are you sure you want to issue this material?</h3>
+                                    <p class="text-sm text-gray-500">This action will deduct stock from the selected warehouse and add the material cost to the project. This cannot be undone.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Footer --}}
+                        <div class="flex items-center gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50/50 justify-end">
+                            <button type="button" @click="open = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors shadow-xs">
+                                Cancel
+                            </button>
+                            <button type="button"
+                                    @click="open = false; document.querySelector('form[action*=project-material-issues]').submit();"
+                                    class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors shadow-xs cursor-pointer">
+                                Confirm Issue
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </div>
     
     <script>
         function materialIssueForm() {
             return {
-                items: [{ product_id: '', quantity: 1 }],
-                productStock: {
-                    @foreach($products as $product)
-                        '{{ $product->id }}': 'Check Server',
-                    @endforeach
-                },
+                items: [{ product_id: '{{ $initialProductId }}', quantity: 1 }],
+                productStock: @json($productStockMap),
                 addItem() {
                     this.items.push({ product_id: '', quantity: 1 });
                 },
@@ -176,7 +236,8 @@
                     this.items.splice(index, 1);
                 },
                 getAvailableQty(productId) {
-                    return productId ? (this.productStock[productId] || 'N/A') : '-';
+                    if (!productId) return '-';
+                    return this.productStock[productId] !== undefined ? this.productStock[productId] : 0;
                 }
             }
         }

@@ -72,10 +72,8 @@ class PutAwayControllerTest extends TestCase
             'company_id' => $this->company->id,
             'name' => 'Test Product',
             'sku' => 'TEST-001',
-            'product_type' => 'physical',
-            'unit_of_measure' => 'pcs',
+            'type' => 'raw_material',
             'cost_price' => 10,
-            'selling_price' => 20
         ]);
     }
 

@@ -12,7 +12,8 @@ class Warehouse extends Model
 {
     use HasFactory, SoftDeletes, HasUuidColumn, CompanyScoped;
 
-    protected $guarded = ['id'];
+    protected $guarded = [];
+
 
     protected $casts = [
         'is_default' => 'boolean',

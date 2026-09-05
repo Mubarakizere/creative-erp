@@ -39,10 +39,23 @@ class InventoryAdjustmentController extends Controller
         $companyId = session('company_id') ?? 1;
 
         $warehouses = Warehouse::where('company_id', $companyId)->where('status', 'active')->get();
-        $products = Product::where('company_id', $companyId)->where('status', 'active')->get();
+        $products = Product::where('company_id', $companyId)->where('status', 'active')->with(['unit', 'inventory'])->get();
 
-        return view('admin.inventory.adjustments.create', compact('warehouses', 'products'));
+        $productData = [];
+        foreach ($products as $p) {
+            $productData[$p->id] = [
+                'id' => $p->id,
+                'name' => $p->name,
+                'sku' => $p->sku,
+                'unit' => $p->unit?->code ?? $p->unit?->name ?? 'units',
+                'cost_price' => (float)$p->cost_price,
+                'total_stock' => (float)$p->inventory->sum('available_quantity'),
+            ];
+        }
+
+        return view('admin.inventory.adjustments.create', compact('warehouses', 'products', 'productData'));
     }
+
 
     public function store(Request $request, ApprovalService $approvalService)
     {

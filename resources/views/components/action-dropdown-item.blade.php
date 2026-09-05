@@ -8,6 +8,10 @@
 ])
 
 @php
+    if (!$href && $type === 'link') {
+        $type = 'button';
+    }
+
     $baseClasses = 'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-150 text-left cursor-pointer';
     
     if ($danger) {
@@ -35,14 +39,14 @@
         </button>
     </form>
 @elseif($type === 'button')
-    <button type="button" @click="open = false" {{ $attributes->merge(['class' => $classes]) }}>
+    <button type="button" {{ $attributes->merge(['class' => $classes, '@click' => 'open = false']) }}>
         @if(isset($icon))
             <span class="w-4 h-4 shrink-0 flex items-center justify-center text-current">{!! $icon !!}</span>
         @endif
         <span>{{ $slot }}</span>
     </button>
 @else
-    <a href="{{ $href }}" @click="open = false" {{ $attributes->merge(['class' => $classes]) }}>
+    <a href="{{ $href }}" {{ $attributes->merge(['class' => $classes, '@click' => 'open = false']) }}>
         @if(isset($icon))
             <span class="w-4 h-4 shrink-0 flex items-center justify-center text-current">{!! $icon !!}</span>
         @endif

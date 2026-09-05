@@ -8,6 +8,7 @@ use App\Models\ProductCategory;
 use App\Models\Brand;
 use App\Models\UnitOfMeasure;
 use App\Models\Tax;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -19,7 +20,7 @@ class ProductController extends Controller
         $this->authorize('viewAny', Product::class);
         $companyId = session('company_id') ?? 1;
 
-        $query = Product::where('company_id', $companyId)->with(['category', 'brand', 'unit']);
+        $query = Product::where('company_id', $companyId)->with(['category', 'brand', 'unit', 'defaultSupplier', 'inventory']);
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -48,8 +49,9 @@ class ProductController extends Controller
         $brands = Brand::where('company_id', $companyId)->get();
         $uoms = UnitOfMeasure::where('company_id', $companyId)->get();
         $taxes = Tax::where('company_id', $companyId)->get();
+        $suppliers = Supplier::where('company_id', $companyId)->orderBy('name')->get();
 
-        return view('admin.inventory.products.create', compact('categories', 'brands', 'uoms', 'taxes'));
+        return view('admin.inventory.products.create', compact('categories', 'brands', 'uoms', 'taxes', 'suppliers'));
     }
 
     public function store(Request $request)
@@ -61,12 +63,13 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'sku' => 'required|string|max:255|unique:products,sku',
             'barcode' => 'nullable|string|max:255|unique:products,barcode',
-            'type' => 'required|in:physical,service,raw_material,finished_good',
+            'type' => 'required|in:raw_material,consumable,equipment,service',
             'product_category_id' => 'nullable|exists:product_categories,id',
             'brand_id' => 'nullable|exists:brands,id',
             'unit_of_measure_id' => 'nullable|exists:unit_of_measures,id',
-            'cost_price' => 'required|numeric|min:0',
-            'selling_price' => 'required|numeric|min:0',
+            'default_supplier_id' => 'nullable|exists:suppliers,id',
+            'supplier_sku' => 'nullable|string|max:255',
+            'cost_price' => 'nullable|numeric|min:0',
             'tax_id' => 'nullable|exists:taxes,id',
             'weight' => 'nullable|numeric|min:0',
             'dimensions' => 'nullable|string|max:255',
@@ -86,6 +89,7 @@ class ProductController extends Controller
         ]);
 
         $validated['company_id'] = $companyId;
+        $validated['cost_price'] = $validated['cost_price'] ?? 0;
         $validated['track_inventory'] = $request->boolean('track_inventory');
         $validated['allow_negative_stock'] = $request->boolean('allow_negative_stock');
         $validated['serial_numbers'] = $request->boolean('serial_numbers');
@@ -99,7 +103,28 @@ class ProductController extends Controller
         Product::create($validated);
 
         return redirect()->route('admin.inventory.products.index')
-            ->with('success', 'Product created successfully.');
+            ->with('success', 'Material created successfully.');
+    }
+
+    public function show(Product $product)
+    {
+        $this->authorize('view', $product);
+
+        $product->load([
+            'category',
+            'brand',
+            'unit',
+            'defaultSupplier',
+            'tax',
+            'inventory.warehouse',
+            'materialIssueItems.projectMaterialIssue.project',
+        ]);
+
+        $totalStock = $product->inventory->sum('available_quantity');
+        $totalReserved = $product->inventory->sum('reserved_quantity');
+        $availableStock = max(0, $totalStock - $totalReserved);
+
+        return view('admin.inventory.products.show', compact('product', 'totalStock', 'totalReserved', 'availableStock'));
     }
 
     public function edit(Product $product)
@@ -111,8 +136,9 @@ class ProductController extends Controller
         $brands = Brand::where('company_id', $companyId)->get();
         $uoms = UnitOfMeasure::where('company_id', $companyId)->get();
         $taxes = Tax::where('company_id', $companyId)->get();
+        $suppliers = Supplier::where('company_id', $companyId)->orderBy('name')->get();
 
-        return view('admin.inventory.products.edit', compact('product', 'categories', 'brands', 'uoms', 'taxes'));
+        return view('admin.inventory.products.edit', compact('product', 'categories', 'brands', 'uoms', 'taxes', 'suppliers'));
     }
 
     public function update(Request $request, Product $product)
@@ -123,12 +149,13 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'sku' => 'required|string|max:255|unique:products,sku,' . $product->id,
             'barcode' => 'nullable|string|max:255|unique:products,barcode,' . $product->id,
-            'type' => 'required|in:physical,service,raw_material,finished_good',
+            'type' => 'required|in:raw_material,consumable,equipment,service',
             'product_category_id' => 'nullable|exists:product_categories,id',
             'brand_id' => 'nullable|exists:brands,id',
             'unit_of_measure_id' => 'nullable|exists:unit_of_measures,id',
-            'cost_price' => 'required|numeric|min:0',
-            'selling_price' => 'required|numeric|min:0',
+            'default_supplier_id' => 'nullable|exists:suppliers,id',
+            'supplier_sku' => 'nullable|string|max:255',
+            'cost_price' => 'nullable|numeric|min:0',
             'tax_id' => 'nullable|exists:taxes,id',
             'weight' => 'nullable|numeric|min:0',
             'dimensions' => 'nullable|string|max:255',
@@ -147,6 +174,7 @@ class ProductController extends Controller
             'image' => 'nullable|image|max:2048'
         ]);
 
+        $validated['cost_price'] = $validated['cost_price'] ?? 0;
         $validated['track_inventory'] = $request->boolean('track_inventory');
         $validated['allow_negative_stock'] = $request->boolean('allow_negative_stock');
         $validated['serial_numbers'] = $request->boolean('serial_numbers');
@@ -163,20 +191,25 @@ class ProductController extends Controller
         $product->update($validated);
 
         return redirect()->route('admin.inventory.products.index')
-            ->with('success', 'Product updated successfully.');
+            ->with('success', 'Material updated successfully.');
     }
 
     public function destroy(Product $product)
     {
         $this->authorize('delete', $product);
         
-        if ($product->image) {
-            Storage::disk('public')->delete($product->image);
-        }
-        
-        $product->delete();
+        try {
+            if ($product->image) {
+                Storage::disk('public')->delete($product->image);
+            }
+            
+            $product->delete();
 
-        return redirect()->route('admin.inventory.products.index')
-            ->with('success', 'Product deleted successfully.');
+            return redirect()->route('admin.inventory.products.index')
+                ->with('success', 'Material deleted successfully.');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.inventory.products.index')
+                ->with('error', 'Failed to delete material: ' . $e->getMessage());
+        }
     }
 }

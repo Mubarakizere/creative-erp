@@ -57,9 +57,8 @@ class ProcurementFlowTest extends TestCase
             'name' => 'Test Product',
             'code' => 'PROD-001',
             'sku' => 'SKU-001',
-            'type' => 'goods',
+            'type' => 'raw_material',
             'cost_price' => 10,
-            'selling_price' => 15,
             'created_by' => $this->user->id,
             'updated_by' => $this->user->id,
         ]);

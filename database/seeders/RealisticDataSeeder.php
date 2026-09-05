@@ -92,16 +92,15 @@ class RealisticDataSeeder extends Seeder
         ];
 
         $products = [];
-        foreach ($productsData as $pData) {
             $products[$pData[0]] = Product::create([
                 'company_id'          => $company->id,
                 'name'                => $pData[1],
                 'sku'                 => $pData[0],
                 'product_category_id' => $pData[2]->id,
                 'unit_of_measure_id'  => $pData[3]->id,
+                'type'                => 'raw_material',
                 'valuation_method'    => 'FIFO',
                 'cost_price'          => $pData[4],
-                'selling_price'       => round($pData[4] * 1.3, 2),
                 'allow_negative_stock' => false,
                 'status'              => 'Active',
                 'track_inventory'     => true,

@@ -52,6 +52,7 @@ class ProjectMaterialIssueController extends Controller
     public function create(Request $request)
     {
         $this->authorize('create', ProjectMaterialIssue::class);
+        $companyId = session('company_id') ?? 1;
 
         $projects = Project::active()->get();
         $warehouses = Warehouse::active()->get();
@@ -61,21 +62,35 @@ class ProjectMaterialIssueController extends Controller
             $tasks = Task::where('project_id', $request->project_id)->get();
         }
         
-        $products = collect();
-        if ($request->filled('warehouse_id')) {
-            // Get products with available stock in this warehouse
-            $inventoryProductIds = Inventory::where('warehouse_id', $request->warehouse_id)
-                ->where('available_quantity', '>', 0)
-                ->pluck('product_id');
-                
-            $products = Product::whereIn('id', $inventoryProductIds)->get();
+        $warehouseId = $request->warehouse_id;
+
+        $products = Product::where('company_id', $companyId)->get();
+        if ($products->isEmpty()) {
+            $products = Product::all();
+        }
+
+        $productStockMap = [];
+        if ($warehouseId) {
+            $inventories = Inventory::where('warehouse_id', $warehouseId)->get()->keyBy('product_id');
+            foreach ($products as $product) {
+                $inv = $inventories->get($product->id);
+                $productStockMap[$product->id] = $inv ? (float)$inv->available_quantity : 0;
+            }
+        } else {
+            $inventories = Inventory::get()->groupBy('product_id');
+            foreach ($products as $product) {
+                $invs = $inventories->get($product->id);
+                $productStockMap[$product->id] = $invs ? (float)$invs->sum('available_quantity') : 0;
+            }
         }
 
         $issueNumber = 'Auto-generated upon save';
         $today = Carbon::today()->format('Y-m-d');
+        $initialProductId = $request->input('product_id', '');
 
-        return view('admin.project-material-issues.create', compact('projects', 'warehouses', 'products', 'tasks', 'issueNumber', 'today'));
+        return view('admin.project-material-issues.create', compact('projects', 'warehouses', 'products', 'tasks', 'issueNumber', 'today', 'productStockMap', 'initialProductId'));
     }
+
 
     public function store(StoreProjectMaterialIssueRequest $request)
     {

@@ -38,17 +38,14 @@ class GoodsReceiptService
                 // Increase stock
                 $product = $grItem->product;
                 $warehouse = $gr->warehouse;
-                $this->inventoryEngine->stockIn(
-                    $product, 
-                    $warehouse, 
-                    $grItem->quantity_received, 
-                    'goods_receipt', 
-                    $gr
-                );
 
+                // Determine unit cost from PO item
+                $unitCost = null;
                 if ($po && $grItem->purchase_order_item_id) {
                     $poItem = \App\Models\PurchaseOrderItem::where('id', $grItem->purchase_order_item_id)->lockForUpdate()->first();
                     if ($poItem) {
+                        $unitCost = $poItem->unit_price;
+
                         $remaining = max(0, $poItem->quantity - $poItem->received_quantity);
                         if ($grItem->quantity_received > $remaining) {
                             throw new \Exception("Cannot receive more than remaining quantity for product " . $grItem->product?->name);
@@ -57,8 +54,24 @@ class GoodsReceiptService
                         $poItem->received_quantity += $grItem->quantity_received;
                         $poItem->save();
                         $totalCost += ($grItem->quantity_received * $poItem->unit_price);
+
+                        // Auto-update product cost_price to latest purchase price
+                        $product->cost_price = $poItem->unit_price;
+                        $product->save();
                     }
                 }
+
+                $this->inventoryEngine->stockIn(
+                    $product, 
+                    $warehouse, 
+                    $grItem->quantity_received, 
+                    'goods_receipt', 
+                    $gr,
+                    null, // variantId
+                    null, // zoneId
+                    null, // userId
+                    $unitCost // pass actual purchase price for transaction-level cost tracking
+                );
             }
 
             if ($po) {

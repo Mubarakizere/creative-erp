@@ -27,7 +27,6 @@ class ProductVariantController extends Controller
             'options.*' => 'required|string',
             'price_adjustment' => 'nullable|numeric',
             'cost_price' => 'nullable|numeric|min:0',
-            'selling_price' => 'nullable|numeric|min:0',
             'weight' => 'nullable|numeric|min:0',
             'status' => 'required|in:active,inactive'
         ]);

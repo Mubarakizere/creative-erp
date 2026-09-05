@@ -11,7 +11,8 @@ class UnitOfMeasure extends Model
 {
     use HasFactory, SoftDeletes, HasUuidColumn;
 
-    protected $guarded = ['id'];
+    protected $guarded = [];
+
 
     public function products() { return $this->hasMany(Product::class); }
 }

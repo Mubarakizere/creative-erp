@@ -56,9 +56,8 @@ class GoodsReceiptIntegrationTest extends TestCase
             'company_id' => $this->company->id,
             'name' => 'Test Product',
             'sku' => 'TEST-001',
-            'type' => 'goods',
+            'type' => 'raw_material',
             'cost_price' => 10,
-            'selling_price' => 20,
         ]);
 
         $this->po = PurchaseOrder::create([
@@ -82,6 +81,7 @@ class GoodsReceiptIntegrationTest extends TestCase
     public function test_authorized_user_can_receive_approved_po()
     {
         $response = $this->actingAs($this->user)->post(route('admin.procurement.receipts.store'), [
+            'code' => 'GR-TEST-001',
             'purchase_order_id' => $this->po->id,
             'warehouse_id' => $this->warehouse->id,
             'receipt_date' => now()->toDateString(),
@@ -120,6 +120,7 @@ class GoodsReceiptIntegrationTest extends TestCase
     public function test_cannot_receive_more_than_remaining_quantity()
     {
         $response = $this->actingAs($this->user)->post(route('admin.procurement.receipts.store'), [
+            'code' => 'GR-TEST-002',
             'purchase_order_id' => $this->po->id,
             'warehouse_id' => $this->warehouse->id,
             'receipt_date' => now()->toDateString(),
@@ -149,6 +150,7 @@ class GoodsReceiptIntegrationTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->user)->post(route('admin.procurement.receipts.store'), [
+            'code' => 'GR-TEST-003',
             'purchase_order_id' => $this->po->id,
             'warehouse_id' => $otherWarehouse->id,
             'receipt_date' => now()->toDateString(),
@@ -166,6 +168,7 @@ class GoodsReceiptIntegrationTest extends TestCase
     public function test_full_receiving_updates_status_to_completed()
     {
         $response = $this->actingAs($this->user)->post(route('admin.procurement.receipts.store'), [
+            'code' => 'GR-TEST-004',
             'purchase_order_id' => $this->po->id,
             'warehouse_id' => $this->warehouse->id,
             'receipt_date' => now()->toDateString(),

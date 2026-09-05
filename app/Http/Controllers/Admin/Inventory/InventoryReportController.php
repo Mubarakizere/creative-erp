@@ -26,7 +26,7 @@ class InventoryReportController extends Controller
             'warehouse-summary' => 'Warehouse Summary',
             'transactions' => 'Inventory Transactions',
             'adjustments' => 'Adjustment Report',
-            'profitability' => 'Product Profitability',
+            'profitability' => 'Material Valuation & Consumption',
         ];
 
         return view('admin.inventory.reports.index', compact('reports'));
@@ -349,52 +349,49 @@ class InventoryReportController extends Controller
 
     private function getProfitabilityData($companyId)
     {
-        $products = Product::where('company_id', $companyId)->where('track_inventory', true)->get();
+        $products = Product::where('company_id', $companyId)->where('track_inventory', true)->with(['defaultSupplier', 'inventory'])->get();
         $valuationService = app(InventoryValuationService::class);
         
         $rows = [];
 
         foreach ($products as $product) {
+            $qty = $product->inventory->sum('available_quantity') ?? 0;
             $unitCost = 0;
-            $qty = $product->inventory()->sum('available_quantity') ?? 0;
             if ($qty > 0) {
                 $value = $valuationService->calculateValuation($product);
                 $unitCost = $value / $qty;
             } else {
                 $unitCost = $product->cost_price ?? 0;
+                $value = 0;
             }
 
-            // Calculate units sold
-            $unitsSold = abs(InventoryTransaction::whereHas('inventory', function($q) use ($product) {
+            // Total units issued to construction projects
+            $unitsIssued = abs(InventoryTransaction::whereHas('inventory', function($q) use ($product) {
                 $q->where('product_id', $product->id);
-            })->whereIn('type', ['sale', 'consumption', 'stock_out'])->sum('quantity') ?? 0);
+            })->whereIn('type', ['consumption', 'stock_out', 'material_issue'])->sum('quantity') ?? 0);
 
-            if ($unitsSold > 0) {
-                $revenue = $unitsSold * ($product->selling_price ?? 0);
-                $cogs = $unitsSold * $unitCost;
-                $profit = $revenue - $cogs;
-                $margin = $revenue > 0 ? ($profit / $revenue) * 100 : 0;
+            $totalMaterialExpense = $unitsIssued * $unitCost;
 
-                $rows[] = [
-                    'SKU' => $product->sku,
-                    'Product' => $product->name,
-                    'Units Sold' => number_format($unitsSold),
-                    'Avg Unit Cost' => 'RWF ' . number_format($unitCost, 2),
-                    'Selling Price' => 'RWF ' . number_format($product->selling_price ?? 0, 2),
-                    'Profit' => 'RWF ' . number_format($profit, 2),
-                    'Margin %' => number_format($margin, 1) . '%',
-                ];
-            }
+            $rows[] = [
+                'SKU' => $product->sku,
+                'Material Name' => $product->name,
+                'Default Supplier' => $product->defaultSupplier?->name ?? '—',
+                'Stock Qty' => number_format($qty),
+                'Last PO Unit Cost' => 'RWF ' . number_format($product->cost_price ?? 0, 2),
+                'Units Issued' => number_format($unitsIssued),
+                'Total Site Consumption Value' => 'RWF ' . number_format($totalMaterialExpense, 2),
+                'Current Stock Value' => 'RWF ' . number_format($value, 2),
+            ];
         }
 
-        // Sort by Profit descending
+        // Sort by Total Site Consumption Value descending
         usort($rows, function($a, $b) {
-            return (float)str_replace(['RWF', ' ', ','], '', $b['Profit']) <=> (float)str_replace(['RWF', ' ', ','], '', $a['Profit']);
+            return (float)str_replace(['RWF', ' ', ','], '', $b['Total Site Consumption Value']) <=> (float)str_replace(['RWF', ' ', ','], '', $a['Total Site Consumption Value']);
         });
 
         return [
-            'title' => 'Product Profitability',
-            'headers' => ['SKU', 'Product', 'Units Sold', 'Avg Unit Cost', 'Selling Price', 'Profit', 'Margin %'],
+            'title' => 'Material Valuation & Site Consumption Analysis',
+            'headers' => ['SKU', 'Material Name', 'Default Supplier', 'Stock Qty', 'Last PO Unit Cost', 'Units Issued', 'Total Site Consumption Value', 'Current Stock Value'],
             'rows' => $rows
         ];
     }

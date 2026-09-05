@@ -1,17 +1,17 @@
-<x-layouts.admin title="Create Product">
+<x-layouts.admin title="Add Material">
     <x-slot:breadcrumbs>
         @php
             $breadcrumbs = [
                 ['label' => 'Inventory', 'url' => route('admin.inventory.products.index')],
-                ['label' => 'Products', 'url' => route('admin.inventory.products.index')],
-                ['label' => 'Create'],
+                ['label' => 'Materials', 'url' => route('admin.inventory.products.index')],
+                ['label' => 'Add Material'],
             ];
         @endphp
     </x-slot:breadcrumbs>
 
     <div class="mb-8">
-        <h1 class="text-2xl font-bold text-gray-900">Create Product</h1>
-        <p class="mt-1 text-sm text-gray-500">Add a new physical product, service, raw material, or finished good to your catalog.</p>
+        <h1 class="text-2xl font-bold text-gray-900">Add Material</h1>
+        <p class="mt-1 text-sm text-gray-500">Register a new construction material, consumable, equipment, or service to your inventory.</p>
     </div>
 
     <form action="{{ route('admin.inventory.products.store') }}" method="POST" enctype="multipart/form-data">
@@ -23,17 +23,17 @@
                 <x-card>
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
                     <div class="space-y-4">
-                        <x-input name="name" label="Product Name" required />
+                        <x-input name="name" label="Material Name" required placeholder="e.g. Portland Cement 50kg" />
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <x-input name="sku" label="SKU (Stock Keeping Unit)" required placeholder="e.g. PRD-001" />
+                            <x-input name="sku" label="SKU (Stock Keeping Unit)" required placeholder="e.g. MAT-001" />
                             <x-input name="barcode" label="Barcode" placeholder="e.g. 890123456789" />
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <x-select name="type" label="Product Type" required :options="[
-                                'physical' => 'Physical Product',
-                                'service' => 'Service',
+                            <x-select name="type" label="Material Type" required :options="[
                                 'raw_material' => 'Raw Material',
-                                'finished_good' => 'Finished Good'
+                                'consumable' => 'Consumable',
+                                'equipment' => 'Equipment',
+                                'service' => 'Service'
                             ]" />
                             <x-select name="status" label="Status" required :options="[
                                 'active' => 'Active',
@@ -42,8 +42,24 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                            <textarea name="description" rows="3" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                            <textarea name="description" rows="3" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="Material specifications, grade, standards..."></textarea>
                         </div>
+                    </div>
+                </x-card>
+
+                {{-- Supplier Information --}}
+                <x-card>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Supplier Information</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <label class="block text-sm font-medium text-gray-700">Default Supplier</label>
+                                <a href="{{ route('admin.procurement.suppliers.create') }}" target="_blank" class="text-xs text-blue-600 hover:text-blue-800 font-medium">Add Supplier</a>
+                            </div>
+                            <x-select name="default_supplier_id" :options="$suppliers->pluck('name', 'id')->toArray()" placeholder="Select Default Supplier" />
+                            <p class="mt-1 text-xs text-gray-400">The primary supplier you purchase this material from.</p>
+                        </div>
+                        <x-input name="supplier_sku" label="Supplier Reference / Part Number" placeholder="e.g. SUP-CEM-001" />
                     </div>
                 </x-card>
 
@@ -92,19 +108,22 @@
             </div>
 
             <div class="space-y-6">
-                {{-- Pricing --}}
+                {{-- Pricing & Valuation --}}
                 <x-card>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Pricing</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Pricing & Valuation</h3>
                     <div class="space-y-4">
-                        <x-input name="cost_price" label="Cost Price" type="number" step="0.01" value="0" required />
-                        <x-input name="selling_price" label="Selling Price" type="number" step="0.01" value="0" required />
+                        <div>
+                            <x-input name="cost_price" label="Last Purchase Price (RWF)" type="number" step="0.01" value="0" />
+                            <p class="mt-1 text-xs text-gray-400">Auto-updated when materials are received from purchase orders.</p>
+                        </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Valuation Method</label>
                             <select name="valuation_method" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                <option value="Standard Cost" {{ old('valuation_method') == 'Standard Cost' ? 'selected' : '' }}>Standard Cost</option>
                                 <option value="Weighted Average" {{ old('valuation_method') == 'Weighted Average' ? 'selected' : '' }}>Weighted Average</option>
                                 <option value="FIFO" {{ old('valuation_method') == 'FIFO' ? 'selected' : '' }}>FIFO (First-In, First-Out)</option>
+                                <option value="Standard Cost" {{ old('valuation_method') == 'Standard Cost' ? 'selected' : '' }}>Standard Cost</option>
                             </select>
+                            <p class="mt-1 text-xs text-gray-400">Determines how material cost is calculated when issued to projects.</p>
                         </div>
                         <div>
                             <div class="flex justify-between mb-1">
@@ -129,7 +148,7 @@
                         </div>
                         <div>
                             <div class="flex justify-between mb-1">
-                                <label class="block text-sm font-medium text-gray-700">Brand</label>
+                                <label class="block text-sm font-medium text-gray-700">Brand / Manufacturer</label>
                                 <a href="{{ route('admin.inventory.brands.create') }}" target="_blank" class="text-xs text-blue-600 hover:text-blue-800 font-medium">Create New</a>
                             </div>
                             <x-select name="brand_id" :options="$brands->pluck('name', 'id')->toArray()" placeholder="Select Brand" />
@@ -144,9 +163,9 @@
                     </div>
                 </x-card>
 
-                {{-- Product Image --}}
+                {{-- Material Image --}}
                 <x-card>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Product Image</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Material Image</h3>
                     <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
                         <div class="space-y-1 text-center">
                             <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
@@ -168,7 +187,7 @@
 
         <div class="mt-8 flex justify-end gap-3">
             <x-button type="ghost" href="{{ route('admin.inventory.products.index') }}">Cancel</x-button>
-            <x-button type="primary" submit>Create Product</x-button>
+            <x-button type="primary" submit>Add Material</x-button>
         </div>
     </form>
 </x-layouts.admin>

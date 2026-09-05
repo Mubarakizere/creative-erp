@@ -45,15 +45,13 @@
 
                         <div class="grid grid-cols-2 gap-4">
                             <x-input name="cost_price" label="Cost Price" type="number" step="0.01" />
-                            <x-input name="selling_price" label="Selling Price" type="number" step="0.01" />
+                            <x-input name="price_adjustment" label="Cost Adjust (+/-)" type="number" step="0.01" value="0" />
                         </div>
                         
                         <div class="grid grid-cols-2 gap-4">
-                            <x-input name="price_adjustment" label="Price Adjust (+/-)" type="number" step="0.01" value="0" />
-                            <x-input name="weight" label="Weight" type="number" step="0.01" />
+                            <x-input name="weight" label="Weight / Size" type="number" step="0.01" />
+                            <x-select name="status" label="Status" :options="['active' => 'Active', 'inactive' => 'Inactive']" selected="active" />
                         </div>
-                        
-                        <x-select name="status" label="Status" :options="['active' => 'Active', 'inactive' => 'Inactive']" selected="active" />
 
                         <x-button type="primary" submit class="w-full justify-center mt-4">Create Variant</x-button>
                     </div>
@@ -71,7 +69,7 @@
                             <tr>
                                 <th class="py-2 px-3 bg-gray-50 border-b text-xs font-semibold text-gray-600 uppercase tracking-wider">SKU</th>
                                 <th class="py-2 px-3 bg-gray-50 border-b text-xs font-semibold text-gray-600 uppercase tracking-wider">Options</th>
-                                <th class="py-2 px-3 bg-gray-50 border-b text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Price/Adj.</th>
+                                <th class="py-2 px-3 bg-gray-50 border-b text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Unit Cost</th>
                                 <th class="py-2 px-3 bg-gray-50 border-b text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
                                 <th class="py-2 px-3 bg-gray-50 border-b text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                             </tr>
@@ -88,12 +86,8 @@
                                         @endforeach
                                     </td>
                                     <td class="py-2 px-3 text-right">
-                                        @if($variant->selling_price)
-                                            <div class="text-sm font-medium text-gray-900">{{ number_format($variant->selling_price, 0) }} RWF</div>
-                                        @elseif($variant->price_adjustment != 0)
-                                            <div class="text-sm font-medium {{ $variant->price_adjustment > 0 ? 'text-green-600' : 'text-red-600' }}">
-                                                {{ $variant->price_adjustment > 0 ? '+' : '' }}{{ number_format($variant->price_adjustment, 0) }} RWF
-                                            </div>
+                                        @if($variant->cost_price)
+                                            <div class="text-sm font-medium text-gray-900">{{ number_format($variant->cost_price, 0) }} RWF</div>
                                         @else
                                             <div class="text-sm text-gray-500">Same as Base</div>
                                         @endif

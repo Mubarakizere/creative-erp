@@ -57,8 +57,8 @@
                         <tbody class="divide-y divide-gray-100">
                             @forelse($inventories as $inventory)
                                 <tr class="hover:bg-gray-50/50 transition-colors">
-                                    <td class="py-3 px-4 text-sm font-medium text-gray-900">{{ $inventory->product->name }}</td>
-                                    <td class="py-3 px-4 text-sm text-gray-600">{{ $inventory->warehouse->name }}</td>
+                                    <td class="py-3 px-4 text-sm font-medium text-gray-900">{{ $inventory->product?->name ?? 'Unknown Product' }}</td>
+                                    <td class="py-3 px-4 text-sm text-gray-600">{{ $inventory->warehouse?->name ?? 'Unknown Warehouse' }}</td>
                                     <td class="py-3 px-4 text-right text-sm font-bold text-gray-900">{{ number_format($inventory->available_quantity, 2) }}</td>
                                     <td class="py-3 px-4 text-right text-sm text-gray-600">{{ number_format($inventory->reserved_quantity, 2) }}</td>
                                     <td class="py-3 px-4 text-right text-sm text-blue-600">{{ number_format($inventory->incoming_quantity, 2) }}</td>
@@ -93,7 +93,8 @@
                             @forelse($adjustments as $adjustment)
                                 <tr class="hover:bg-gray-50/50 transition-colors">
                                     <td class="py-3 px-4 text-sm text-gray-600">{{ $adjustment->created_at->format('Y-m-d H:i') }}</td>
-                                    <td class="py-3 px-4 text-sm font-medium text-gray-900">{{ $adjustment->warehouse->name }}</td>
+                                    <td class="py-3 px-4 text-sm font-medium text-gray-900">{{ $adjustment->warehouse?->name ?? 'N/A' }}</td>
+
                                     <td class="py-3 px-4 text-sm text-gray-600">{{ $adjustment->reason }}</td>
                                     <td class="py-3 px-4 text-sm text-gray-600">{{ count($adjustment->items ?? []) }}</td>
                                     <td class="py-3 px-4">
