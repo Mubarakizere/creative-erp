@@ -29,6 +29,12 @@
     $totalProjectCost = max($project->actual_cost ?? 0, $totalMaterialCost);
     $netProfit = $contractRevenue - $totalProjectCost;
     $profitMargin = $contractRevenue > 0 ? round(($netProfit / $contractRevenue) * 100, 1) : 0;
+
+    // Fetch Material Requests for this project
+    $materialRequests = $project->materialRequests()
+        ->with(['requestedBy', 'items.product', 'purchaseRequisition'])
+        ->latest()
+        ->get();
 @endphp
 
 <div class="space-y-6">
@@ -38,13 +44,15 @@
             <h3 class="text-xl font-bold text-slate-900 tracking-tight">Material Costs & Project P&L</h3>
             <p class="text-xs text-slate-500 mt-0.5">Real-time valuation of stock issued to project vs project revenue</p>
         </div>
-        @if($project->hasPermissionForUser(auth()->user(), 'material_request.create') || $project->hasPermissionForUser(auth()->user(), 'material_issue.create'))
-            <x-button type="primary" href="{{ route('admin.project-material-issues.create') }}?project_id={{ $project->id }}" size="sm">
-                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                </svg>
-                Issue Material to Site
-            </x-button>
+        @if($project->hasPermissionForUser(auth()->user(), 'material_request.create'))
+            <div class="flex items-center gap-2">
+                <x-button type="primary" href="{{ route('admin.material-requests.create') }}?project_id={{ $project->id }}" size="sm">
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                    Request Material
+                </x-button>
+            </div>
         @endif
     </div>
 
@@ -120,6 +128,115 @@
             </div>
         </div>
     </div>
+
+    {{-- Project Material Requests Section (Pending Approvals & Approved Requests) --}}
+    <x-card>
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h4 class="text-base font-bold text-slate-900 tracking-tight">Project Material Requests</h4>
+                <p class="text-xs text-slate-500 font-medium mt-0.5">Track requests awaiting approval, approved requests ready to issue, and completed requests</p>
+            </div>
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                {{ $materialRequests->count() }} {{ Str::plural('Request', $materialRequests->count()) }}
+            </span>
+        </div>
+
+        <x-table>
+            <x-slot:head>
+                <th class="px-4 py-3 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">Request Ref #</th>
+                <th class="px-4 py-3 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">Request Date</th>
+                <th class="px-4 py-3 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">Requested By</th>
+                <th class="px-4 py-3 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">Priority</th>
+                <th class="px-4 py-3 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">Status</th>
+                <th class="px-4 py-3 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">Items Requested</th>
+                <th class="px-4 py-3 text-right text-xs font-bold text-slate-600 uppercase tracking-wider">Actions</th>
+            </x-slot:head>
+
+            @forelse($materialRequests as $req)
+                @php
+                    $reqStatusClasses = [
+                        'Draft' => 'bg-slate-100 text-slate-700 border-slate-200',
+                        'Submitted' => 'bg-amber-50 text-amber-700 border-amber-200',
+                        'Under Review' => 'bg-blue-50 text-blue-700 border-blue-200',
+                        'Approved' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                        'Issued' => 'bg-purple-50 text-purple-700 border-purple-200',
+                        'Rejected' => 'bg-rose-50 text-rose-700 border-rose-200',
+                        'Cancelled' => 'bg-slate-100 text-slate-600 border-slate-200',
+                    ][$req->status] ?? 'bg-slate-100 text-slate-700 border-slate-200';
+                @endphp
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="px-4 py-3.5">
+                        <a href="{{ route('admin.material-requests.show', $req) }}" class="text-sm font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                            {{ $req->request_number }}
+                        </a>
+                    </td>
+                    <td class="px-4 py-3.5 text-xs text-slate-600 font-medium">
+                        <div>{{ $req->request_date->format('M d, Y') }}</div>
+                        @if($req->required_date)
+                            <div class="text-[11px] text-slate-400">Req: {{ $req->required_date->format('M d, Y') }}</div>
+                        @endif
+                    </td>
+                    <td class="px-4 py-3.5 text-xs font-medium text-slate-700">
+                        {{ $req->requestedBy->name ?? '—' }}
+                    </td>
+                    <td class="px-4 py-3.5">
+                        @php
+                            $pColor = [
+                                'Urgent' => 'text-rose-700 bg-rose-50 border-rose-200',
+                                'High' => 'text-amber-700 bg-amber-50 border-amber-200',
+                                'Normal' => 'text-blue-700 bg-blue-50 border-blue-200',
+                                'Low' => 'text-slate-600 bg-slate-100 border-slate-200',
+                            ][$req->priority] ?? 'text-slate-600 bg-slate-100';
+                        @endphp
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold border {{ $pColor }}">
+                            {{ $req->priority }}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3.5">
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border {{ $reqStatusClasses }}">
+                            <span class="w-1.5 h-1.5 rounded-full mr-1.5 bg-current"></span>
+                            {{ $req->status }}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3.5 text-xs text-slate-600">
+                        <span class="font-bold text-slate-900">{{ $req->items->count() }}</span> items
+                        <div class="text-[11px] text-slate-400 truncate max-w-xs">
+                            {{ $req->items->take(2)->pluck('product.name')->implode(', ') }}{{ $req->items->count() > 2 ? '...' : '' }}
+                        </div>
+                    </td>
+                    <td class="px-4 py-3.5 text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            @if(in_array($req->status, ['Submitted', 'Under Review']) && auth()->user()->can('approve', $req))
+                                <form action="{{ route('admin.material-requests.approve', $req) }}" method="POST" class="inline">
+                                    @csrf
+                                    <button type="submit" class="px-2.5 py-1 rounded-lg text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors">
+                                        Approve
+                                    </button>
+                                </form>
+                            @endif
+
+                            @if($req->status === 'Approved' && auth()->user()->can('create', App\Models\ProjectMaterialIssue::class))
+                                <a href="{{ route('admin.project-material-issues.create', ['project_id' => $project->id, 'material_request_id' => $req->id]) }}" class="px-2.5 py-1 rounded-lg text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors inline-flex items-center gap-1 shadow-xs">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                                    Issue Material
+                                </a>
+                            @endif
+
+                            <a href="{{ route('admin.material-requests.show', $req) }}" class="px-2.5 py-1 rounded-lg text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors">
+                                Details
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="7" class="px-4 py-8 text-center text-slate-500 text-sm">
+                        No material requests created for this project yet.
+                    </td>
+                </tr>
+            @endforelse
+        </x-table>
+    </x-card>
 
     {{-- Material Breakdown Table (Grouped by Item) --}}
     <x-card>

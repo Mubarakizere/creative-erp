@@ -26,6 +26,7 @@ class SupplierQuotation extends Model
     public function company() { return $this->belongsTo(Company::class); }
     public function supplier() { return $this->belongsTo(Supplier::class); }
     public function requisition() { return $this->belongsTo(PurchaseRequisition::class, 'purchase_requisition_id'); }
+    public function purchaseRequisition() { return $this->belongsTo(PurchaseRequisition::class, 'purchase_requisition_id'); }
     public function items() { return $this->hasMany(SupplierQuotationItem::class); }
     public function purchaseOrders() { return $this->hasMany(PurchaseOrder::class); }
     public function creator() { return $this->belongsTo(User::class, 'created_by'); }

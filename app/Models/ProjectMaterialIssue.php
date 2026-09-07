@@ -59,6 +59,12 @@ class ProjectMaterialIssue extends Model
         return $this->hasMany(ProjectMaterialIssueItem::class);
     }
 
+    public function materialRequest()
+    {
+        return $this->belongsTo(ProjectMaterialRequest::class, 'project_material_request_id');
+    }
+
+
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');

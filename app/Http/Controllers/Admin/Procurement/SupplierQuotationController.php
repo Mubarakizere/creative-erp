@@ -12,14 +12,37 @@ class SupplierQuotationController extends Controller
     public function index(Request $request)
     {
         $companyId = session('company_id') ?? auth()->user()->company_id ?? 1;
-        $query = SupplierQuotation::where('company_id', $companyId)->with(['supplier', 'purchaseRequisition']);
+        $query = SupplierQuotation::where('company_id', $companyId)->with(['supplier', 'purchaseRequisition', 'items']);
         
         if ($request->filled('search')) {
-            $query->where('code', 'like', "%{$request->search}%");
+            $query->where(function($q) use ($request) {
+                $q->where('code', 'like', "%{$request->search}%")
+                  ->orWhereHas('supplier', function($sq) use ($request) {
+                      $sq->where('name', 'like', "%{$request->search}%");
+                  });
+            });
         }
 
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $allQuotations = SupplierQuotation::where('company_id', $companyId)->with('items')->get();
+        $totalQuotedValue = $allQuotations->sum(function($q) {
+            return $q->items->sum(function($i) {
+                return $i->total > 0 ? $i->total : (($i->quantity * $i->unit_price) - $i->discount + $i->tax);
+            });
+        });
+
+        $stats = [
+            'total' => $allQuotations->count(),
+            'approved' => $allQuotations->where('status', 'approved')->count(),
+            'draft' => $allQuotations->where('status', 'draft')->count(),
+            'total_value' => $totalQuotedValue,
+        ];
+
         $rfqs = $query->latest()->paginate(15);
-        return view('admin.procurement.rfqs.index', compact('rfqs'));
+        return view('admin.procurement.rfqs.index', compact('rfqs', 'stats'));
     }
 
     public function create(Request $request)
@@ -27,8 +50,28 @@ class SupplierQuotationController extends Controller
         $companyId = session('company_id') ?? auth()->user()->company_id ?? 1;
         $requisitions = PurchaseRequisition::where('company_id', $companyId)->where('status', 'approved')->get();
         $suppliers = Supplier::where('company_id', $companyId)->get();
+        $products = \App\Models\Product::where('company_id', $companyId)->with('unit')->get();
         $code = app(\App\Services\SequenceService::class)->generate('quotation', $companyId);
-        return view('admin.procurement.rfqs.create', compact('requisitions', 'suppliers', 'code'));
+
+        $selectedPrId = $request->query('purchase_requisition_id');
+        $selectedPr = null;
+        $preloadedItems = [];
+        if ($selectedPrId) {
+            $selectedPr = PurchaseRequisition::with(['items.product.unit', 'project', 'requestedBy'])->find($selectedPrId);
+            if ($selectedPr) {
+                foreach ($selectedPr->items as $prItem) {
+                    $preloadedItems[] = [
+                        'product_id' => $prItem->product_id,
+                        'quantity' => (float) $prItem->quantity,
+                        'unit_price' => 0,
+                        'discount' => 0,
+                        'tax' => 0,
+                    ];
+                }
+            }
+        }
+
+        return view('admin.procurement.rfqs.create', compact('requisitions', 'suppliers', 'products', 'code', 'selectedPrId', 'selectedPr', 'preloadedItems'));
     }
 
         public function show(SupplierQuotation $rfq)

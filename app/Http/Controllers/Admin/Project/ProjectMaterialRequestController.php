@@ -182,7 +182,7 @@ class ProjectMaterialRequestController extends Controller
             return redirect()
                 ->route('admin.material-requests.show', $materialRequest)
                 ->with('success', "Converted to Purchase Requisition successfully (PR: {$purchaseRequisition->code}).");
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return redirect()
                 ->route('admin.material-requests.show', $materialRequest)
                 ->with('error', $e->getMessage());

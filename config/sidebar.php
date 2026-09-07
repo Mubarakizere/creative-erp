@@ -23,6 +23,7 @@ return [
     'Materials' => [
         ['route' => 'admin.material-requests.index', 'label' => 'Requests', 'icon' => 'inbox', 'permission' => 'material_request.view', 'active' => 'admin.material-requests.*'],
         ['route' => 'admin.procurement.requisitions.index', 'label' => 'Requisitions', 'icon' => 'clipboard', 'permission' => 'purchase_requisition.view', 'model' => \App\Models\PurchaseRequisition::class, 'active' => 'admin.procurement.requisitions.*'],
+        ['route' => 'admin.procurement.rfqs.index', 'label' => 'RFQs & Quotes', 'icon' => 'document', 'active' => 'admin.procurement.rfqs.*'],
         ['route' => 'admin.procurement.pos.index', 'label' => 'Orders', 'icon' => 'cart', 'permission' => 'purchase_order.view', 'model' => \App\Models\PurchaseOrder::class, 'active' => 'admin.procurement.pos.*'],
         ['route' => 'admin.procurement.receipts.index', 'label' => 'Receipts', 'icon' => 'truck', 'permission' => 'goods_receipt.view', 'model' => \App\Models\GoodsReceipt::class, 'active' => 'admin.procurement.receipts.*'],
         ['route' => 'admin.procurement.suppliers.index', 'label' => 'Suppliers', 'icon' => 'building', 'permission' => 'supplier.view', 'model' => \App\Models\Supplier::class, 'active' => 'admin.procurement.suppliers.*'],

@@ -6,11 +6,9 @@
             <p class="mt-2 text-sm text-gray-700">A list of all materials issued to projects.</p>
         </div>
         <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-            @can('material_issue.create')
-            <a href="{{ route('admin.project-material-issues.create') }}" class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto">
-                Issue Material
+            <a href="{{ route('admin.material-requests.index') }}" class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto">
+                View Material Requests
             </a>
-            @endcan
         </div>
     </div>
     

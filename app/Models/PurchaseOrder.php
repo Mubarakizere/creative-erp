@@ -28,6 +28,7 @@ class PurchaseOrder extends Model
     public function quotation() { return $this->belongsTo(SupplierQuotation::class, 'supplier_quotation_id'); }
     public function items() { return $this->hasMany(PurchaseOrderItem::class); }
     public function goodsReceipts() { return $this->hasMany(GoodsReceipt::class); }
+    public function receipts() { return $this->hasMany(GoodsReceipt::class); }
     public function invoices() { return $this->hasMany(PurchaseInvoice::class); }
     public function project() { return $this->belongsTo(Project::class); }
     public function creator() { return $this->belongsTo(User::class, 'created_by'); }

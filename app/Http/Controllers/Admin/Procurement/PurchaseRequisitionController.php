@@ -13,14 +13,26 @@ class PurchaseRequisitionController extends Controller
         $this->authorize('viewAny', PurchaseRequisition::class);
         $companyId = session('company_id') ?? auth()->user()->company_id ?? 1;
 
-        $query = PurchaseRequisition::where('company_id', $companyId)->with(['requestedBy']);
+        $query = PurchaseRequisition::where('company_id', $companyId)
+            ->with(['requestedBy', 'project', 'department', 'items', 'quotations']);
         
         if ($request->filled('search')) {
             $query->where('code', 'like', "%{$request->search}%");
         }
 
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $stats = [
+            'total' => PurchaseRequisition::where('company_id', $companyId)->count(),
+            'pending' => PurchaseRequisition::where('company_id', $companyId)->where('status', 'submitted')->count(),
+            'approved' => PurchaseRequisition::where('company_id', $companyId)->where('status', 'approved')->count(),
+            'draft' => PurchaseRequisition::where('company_id', $companyId)->where('status', 'draft')->count(),
+        ];
+
         $requisitions = $query->latest()->paginate(15);
-        return view('admin.procurement.requisitions.index', compact('requisitions'));
+        return view('admin.procurement.requisitions.index', compact('requisitions', 'stats'));
     }
 
     public function create()
@@ -65,25 +77,78 @@ class PurchaseRequisitionController extends Controller
     public function show(PurchaseRequisition $requisition)
     {
         $this->authorize('view', $requisition);
-        $requisition->load(['items.product', 'requestedBy']);
+        $requisition->load(['items.product.unit', 'requestedBy', 'project', 'projectMaterialRequest', 'quotations.supplier', 'department']);
         return view('admin.procurement.requisitions.show', compact('requisition'));
     }
 
     public function approve(PurchaseRequisition $requisition)
     {
         $this->authorize('approve', $requisition);
-        
-        if ($requisition->requested_by === auth()->id()) {
+
+        // Allow Super Admin and CEO to approve any requisition
+        if ($requisition->requested_by === auth()->id() && !auth()->user()->hasRole('Super Admin') && !auth()->user()->hasRole('CEO')) {
             return back()->with('error', 'You cannot approve your own requisition.');
         }
 
         $requisition->update(['status' => 'approved']);
-        return back()->with('success', 'Requisition approved successfully.');
+
+        // Automatically generate RFQs / Supplier Quotations if none exist yet for this requisition
+        if (!$requisition->quotations()->exists()) {
+            $companyId = $requisition->company_id ?? session('company_id') ?? auth()->user()->company_id ?? 1;
+            $suppliers = \App\Models\Supplier::where('company_id', $companyId)->get();
+
+            if ($suppliers->isEmpty()) {
+                $supplier = \App\Models\Supplier::firstOrCreate(
+                    ['company_id' => $companyId, 'name' => 'General Supplier'],
+                    ['code' => 'SUP-001', 'email' => 'supplier@example.com']
+                );
+                $suppliers = collect([$supplier]);
+            }
+
+            foreach ($suppliers as $supplier) {
+                try {
+                    $code = app(\App\Services\SequenceService::class)->generate('quotation', $companyId);
+                } catch (\Throwable $t) {
+                    $code = 'RFQ-' . date('Y') . '-' . str_pad($requisition->id . $supplier->id, 6, '0', STR_PAD_LEFT);
+                }
+
+                $rfq = \App\Models\SupplierQuotation::create([
+                    'company_id' => $companyId,
+                    'code' => $code,
+                    'supplier_id' => $supplier->id,
+                    'purchase_requisition_id' => $requisition->id,
+                    'issue_date' => now(),
+                    'valid_until' => now()->addDays(14),
+                    'created_by' => auth()->id(),
+                    'status' => 'draft',
+                ]);
+
+                foreach ($requisition->items as $item) {
+                    $rfq->items()->create([
+                        'product_id' => $item->product_id,
+                        'quantity' => $item->quantity,
+                        'unit_price' => 0,
+                        'discount' => 0,
+                        'tax' => 0,
+                        'total' => 0,
+                    ]);
+                }
+            }
+        }
+
+        return redirect()->route('admin.procurement.rfqs.index')->with('success', 'Requisition approved successfully and Request for Quotation (RFQ) generated.');
     }
 
     public function compare(PurchaseRequisition $requisition)
     {
-        $requisition->load(['quotations.supplier', 'quotations.items.product']);
+        $requisition->load([
+            'quotations.supplier',
+            'quotations.items.product.unit',
+            'items.product.unit',
+            'requestedBy',
+            'project',
+            'department'
+        ]);
         return view('admin.procurement.requisitions.compare', compact('requisition'));
     }
 

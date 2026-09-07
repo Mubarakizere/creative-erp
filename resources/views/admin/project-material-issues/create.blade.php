@@ -19,6 +19,20 @@
         </div>
     </div>
 
+    @if(isset($materialRequest) && $materialRequest)
+        <div class="rounded-xl bg-blue-50 p-4 mb-6 border border-blue-200 shadow-xs">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-blue-100 rounded-lg text-blue-700 flex-shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <div>
+                    <h4 class="text-sm font-semibold text-blue-900">Fulfilling Approved Material Request #{{ $materialRequest->request_number }}</h4>
+                    <p class="text-xs text-blue-700 mt-0.5">Requested by {{ $materialRequest->requestedBy->name ?? 'Staff' }} for project <strong>{{ $materialRequest->project->name }}</strong>. Requested items and quantities have been loaded below.</p>
+                </div>
+            </div>
+        </div>
+    @endif
+
     @if ($errors->any())
         <div class="rounded-xl bg-red-50 p-4 mb-6 border border-red-100">
             <div class="flex">
@@ -38,6 +52,10 @@
 
     <form action="{{ route('admin.project-material-issues.store') }}" method="POST" x-data="materialIssueForm()">
         @csrf
+        @if(isset($materialRequest) && $materialRequest)
+            <input type="hidden" name="project_material_request_id" value="{{ $materialRequest->id }}">
+        @endif
+
         <x-card class="mb-6">
             <x-slot:header>
                 <h3 class="text-lg font-medium text-gray-900">Issue Details</h3>
@@ -46,10 +64,10 @@
             
             <div class="grid grid-cols-1 gap-y-6 gap-x-6 sm:grid-cols-2 lg:grid-cols-3">
                 <div class="sm:col-span-1 lg:col-span-2">
-                    <x-select name="project_id" label="Project" required x-on:change="window.location.search = '?project_id=' + $event.target.value + '&warehouse_id=' + (new URLSearchParams(window.location.search).get('warehouse_id') || '')">
+                    <x-select name="project_id" label="Project" required x-on:change="let p = new URLSearchParams(window.location.search); p.set('project_id', $event.target.value); window.location.search = p.toString();">
                         <option value="">Select Project</option>
                         @foreach($projects as $project)
-                            <option value="{{ $project->id }}" {{ request('project_id', old('project_id')) == $project->id ? 'selected' : '' }}>{{ $project->name }} ({{ $project->project_code }})</option>
+                            <option value="{{ $project->id }}" {{ request('project_id', old('project_id', $materialRequest->project_id ?? '')) == $project->id ? 'selected' : '' }}>{{ $project->name }} ({{ $project->project_code }})</option>
                         @endforeach
                     </x-select>
                 </div>
@@ -64,7 +82,7 @@
                 </div>
 
                 <div class="sm:col-span-1 lg:col-span-2">
-                    <x-select name="warehouse_id" label="Warehouse" required x-on:change="window.location.search = '?warehouse_id=' + $event.target.value + '&project_id=' + (new URLSearchParams(window.location.search).get('project_id') || '')">
+                    <x-select name="warehouse_id" label="Warehouse" required x-on:change="let p = new URLSearchParams(window.location.search); p.set('warehouse_id', $event.target.value); window.location.search = p.toString();">
                         <option value="">Select Warehouse (Reloads items)</option>
                         @foreach($warehouses as $warehouse)
                             <option value="{{ $warehouse->id }}" {{ request('warehouse_id') == $warehouse->id ? 'selected' : '' }}>{{ $warehouse->name }}</option>
@@ -184,7 +202,13 @@
                     <div class="relative w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden" @click.stop>
                         {{-- Header --}}
                         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-                            <div class="text-lg font-bold text-gray-900">Confirm Material Issue</div>
+                            <div class="text-lg font-bold text-gray-900">
+                                @if(isset($materialRequest) && $materialRequest)
+                                    Confirm Issue (Request #{{ $materialRequest->request_number }})
+                                @else
+                                    Confirm Material Issue
+                                @endif
+                            </div>
                             <button @click="open = false" type="button" class="text-gray-400 hover:text-gray-600 transition-colors">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -201,8 +225,13 @@
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 class="text-sm font-semibold text-gray-900 mb-1">Are you sure you want to issue this material?</h3>
-                                    <p class="text-sm text-gray-500">This action will deduct stock from the selected warehouse and add the material cost to the project. This cannot be undone.</p>
+                                    @if(isset($materialRequest) && $materialRequest)
+                                        <h3 class="text-sm font-semibold text-gray-900 mb-1">Confirm Issue for Request #{{ $materialRequest->request_number }}</h3>
+                                        <p class="text-sm text-gray-500">This action will fulfill Material Request <strong>#{{ $materialRequest->request_number }}</strong>, deduct inventory from the selected warehouse, and assign material cost to the project. This cannot be undone.</p>
+                                    @else
+                                        <h3 class="text-sm font-semibold text-gray-900 mb-1">Are you sure you want to issue this material?</h3>
+                                        <p class="text-sm text-gray-500">This action will deduct stock from the selected warehouse and add the material cost to the project. This cannot be undone.</p>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -227,7 +256,15 @@
     <script>
         function materialIssueForm() {
             return {
-                items: [{ product_id: '{{ $initialProductId }}', quantity: 1 }],
+                items: [
+                    @if(isset($requestItems) && $requestItems->count() > 0)
+                        @foreach($requestItems as $item)
+                            { product_id: '{{ $item->product_id }}', quantity: {{ $item->quantity_requested }} },
+                        @endforeach
+                    @else
+                        { product_id: '{{ $initialProductId }}', quantity: 1 }
+                    @endif
+                ],
                 productStock: @json($productStockMap),
                 addItem() {
                     this.items.push({ product_id: '', quantity: 1 });

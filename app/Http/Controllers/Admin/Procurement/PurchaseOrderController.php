@@ -10,10 +10,36 @@ class PurchaseOrderController extends Controller
     public function index(Request $request)
     {
         $companyId = session('company_id') ?? auth()->user()->company_id ?? 1;
-        $query = PurchaseOrder::where('company_id', $companyId)->with(['supplier']);
-        
-        $pos = $query->latest()->paginate(15);
-        return view('admin.procurement.pos.index', compact('pos'));
+        $query = PurchaseOrder::where('company_id', $companyId)->with(['supplier', 'items']);
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->where('code', 'like', "%{$search}%")
+                  ->orWhereHas('supplier', function($sq) use ($search) {
+                      $sq->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
+        $pos = $query->latest()->paginate(15)->withQueryString();
+
+        $allPos = PurchaseOrder::where('company_id', $companyId)->with('items')->get();
+        $stats = [
+            'total' => $allPos->count(),
+            'draft' => $allPos->where('status', 'draft')->count(),
+            'approved' => $allPos->whereIn('status', ['approved', 'sent'])->count(),
+            'received' => $allPos->whereIn('status', ['partially_received', 'received'])->count(),
+            'total_value' => $allPos->sum(function($po) {
+                return $po->grand_total > 0 ? $po->grand_total : $po->items->sum('total');
+            }),
+        ];
+
+        return view('admin.procurement.pos.index', compact('pos', 'stats'));
     }
 
     public function create()
@@ -44,7 +70,7 @@ class PurchaseOrderController extends Controller
             'code' => $validated['code'],
             'supplier_id' => $validated['supplier_id'],
             'order_date' => $validated['order_date'],
-            'status' => $validated['status'], // Will be overridden to draft by service if it forces it, but we can pass it
+            'status' => $validated['status'],
         ];
         
         $items = $validated['items'];
@@ -52,10 +78,8 @@ class PurchaseOrderController extends Controller
             $item['total'] = $item['quantity'] * $item['unit_price'];
         }
 
-        // The service forces status='draft', so we will bypass service or modify data after creation
         $po = $service->create($data, $items);
 
-        // Update status if it's different from draft (since service forces draft)
         if ($validated['status'] !== 'draft') {
             $po->update(['status' => $validated['status']]);
         }
@@ -65,14 +89,19 @@ class PurchaseOrderController extends Controller
 
     public function show(PurchaseOrder $po)
     {
-        $po->load(['supplier', 'items.product', 'receipts']);
+        $po->load(['supplier', 'items.product', 'goodsReceipts', 'receipts']);
         return view('admin.procurement.pos.show', compact('po'));
     }
 
     public function approve(PurchaseOrder $po)
     {
-        // Typically involves PurchaseOrderService, but for simplicity here we just update status
         $po->update(['status' => 'approved']);
         return back()->with('success', 'Purchase Order approved successfully.');
+    }
+
+    public function destroy(PurchaseOrder $po)
+    {
+        $po->delete();
+        return redirect()->route('admin.procurement.pos.index')->with('success', 'Purchase Order deleted successfully.');
     }
 }

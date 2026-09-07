@@ -3,6 +3,7 @@
 namespace App\Services\Project;
 
 use App\Models\ProjectMaterialIssue;
+use App\Models\ProjectMaterialRequest;
 use App\Models\Project;
 use App\Models\Warehouse;
 use App\Models\Product;
@@ -38,6 +39,16 @@ class ProjectMaterialIssueService
             $data['issued_by'] = auth()->id();
             $data['created_by'] = auth()->id();
             
+            // Require valid Approved Material Request
+            if (empty($data['project_material_request_id'])) {
+                throw new Exception('Material issues must be created from an approved Material Request.');
+            }
+
+            $materialRequest = ProjectMaterialRequest::where('id', $data['project_material_request_id'])
+                ->where('company_id', $data['company_id'])
+                ->where('status', 'Approved')
+                ->firstOrFail();
+
             // Check Project authorization
             $project = Project::where('id', $data['project_id'])
                               ->where('company_id', $data['company_id'])
@@ -49,6 +60,7 @@ class ProjectMaterialIssueService
                                   ->firstOrFail();
 
             $data['issue_number'] = app(\App\Services\SequenceService::class)->generate('project_material_issue', $data['company_id']);
+            $data['status'] = 'Issued';
 
             $issue = ProjectMaterialIssue::create($data);
             
@@ -104,6 +116,14 @@ class ProjectMaterialIssueService
                 }
             }
 
+            // Update Material Request status to 'Issued'
+            if ($materialRequest) {
+                $materialRequest->update([
+                    'status' => 'Issued',
+                    'updated_by' => auth()->id(),
+                ]);
+            }
+
             // Accounting Entry
             if ($totalIssueCost > 0) {
                 // Determine accounts - falling back to defaults if not found.
@@ -142,6 +162,7 @@ class ProjectMaterialIssueService
             $this->logActivity('project_material_issued', [
                 'issue_id' => $issue->id,
                 'project_id' => $project->id,
+                'material_request_id' => $materialRequest?->id,
                 'total_cost' => $totalIssueCost,
             ]);
 

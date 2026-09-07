@@ -198,8 +198,8 @@ class ProjectMaterialRequestService
      */
     public function convertToPurchaseRequisition(ProjectMaterialRequest $request): PurchaseRequisition
     {
-        if ($request->status !== 'Approved') {
-            throw new \Exception('Only approved requests can be converted.');
+        if (in_array($request->status, ['Cancelled', 'Rejected'])) {
+            throw new \Exception('Cancelled or Rejected requests cannot be converted to a Purchase Requisition.');
         }
 
         if ($request->purchaseRequisition()->exists()) {
@@ -207,33 +207,43 @@ class ProjectMaterialRequestService
         }
 
         return DB::transaction(function () use ($request) {
-            $year = Carbon::now()->format('Y');
-            $prefix = "PR-{$year}-";
-
-            $lastPr = PurchaseRequisition::where('company_id', $request->company_id)
-                ->where('code', 'like', "{$prefix}%")
-                ->orderBy('code', 'desc')
-                ->first();
-
-            $nextNumber = '000001';
-            if ($lastPr) {
-                $lastNumber = (int) str_replace($prefix, '', $lastPr->code);
-                $nextNumber = str_pad($lastNumber + 1, 6, '0', STR_PAD_LEFT);
+            if ($request->status !== 'Approved') {
+                $request->update(['status' => 'Approved']);
             }
-            $code = $prefix . $nextNumber;
+            $companyId = $request->company_id ?? session('company_id') ?? auth()->user()->company_id ?? 1;
+
+            try {
+                $code = app(\App\Services\SequenceService::class)->generate('purchase_requisition', $companyId);
+            } catch (\Throwable $t) {
+                $year = Carbon::now()->format('Y');
+                $prefix = "PR-{$year}-";
+                $lastPr = PurchaseRequisition::where('company_id', $companyId)
+                    ->where('code', 'like', "{$prefix}%")
+                    ->orderBy('code', 'desc')
+                    ->first();
+
+                $nextNumber = '000001';
+                if ($lastPr) {
+                    $lastNumber = (int) str_replace($prefix, '', $lastPr->code);
+                    $nextNumber = str_pad($lastNumber + 1, 6, '0', STR_PAD_LEFT);
+                }
+                $code = $prefix . $nextNumber;
+            }
+
+            $userId = auth()->id() ?? $request->requested_by ?? 1;
 
             $pr = PurchaseRequisition::create([
-                'company_id' => $request->company_id,
+                'company_id' => $companyId,
                 'project_id' => $request->project_id,
                 'project_material_request_id' => $request->id,
                 'code' => $code,
-                'status' => 'draft',
-                'priority' => strtolower($request->priority),
+                'status' => 'submitted',
+                'priority' => strtolower($request->priority ?? 'normal'),
                 'required_date' => $request->required_date,
-                'requested_by' => $request->requested_by,
+                'requested_by' => $request->requested_by ?? $userId,
                 'notes' => $request->notes,
-                'created_by' => auth()->id() ?? clone $request->requested_by,
-                'updated_by' => auth()->id() ?? clone $request->requested_by,
+                'created_by' => $userId,
+                'updated_by' => $userId,
             ]);
 
             foreach ($request->items as $item) {

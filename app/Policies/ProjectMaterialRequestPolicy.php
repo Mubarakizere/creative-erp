@@ -152,7 +152,7 @@ class ProjectMaterialRequestPolicy
             return false;
         }
 
-        if ($request->status !== 'Approved') {
+        if (in_array($request->status, ['Cancelled', 'Rejected'])) {
             return false;
         }
 

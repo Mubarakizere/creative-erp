@@ -7,6 +7,7 @@ use App\Models\Project;
 use App\Models\Warehouse;
 use App\Models\Product;
 use App\Models\ProjectMaterialIssue;
+use App\Models\ProjectMaterialRequest;
 use App\Models\Task;
 use App\Http\Requests\Admin\StoreProjectMaterialIssueRequest;
 use App\Services\Project\ProjectMaterialIssueService;
@@ -88,7 +89,29 @@ class ProjectMaterialIssueController extends Controller
         $today = Carbon::today()->format('Y-m-d');
         $initialProductId = $request->input('product_id', '');
 
-        return view('admin.project-material-issues.create', compact('projects', 'warehouses', 'products', 'tasks', 'issueNumber', 'today', 'productStockMap', 'initialProductId'));
+        if (!$request->filled('material_request_id')) {
+            return redirect()->route('admin.material-requests.index')
+                ->with('error', 'Direct material issuance is disabled. Please create and approve a Material Request first, then issue material from the approved request.');
+        }
+
+        $materialRequest = ProjectMaterialRequest::with('items.product')
+            ->where('status', 'Approved')
+            ->find($request->material_request_id);
+
+        if (!$materialRequest) {
+            return redirect()->route('admin.material-requests.index')
+                ->with('error', 'The specified Material Request was not found or has not been approved yet.');
+        }
+
+        $requestItems = $materialRequest->items;
+        if (!$request->filled('project_id')) {
+            $tasks = Task::where('project_id', $materialRequest->project_id)->get();
+        }
+
+        return view('admin.project-material-issues.create', compact(
+            'projects', 'warehouses', 'products', 'tasks', 'issueNumber', 
+            'today', 'productStockMap', 'initialProductId', 'materialRequest', 'requestItems'
+        ));
     }
 
 
@@ -97,6 +120,17 @@ class ProjectMaterialIssueController extends Controller
         $this->authorize('create', ProjectMaterialIssue::class);
 
         try {
+            // Validate material request if provided
+            if ($request->filled('project_material_request_id')) {
+                $materialRequest = ProjectMaterialRequest::where('id', $request->project_material_request_id)
+                    ->where('status', 'Approved')
+                    ->first();
+                    
+                if (!$materialRequest) {
+                    throw new Exception('Material request must be in Approved status before issuing materials.');
+                }
+            }
+
             // First we need to check stock explicitly
             $warehouseId = $request->warehouse_id;
             foreach ($request->items as $item) {
@@ -131,7 +165,7 @@ class ProjectMaterialIssueController extends Controller
     {
         $this->authorize('view', $projectMaterialIssue);
 
-        $projectMaterialIssue->load(['project', 'warehouse', 'issuer', 'items.product', 'items.materialRequestItem']);
+        $projectMaterialIssue->load(['project', 'warehouse', 'issuer', 'items.product', 'items.materialRequestItem', 'materialRequest']);
         
         return view('admin.project-material-issues.show', compact('projectMaterialIssue'));
     }

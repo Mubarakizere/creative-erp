@@ -477,6 +477,7 @@ class RolesAndPermissionsSeeder extends Seeder
                   ->orWhere('name', 'like', 'project_task.%')
                   ->orWhere('name', 'like', 'milestone.%')
                   ->orWhere('name', 'like', 'material_request.%')
+                  ->orWhere('name', 'like', 'material_issue.%')
                   ->orWhere('name', 'like', 'report.%')
                   ->orWhere('name', 'like', 'document.%')
                   ->orWhere('name', 'like', 'dashboard.%');
@@ -513,6 +514,8 @@ class RolesAndPermissionsSeeder extends Seeder
                 'material_request.create',
                 'material_request.view',
                 'material_request.submit',
+                'material_issue.view',
+                'material_issue.create',
                 'meeting.view',
                 'milestone.view',
                 'notification.announcement',
@@ -541,6 +544,8 @@ class RolesAndPermissionsSeeder extends Seeder
                 'material_request.create',
                 'material_request.view',
                 'material_request.submit',
+                'material_issue.view',
+                'material_issue.create',
                 'meeting.view',
                 'milestone.view',
                 'notification.announcement',
