@@ -17,12 +17,30 @@ class SupplierController extends Controller
         $query = Supplier::where('company_id', $companyId)->with(['category', 'paymentTerm']);
         
         if ($request->filled('search')) {
-            $query->where('name', 'like', "%{$request->search}%")
-                  ->orWhere('code', 'like', "%{$request->search}%");
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('code', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%");
+            });
         }
 
-        $suppliers = $query->latest()->paginate(15);
-        return view('admin.procurement.suppliers.index', compact('suppliers'));
+        if ($request->has('preferred') && $request->input('preferred') !== '') {
+            $query->where('is_preferred', $request->boolean('preferred'));
+        }
+
+        $suppliers = $query->latest()->paginate(15)->withQueryString();
+
+        $allSuppliers = Supplier::where('company_id', $companyId)->get();
+        $stats = [
+            'total' => $allSuppliers->count(),
+            'preferred' => $allSuppliers->where('is_preferred', true)->count(),
+            'standard' => $allSuppliers->where('is_preferred', false)->count(),
+            'categories' => SupplierCategory::where('company_id', $companyId)->count(),
+        ];
+
+        return view('admin.procurement.suppliers.index', compact('suppliers', 'stats'));
     }
 
     public function create()
@@ -83,5 +101,13 @@ class SupplierController extends Controller
         $supplier->update($validated);
 
         return redirect()->route('admin.procurement.suppliers.index')->with('success', 'Supplier updated successfully.');
+    }
+
+    public function destroy(Supplier $supplier)
+    {
+        $this->authorize('delete', $supplier);
+        $supplier->delete();
+
+        return redirect()->route('admin.procurement.suppliers.index')->with('success', 'Supplier deleted successfully.');
     }
 }

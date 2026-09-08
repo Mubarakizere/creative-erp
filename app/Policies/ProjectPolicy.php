@@ -34,11 +34,14 @@ class ProjectPolicy
 
     public function delete(User $user, Project $project): bool
     {
-        if ($project->status === 'Closed') {
-            return false;
+        if ($user->hasRole('Super Admin') || $user->hasRole('CEO')) {
+            return true;
         }
 
-        return $project->hasPermissionForUser($user, 'project.delete') || $project->hasPermissionForUser($user, 'project.archive');
+        return $user->hasPermissionTo('project.delete') 
+            || $user->hasPermissionTo('project.archive')
+            || $project->hasPermissionForUser($user, 'project.delete') 
+            || $project->hasPermissionForUser($user, 'project.archive');
     }
 
     public function restore(User $user, Project $project): bool

@@ -38,7 +38,17 @@ class ProjectController extends Controller
         $branches = Branch::where('status', 'active')->orderBy('name')->get();
         $clients = Client::where('status', 'active')->orderBy('display_name')->get();
 
-        return view('admin.projects.index', compact('projects', 'companies', 'branches', 'clients'));
+        $user = auth()->user();
+        $baseQuery = Project::query()->accessibleBy($user);
+        $stats = [
+            'total' => (clone $baseQuery)->count(),
+            'in_progress' => (clone $baseQuery)->where('status', 'In Progress')->count(),
+            'planning_pending' => (clone $baseQuery)->whereIn('status', ['Planning', 'Pending'])->count(),
+            'completed_closed' => (clone $baseQuery)->whereIn('status', ['Completed', 'Closed'])->count(),
+            'on_hold' => (clone $baseQuery)->where('status', 'On Hold')->count(),
+        ];
+
+        return view('admin.projects.index', compact('projects', 'companies', 'branches', 'clients', 'stats'));
     }
 
     /**
@@ -334,5 +344,38 @@ class ProjectController extends Controller
         $events = $events->sortByDesc('date');
 
         return view('admin.projects.timeline', compact('project', 'events'));
+    }
+
+    /**
+     * Quick update project status.
+     */
+    public function updateStatus(Request $request, Project $project): RedirectResponse
+    {
+        Gate::authorize('update', $project);
+
+        $validated = $request->validate([
+            'status' => 'required|string|in:Planning,Pending,In Progress,On Hold,Completed,Cancelled,Closed',
+        ]);
+
+        $newStatus = $validated['status'];
+        $updateData = [
+            'status' => $newStatus,
+            'updated_by' => auth()->id(),
+        ];
+
+        if ($newStatus === 'Closed' || $newStatus === 'Completed') {
+            if (!$project->actual_end_date) {
+                $updateData['actual_end_date'] = now();
+            }
+            if ($newStatus === 'Closed') {
+                $updateData['progress'] = 100;
+            }
+        } elseif ($newStatus === 'In Progress' && $project->status === 'Closed') {
+            $updateData['actual_end_date'] = null;
+        }
+
+        $project->update($updateData);
+
+        return redirect()->back()->with('success', "Project status updated to '{$newStatus}' successfully.");
     }
 }
