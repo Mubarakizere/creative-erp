@@ -1,320 +1,121 @@
-# Creative ERP
+# Creative ERP Development Rules & Standards
 
-Version: 1.0
-
----
-
-# PROJECT RULES
-
-This document defines the development standards of the Creative ERP project.
-
-Every future implementation MUST follow these rules.
+**Version**: 1.1  
+**Status**: Active  
+**Master Standard**: Yes  
 
 ---
 
-# Vision
+# 1. Project Overview & Architecture Vision
 
-Creative ERP is a modern Enterprise Resource Planning platform built for engineering, construction, and contracting companies.
+Creative ERP is a modular, scalable, multi-company Enterprise Resource Planning (ERP) solution designed for contracting, civil engineering, architecture, and project-based enterprises.
 
-The platform must be modular, scalable, secure and ready for SaaS deployment.
-
-It should be able to serve:
-
-- Small Companies
-- Medium Companies
-- Large Enterprises
-
-without changing the architecture.
+The platform must adhere to the following architecture principles:
+- **Modular Architecture**: Features are grouped logically into domain modules (Projects, Inventory, Procurement, Accounting, Assets, CRM, CMS).
+- **Multi-Tenant Isolation**: Every tenant entity operates under complete company isolation enforced by the `CompanyScoped` model trait.
+- **Service-Driven Business Logic**: Controllers MUST NOT contain raw database transactions or complex calculations. All domain logic is encapsulated inside dedicated Service classes (`App\Services\...`).
+- **REST & Web Coexistence**: Domain logic in services is consumed by both Blade Web Controllers and REST API Controllers.
 
 ---
 
-# Core Principles
+# 2. Technology Stack
 
-The system must be
+### Backend
+- **Framework**: Laravel 12.x
+- **Language**: PHP 8.4+
+- **Database**: MySQL 8.0+
+- **API Authentication**: Laravel Sanctum
+- **Authorization**: Spatie Laravel Permission + Native Laravel Policies
 
-- Modular
-- Maintainable
-- Secure
-- Scalable
-- Fast
-- Mobile Ready
-- API First
-- Multi Company
-- Multi Language
-- Multi Currency Ready
-
----
-
-# Technology Stack
-
-Backend
-
-Laravel 12
-
-PHP 8.4+
-
-Database
-
-MySQL 8
-
-Frontend
-
-Blade
-
-Tailwind CSS
-
-Alpine.js
-
-Chart.js
-
-Axios
-
-Build Tool
-
-Vite
-
-Authentication
-
-Laravel Authentication
-
-Role Based Access Control
-
-REST API
-
-Laravel API
-
-Notification System
-
-Email
-
-SMS (Future)
-
-WhatsApp (Future)
-
-Push Notifications (Future)
+### Frontend
+- **Templating**: Laravel Blade
+- **Styling**: Tailwind CSS
+- **Interactivity**: Alpine.js
+- **Charts & Dashboards**: Chart.js
+- **HTTP Client**: Axios
+- **Asset Bundler**: Vite 6.x
 
 ---
 
-# Coding Standards
+# 3. Coding Standards & Best Practices
 
-Follow PSR-12.
-
-Never duplicate code.
-
-Use Service Classes.
-
-Use Repository Pattern when necessary.
-
-Use Form Requests.
-
-Keep Controllers small.
-
-Move business logic into Services.
-
-Use Policies for authorization.
-
-Use Events whenever appropriate.
-
-Use Queues for heavy jobs.
-
-Never place business logic inside Blade.
+1. **PSR-12**: All PHP code must adhere strictly to PSR-12 code style guidelines.
+2. **Controller Scoping**:
+   - Web Controllers live in `App\Http\Controllers\Admin\...` or domain namespaces.
+   - API Controllers live in `App\Http\Controllers\API\...`.
+   - Controllers must remain lightweight, delegating to Form Requests for input validation and Services for execution.
+3. **Form Requests**: All mutating actions (`store`, `update`) MUST use dedicated Form Request classes (`App\Http\Requests\...`).
+4. **Policies & Authorization**:
+   - Controllers must authorize actions via Policies (`$this->authorize('update', $model)`) or middleware (`middleware('can:permission_name')`).
+   - Project-level authorization must utilize `Project::hasPermissionForUser($user, $permission)` to support project role overrides.
+5. **Database Transactions**: Any operation mutating multiple models (e.g. Goods Receipt creating stock & GL entries, or Material Issue decreasing inventory) MUST be wrapped inside `DB::transaction()`.
 
 ---
 
-# Database Standards
+# 4. Database & Model Conventions
 
-Every table should have
-
-id
-
-created_at
-
-updated_at
-
-deleted_at (where appropriate)
-
-created_by
-
-updated_by
-
-company_id (where applicable)
-
-Use Foreign Keys.
-
-Never store duplicate information.
-
-Normalize data whenever possible.
+1. **Required Columns**: Every primary domain model MUST include:
+   - `id` (BigIncrements / Primary Key)
+   - `uuid` (UUID string indexed for external API reference)
+   - `company_id` (Foreign Key to `companies`, nullable for global entities)
+   - `created_by` & `updated_by` (Foreign Key to `users`)
+   - `created_at` & `updated_at` (Timestamps)
+   - `deleted_at` (SoftDeletes where appropriate)
+2. **Model Traits**:
+   - `CompanyScoped`: Automatically scope Eloquent queries to the current authenticated user's `company_id`.
+   - `HasUuidColumn`: Automatically populate UUID fields during model creation.
+   - `LogsActivity`: Automatically record audit logs for creation, updates, and deletion.
+3. **Foreign Keys & Constraints**: All foreign keys must enforce explicit ON DELETE / ON UPDATE actions (e.g. `cascadeOnDelete()`, `restrictOnDelete()`).
 
 ---
 
-# UI Standards
+# 5. Domain Module Standards
 
-The UI must be
+### A. Material Requests & Issuances Workflow
+- Material requests are submitted by site engineers or project managers.
+- Material Issuances (`ProjectMaterialIssue`) draw inventory from a designated `Warehouse` for a `Project` / `Task`.
+- **Validation**: Material issues MUST verify that available warehouse stock is greater than or equal to the requested quantity.
+- **Stock Movement**: Material issuance MUST emit a `WarehouseMovement` record of type `Issue` and update `Inventory` stock levels.
 
-Professional
+### B. Project Expenses & Labor/Salary Tracking
+- Expenses linked to projects (`ProjectExpense`) must define category types (`Worker Salary`, `Labor`, `Payroll`, `Equipment`, `Materials`, `Subcontractor`, etc.).
+- `ProjectExpense::scopeLabor()` and `ProjectExpense::scopeDirectExpenses()` MUST be used for reporting rollup distinctions.
+- Expenses update the `actual_cost` of the parent `Project`.
 
-Minimal
+### C. Procurement & Goods Receipts (GRN)
+- Requisitions -> RFQs -> Supplier Quotations -> Purchase Orders -> Goods Receipts -> Purchase Invoices -> Supplier Payments.
+- Goods Receipts MUST update warehouse stock levels and create corresponding `InventoryTransaction` records.
+- 3-Way Matching MUST be enforced before approving Purchase Invoices.
 
-Responsive
+### D. Financial Accounting Engine
+- General Ledger (`GeneralLedger`) uses double-entry accounting where Total Debits equal Total Credits.
+- Closed `AccountingPeriod` records prevent any backdated journal entries or automated posting.
+- Automatic posting triggers exist for:
+  - Goods Receipt -> Inventory Debit / Accounts Payable Credit
+  - Customer Invoice -> Accounts Receivable Debit / Revenue Credit
+  - Customer Payment -> Cash/Bank Debit / Accounts Receivable Credit
+  - Asset Depreciation -> Depreciation Expense Debit / Accumulated Depreciation Credit
 
-Fast
-
-Modern
-
-Accessible
-
-Dashboard inspired by enterprise software.
-
-Use reusable components.
-
-Support Dark Mode in the future.
-
----
-
-# Permission Rules
-
-Permissions must not be hardcoded.
-
-Everything should be configurable.
-
-Roles can be created later.
-
-Permissions can be assigned later.
-
-Users can have multiple roles.
+### E. Fixed Assets Lifecycle
+- Assets MUST be registered under an `AssetCategory` defining depreciation method (Straight Line, Declining Balance) and useful life.
+- Asset transfers, disposals, and maintenance MUST be logged with approval status.
+- Automated monthly depreciation jobs generate `AssetDepreciation` records and post corresponding GL journals.
 
 ---
 
-# Multi Company
+# 6. User Interface & Frontend Rules
 
-Every company must only access its own data.
-
-No company should access another company's information.
-
-The architecture should support SaaS in the future.
-
----
-
-# API
-
-Every major module must expose REST APIs.
-
-The mobile application should consume the same APIs.
+1. **Design System**: Use responsive, modern, dark-mode ready components.
+2. **Feedback & Alerts**: All form submissions must present clear success or error alerts via session flash messages or inline Alpine.js notifications.
+3. **Data Grids**: Index pages MUST provide:
+   - Search bar with instant filtering.
+   - Status filters & date pickers.
+   - Pagination controls.
+   - Export buttons (PDF, Excel, CSV).
+4. **No Business Logic in Blade**: Blade views must only present data passed from controllers or view composers.
 
 ---
 
-# Notifications
+# 7. Documentation Rule
 
-Free
-
-Email
-
-In-App
-
-Premium
-
-SMS
-
-WhatsApp
-
-Push Notifications
-
-Premium services should remain disabled until configured.
-
----
-
-# File Management
-
-Support
-
-Documents
-
-Images
-
-Videos
-
-Drawings
-
-BOQs
-
-Contracts
-
-Invoices
-
-Certificates
-
-Version control must exist.
-
-Every uploaded document should keep its history.
-
----
-
-# Audit Logs
-
-Every important action should be logged.
-
-Examples
-
-Login
-
-Logout
-
-Delete
-
-Update
-
-Approval
-
-Assignment
-
-Permission changes
-
-Document uploads
-
-Budget updates
-
----
-
-# Security
-
-Use Policies.
-
-Validate every request.
-
-Prevent SQL Injection.
-
-Prevent XSS.
-
-Prevent CSRF.
-
-Sanitize inputs.
-
-Encrypt sensitive information.
-
-Passwords must never be stored in plain text.
-
----
-
-# Performance
-
-Cache where necessary.
-
-Queue heavy jobs.
-
-Lazy load relationships.
-
-Avoid N+1 queries.
-
-Optimize database indexes.
-
----
-
-# Documentation
-
-Every completed module must update documentation.
-
-Every future AI prompt must read this document before implementation.
-
-This file is the master development standard.
-
-Never violate these rules unless explicitly approved.
+Every newly added feature, route, or model MUST update the repository documentation files (`README.md`, `docs/05_MODULES_GUIDE.md`, `docs/06_API_REFERENCE.md`) before merging or releasing.

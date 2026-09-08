@@ -1,481 +1,101 @@
-# Creative ERP
+# Creative ERP Authentication & Authorization Architecture
 
-# Module 03
-
-# Authentication
-
-Status: Approved
+**Version**: 1.1  
+**Document**: 03_AUTHENTICATION  
+**Status**: Approved & Updated  
 
 ---
 
-# Purpose
+# 1. Executive Summary
 
-The Authentication module is responsible for securing access to the ERP.
-
-Every user must authenticate before accessing any protected resource.
-
-The authentication system must support enterprise-level security while remaining easy to extend.
+Creative ERP enforces a dual-layered security architecture:
+1. **Authentication Layer**: Verifies user identity for web sessions (Blade UI) and stateless tokens (REST API).
+2. **Authorization & Access Control Layer**: Enforces dynamic Role-Based Access Control (RBAC) via Spatie Laravel Permission, project-specific role overrides, and multi-tenant company isolation.
 
 ---
 
-# Objectives
+# 2. Authentication Mechanisms
 
-- Secure login
-- Secure logout
-- Password reset
-- Remember me
-- Session management
-- User status
-- Multi-company support
-- Future 2FA support
-- Future SSO support
-- API Authentication
+## A. Web Authentication (Blade UI)
+- **Guard**: Standard Web Session Guard (`auth`).
+- **Middleware Chain**: `auth` $\rightarrow$ `check.status` $\rightarrow$ `track.activity` $\rightarrow$ `ensure.role`.
+- **Features**:
+  - Email & Password authentication.
+  - User Status Enforcement (`Active`, `Inactive`, `Suspended`, `Locked`, `Pending Verification`). Only `Active` users can access protected admin routes.
+  - Password Reset via email signed tokens.
+  - Password Change with current password validation.
+  - Remember Me persistent cookie support.
+  - Login History logging (`LoginHistory` model capturing IP, User Agent, and timestamp).
 
----
-
-# Features
-
-## Login
-
-Users log in using
-
-- Email
-- Password
-
-Future
-
-- Username
-- Phone Number
+## B. REST API Authentication (Sanctum)
+- **Guard**: Laravel Sanctum (`auth:sanctum`).
+- **Token Type**: Bearer Tokens issued via `/api/login`.
+- **Endpoints**:
+  - `POST /api/login`: Authenticates credentials and returns Sanctum Bearer Token.
+  - `POST /api/logout`: Revokes current API token.
+  - `GET /api/me`: Returns authenticated user profile, assigned company, and roles.
 
 ---
 
-## Logout
+# 3. Dynamic Authorization & RBAC System
 
-Destroy session
+Creative ERP utilizes Spatie Laravel Permission for global role and permission management, supplemented by custom project-level role evaluations.
 
-Invalidate CSRF Token
-
-Redirect to Login
-
----
-
-## Forgot Password
-
-Email reset link
-
-Secure Token
-
-Expiration
-
-Single use
-
----
-
-## Change Password
-
-Current Password Required
-
-Minimum 8 Characters
-
-Password Confirmation
+```mermaid
+flowchart TD
+    User([User Requests Resource]) --> TenantCheck{User Company matches Model Company?}
+    TenantCheck -- No (Different Tenant) --> Deny[403 Access Denied]
+    TenantCheck -- Yes --> SuperAdmin{User is Super Admin or CEO?}
+    SuperAdmin -- Yes --> Allow[Access Granted]
+    SuperAdmin -- No --> ProjectContext{Is Request in Project Context?}
+    
+    ProjectContext -- Yes --> ProjectRoleCheck{Project Role has Permission?}
+    ProjectRoleCheck -- Yes --> Allow
+    ProjectRoleCheck -- No --> GlobalPermissionCheck
+    
+    ProjectContext -- No --> GlobalPermissionCheck{User System Role has Permission?}
+    GlobalPermissionCheck -- Yes --> Allow
+    GlobalPermissionCheck -- No --> Deny
+```
 
 ---
 
-## User Status
+# 4. Project-Level Permission Evaluation
 
-Users can be
+In contracting projects, a user may be a global `Engineer` in the system, but assigned as `Project Manager` on Project A and `Site Inspector` on Project B.
 
-Active
+To support this dynamic scoping, `App\Models\Project` provides the method:
 
-Inactive
+```php
+public function hasPermissionForUser(?User $user, string $permission): bool
+```
 
-Suspended
-
-Locked
-
-Pending Verification
-
-Deleted
-
-Only Active users may login.
-
----
-
-## Remember Me
-
-Optional.
-
-Secure cookie.
+### Evaluation Hierarchy:
+1. **Tenant Isolation**: Verifies `$user->company_id === $project->company_id`.
+2. **Super Administrator Exemption**: Users with `Super Admin` or `CEO` roles automatically pass all checks.
+3. **Project Manager Check**: If `$project->project_manager_id === $user->id`, user gains `Project Manager` role capabilities.
+4. **Assigned Project Role Check**: Resolves the user's role on the project via `project_members` pivot table (`$member->project_role`). Checks if that specific Spatie role possesses the requested permission.
+5. **Global Fallback**: If no project role permission matches, evaluates `$user->hasPermissionTo($permission)`.
 
 ---
 
-## Session Management
+# 5. Multi-Company Tenancy Scoping
 
-Store
+Every core entity (Projects, Material Issues, Expenses, Invoices, Goods Receipts, Warehouses, Accounts) belongs to a `company_id`.
 
-Login Time
-
-Last Activity
-
-IP Address
-
-Browser
-
-Device
-
-Allow force logout.
+- **`CompanyScoped` Trait**: Automatically applies an Eloquent global scope (`where company_id = auth()->user()->company_id`) to prevent cross-company data leakage.
+- **Super Admin Bypass**: Super Admins can switch company views or inspect global datasets.
 
 ---
 
-## Failed Login Protection
-
-After 5 failed attempts
-
-↓
-
-Temporary lock
-
-Log activity
-
-Notify administrator (future)
-
----
-
-# Future Authentication
-
-Google Login
-
-Microsoft Login
-
-Azure AD
-
-LDAP
-
-SAML
-
-2FA
-
-Authenticator App
-
-SMS OTP
-
-Email OTP
-
-Passkeys
-
----
-
-# Database Tables
-
-users
-
-password_reset_tokens
-
-sessions
-
-login_histories
-
-future
-
-two_factor_codes
-
-oauth_accounts
-
----
-
-# User Table
-
-Required Fields
-
-id
-
-company_id
-
-first_name
-
-last_name
-
-email
-
-phone
-
-password
-
-avatar
-
-status
-
-email_verified_at
-
-last_login_at
-
-last_login_ip
-
-last_activity
-
-remember_token
-
-created_by
-
-updated_by
-
-timestamps
-
-softDeletes
-
----
-
-# Relationships
-
-User
-
-belongsTo Company
-
-User
-
-hasMany Sessions
-
-User
-
-hasMany LoginHistory
-
-User
-
-hasMany Notifications
-
----
-
-# UI Pages
-
-/Login
-
-/Forgot Password
-
-/Reset Password
-
-/Profile
-
-/Change Password
-
-/My Sessions
-
----
-
-# Dashboard Redirect
-
-After login
-
-Super Admin
-
-↓
-
-Dashboard
-
-Employee
-
-↓
-
-Dashboard
-
-Client
-
-↓
-
-Client Portal Dashboard
-
-Role determines destination.
-
----
-
-# Validation
-
-Email
-
-Required
-
-Valid Email
-
-Exists
-
-Password
-
-Required
-
-Minimum 8
-
-Maximum 255
-
----
-
-# Security
-
-Hash Password
-
-Never expose password
-
-Rate limiting
-
-CSRF
-
-XSS Protection
-
-SQL Injection Prevention
-
-Secure Cookies
-
-HTTPS Ready
-
----
-
-# Permissions
-
-Guest
-
-Login
-
-Forgot Password
-
-Reset Password
-
-Authenticated User
-
-Logout
-
-Profile
-
-Update Profile
-
-Change Password
-
-View Sessions
-
-Terminate Own Sessions
-
----
-
-# API
-
-POST
-
-/api/login
-
-POST
-
-/api/logout
-
-POST
-
-/api/forgot-password
-
-POST
-
-/api/reset-password
-
-GET
-
-/api/me
-
-PUT
-
-/api/profile
-
-PUT
-
-/api/password
-
----
-
-# Acceptance Criteria
-
-✓ User logs in successfully
-
-✓ Invalid credentials rejected
-
-✓ Locked users cannot login
-
-✓ Suspended users cannot login
-
-✓ Remember Me works
-
-✓ Password reset works
-
-✓ Sessions tracked
-
-✓ API authentication works
-
-✓ Logout destroys session
-
----
-
-# Future Improvements
-
-2FA
-
-Face Recognition
-
-Fingerprint Login
-
-Biometric Devices
-
-Single Sign-On
-
-Magic Links
-
-QR Login
-
----
-
-# Antigravity Prompt
-
-Read these documents first:
-
-docs/00_PROJECT_RULES.md
-
-docs/01_PROJECT_VISION.md
-
-docs/02_BUSINESS_ANALYSIS.md
-
-docs/03_AUTHENTICATION.md
-
-Build the complete Authentication module using Laravel 12.
-
-Requirements:
-
-- Blade
-- Tailwind CSS
-- Alpine.js
-- Laravel Authentication
-- Service Classes
-- Form Requests
-- Policies
-- Events
-- REST API
-- Login History
-- Session Management
-- Responsive UI
-- Validation
-- Feature Tests
-
-Generate:
-
-- Migrations
-- Models
-- Controllers
-- Middleware
-- Requests
-- Services
-- Policies
-- Routes
-- Blade Views
-- API Routes
-- Tests
-- Seeders
-- Factories
-
-Do not use Filament.
-
-Do not use Breeze.
-
-Do not use Jetstream.
-
-Build everything manually using Laravel best practices.
+# 6. Default Roles & Permissions Matrix
+
+| Role Name | System Capabilities | Project Access Scope |
+| :--- | :--- | :--- |
+| **Super Admin** | Full global access to all companies, settings, CMS, and configurations. | Global All |
+| **Company Admin** | Full management within assigned company (Users, Projects, Accounting, Procurement). | Company Wide |
+| **Project Manager** | Manages assigned projects, milestones, tasks, team, expenses, and material requests. | Assigned Projects |
+| **Site Engineer** | Creates material requests, submits daily logs, manages site tasks, and logs time entries. | Assigned Projects |
+| **Warehouse Manager** | Manages stock, warehouses, bins, material issuances, goods receipts, and cycle counts. | Warehouse & Inventory |
+| **Procurement Manager** | Manages suppliers, RFQs, purchase orders, goods receipt approvals, and purchase invoices. | Procurement Module |
+| **Accountant** | Manages Chart of Accounts, journal vouchers, customer invoicing, payments, and financial reports. | Finance Module |

@@ -1,367 +1,76 @@
-# Creative ERP
+# Creative ERP - AI Development Context & Knowledge Guide
 
-## AI Development Context
-
-Version: 1.0
-
----
-
-# Project Information
-
-Project Name
-
-Creative ERP
-
-Description
-
-Creative ERP is a professional Enterprise Resource Planning (ERP) platform designed for engineering, construction, contracting and project-driven companies.
-
-This project is built for long-term scalability and future SaaS deployment.
+**Version**: 1.1  
+**Status**: Active & Complete  
+**Last Updated**: September 2026  
 
 ---
 
-# Technology Stack
+# 1. Project Context Overview
 
-Backend
+Creative ERP is a production-grade Enterprise Resource Planning system built for project-driven companies, engineering firms, contracting organizations, and construction enterprises.
 
-Laravel 12
-
-PHP 8.4+
-
-Database
-
-MySQL 8
-
-Frontend
-
-Blade
-
-Tailwind CSS
-
-Alpine.js
-
-Chart.js
-
-Axios
-
-Build Tool
-
-Vite
-
-API
-
-REST API
-
-Authentication
-
-Custom Laravel Authentication
-
-(No Breeze)
-
-(No Jetstream)
-
-(No Filament)
+It combines site operations, warehouse inventory management, material issuance workflows, project expense & salary tracking, procurement, fixed asset management, CRM, and double-entry financial accounting into a single Laravel 12 application.
 
 ---
 
-# Architecture
+# 2. Technology Stack Specifications
 
-The application follows Modular Architecture.
-
-Business logic belongs inside Services.
-
-Validation belongs inside Form Requests.
-
-Authorization belongs inside Policies.
-
-Controllers should remain thin.
-
-Heavy jobs must use Queues.
-
-Events should be used whenever appropriate.
+- **Backend Framework**: Laravel 12.x
+- **PHP Version**: 8.4+
+- **Database Engine**: MySQL 8.0+
+- **Frontend Stack**: Blade, Tailwind CSS, Alpine.js, Chart.js, Axios
+- **Asset Bundler**: Vite 6.x
+- **Authentication**: Custom Session Authentication (Blade Web) & Laravel Sanctum (REST API)
+- **Role Permissions**: Spatie Laravel Permission + Project-level role permission overrides (`Project::hasPermissionForUser`)
+- **Document Export**: DomPDF, Laravel Excel
 
 ---
 
-# Design Rules
+# 3. Development Status & Completed Modules
 
-Professional ERP UI
-
-Responsive
-
-Clean
-
-Modern
-
-Minimal
-
-Fast
-
-Reusable Components
-
-Future Dark Mode Support
+### Completed Enterprise Modules (20+):
+1. ✅ **Multi-Tenant Platform Core**: Companies, Branches, Departments, Users, Spatie Roles & Permissions.
+2. ✅ **Project Management**: Projects, Milestones, Tasks, Team Members, Meetings, Time Tracking, Discussions, Announcements.
+3. ✅ **Material Requests & Material Issuances**: Site Engineer material requests, multi-level approvals, direct warehouse material issuances with stock deduction and transaction tracking.
+4. ✅ **Project Expenses & Worker Salaries**: Expense tracking distinguishing between Direct Expenses (equipment, subcontracts) and Labor Costs (worker salaries/payroll).
+5. ✅ **Procurement & Goods Receipts (GRN)**: Suppliers, Purchase Requisitions, RFQs, Supplier Quotations matrix, Purchase Orders, Goods Receipts (stock auto-update), Purchase Invoices, Supplier Payments.
+6. ✅ **Inventory & Advanced WMS**: Products, SKUs, Variants, Categories, Brands, Warehouses, Zones, Bins, Stock Movements, Adjustments, Transfers, Reservations, Stock Counts, Valuation, Put-Away, Picking, Packing, Shipments, Returns.
+7. ✅ **Double-Entry Financial Accounting Engine**: Chart of Accounts, General Ledger, Journal Entries, Automatic Posting Engine, Fiscal Years, Monthly Period Closing & Locks, Financial Reports (P&L, Balance Sheet, Cash Flow).
+8. ✅ **Fixed Assets Lifecycle**: Asset Registry, Categories, Assignments, Transfers, Maintenance, Disposals, Automated Monthly Depreciation Schedules with GL Posting.
+9. ✅ **CRM & Sales**: Leads, Accounts, Contacts, Opportunities (Kanban), Sales Pipelines, Quotations, Invoices, Customer Payments, Credit Notes, Refunds.
+10. ✅ **In-App Documentation & Help Center**: Categories, Articles, Search interface.
+11. ✅ **Website CMS**: Website Settings, Expertise Cards, Website Projects.
+12. ✅ **Global Search & Metrics Engine**: Centralized search across models, KPIs, executive dashboard widgets.
 
 ---
 
-# Development Status
+# 4. Model Architecture & Key Entities
 
-Completed Documentation
+The system contains 120+ Eloquent models organized into key domains:
 
-✅ PROJECT_RULES
-
-✅ PROJECT_VISION
-
-✅ BUSINESS_ANALYSIS
-
-✅ AUTHENTICATION
-
-Completed Modules
-
-None
-
-Current Module
-
-Authentication
-
-Next Module
-
-Companies
+- **Core & Multi-Tenancy**: `Company`, `Branch`, `Department`, `User`, `LoginHistory`, `ActivityLog`, `Setting`, `Sequence`.
+- **Project Domain**: `Project`, `ProjectMember`, `Task`, `Milestone`, `Meeting`, `TimeEntry`, `Comment`, `Document`.
+- **Material Domain**: `ProjectMaterialRequest`, `ProjectMaterialRequestItem`, `ProjectMaterialIssue`, `ProjectMaterialIssueItem`.
+- **Expense Domain**: `ProjectExpense` (with `scopeLabor` and `scopeDirectExpenses`).
+- **Procurement Domain**: `Supplier`, `SupplierCategory`, `SupplierContact`, `PurchaseRequisition`, `SupplierQuotation`, `PurchaseOrder`, `GoodsReceipt`, `PurchaseInvoice`, `SupplierPayment`.
+- **Inventory & WMS**: `Product`, `ProductCategory`, `ProductVariant`, `Warehouse`, `WarehouseZone`, `WarehouseBin`, `Inventory`, `InventoryTransaction`, `InventoryAdjustment`, `InventoryTransfer`, `InventoryReservation`, `StockCount`, `WarehouseMovement`, `WarehouseTask`, `WarehousePicking`, `WarehousePacking`, `WarehouseShipment`, `WarehouseReturn`.
+- **Financial Accounting**: `ChartOfAccount`, `Account`, `AccountType`, `Journal`, `JournalEntry`, `GeneralLedger`, `FiscalYear`, `AccountingPeriod`, `ClosingEntry`, `OpeningBalance`, `Invoice`, `Payment`, `CreditNote`, `Refund`, `BankAccount`.
+- **Fixed Assets**: `Asset`, `AssetCategory`, `AssetAssignment`, `AssetTransfer`, `AssetMaintenance`, `AssetDepreciation`, `AssetDisposal`.
+- **CRM Domain**: `Lead`, `Account`, `Contact`, `Opportunity`, `Pipeline`, `PipelineStage`, `Activity`, `Quotation`.
+- **Help Documentation**: `DocumentationCategory`, `DocumentationArticle`.
 
 ---
 
-# Folder Structure
-
-app/
-
-Http/
-
-Models/
-
-Services/
-
-Repositories/
-
-Policies/
-
-Events/
-
-Listeners/
-
-Traits/
-
-Helpers/
-
-database/
-
-resources/
-
-routes/
-
-tests/
-
-docs/
-
----
-
-# Coding Standards
-
-PSR-12
-
-Service Pattern
-
-Repository Pattern (only when necessary)
-
-Use Dependency Injection
-
-Use Eloquent Relationships
-
-Avoid duplicated logic
-
-Use Laravel Best Practices
-
----
-
-# Database Rules
-
-Every major table should include
-
-id
-
-created_at
-
-updated_at
-
-created_by
-
-updated_by
-
-company_id (where applicable)
-
-Soft Deletes where appropriate
-
-Use Foreign Keys
-
-Use Indexes
-
----
-
-# Permission Rules
-
-Permissions are dynamic.
-
-Roles are dynamic.
-
-Users may have multiple roles.
-
-No permission should be hardcoded.
-
-Everything must be configurable.
-
----
-
-# UI Components
-
-Navigation
-
-Sidebar
-
-Header
-
-Breadcrumbs
-
-Search
-
-Filters
-
-Cards
-
-Tables
-
-Pagination
-
-Modals
-
-Notifications
-
-Charts
-
-Forms
-
-Statistics
-
----
-
-# Notifications
-
-Included
-
-Email
-
-In-App
-
-Future Paid Modules
-
-SMS
-
-WhatsApp
-
-Push Notifications
-
----
-
-# Modules
-
-Authentication
-
-Companies
-
-Branches
-
-Departments
-
-Users
-
-Roles
-
-Permissions
-
-Clients
-
-Projects
-
-Tasks
-
-Documents
-
-Inventory
-
-Materials
-
-Equipment
-
-Procurement
-
-Finance
-
-HR
-
-Reports
-
-Dashboard
-
-Website CMS
-
-API
-
-Settings
-
-Audit Logs
-
----
-
-# Future
-
-Flutter App
-
-Desktop App
-
-White Label
-
-Multi Tenant SaaS
-
-AI Assistant
-
-GPS
-
-Biometrics
-
-Digital Signature
-
-OCR
-
----
-
-# AI Instructions
-
-Every implementation must
-
-Read PROJECT_RULES.md
-
-Read PROJECT_VISION.md
-
-Read BUSINESS_ANALYSIS.md
-
-Read AI_CONTEXT.md
-
-Read the current module documentation.
-
-Never recreate completed modules.
-
-Always extend existing code.
-
-Maintain naming consistency.
-
-Do not overwrite existing functionality.
-
-Follow Laravel best practices.
-
-Generate production-ready code.
+# 5. Core Architectural Traits & Rules for AI Development
+
+When generating or modifying code for Creative ERP, ALWAYS enforce the following conventions:
+
+1. **`CompanyScoped` Trait**: Apply to all tenant-owned models to enforce multi-company data isolation.
+2. **`HasUuidColumn` Trait**: Apply to models with a UUID column to automatically generate UUIDs.
+3. **`LogsActivity` Trait**: Apply to domain models requiring audit logging.
+4. **Service Pattern**: Never place complex database queries or business operations inside controllers or Blade views. Move logic to `App\Services\...`.
+5. **Form Requests**: Always create or update `App\Http\Requests\...` for request validation.
+6. **Policy Checks**: Ensure authorization checks use `$this->authorize()` or Policy classes.
+7. **Project Roles**: Use `$project->hasPermissionForUser($user, 'permission.name')` when checking project-specific actions.
+8. **Double-Entry Balance**: Financial journal entries must verify $\sum Debits == \sum Credits$.

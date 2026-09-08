@@ -1,626 +1,91 @@
-# Creative ERP
+# Creative ERP Strategic Vision & Architecture
 
-Version: 1.0
-
-Document:
-01_PROJECT_VISION
-
-Status:
-Approved
-
-Author:
-Creative ERP Development Team
+**Version**: 1.1  
+**Document**: 01_PROJECT_VISION  
+**Status**: Approved & Updated  
+**Author**: Creative ERP Development Team  
 
 ---
 
-# Executive Summary
+# 1. Executive Summary
 
-Creative ERP is a next-generation Enterprise Resource Planning (ERP) platform designed specifically for engineering, construction, contracting, architecture, and project-based companies.
+Creative ERP is a next-generation Enterprise Resource Planning platform designed specifically for engineering, contracting, architecture, construction, and project-based enterprises.
 
-Unlike traditional ERP systems that require multiple independent software solutions, Creative ERP aims to unify every major business operation into one centralized platform.
+Unlike fragmented off-the-shelf software solutions that decouple accounting, project execution, and inventory tracking, Creative ERP integrates all core operational verticals into a unified digital workspace:
 
-The platform combines:
-
-- Project Management
-- Financial Management
-- Human Resource Management
-- Procurement
-- Inventory
-- Equipment Management
-- Document Management
-- Client Management
-- Company Website CMS
-- Communication
-- Reporting
-- REST API
-- Mobile Integration
-
-into a single secure application.
-
-The platform must be modular, scalable, secure, and cloud-ready.
+- **Project Management**: Budgets, actual costs, milestones, tasks, team roles, time tracking, discussions, and meetings.
+- **Material Requests & Issuances**: Site material requests, multi-tier approvals, and direct warehouse-to-project material issuances.
+- **Project Expenses & Labor/Salaries**: Expense tracking with distinction between direct project expenses and worker salaries/labor wages.
+- **Procurement & Purchasing**: Requisitions, multi-vendor RFQs, purchase orders, 3-way matching, goods receipts, purchase invoices, and supplier payments.
+- **Inventory & Advanced WMS**: Multi-warehouse stock control, zone/bin locations, movements, transfers, reservations, cycle counts, picking, packing, put-away, and shipments.
+- **Double-Entry Financial Accounting**: Chart of accounts, general ledger, journal vouchers, fiscal years, monthly period locking, auto-posting engine, and financial statements (P&L, Balance Sheet, Cash Flow).
+- **Fixed Asset Lifecycle Management**: Asset tracking, assignments, maintenance, transfers, disposals, and automated depreciation schedules with GL integration.
+- **CRM & Invoicing**: Lead pipeline management (Kanban), quotations, customer invoices, payments, credit notes, refunds, and client account statements.
+- **Platform Core & Governance**: Multi-company tenancy, Spatie role/permission authorization, activity logging, notifications, CMS website, and in-app documentation.
 
 ---
 
-# Vision Statement
+# 2. Vision & Mission Statements
 
-To become the most flexible and modern ERP platform for engineering and construction companies by providing an all-in-one solution that improves productivity, collaboration, transparency, and business growth.
+### Vision Statement
+To empower project-driven companies with a seamless, modular, and cloud-ready ERP platform that delivers absolute operational transparency, automated financial integrity, and site-to-office efficiency.
 
----
-
-# Mission Statement
-
-Build an enterprise-grade software platform that simplifies project execution while remaining easy to use for organizations of every size.
+### Mission Statement
+Deliver an intuitive, enterprise-grade software platform that unifies project management, supply chain, site material control, asset management, and financial accounting without operational friction.
 
 ---
 
-# Business Objectives
+# 3. System Scope & Functional Modules
 
-The system should:
+The system encompasses the following core functional areas:
 
-Reduce paperwork
+```mermaid
+flowchart TD
+    subgraph Core Platform
+        A[Multi-Company Tenancy] --> B[Spatie Roles & Permissions]
+        B --> C[Audit Logs & Notifications]
+        C --> D[System Settings & CMS]
+    end
 
-Improve collaboration
+    subgraph Operations & Supply Chain
+        E[Projects & Tasks] --> F[Material Requests]
+        F --> G[Material Issuances]
+        G --> H[Inventory & WMS]
+        H --> I[Procurement & Goods Receipts]
+    end
 
-Increase transparency
-
-Reduce project delays
-
-Improve financial tracking
-
-Improve inventory control
-
-Digitize construction documentation
-
-Improve communication
-
-Centralize business operations
-
-Support future SaaS deployment
-
----
-
-# Long-Term Vision
-
-The current project is for one company.
-
-However, the architecture must support:
-
-Unlimited companies
-
-Unlimited projects
-
-Unlimited employees
-
-Unlimited clients
-
-Unlimited branches
-
-Unlimited departments
-
-Unlimited users
-
-without redesigning the system.
+    subgraph Finance & Assets
+        I --> J[Financial Accounting & GL]
+        G --> J
+        K[Project Expenses & Salaries] --> J
+        L[Fixed Assets & Depreciations] --> J
+        J --> M[Financial Reports & Analytics]
+    end
+```
 
 ---
 
-# Target Industries
+# 4. Cross-Module Integration Mapping
 
-Engineering
+Creative ERP relies on total cross-module connectivity:
 
-Construction
+1. **Material Issuance Flow**:  
+   `Site Engineer Requests Material` $\rightarrow$ `Approval` $\rightarrow$ `Material Issued from Warehouse` $\rightarrow$ `Warehouse Inventory Reduced` $\rightarrow$ `Project Material Cost Updated`.
 
-Electrical
+2. **Procurement & Inventory Flow**:  
+   `Purchase Requisition` $\rightarrow$ `RFQ & Quotation Matrix` $\rightarrow$ `Purchase Order` $\rightarrow$ `Goods Receipt (GRN)` $\rightarrow$ `Warehouse Stock Increased` $\rightarrow$ `Auto GL Post (Debit Inventory, Credit Accounts Payable)` $\rightarrow$ `Purchase Invoice & Payment`.
 
-Mechanical
+3. **Project Expense & Labor Flow**:  
+   `Project Expense / Worker Salary Logged` $\rightarrow$ `Project Actual Cost Updated` $\rightarrow$ `GL Entry Posted` $\rightarrow$ `Budget vs. Actual Analysis`.
 
-Architecture
-
-Road Construction
-
-Civil Engineering
-
-Government Projects
-
-Real Estate Development
-
-Infrastructure
-
-Consulting
-
-Manufacturing
-
-Facility Management
+4. **Fixed Asset Depreciation Flow**:  
+   `Asset Registered` $\rightarrow$ `Assigned to Site/Department` $\rightarrow$ `Monthly Depreciation Run` $\rightarrow$ `Auto GL Post (Debit Depreciation Expense, Credit Accumulated Depreciation)`.
 
 ---
 
-# Target Users
-
-The system should support users at every level.
-
-Examples include:
-
-Super Administrator
-
-Company Administrator
-
-Managing Director
-
-Operations Manager
-
-Project Manager
-
-Site Engineer
-
-Resident Engineer
-
-Civil Engineer
-
-Electrical Engineer
-
-Mechanical Engineer
-
-Architect
-
-Quantity Surveyor
-
-Procurement Officer
-
-Warehouse Manager
-
-Store Keeper
-
-Accountant
-
-Finance Manager
-
-HR Officer
-
-Payroll Officer
-
-Technician
-
-Supervisor
-
-Foreman
-
-Driver
-
-Security Officer
-
-Client
-
-Contractor
-
-Subcontractor
-
-Supplier
-
-Auditor
-
-Each role must have configurable permissions.
-
-No permissions should be hardcoded.
-
----
-
-# Problem Statement
-
-Many construction companies use multiple disconnected systems.
-
-Examples:
-
-Excel
-
-WhatsApp
-
-Paper Files
-
-Email
-
-Accounting Software
-
-Manual Attendance
-
-Manual Inventory
-
-Manual Reporting
-
-This creates:
-
-Duplicate information
-
-Lost documents
-
-Poor communication
-
-Budget overruns
-
-Difficult reporting
-
-Poor accountability
-
-Delayed approvals
-
-Creative ERP solves these issues by centralizing operations into one platform.
-
----
-
-# Solution Overview
-
-Creative ERP will provide:
-
-One Login
-
-One Dashboard
-
-One Database
-
-One Website
-
-One API
-
-One Permission System
-
-One Notification Center
-
-Everything should work together.
-
----
-
-# Core Values
-
-Security
-
-Reliability
-
-Performance
-
-Scalability
-
-Transparency
-
-Maintainability
-
-Professional Design
-
-Ease of Use
-
-Data Integrity
-
-Auditability
-
----
-
-# Stakeholders
-
-Business Owners
-
-Employees
-
-Project Managers
-
-Clients
-
-Suppliers
-
-Contractors
-
-Government Agencies
-
-Auditors
-
-Developers
-
-System Administrators
-
----
-
-# System Goals
-
-Provide a modern web application.
-
-Provide responsive interfaces.
-
-Reduce manual work.
-
-Increase project visibility.
-
-Support future mobile applications.
-
-Provide enterprise reporting.
-
-Support automation.
-
-Support integrations.
-
----
-
-# Scope
-
-The project includes:
-
-Authentication
-
-User Management
-
-Role Management
-
-Permission Management
-
-Companies
-
-Branches
-
-Departments
-
-Projects
-
-Clients
-
-Employees
-
-Tasks
-
-Documents
-
-Inventory
-
-Equipment
-
-Procurement
-
-Finance
-
-HR
-
-Communication
-
-Notifications
-
-Reports
-
-Analytics
-
-Website CMS
-
-REST API
-
-Settings
-
-Audit Logs
-
----
-
-# Out of Scope (Version 1)
-
-AI Predictions
-
-IoT Sensors
-
-GPS Tracking
-
-Drone Integration
-
-Accounting Integrations
-
-Third-party Payroll
-
-Blockchain
-
-Offline Mobile App
-
-Machine Learning
-
-These can be future modules.
-
----
-
-# Success Metrics
-
-The project will be considered successful if:
-
-All modules work together.
-
-Role permissions function correctly.
-
-Projects are isolated.
-
-Companies are isolated.
-
-Reports generate successfully.
-
-Website is connected to CMS.
-
-REST API functions.
-
-System remains responsive.
-
-Documentation remains updated.
-
----
-
-# Future Expansion
-
-Future versions may include:
-
-Flutter Mobile App
-
-Desktop Application
-
-Customer Portal
-
-Supplier Portal
-
-AI Assistant
-
-OCR Document Processing
-
-Digital Signatures
-
-Equipment GPS
-
-Fleet Tracking
-
-Biometric Attendance
-
-Payroll Automation
-
-Online Payments
-
-Subscription Billing
-
-Marketplace
-
-Multi-Tenant SaaS
-
-White Label ERP
-
----
-
-# Project Philosophy
-
-Creative ERP is not a collection of independent modules.
-
-Every module must communicate with every other module whenever appropriate.
-
-Example:
-
-Projects use Employees.
-
-Employees create Tasks.
-
-Tasks consume Materials.
-
-Materials affect Inventory.
-
-Inventory affects Procurement.
-
-Procurement affects Finance.
-
-Finance affects Reports.
-
-Reports affect Dashboards.
-
-Everything is connected.
-
----
-
-# High-Level Module Map
-
-Core
-
-Authentication
-
-Users
-
-Roles
-
-Permissions
-
-Audit Logs
-
-Companies
-
-Branches
-
-Departments
-
-Projects
-
-Clients
-
-Employees
-
-Tasks
-
-Documents
-
-Inventory
-
-Materials
-
-Equipment
-
-Procurement
-
-Finance
-
-Human Resources
-
-Communication
-
-Notifications
-
-Reports
-
-Dashboard
-
-Website CMS
-
-API
-
-Settings
-
-Integrations
-
----
-
-# Design Philosophy
-
-The interface should resemble modern enterprise software.
-
-Simple
-
-Clean
-
-Professional
-
-Fast
-
-Responsive
-
-Minimal
-
-Consistent
-
-Reusable
-
-Every page should have:
-
-Breadcrumbs
-
-Search
-
-Filters
-
-Actions
-
-Tables
-
-Statistics
-
-Export
-
-Responsive Design
-
-Permission Checks
-
----
-
-# Guiding Principle
-
-Every feature should answer one question:
-
-"Will this make project management easier for the company?"
-
-If not,
-
-it should not be added.
-
----
-
-# Conclusion
-
-Creative ERP is intended to become a professional enterprise platform rather than a simple management system.
-
-Every design decision, database structure, API endpoint, and user interface should support future scalability while remaining simple enough for daily business operations.
+# 5. Success Metrics & Quality Standards
+
+- **Single Source of Truth**: All operational events automatically update inventory levels, project actual costs, and General Ledger balances.
+- **Strict Role Security**: System-wide Spatie roles coupled with project-level role overrides (`hasPermissionForUser`).
+- **Complete Audit Trail**: Every material issuance, purchase approval, journal voucher, asset transfer, and settings change is permanently logged.
+- **Real-Time Financial Integrity**: Double-entry journal balance check ($Total\ Debits = Total\ Credits$) enforced on every transaction.

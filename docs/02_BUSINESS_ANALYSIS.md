@@ -1,754 +1,150 @@
-# Creative ERP
+# Creative ERP Business Analysis & Core Processes Specification
 
-Version: 1.0
-
-Document
-
-02_BUSINESS_ANALYSIS
-
-Status
-
-Approved
+**Version**: 1.1  
+**Document**: 02_BUSINESS_ANALYSIS  
+**Status**: Approved & Updated  
 
 ---
 
-# Purpose
+# 1. Executive Overview
 
-This document defines how a real engineering and construction company operates.
+This document specifies the exact business workflows and operational domain rules governing Creative ERP.
 
-The purpose is to understand business processes before designing the database or writing code.
-
-Software must adapt to business.
-
-Business should never adapt to software.
+In a contracting and engineering enterprise, business operations revolve around executing client projects while sharing central resources—such as warehouses, employees, equipment, and financial capital.
 
 ---
 
-# Business Overview
+# 2. Main Business Workflows & Operations
 
-Creative ERP is designed for project-driven companies.
+## 📦 Business Process A: Site Material Request & Issuance
 
-A company may execute multiple projects simultaneously while sharing resources such as employees, equipment, suppliers, warehouses and financial operations.
+### Overview
+Site engineers require raw materials, components, and tools to execute project tasks.
 
-Every project is treated as an independent business entity while still belonging to a company.
-
----
-
-# Business Model
-
-The company earns revenue by completing projects for clients.
-
-Projects consume:
-
-Employees
-
-Materials
-
-Equipment
-
-Time
-
-Money
-
-Documents
-
-Every resource should be traceable.
-
----
-
-# Company Structure
-
-Company
-
-↓
-
-Branches
-
-↓
-
-Departments
-
-↓
-
-Teams
-
-↓
-
-Employees
-
----
-
-# Main Departments
-
-Executive Management
-
-Operations
-
-Engineering
-
-Finance
-
-Human Resources
-
-Procurement
-
-Warehouse
-
-Equipment
-
-Administration
-
-Sales & Marketing
-
-IT
-
-Legal
-
-Quality Assurance
-
-Health & Safety
-
-Each department has different permissions.
-
----
-
-# Core Business Workflow
-
-Client
-
-↓
-
-Project Opportunity
-
-↓
-
-Quotation
-
-↓
-
-Approval
-
-↓
-
-Contract
-
-↓
-
-Project Creation
-
-↓
-
-Planning
-
-↓
-
-Task Assignment
-
-↓
-
-Procurement
-
-↓
-
-Execution
-
-↓
-
-Site Reporting
-
-↓
-
-Inspections
-
-↓
-
-Progress Tracking
-
-↓
-
-Completion
-
-↓
-
-Final Documentation
-
-↓
-
-Invoice
-
-↓
-
-Payment
-
-↓
-
-Project Archive
-
----
-
-# Business Process 1
-
-Client Acquisition
-
-A client contacts the company.
-
-The sales department records the inquiry.
-
-A quotation is prepared.
-
-The quotation is approved.
-
-The client accepts.
-
-A project is created.
-
----
-
-Business Rules
-
-Every client must belong to one company.
-
-A client can own multiple projects.
-
-Every quotation belongs to one client.
-
-Every contract belongs to one quotation.
-
----
-
-# Business Process 2
-
-Project Creation
-
-Project Manager creates project.
-
-Assign Company
-
-Assign Client
-
-Assign Budget
-
-Assign Start Date
-
-Assign End Date
-
-Assign Engineers
-
-Assign Team
-
-Upload Contract
-
-Upload Drawings
-
-Upload BOQ
-
-Generate Project Code
-
-Project becomes Active.
-
----
-
-Business Rules
-
-Project Code must be unique.
-
-Budget cannot be negative.
-
-Project must belong to one company.
-
-Project status changes must be recorded.
-
----
-
-# Business Process 3
-
-Planning
-
-Create milestones.
-
-Create work packages.
-
-Create tasks.
-
-Assign engineers.
-
-Assign supervisors.
-
-Assign deadlines.
-
-Estimate costs.
-
-Estimate materials.
-
-Estimate equipment.
-
----
-
-Business Rules
-
-Every task belongs to one project.
-
-Task must have owner.
-
-Task must have status.
-
----
-
-# Business Process 4
-
-Procurement
-
-Engineer requests material.
-
-Manager approves.
-
-Procurement requests quotations.
-
-Supplier selected.
-
-Purchase Order created.
-
-Goods delivered.
-
-Warehouse receives goods.
-
-Inventory updated.
-
-Project stock updated.
-
----
-
-Business Rules
-
-No purchasing without approval.
-
-Stock movements must be recorded.
-
-Supplier history maintained.
-
----
-
-# Business Process 5
-
-Inventory
-
-Material received.
-
-Material stored.
-
-Material transferred.
-
-Material issued.
-
-Material returned.
-
-Material adjusted.
-
-Material consumed.
-
-Inventory updated.
-
----
-
-Business Rules
-
-Negative stock not allowed.
-
-Every movement logged.
-
-Barcode support planned.
-
----
-
-# Business Process 6
-
-Equipment
-
-Equipment registered.
-
-Assigned to project.
-
-Maintenance scheduled.
-
-Fuel tracked.
-
-Repairs recorded.
-
-Returned to warehouse.
-
----
-
-Business Rules
-
-Equipment cannot belong to two active projects unless shared.
-
-Maintenance history permanent.
-
----
-
-# Business Process 7
-
-Human Resources
-
-Employee registered.
-
-Department assigned.
-
-Role assigned.
-
-Project assigned.
-
-Attendance recorded.
-
-Leave managed.
-
-Performance reviewed.
-
-Payroll future module.
-
----
-
-Business Rules
-
-Employee can join multiple projects.
-
-Employee belongs to one company.
-
----
-
-# Business Process 8
-
-Documents
-
-Upload drawing.
-
-Upload permit.
-
-Upload contract.
-
-Upload invoice.
-
-Upload BOQ.
-
-Upload reports.
-
-Approve document.
-
-Archive old versions.
-
----
-
-Business Rules
-
-Never overwrite files.
-
-Every upload creates version.
-
-Approval history permanent.
-
----
-
-# Business Process 9
-
-Finance
-
-Budget created.
-
-Expenses recorded.
-
-Invoices generated.
-
-Payments received.
-
-Cash flow updated.
-
-Reports generated.
-
----
-
-Business Rules
-
-Expenses linked to project.
-
-Budgets immutable after approval unless revised.
-
----
-
-# Business Process 10
-
-Communication
-
-Comments
-
-Internal messages
-
-Announcements
-
-Meeting minutes
-
-Notifications
-
-Email
-
-Future
-
-WhatsApp
-
-SMS
-
-Push Notification
-
----
-
-Business Rules
-
-Messages linked to projects when applicable.
-
----
-
-# Business Process 11
-
-Reporting
-
-Dashboard
-
-Budget Reports
-
-Inventory Reports
-
-Employee Reports
-
-Equipment Reports
-
-Project Reports
-
-Financial Reports
-
-Executive Reports
-
----
-
-Reports should support
-
-PDF
-
-Excel
-
-CSV
-
-Scheduled Email
-
-Charts
-
----
-
-# Cross Module Relationships
-
-Projects
-
-↓
-
-Tasks
-
-↓
-
-Employees
-
-↓
-
-Materials
-
-↓
-
-Inventory
-
-↓
-
-Procurement
-
-↓
-
-Finance
-
-↓
-
-Reports
-
-↓
-
-Dashboard
-
-Everything connects.
-
----
-
-# Risks
-
-Document loss
-
-Poor communication
-
-Duplicate data
-
-Unauthorized access
-
-Budget overruns
-
-Project delays
-
-Inventory mismatch
-
-Approval delays
-
-Human error
-
-Software downtime
-
----
-
-# Mitigation
-
-Audit Logs
-
-Permissions
-
-Notifications
-
-Automatic Backups
-
-Approval Workflow
-
-Version Control
-
-Validation
-
-Activity Tracking
-
----
-
-# Functional Areas
-
-Core
-
-Projects
-
-CRM
-
-HR
-
-Finance
-
-Inventory
-
-Equipment
-
-Communication
-
-Reports
-
-Website CMS
-
-API
-
-Settings
-
-Security
-
----
-
-# Non Functional Goals
-
-Fast
-
-Secure
-
-Scalable
-
-Reliable
-
-Maintainable
-
-Cloud Ready
-
-Responsive
-
-API Ready
-
-Multi Company
-
-Multi Language
-
----
-
-# Business Rules
-
-Every record belongs to a company.
-
-Projects own tasks.
-
-Projects own documents.
-
-Projects own reports.
-
-Employees require permissions.
-
-Deleted records should be recoverable where appropriate.
-
-Approvals recorded permanently.
-
-Audit logs cannot be modified.
-
----
-
-# Success Criteria
-
-Users can complete an entire project lifecycle without leaving the system.
-
-All departments work inside one platform.
-
-Every action is traceable.
-
-Reports generated instantly.
-
-Permissions enforced everywhere.
-
----
-
-# Mermaid - Overall Business Flow
-
+### Workflow
 ```mermaid
-flowchart TD
+sequenceDiagram
+    autonumber
+    actor Engineer as Site Engineer / PM
+    actor Approver as Warehouse Manager / Approver
+    participant WH as Warehouse Inventory
+    participant Proj as Project & Task
 
-A[Client Inquiry]
-B[Quotation]
-C[Approval]
-D[Contract]
-E[Project Created]
-F[Planning]
-G[Execution]
-H[Procurement]
-I[Inventory]
-J[Finance]
-K[Reports]
-L[Project Completion]
-
-A --> B
-B --> C
-C --> D
-D --> E
-E --> F
-F --> G
-G --> H
-H --> I
-I --> J
-J --> K
-K --> L
+    Engineer->>Approver: Submit Material Request (ProjectMaterialRequest)
+    Approver->>Approver: Review Stock & Quantities
+    Approver-->>Engineer: Approve Request
+    Approver->>WH: Create Material Issue (ProjectMaterialIssue)
+    WH->>WH: Deduct Inventory Stock & Log WarehouseMovement
+    WH->>Proj: Assign Issued Materials & Update Actual Cost
 ```
 
+### Business Rules
+1. **Material Requests**: State transition follows `Draft` $\rightarrow$ `Submitted` $\rightarrow$ `Approved` / `Rejected` $\rightarrow$ `Issued` / `Converted`.
+2. **Material Issuance**:
+   - MUST select a valid `Warehouse` and `Project` / `Task`.
+   - Items issued MUST NOT exceed currently available stock in the specified warehouse.
+   - Automatic deduction of stock levels via `InventoryTransaction` and `WarehouseMovement`.
+   - Logs `issued_by` user ID and issue timestamp.
+
 ---
 
-# Conclusion
+## 💰 Business Process B: Project Expenses & Labor/Salary Tracking
 
-Creative ERP is designed around real business operations rather than isolated software modules.
+### Overview
+Project financial tracking requires distinguishing between physical direct site expenses and human labor costs.
 
-Every module must contribute to completing a project's lifecycle efficiently while maintaining complete visibility, accountability, and data integrity.
+### Workflow
+```mermaid
+flowchart LR
+    A[Expense Entry Created] --> B{Category Check}
+    B -- Direct Expense --> C[Direct Cost Account]
+    B -- Worker Salary / Labor --> D[Labor / Payroll Cost Account]
+    C --> E[Rollup to Project Actual Cost]
+    D --> E
+    E --> F[General Ledger Journal Entry]
+```
+
+### Business Rules
+1. **Expense Classification**:
+   - `Labor / Worker Salary`: Categories matching `Worker Salary`, `Labor`, `Payroll`.
+   - `Direct Expenses`: Fuel, equipment rental, subcontracts, site utilities, permits, etc.
+2. **Project Rollup**: Expenses immediately update `Project::actual_cost` and appear on project financial dashboards.
+3. **Receipt Storage**: File uploads stored securely with audit trail of uploader and expense date.
+
+---
+
+## 🛒 Business Process C: Procurement & Goods Receipts (GRN)
+
+### Overview
+The purchasing lifecycle bridges site procurement needs with central warehouse receiving and vendor billing.
+
+### Workflow
+```mermaid
+stateDiagram-v2
+    [*] --> PurchaseRequisition
+    PurchaseRequisition --> SupplierRFQ: Requisition Approved
+    SupplierRFQ --> PurchaseOrder: Quotation Selected
+    PurchaseOrder --> GoodsReceipt: Vendor Ships Goods
+    GoodsReceipt --> InventoryUpdate: Items Inspected & Accepted
+    GoodsReceipt --> AutoGLPost: Debit Stock / Credit AP
+    GoodsReceipt --> PurchaseInvoice: 3-Way Match
+    PurchaseInvoice --> SupplierPayment: Finance Releases Funds
+    SupplierPayment --> [*]
+```
+
+### Business Rules
+1. **Quotation Comparison**: RFQs support side-by-side comparison matrices of vendor pricing, lead time, and payment terms.
+2. **Goods Receipt Inspection**:
+   - Quantity received vs. PO quantity is tracked per line item.
+   - Stock balance in the designated warehouse is updated immediately.
+3. **Automatic GL Posting**: GRN triggers debit to Inventory Asset account and credit to Accounts Payable / Unbilled GRN account.
+
+---
+
+## 🏛️ Business Process D: Financial Accounting & Auto-Posting Engine
+
+### Overview
+Creative ERP utilizes a double-entry accounting engine to track balance sheet assets/liabilities and income statement performance.
+
+### Key Financial Concepts
+- **Chart of Accounts (COA)**: Hierarchical classification of accounts (Asset, Liability, Equity, Revenue, Expense).
+- **Journal Voucher**: Manual or automated double-entry transactions where $\sum Debits = \sum Credits$.
+- **Fiscal Periods**: Monthly periods and annual fiscal years.
+- **Period Closing**: Closing a period locks all entries against historical editing.
+
+### Automatic System Posting Matrix
+
+| Event | Debit Account | Credit Account |
+| :--- | :--- | :--- |
+| **Goods Receipt (GRN)** | Inventory Asset Account | Accounts Payable / Accrued PO Liability |
+| **Customer Invoice Issued** | Accounts Receivable | Revenue Account / Sales |
+| **Customer Payment Received** | Cash / Bank Account | Accounts Receivable |
+| **Supplier Payment Released** | Accounts Payable | Cash / Bank Account |
+| **Asset Depreciation** | Depreciation Expense | Accumulated Depreciation |
+
+---
+
+## 🚜 Business Process E: Fixed Asset Lifecycle Management
+
+### Overview
+Track heavy machinery, trucks, equipment, and office hardware across their complete life cycle.
+
+### Lifecycle Steps
+1. **Registration**: Record asset code, serial number, purchase cost, acquisition date, vendor, and warranty.
+2. **Depreciation Schedule**: Straight Line or Declining Balance calculations.
+3. **Maintenance & Repairs**: Log preventative maintenance, parts consumed, and repair costs.
+4. **Site Transfer**: Transfer assets between branches, warehouses, or project sites with approval logging.
+5. **Disposal**: Asset retirement, sale, or scrap with gain/loss on disposal GL calculation.
+
+---
+
+## 🏭 Business Process F: Advanced Warehouse Management (WMS)
+
+### Overview
+Optimizes physical storage layout and warehouse operations.
+
+### Key Operations
+- **Warehouse Architecture**: Warehouse $\rightarrow$ Zones $\rightarrow$ Bins.
+- **Put-Away Tasks**: Guiding warehouse operators to store received goods in designated bin locations.
+- **Picking & Packing**: Generating picking routes for outgoing site shipments or material issues.
+- **Cycle Counts**: Periodic inventory counting with adjustment approvals for stock discrepancies.
