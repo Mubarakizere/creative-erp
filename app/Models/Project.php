@@ -258,4 +258,13 @@ class Project extends Model
     {
         return $this->hasMany(ProjectMaterialIssue::class);
     }
+
+    /**
+     * Get all of the project's expenses.
+     */
+    public function expenses(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ProjectExpense::class);
+    }
 }
+

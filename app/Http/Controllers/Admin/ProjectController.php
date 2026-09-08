@@ -93,8 +93,22 @@ class ProjectController extends Controller
             'tasks.materialIssues.items.product',
             'materialRequests.items.product',
             'materialIssues.items.product',
-            'milestones', 'documents', 'timeEntries', 'comments.user'
+            'milestones', 'documents', 'timeEntries', 'comments.user',
+            'expenses.creator', 'expenses.user'
         ]);
+        
+        $financialService = app(\App\Services\ProjectFinancialService::class);
+        $financialSummary = $financialService->getProjectFinancialSummary($project);
+        $teamUserIds = $project->projectMembers()->pluck('user_id')->push($project->project_manager_id)->filter()->unique();
+        $teamUsers = \App\Models\User::whereIn('id', $teamUserIds)->orderBy('first_name')->get();
+        if ($teamUsers->isEmpty()) {
+            $teamUsers = \App\Models\User::active()
+                ->when($project->company_id, fn($q) => $q->where('company_id', $project->company_id))
+                ->orderBy('first_name')
+                ->get();
+        }
+
+
         
         $activityLogs = \App\Models\ActivityLog::with('user')
             ->where('subject_type', Project::class)
@@ -162,11 +176,22 @@ class ProjectController extends Controller
                 'icon' => 'document'
             ]);
         }
+
+        foreach($project->expenses as $exp) {
+            $events->push([
+                'date' => $exp->created_at,
+                'title' => 'Expense Logged: ' . $exp->title,
+                'description' => "Category: {$exp->category} - Amount: " . format_currency($exp->amount, $project->currency),
+                'type' => 'info',
+                'icon' => 'document'
+            ]);
+        }
         
         $timelineEvents = $events->sortByDesc('date');
 
-        return view('admin.projects.show', compact('project', 'timelineEvents', 'activityLogs'));
+        return view('admin.projects.show', compact('project', 'timelineEvents', 'activityLogs', 'financialSummary', 'teamUsers'));
     }
+
 
     /**
      * Show the form for editing the specified resource.

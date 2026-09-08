@@ -114,6 +114,10 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
     Route::patch('/projects/{project}/status', [\App\Http\Controllers\Admin\ProjectController::class, 'updateStatus'])->name('projects.status.update');
     Route::post('/projects/{project}/duplicate', [\App\Http\Controllers\Admin\ProjectController::class, 'duplicate'])->name('projects.duplicate');
     Route::get('/projects/{project}/timeline', [\App\Http\Controllers\Admin\ProjectController::class, 'timeline'])->name('projects.timeline');
+    Route::post('/projects/{project}/expenses', [\App\Http\Controllers\Admin\ProjectExpenseController::class, 'store'])->name('projects.expenses.store');
+    Route::put('/projects/expenses/{expense}', [\App\Http\Controllers\Admin\ProjectExpenseController::class, 'update'])->name('projects.expenses.update');
+    Route::delete('/projects/expenses/{expense}', [\App\Http\Controllers\Admin\ProjectExpenseController::class, 'destroy'])->name('projects.expenses.destroy');
+
     // Project Teams
     Route::prefix('projects/team')->name('projects.team.')->group(function () {
         Route::patch('/{team}/restore', [\App\Http\Controllers\Admin\ProjectTeamController::class, 'restore'])->name('restore')->withTrashed();

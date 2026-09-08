@@ -131,21 +131,20 @@ class ProjectMetrics implements MetricProvider
         if (!$companyId) return [];
 
         $projects = Project::where('company_id', $companyId)->get();
+        $financialService = app(\App\Services\ProjectFinancialService::class);
         
         $profitability = [];
         foreach ($projects as $project) {
-            $revenue = \App\Models\Invoice::where('project_id', $project->id)
-                ->where('status', '!=', 'Cancelled')
-                ->where('status', '!=', 'Voided')
-                ->sum('total_amount');
+            $summary = $financialService->getProjectFinancialSummary($project);
 
-            if ($revenue > 0) {
+            if ($summary['revenue'] > 0 || $summary['total_costs'] > 0) {
                 $profitability[] = [
                     'id' => $project->id,
                     'name' => $project->name,
-                    'revenue' => (float) $revenue,
-                    'expenses' => 0,
-                    'net_profit' => (float) $revenue
+                    'revenue' => (float) $summary['revenue'],
+                    'expenses' => (float) $summary['total_costs'],
+                    'net_profit' => (float) $summary['net_profit'],
+                    'profit_margin' => (float) $summary['profit_margin'],
                 ];
             }
         }
@@ -153,3 +152,4 @@ class ProjectMetrics implements MetricProvider
         return collect($profitability)->sortByDesc('net_profit')->values()->toArray();
     }
 }
+

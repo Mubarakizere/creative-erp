@@ -224,6 +224,12 @@ class RolesAndPermissionsSeeder extends Seeder
             'project.restore',
             'project.update',
             'project.view',
+            'project_expense.create',
+            'project_expense.delete',
+            'project_expense.edit',
+            'project_expense.restore',
+            'project_expense.view',
+
             'project_task.create',
             'project_task.delete',
             'project_task.restore',
