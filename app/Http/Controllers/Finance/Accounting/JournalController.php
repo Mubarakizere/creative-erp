@@ -9,9 +9,12 @@ use App\Models\FiscalYear;
 use App\Models\AccountingPeriod;
 use App\Services\Finance\JournalService;
 use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class JournalController extends Controller
 {
+    use AuthorizesRequests;
+
     protected JournalService $journalService;
 
     public function __construct(JournalService $journalService)
@@ -19,17 +22,47 @@ class JournalController extends Controller
         $this->journalService = $journalService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $companyId = auth()->user()->company_id ?? 1;
-        
-        $journals = Journal::where('company_id', $companyId)
-            ->with('fiscalYear', 'accountingPeriod')
-            ->orderBy('date', 'desc')
-            ->orderBy('id', 'desc')
-            ->paginate(15);
 
-        return view('admin.finance.accounting.journals.index', compact('journals'));
+        $query = Journal::where('company_id', $companyId)
+            ->with(['fiscalYear', 'accountingPeriod']);
+
+        if ($request->filled('search')) {
+            $search = trim($request->get('search'));
+            $query->where(function ($q) use ($search) {
+                $q->where('journal_number', 'like', "%{$search}%")
+                  ->orWhere('memo', 'like', "%{$search}%")
+                  ->orWhere('reference_number', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('status') && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('date', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('date', '<=', $request->date_to);
+        }
+
+        $journals = $query->orderBy('date', 'desc')
+            ->orderBy('id', 'desc')
+            ->paginate(15)
+            ->withQueryString();
+
+        $stats = [
+            'total' => Journal::where('company_id', $companyId)->count(),
+            'posted' => Journal::where('company_id', $companyId)->where('status', 'Posted')->count(),
+            'draft' => Journal::where('company_id', $companyId)->where('status', 'Draft')->count(),
+            'total_volume' => Journal::where('company_id', $companyId)->where('status', 'Posted')->sum('total_debit'),
+        ];
+
+        return view('admin.finance.accounting.journals.index', compact('journals', 'stats'));
     }
 
     public function create()
@@ -86,7 +119,7 @@ class JournalController extends Controller
 
     public function show(Journal $journal)
     {
-        $journal->load(['entries.chartOfAccount', 'fiscalYear', 'accountingPeriod', 'company']);
+        $journal->load(['entries.chartOfAccount.accountType', 'fiscalYear', 'accountingPeriod', 'company', 'branch', 'department']);
         return view('admin.finance.accounting.journals.show', compact('journal'));
     }
 
@@ -98,5 +131,19 @@ class JournalController extends Controller
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
+    }
+
+    public function destroy(Journal $journal)
+    {
+        $this->authorize('delete', $journal);
+
+        if ($journal->status !== 'Draft') {
+            return back()->with('error', 'Only draft journals can be deleted.');
+        }
+
+        $journal->delete();
+
+        return redirect()->route('admin.finance.accounting.journals.index')
+            ->with('success', 'Journal entry deleted successfully.');
     }
 }

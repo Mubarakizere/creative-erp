@@ -17,18 +17,43 @@ class ChartOfAccountController extends Controller
         $this->accountingService = $accountingService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $companyId = auth()->user()->company_id ?? 1;
-        
-        $accounts = ChartOfAccount::with('accountType', 'parent')
-            ->where('company_id', $companyId)
-            ->orderBy('code')
-            ->get();
-            
+
+        $query = ChartOfAccount::with(['accountType', 'parent'])
+            ->where('company_id', $companyId);
+
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+            $query->where(function ($q) use ($search) {
+                $q->where('code', 'like', "%{$search}%")
+                  ->orWhere('name', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('category') && $request->category !== 'all') {
+            $category = $request->category;
+            $query->whereHas('accountType', function ($q) use ($category) {
+                $q->where('category', 'like', "%{$category}%");
+            });
+        }
+
+        $accounts = $query->orderBy('code')->get();
         $accountTypes = AccountType::where('company_id', $companyId)->get();
 
-        return view('admin.finance.accounting.chart-of-accounts.index', compact('accounts', 'accountTypes'));
+        $allAccounts = ChartOfAccount::with('accountType')->where('company_id', $companyId)->get();
+        $stats = [
+            'total' => $allAccounts->count(),
+            'assets' => $allAccounts->filter(fn($a) => str_contains(strtolower($a->accountType?->category ?? ''), 'asset'))->count(),
+            'liabilities' => $allAccounts->filter(fn($a) => str_contains(strtolower($a->accountType?->category ?? ''), 'liab'))->count(),
+            'equity' => $allAccounts->filter(fn($a) => str_contains(strtolower($a->accountType?->category ?? ''), 'equity'))->count(),
+            'income' => $allAccounts->filter(fn($a) => str_contains(strtolower($a->accountType?->category ?? ''), 'rev') || str_contains(strtolower($a->accountType?->category ?? ''), 'inc'))->count(),
+            'expenses' => $allAccounts->filter(fn($a) => str_contains(strtolower($a->accountType?->category ?? ''), 'exp'))->count(),
+        ];
+
+        return view('admin.finance.accounting.chart-of-accounts.index', compact('accounts', 'accountTypes', 'stats'));
     }
 
     public function create()

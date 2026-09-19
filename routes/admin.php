@@ -271,7 +271,7 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
             Route::resource('chart-of-accounts', \App\Http\Controllers\Finance\Accounting\ChartOfAccountController::class);
             
             Route::post('journals/{journal}/post', [\App\Http\Controllers\Finance\Accounting\JournalController::class, 'post'])->name('journals.post');
-            Route::resource('journals', \App\Http\Controllers\Finance\Accounting\JournalController::class)->except(['edit', 'update', 'destroy']);
+            Route::resource('journals', \App\Http\Controllers\Finance\Accounting\JournalController::class)->except(['edit', 'update']);
             
             Route::get('ledger', [\App\Http\Controllers\Finance\Accounting\LedgerController::class, 'index'])->name('ledger.index');
             

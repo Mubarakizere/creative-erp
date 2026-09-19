@@ -23,7 +23,7 @@ class ProjectMaterialRequestController extends Controller
     {
         Gate::authorize('viewAny', ProjectMaterialRequest::class);
 
-        $query = ProjectMaterialRequest::with(['project', 'requestedBy', 'items'])
+        $query = ProjectMaterialRequest::with(['project', 'requestedBy', 'items', 'purchaseRequisition'])
             ->orderBy('created_at', 'desc');
 
         if (!auth()->user()->hasRole('Super Admin') && !auth()->user()->hasRole('CEO')) {
@@ -34,18 +34,36 @@ class ProjectMaterialRequestController extends Controller
             $query->where('project_id', $request->project_id);
         }
 
-        if ($request->filled('status')) {
+        if ($request->filled('status') && $request->status !== 'all') {
             $query->where('status', $request->status);
         }
 
         if ($request->filled('search')) {
-            $query->where('request_number', 'like', "%{$request->search}%");
+            $search = trim($request->search);
+            $query->where(function ($q) use ($search) {
+                $q->where('request_number', 'like', "%{$search}%")
+                  ->orWhere('title', 'like', "%{$search}%")
+                  ->orWhereHas('project', function ($pq) use ($search) {
+                      $pq->where('name', 'like', "%{$search}%")
+                        ->orWhere('code', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('requestedBy', function ($uq) use ($search) {
+                      $uq->where('name', 'like', "%{$search}%");
+                  });
+            });
         }
 
-        $requests = $query->paginate(15);
+        $requests = $query->paginate(15)->withQueryString();
         $projects = auth()->user()->accessibleProjects()->where('status', '!=', 'Closed')->get();
 
-        return view('admin.projects.material-requests.index', compact('requests', 'projects'));
+        $stats = [
+            'total' => ProjectMaterialRequest::count(),
+            'pending' => ProjectMaterialRequest::whereIn('status', ['Submitted', 'Under Review'])->count(),
+            'approved' => ProjectMaterialRequest::where('status', 'Approved')->count(),
+            'draft' => ProjectMaterialRequest::where('status', 'Draft')->count(),
+        ];
+
+        return view('admin.projects.material-requests.index', compact('requests', 'projects', 'stats'));
     }
 
     public function create(Request $request)
