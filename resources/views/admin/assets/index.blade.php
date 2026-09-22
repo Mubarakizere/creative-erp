@@ -19,18 +19,18 @@
         </div>
     </div>
 
-    <!-- Metrics Cards (Placeholder logic) -->
+    <!-- Metrics Cards -->
+    @php
+        $metrics = $metrics ?? app(\App\Services\Metrics\AssetMetrics::class)->cards(['company_id' => auth()->user()?->company_id]);
+    @endphp
     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        @inject('metricsService', 'App\Services\Metrics\MetricsService')
-        @php $metrics = collect($metricsService->getCards(['company_id' => auth()->user()->company_id]))->filter(fn($c) => $c['title'] === 'Total Assets' || $c['title'] === 'Net Book Value' || $c['title'] === 'Under Maintenance' || $c['title'] === 'Monthly Depreciation'); @endphp
-        
         @foreach($metrics as $metric)
         <div class="bg-white overflow-hidden shadow rounded-lg">
             <div class="p-5">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <div class="rounded-md bg-{{ $metric['color'] }}-100 p-3">
-                            <i class="fas fa-{{ $metric['icon'] }} text-{{ $metric['color'] }}-600 text-xl"></i>
+                        <div class="rounded-md bg-{{ $metric['color'] ?? 'indigo' }}-100 p-3">
+                            <i class="fas fa-{{ ($metric['icon'] ?? 'cube') === 'currency-dollar' ? 'dollar-sign' : ($metric['icon'] ?? 'cube') }} text-{{ $metric['color'] ?? 'indigo' }}-600 text-xl"></i>
                         </div>
                     </div>
                     <div class="ml-5 w-0 flex-1">

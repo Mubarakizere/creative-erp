@@ -9,6 +9,7 @@ use App\Models\Branch;
 use App\Models\Department;
 use App\Models\User;
 use App\Services\Asset\AssetService;
+use App\Services\Metrics\AssetMetrics;
 use Illuminate\Http\Request;
 
 class AssetController extends Controller
@@ -21,7 +22,7 @@ class AssetController extends Controller
         $this->authorizeResource(Asset::class, 'asset');
     }
 
-    public function index(Request $request)
+    public function index(Request $request, AssetMetrics $assetMetrics)
     {
         $query = Asset::with(['category', 'assignedUser', 'department', 'branch'])
             ->where('company_id', auth()->user()->company_id);
@@ -45,8 +46,9 @@ class AssetController extends Controller
 
         $assets = $query->paginate(15)->withQueryString();
         $categories = AssetCategory::where('company_id', auth()->user()->company_id)->get();
+        $metrics = $assetMetrics->cards(['company_id' => auth()->user()->company_id]);
 
-        return view('admin.assets.index', compact('assets', 'categories'));
+        return view('admin.assets.index', compact('assets', 'categories', 'metrics'));
     }
 
     public function create()

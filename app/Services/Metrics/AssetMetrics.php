@@ -14,8 +14,12 @@ class AssetMetrics implements \App\Contracts\MetricProvider
     {
         $query = Asset::query();
         
-        if (!empty($filters['company_id'])) {
-            $query->where('company_id', $filters['company_id']);
+        if (array_key_exists('company_id', $filters)) {
+            if ($filters['company_id'] !== null) {
+                $query->where('company_id', $filters['company_id']);
+            } else {
+                $query->whereNull('company_id');
+            }
         }
         
         $totalAssets = (clone $query)->count();
@@ -30,9 +34,13 @@ class AssetMetrics implements \App\Contracts\MetricProvider
             ->whereYear('period_date', now()->year)
             ->whereMonth('period_date', now()->month);
             
-        if (!empty($filters['company_id'])) {
+        if (array_key_exists('company_id', $filters)) {
             $currentMonthDepreciation->whereHas('asset', function($q) use ($filters) {
-                $q->where('company_id', $filters['company_id']);
+                if ($filters['company_id'] !== null) {
+                    $q->where('company_id', $filters['company_id']);
+                } else {
+                    $q->whereNull('company_id');
+                }
             });
         }
         $monthlyDepreciation = $currentMonthDepreciation->sum('amount');
@@ -47,7 +55,7 @@ class AssetMetrics implements \App\Contracts\MetricProvider
             [
                 'title' => 'Net Book Value',
                 'value' => number_format($netBookValue, 2),
-                'icon' => 'currency-dollar',
+                'icon' => 'dollar-sign',
                 'color' => 'green',
             ],
             [

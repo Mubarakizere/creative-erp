@@ -58,8 +58,14 @@ class ChartOfAccountController extends Controller
 
     public function create()
     {
-        $companyId = auth()->user()->company_id ?? 1;
+        $companyId = auth()->user()->company_id ?? (\App\Models\Company::first()?->id ?? 1);
         $accountTypes = AccountType::where('company_id', $companyId)->get();
+
+        if ($accountTypes->isEmpty()) {
+            \Database\Seeders\AccountTypeSeeder::seedForCompany($companyId);
+            $accountTypes = AccountType::where('company_id', $companyId)->get();
+        }
+
         $parentAccounts = ChartOfAccount::where('company_id', $companyId)->get();
 
         return view('admin.finance.accounting.chart-of-accounts.create', compact('accountTypes', 'parentAccounts'));
@@ -67,7 +73,7 @@ class ChartOfAccountController extends Controller
 
     public function store(Request $request)
     {
-        $companyId = auth()->user()->company_id ?? 1;
+        $companyId = auth()->user()->company_id ?? (\App\Models\Company::first()?->id ?? 1);
         
         $validated = $request->validate([
             'account_type_id' => 'required|exists:account_types,id',
@@ -88,8 +94,14 @@ class ChartOfAccountController extends Controller
 
     public function edit(ChartOfAccount $chartOfAccount)
     {
-        $companyId = auth()->user()->company_id ?? 1;
+        $companyId = auth()->user()->company_id ?? $chartOfAccount->company_id ?? (\App\Models\Company::first()?->id ?? 1);
         $accountTypes = AccountType::where('company_id', $companyId)->get();
+
+        if ($accountTypes->isEmpty()) {
+            \Database\Seeders\AccountTypeSeeder::seedForCompany($companyId);
+            $accountTypes = AccountType::where('company_id', $companyId)->get();
+        }
+
         $parentAccounts = ChartOfAccount::where('company_id', $companyId)->where('id', '!=', $chartOfAccount->id)->get();
 
         return view('admin.finance.accounting.chart-of-accounts.edit', compact('chartOfAccount', 'accountTypes', 'parentAccounts'));

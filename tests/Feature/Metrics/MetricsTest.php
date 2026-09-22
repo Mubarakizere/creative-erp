@@ -46,4 +46,35 @@ class MetricsTest extends TestCase
 
         $this->assertEquals(['cached' => true], $result);
     }
+
+    public function test_metrics_service_get_cards_alias()
+    {
+        $metricsService = app(MetricsService::class);
+        $cards = $metricsService->getCards();
+
+        $this->assertIsArray($cards);
+        $this->assertArrayHasKey('companies', $cards);
+    }
+
+    public function test_asset_metrics_cards()
+    {
+        $assetMetrics = app(\App\Services\Metrics\AssetMetrics::class);
+        $cards = $assetMetrics->cards();
+
+        $this->assertCount(4, $cards);
+        $titles = array_column($cards, 'title');
+        $this->assertContains('Total Assets', $titles);
+        $this->assertContains('Net Book Value', $titles);
+        $this->assertContains('Monthly Depreciation', $titles);
+        $this->assertContains('Under Maintenance', $titles);
+    }
+
+    public function test_admin_assets_index_route_renders_successfully()
+    {
+        $response = $this->get(route('admin.assets.index'));
+        $response->assertStatus(200);
+        $response->assertSee('Fixed Assets');
+        $response->assertSee('Total Assets');
+        $response->assertSee('Net Book Value');
+    }
 }

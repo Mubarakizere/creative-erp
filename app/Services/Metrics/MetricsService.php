@@ -146,4 +146,28 @@ class MetricsService
             'chartData' => $chartService->getChartData($filters),
         ], $this->widgets($filters));
     }
+
+    /**
+     * Alias for cards() to support getCards() calls.
+     */
+    public function getCards(array $filters = []): array
+    {
+        return $this->cards($filters);
+    }
+
+    /**
+     * Alias for widgets() to support getWidgets() calls.
+     */
+    public function getWidgets(array $filters = []): array
+    {
+        return $this->widgets($filters);
+    }
+
+    /**
+     * Alias for reports() to support getReports() calls.
+     */
+    public function getReports(array $filters = []): array
+    {
+        return $this->reports($filters);
+    }
 }
