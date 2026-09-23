@@ -241,7 +241,7 @@
                 @can('delete', $chartOfAccount)
                     @if(!$chartOfAccount->is_system)
                         <button type="button" 
-                                onclick="if(confirm('Are you sure you want to permanently delete account {{ $chartOfAccount->code }}?')) document.getElementById('delete-coa-form').submit()" 
+                                @click="$dispatch('open-modal', 'delete-coa-{{ $chartOfAccount->id }}')" 
                                 class="px-4 py-2 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-xl transition-colors border border-rose-200 shadow-sm">
                             Delete Account
                         </button>
@@ -265,10 +265,17 @@
 
     @can('delete', $chartOfAccount)
         @if(!$chartOfAccount->is_system)
-            <form action="{{ route('admin.finance.accounting.chart-of-accounts.destroy', $chartOfAccount) }}" method="POST" id="delete-coa-form" class="hidden">
+            <form action="{{ route('admin.finance.accounting.chart-of-accounts.destroy', $chartOfAccount) }}" method="POST" id="form-delete-coa-{{ $chartOfAccount->id }}" class="hidden">
                 @csrf
                 @method('DELETE')
             </form>
+            <x-confirm-modal
+                name="delete-coa-{{ $chartOfAccount->id }}"
+                title="Delete Account"
+                message="Are you sure you want to permanently delete account '{{ $chartOfAccount->code }} - {{ $chartOfAccount->name }}'? This action cannot be undone."
+                confirmText="Delete Account"
+                confirmType="danger"
+            />
         @endif
     @endcan
 

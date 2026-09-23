@@ -155,7 +155,7 @@
                 @can('delete', $accountType)
                     @if($accountType->chart_of_accounts_count === 0)
                         <button type="button" 
-                                onclick="if(confirm('Are you sure you want to permanently delete this account type?')) document.getElementById('delete-type-form').submit()" 
+                                @click="$dispatch('open-modal', 'delete-type-{{ $accountType->id }}')" 
                                 class="px-4 py-2 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-xl transition-colors border border-rose-200 shadow-sm">
                             Delete Type
                         </button>
@@ -181,10 +181,17 @@
 
     @can('delete', $accountType)
         @if($accountType->chart_of_accounts_count === 0)
-            <form action="{{ route('admin.account-types.destroy', $accountType) }}" method="POST" id="delete-type-form" class="hidden">
+            <form action="{{ route('admin.account-types.destroy', $accountType) }}" method="POST" id="form-delete-type-{{ $accountType->id }}" class="hidden">
                 @csrf
                 @method('DELETE')
             </form>
+            <x-confirm-modal
+                name="delete-type-{{ $accountType->id }}"
+                title="Delete Account Type"
+                message="Are you sure you want to permanently delete account type '{{ $accountType->name }}'? This action cannot be undone."
+                confirmText="Delete Account Type"
+                confirmType="danger"
+            />
         @endif
     @endcan
 </x-layouts.admin>
