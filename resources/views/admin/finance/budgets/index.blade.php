@@ -59,7 +59,7 @@
 
             <x-stats-card 
                 title="Total Allocated Capital" 
-                :value="format_currency($stats['total_amount'] ?? 0, session('currency'))" 
+                :value="format_currency($stats['total_amount'] ?? 0, 'RWF')" 
                 color="emerald"
             >
                 <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -189,14 +189,14 @@
                 {{-- Secondary Filter Row: Min/Max Budget & Action Buttons --}}
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2 border-t border-slate-100">
                     <div>
-                        <label for="min_amount" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Min Budget ($)</label>
+                        <label for="min_amount" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Min Budget (RWF)</label>
                         <input type="number" step="0.01" name="min_amount" id="min_amount" value="{{ request('min_amount') }}"
                                placeholder="e.g. 10000"
                                class="w-full text-xs rounded-xl border-slate-300 shadow-2xs focus:border-indigo-500 focus:ring-indigo-500 py-2">
                     </div>
 
                     <div>
-                        <label for="max_amount" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Max Budget ($)</label>
+                        <label for="max_amount" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Max Budget (RWF)</label>
                         <input type="number" step="0.01" name="max_amount" id="max_amount" value="{{ request('max_amount') }}"
                                placeholder="e.g. 500000"
                                class="w-full text-xs rounded-xl border-slate-300 shadow-2xs focus:border-indigo-500 focus:ring-indigo-500 py-2">
@@ -328,7 +328,7 @@
                                 <td class="py-4 px-6 text-right">
                                     <div class="space-y-1">
                                         <div class="font-black text-slate-900 text-sm">
-                                            {{ format_currency($budget->total_amount, session('currency')) }}
+                                            {{ format_currency($budget->total_amount, 'RWF') }}
                                         </div>
 
                                         @if($budget->project && $budget->project->actual_cost > 0 && $budget->total_amount > 0)
@@ -339,7 +339,7 @@
                                             <div class="space-y-1 inline-block text-right">
                                                 <div class="flex items-center justify-end gap-1.5 text-[10px]">
                                                     <span class="text-slate-400">Spent:</span>
-                                                    <span class="font-semibold text-slate-700">{{ format_currency($budget->project->actual_cost, session('currency')) }}</span>
+                                                    <span class="font-semibold text-slate-700">{{ format_currency($budget->project->actual_cost, 'RWF') }}</span>
                                                     <span class="font-bold text-slate-500">({{ $utilization }}%)</span>
                                                 </div>
                                                 <div class="w-28 bg-slate-100 rounded-full h-1.5 overflow-hidden ml-auto">

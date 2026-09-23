@@ -124,7 +124,7 @@
                     </div>
                 </div>
                 <div class="mt-3">
-                    <span class="text-2xl font-black text-slate-900 tracking-tight">{{ format_currency($totalBudget, session('currency')) }}</span>
+                    <span class="text-2xl font-black text-slate-900 tracking-tight">{{ format_currency($totalBudget, 'RWF') }}</span>
                     <p class="text-xs text-slate-500 mt-1">Across {{ count($analysis['lines']) }} activity lines</p>
                 </div>
             </div>
@@ -138,7 +138,7 @@
                     </div>
                 </div>
                 <div class="mt-3">
-                    <span class="text-2xl font-black text-slate-900 tracking-tight">{{ format_currency($totalActual, session('currency')) }}</span>
+                    <span class="text-2xl font-black text-slate-900 tracking-tight">{{ format_currency($totalActual, 'RWF') }}</span>
                     <p class="text-xs text-slate-500 mt-1">Materials issued & direct costs</p>
                 </div>
             </div>
@@ -153,7 +153,7 @@
                 </div>
                 <div class="mt-3">
                     <span class="text-2xl font-black tracking-tight {{ $variance >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">
-                        {{ $variance >= 0 ? '+' : '' }}{{ format_currency($variance, session('currency')) }}
+                        {{ $variance >= 0 ? '+' : '' }}{{ format_currency($variance, 'RWF') }}
                     </span>
                     <p class="text-xs {{ $variance >= 0 ? 'text-emerald-700' : 'text-rose-600' }} mt-1 font-semibold">
                         {{ $variance >= 0 ? 'Under budget (Safe)' : 'Budget overrun!' }}
@@ -200,9 +200,9 @@
                         <tr class="bg-slate-100/70 border-b border-slate-200 text-slate-700 font-bold uppercase tracking-wider">
                             <th class="py-3.5 px-6">Project Activity / Task</th>
                             <th class="py-3.5 px-6">Cost Category</th>
-                            <th class="py-3.5 px-6 text-right">Allocated Budget</th>
-                            <th class="py-3.5 px-6 text-right">Actual Spent</th>
-                            <th class="py-3.5 px-6 text-right">Variance ($)</th>
+                            <th class="py-3.5 px-6 text-right">Allocated Budget (RWF)</th>
+                            <th class="py-3.5 px-6 text-right">Actual Spent (RWF)</th>
+                            <th class="py-3.5 px-6 text-right">Variance (RWF)</th>
                             <th class="py-3.5 px-6 text-right">Utilization</th>
                             <th class="py-3.5 px-6 text-center">Status</th>
                         </tr>
@@ -239,17 +239,17 @@
 
                                 {{-- Budget Amount --}}
                                 <td class="py-3.5 px-6 text-right font-extrabold text-slate-900">
-                                    {{ format_currency($line['budget_amount'], session('currency')) }}
+                                    {{ format_currency($line['budget_amount'], 'RWF') }}
                                 </td>
 
                                 {{-- Actual Amount --}}
                                 <td class="py-3.5 px-6 text-right font-bold text-slate-700">
-                                    {{ format_currency($line['actual_amount'], session('currency')) }}
+                                    {{ format_currency($line['actual_amount'], 'RWF') }}
                                 </td>
 
-                                {{-- Variance ($) --}}
+                                {{-- Variance (RWF) --}}
                                 <td class="py-3.5 px-6 text-right font-bold {{ $line['variance'] >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">
-                                    {{ $line['variance'] >= 0 ? '+' : '' }}{{ format_currency($line['variance'], session('currency')) }}
+                                    {{ $line['variance'] >= 0 ? '+' : '' }}{{ format_currency($line['variance'], 'RWF') }}
                                 </td>
 
                                 {{-- Utilization (%) --}}
@@ -286,13 +286,13 @@
                                 TOTAL PROJECT BUDGET
                             </td>
                             <td class="py-4 px-6 text-right text-sm font-black text-slate-900">
-                                {{ format_currency($totalBudget, session('currency')) }}
+                                {{ format_currency($totalBudget, 'RWF') }}
                             </td>
                             <td class="py-4 px-6 text-right text-sm font-black text-slate-700">
-                                {{ format_currency($totalActual, session('currency')) }}
+                                {{ format_currency($totalActual, 'RWF') }}
                             </td>
                             <td class="py-4 px-6 text-right text-sm font-black {{ $variance >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">
-                                {{ $variance >= 0 ? '+' : '' }}{{ format_currency($variance, session('currency')) }}
+                                {{ $variance >= 0 ? '+' : '' }}{{ format_currency($variance, 'RWF') }}
                             </td>
                             <td class="py-4 px-6 text-right text-xs font-bold text-slate-700">
                                 {{ $utilization }}%

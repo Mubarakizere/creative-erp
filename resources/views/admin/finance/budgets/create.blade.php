@@ -156,7 +156,7 @@
                             <tr class="bg-slate-100/70 border-b border-slate-200 text-slate-700 font-bold uppercase tracking-wider">
                                 <th class="py-3 px-4 w-72">Project Activity / Task</th>
                                 <th class="py-3 px-4 w-48">Cost Category</th>
-                                <th class="py-3 px-4 w-44 text-right">Allocated Amount ($)</th>
+                                <th class="py-3 px-4 w-44 text-right">Allocated Amount (RWF)</th>
                                 <th class="py-3 px-4">Notes / Scope</th>
                                 <th class="py-3 px-2 w-12 text-center"></th>
                             </tr>
@@ -328,10 +328,9 @@
                 },
 
                 formatCurrency(val) {
-                    return new Intl.NumberFormat('en-US', {
-                        style: 'currency',
-                        currency: 'USD',
-                        minimumFractionDigits: 2
+                    return 'RWF ' + new Intl.NumberFormat('en-US', {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 2
                     }).format(val || 0);
                 }
             };
