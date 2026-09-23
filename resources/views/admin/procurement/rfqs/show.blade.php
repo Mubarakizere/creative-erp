@@ -64,20 +64,65 @@
         </div>
 
         {{-- Overview Cards --}}
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {{-- Project & Company Card --}}
+            @php
+                $project = $rfq->project ?? $rfq->purchaseRequisition?->project;
+                $company = $rfq->company ?? $project?->company;
+            @endphp
+            <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs">
+                <div class="flex items-center gap-3 mb-3 pb-3 border-b border-slate-100">
+                    <div class="w-9 h-9 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center font-bold">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                    </div>
+                    <div>
+                        <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Project & Company</div>
+                        @if($project)
+                            <a href="{{ route('admin.projects.show', $project->id) }}" class="text-sm font-extrabold text-indigo-600 hover:underline line-clamp-1">
+                                {{ $project->name }}
+                            </a>
+                        @else
+                            <div class="text-sm font-bold text-slate-700">General / Not Assigned</div>
+                        @endif
+                    </div>
+                </div>
+                <div class="space-y-1.5 text-xs text-slate-600">
+                    <div>
+                        <span class="font-medium text-slate-400">Project Code:</span>
+                        @if($project)
+                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-mono font-medium bg-slate-100 text-slate-700">
+                                {{ $project->project_code ?? $project->code }}
+                            </span>
+                        @else
+                            <span class="text-slate-400">—</span>
+                        @endif
+                    </div>
+                    <div>
+                        <span class="font-medium text-slate-400">Company:</span>
+                        @if($company)
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-violet-50 text-violet-700 border border-violet-100">
+                                {{ $company->name }}
+                            </span>
+                        @else
+                            <span class="text-slate-400">N/A</span>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
             {{-- Supplier Details Card --}}
             <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs">
                 <div class="flex items-center gap-3 mb-3 pb-3 border-b border-slate-100">
                     <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                     </div>
                     <div>
                         <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Supplier</div>
-                        <div class="text-base font-extrabold text-slate-900">{{ $rfq->supplier?->name ?? 'Unknown Supplier' }}</div>
+                        <div class="text-sm font-extrabold text-slate-900 line-clamp-1">{{ $rfq->supplier?->name ?? 'Unknown Supplier' }}</div>
                     </div>
                 </div>
                 <div class="space-y-1.5 text-xs text-slate-600">
-                    <div><span class="font-medium text-slate-400">Supplier Code:</span> {{ $rfq->supplier?->code ?? 'N/A' }}</div>
+                    <div><span class="font-medium text-slate-400">Code:</span> {{ $rfq->supplier?->code ?? 'N/A' }}</div>
                     <div><span class="font-medium text-slate-400">Email:</span> {{ $rfq->supplier?->email ?? 'N/A' }}</div>
                     <div><span class="font-medium text-slate-400">Phone:</span> {{ $rfq->supplier?->phone ?? 'N/A' }}</div>
                 </div>
@@ -92,17 +137,17 @@
                     <div>
                         <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Purchase Requisition</div>
                         @if($rfq->purchaseRequisition)
-                            <a href="{{ route('admin.procurement.requisitions.show', $rfq->purchaseRequisition->id) }}" class="text-base font-extrabold text-indigo-600 hover:underline">
+                            <a href="{{ route('admin.procurement.requisitions.show', $rfq->purchaseRequisition->id) }}" class="text-sm font-extrabold text-indigo-600 hover:underline">
                                 {{ $rfq->purchaseRequisition->code }}
                             </a>
                         @else
-                            <div class="text-base font-bold text-slate-700">Direct RFQ</div>
+                            <div class="text-sm font-bold text-slate-700">Direct RFQ</div>
                         @endif
                     </div>
                 </div>
                 <div class="space-y-1.5 text-xs text-slate-600">
-                    <div><span class="font-medium text-slate-400">Project / Scope:</span> {{ $rfq->purchaseRequisition?->project?->name ?? 'General' }}</div>
-                    <div><span class="font-medium text-slate-400">Requested By:</span> {{ $rfq->purchaseRequisition?->requestedBy?->name ?? 'System' }}</div>
+                    <div><span class="font-medium text-slate-400">Source:</span> {{ $rfq->purchaseRequisition ? 'PR #' . $rfq->purchaseRequisition->code : 'Direct Request' }}</div>
+                    <div><span class="font-medium text-slate-400">Requested By:</span> {{ $rfq->purchaseRequisition?->requestedBy?->name ?? 'Direct Procurement' }}</div>
                 </div>
             </div>
 
@@ -114,7 +159,7 @@
                     </div>
                     <div>
                         <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Dates & Lead Time</div>
-                        <div class="text-base font-extrabold text-slate-900">
+                        <div class="text-sm font-extrabold text-slate-900">
                             {{ $rfq->issue_date ? $rfq->issue_date->format('M d, Y') : 'N/A' }}
                         </div>
                     </div>

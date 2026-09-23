@@ -189,6 +189,12 @@
                                             Task: {{ $requestItem->task->name }}
                                         </span>
                                     @endif
+                                    @if($requestItem->company)
+                                        <span class="text-[10px] text-purple-600 font-medium mt-0.5 flex items-center gap-1">
+                                            <svg class="w-3 h-3 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                                            {{ $requestItem->company->name }}
+                                        </span>
+                                    @endif
                                 </div>
                             </td>
 

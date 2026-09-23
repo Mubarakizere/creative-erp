@@ -37,25 +37,23 @@ class BudgetCreationFixTest extends TestCase
             'is_closed' => false,
         ]);
 
-        $accountType = AccountType::create([
+        $project = \App\Models\Project::factory()->create([
             'company_id' => $company->id,
-            'name' => 'Operating Expense',
-            'category' => 'Expense',
-            'is_active' => true,
+            'project_manager_id' => $user->id,
+            'name' => 'HQ Construction Project',
         ]);
 
-        ChartOfAccount::create([
+        $task = \App\Models\Task::factory()->create([
+            'project_id' => $project->id,
             'company_id' => $company->id,
-            'account_type_id' => $accountType->id,
-            'code' => '5001',
-            'name' => 'Operational Expenses',
-            'is_active' => true,
+            'name' => 'Structural Framing',
         ]);
 
         $response = $this->actingAs($user)->get(route('admin.finance.budgets.create'));
 
         $response->assertStatus(200);
-        $response->assertSee('Operational Expenses');
+        $response->assertSee('HQ Construction Project');
+        $response->assertSee('Structural Framing');
     }
 
     public function test_budget_can_be_stored_successfully()
@@ -93,8 +91,16 @@ class BudgetCreationFixTest extends TestCase
             'is_active' => true,
         ]);
 
+        $project = \App\Models\Project::factory()->create([
+            'company_id' => $company->id,
+            'project_manager_id' => $user->id,
+            'name' => 'Marketing Campaign Project',
+            'status' => 'In Progress',
+        ]);
+
         $response = $this->actingAs($user)->post(route('admin.finance.budgets.store'), [
             'name' => 'Q3 Marketing Budget',
+            'project_id' => $project->id,
             'fiscal_year_id' => $fiscalYear->id,
             'description' => 'Marketing expenses for Q3',
             'lines' => [
@@ -112,6 +118,7 @@ class BudgetCreationFixTest extends TestCase
         $response->assertRedirect(route('admin.finance.budgets.show', $budget));
         $this->assertDatabaseHas('budgets', [
             'name' => 'Q3 Marketing Budget',
+            'project_id' => $project->id,
             'fiscal_year_id' => $fiscalYear->id,
             'total_amount' => 50000,
         ]);

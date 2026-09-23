@@ -14,7 +14,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Purchase Requisitions</h1>
-                <p class="mt-1 text-sm text-slate-500 font-medium">Manage internal purchase requests, compare supplier quotes, and trigger purchase orders.</p>
+                <p class="mt-1 text-sm text-slate-500 font-medium">Manage project & general purchase requests, compare supplier quotes, and trigger purchase orders.</p>
             </div>
             <div class="flex items-center gap-3">
                 @can('create', App\Models\PurchaseRequisition::class)
@@ -36,7 +36,7 @@
                     </div>
                 </div>
                 <div class="mt-2 text-2xl font-extrabold text-slate-900">{{ $stats['total'] ?? 0 }}</div>
-                <div class="text-xs text-slate-400 mt-0.5">All created requisitions</div>
+                <div class="text-xs text-slate-400 mt-0.5">All requisitions</div>
             </div>
 
             <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs">
@@ -75,15 +75,43 @@
 
         {{-- Filter & Search Bar --}}
         <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
-            <form method="GET" action="{{ route('admin.procurement.requisitions.index') }}" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <form method="GET" action="{{ route('admin.procurement.requisitions.index') }}" class="flex flex-col lg:flex-row items-stretch lg:items-center gap-3">
+                {{-- Search Box --}}
                 <div class="relative flex-1">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </div>
-                    <input type="text" name="search" placeholder="Search by requisition code..." value="{{ request('search') }}" class="block w-full pl-9 pr-3 py-2 border border-slate-300 rounded-xl leading-5 bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-colors shadow-xs">
+                    <input type="text" name="search" placeholder="Search by PR code, project name, or requester..." value="{{ request('search') }}" class="block w-full pl-9 pr-3 py-2 border border-slate-300 rounded-xl leading-5 bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-colors shadow-xs">
                 </div>
 
-                <div class="w-full sm:w-48">
+                {{-- Project Filter Dropdown --}}
+                <div class="w-full sm:w-60">
+                    <select name="project_id" onchange="this.form.submit()" class="block w-full px-3 py-2 border border-slate-300 rounded-xl leading-5 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-colors shadow-xs">
+                        <option value="">All Projects</option>
+                        @foreach($projects as $project)
+                            <option value="{{ $project->id }}" {{ request('project_id') == $project->id ? 'selected' : '' }}>
+                                {{ $project->name }} ({{ $project->project_code }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- Company Filter (if applicable) --}}
+                @if(isset($companies) && $companies->count() > 1 && (auth()->user()->hasRole('Super Admin') || auth()->user()->hasRole('CEO') || !auth()->user()->company_id))
+                    <div class="w-full sm:w-48">
+                        <select name="company_id" onchange="this.form.submit()" class="block w-full px-3 py-2 border border-slate-300 rounded-xl leading-5 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-colors shadow-xs">
+                            <option value="">All Companies</option>
+                            @foreach($companies as $comp)
+                                <option value="{{ $comp->id }}" {{ request('company_id') == $comp->id ? 'selected' : '' }}>
+                                    {{ $comp->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                @endif
+
+                {{-- Status Filter Dropdown --}}
+                <div class="w-full sm:w-44">
                     <select name="status" onchange="this.form.submit()" class="block w-full px-3 py-2 border border-slate-300 rounded-xl leading-5 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-colors shadow-xs">
                         <option value="">All Statuses</option>
                         <option value="draft" {{ request('status') === 'draft' ? 'selected' : '' }}>Draft</option>
@@ -93,12 +121,13 @@
                     </select>
                 </div>
                 
+                {{-- Action Buttons --}}
                 <div class="flex items-center gap-2 shrink-0">
                     <button type="submit" class="inline-flex items-center px-4 py-2 text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors shadow-xs border border-slate-200">
                         <svg class="w-4 h-4 mr-1.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
                         Filter
                     </button>
-                    @if(request()->has('search') || request()->has('status'))
+                    @if(request()->has('search') || request()->has('status') || request()->has('project_id') || request()->has('company_id'))
                         <a href="{{ route('admin.procurement.requisitions.index') }}" class="inline-flex items-center px-3.5 py-2 text-sm font-medium text-slate-500 hover:text-slate-900 bg-white border border-slate-300 rounded-xl transition-colors">
                             Reset
                         </a>
@@ -114,7 +143,8 @@
                     <thead>
                         <tr class="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
                             <th class="py-3.5 px-6">Requisition Code</th>
-                            <th class="py-3.5 px-6">Origin / Project</th>
+                            <th class="py-3.5 px-6">Project & Company</th>
+                            <th class="py-3.5 px-6">Priority & Timeline</th>
                             <th class="py-3.5 px-6">Items & Quotes</th>
                             <th class="py-3.5 px-6">Requested By</th>
                             <th class="py-3.5 px-6">Status</th>
@@ -133,33 +163,79 @@
                                     'rejected' => 'bg-rose-50 text-rose-700 border-rose-200',
                                     'cancelled' => 'bg-slate-100 text-slate-600 border-slate-200',
                                 ][$statusNormalized] ?? 'bg-slate-100 text-slate-700 border-slate-200';
+
+                                $priorityNormalized = strtolower($pr->priority ?? 'normal');
+                                $priorityBadge = [
+                                    'urgent' => 'bg-rose-50 text-rose-700 border-rose-200',
+                                    'high' => 'bg-amber-50 text-amber-700 border-amber-200',
+                                    'normal' => 'bg-indigo-50 text-indigo-700 border-indigo-200',
+                                    'low' => 'bg-slate-50 text-slate-600 border-slate-200',
+                                ][$priorityNormalized] ?? 'bg-slate-50 text-slate-600 border-slate-200';
                             @endphp
                             <tr class="hover:bg-slate-50/80 transition-colors">
-                                {{-- Code & Date --}}
+                                {{-- Code & Created Date --}}
                                 <td class="py-4 px-6">
                                     <a href="{{ route('admin.procurement.requisitions.show', $pr->id) }}" class="text-sm font-extrabold text-slate-900 hover:text-indigo-600 transition-colors">
                                         {{ $pr->code }}
                                     </a>
                                     <div class="text-[11px] text-slate-400 mt-0.5">
-                                        {{ $pr->created_at ? $pr->created_at->format('M d, Y') : 'N/A' }}
+                                        Created: {{ $pr->created_at ? $pr->created_at->format('M d, Y') : 'N/A' }}
                                     </div>
                                 </td>
 
-                                {{-- Scope / Origin --}}
+                                {{-- Project & Company --}}
                                 <td class="py-4 px-6">
                                     @if($pr->project)
-                                        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
-                                            <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                                            <span class="truncate max-w-[150px]">{{ $pr->project->name }}</span>
+                                        <div class="space-y-1">
+                                            <div class="flex items-center gap-1.5 flex-wrap">
+                                                <a href="{{ route('admin.projects.show', $pr->project_id) }}" class="text-xs font-bold text-slate-900 hover:text-indigo-600 transition-colors">
+                                                    {{ $pr->project->name }}
+                                                </a>
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                                    {{ $pr->project->project_code }}
+                                                </span>
+                                            </div>
+                                            @if($pr->company)
+                                                <div class="flex items-center gap-1 text-[11px] text-slate-500 font-medium">
+                                                    <svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                                                    <span class="truncate max-w-[160px]">{{ $pr->company->name }}</span>
+                                                </div>
+                                            @endif
                                         </div>
                                     @elseif($pr->department)
-                                        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-sky-50 text-sky-700 border border-sky-100">
-                                            <svg class="w-3.5 h-3.5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                                            <span class="truncate max-w-[150px]">{{ $pr->department->name }}</span>
+                                        <div class="space-y-1">
+                                            <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-xs font-semibold bg-sky-50 text-sky-700 border border-sky-100">
+                                                <svg class="w-3.5 h-3.5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                                                <span>{{ $pr->department->name }}</span>
+                                            </div>
+                                            @if($pr->company)
+                                                <div class="text-[11px] text-slate-400">{{ $pr->company->name }}</div>
+                                            @endif
                                         </div>
                                     @else
-                                        <span class="text-xs font-medium text-slate-500">General</span>
+                                        <div class="space-y-1">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium text-slate-600 bg-slate-100 border border-slate-200">
+                                                General Procurement
+                                            </span>
+                                            @if($pr->company)
+                                                <div class="text-[11px] text-slate-400">{{ $pr->company->name }}</div>
+                                            @endif
+                                        </div>
                                     @endif
+                                </td>
+
+                                {{-- Priority & Required Timeline --}}
+                                <td class="py-4 px-6">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold border uppercase tracking-wider {{ $priorityBadge }}">
+                                        {{ $pr->priority ?? 'Normal' }}
+                                    </span>
+                                    <div class="text-[11px] text-slate-500 mt-1">
+                                        @if($pr->required_date)
+                                            Need: <span class="font-semibold text-slate-700">{{ $pr->required_date->format('M d, Y') }}</span>
+                                        @else
+                                            <span class="text-slate-400">No deadline</span>
+                                        @endif
+                                    </div>
                                 </td>
 
                                 {{-- Items & Quotes Count --}}
@@ -257,7 +333,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="py-16 text-center">
+                                <td colspan="7" class="py-16 text-center">
                                     <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3 border border-slate-200/80">
                                         <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 14l2 2 4-4"/></svg>
                                     </div>

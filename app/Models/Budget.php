@@ -19,6 +19,11 @@ class Budget extends Model
         return $this->belongsTo(Company::class);
     }
 
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
+    }
+
     public function fiscalYear()
     {
         return $this->belongsTo(FiscalYear::class);

@@ -18,15 +18,16 @@ class ProjectMaterialRequestService
     public function create(array $data): ProjectMaterialRequest
     {
         return DB::transaction(function () use ($data) {
-            $companyId = $data['company_id'] ?? auth()->user()?->company_id;
-            $requestNumber = $this->generateRequestNumber($companyId);
+            $project = \App\Models\Project::find($data['project_id']);
+            $companyId = $data['company_id'] ?? $project?->company_id ?? auth()->user()?->company_id ?? 1;
+            $requestNumber = !empty($data['request_number']) ? $data['request_number'] : $this->generateRequestNumber($companyId);
 
             $request = ProjectMaterialRequest::create([
                 'company_id' => $companyId,
-                'branch_id' => $data['branch_id'] ?? auth()->user()?->branch_id,
+                'branch_id' => $data['branch_id'] ?? $project?->branch_id ?? auth()->user()?->branch_id,
                 'project_id' => $data['project_id'],
                 'task_id' => $data['task_id'] ?? null,
-                'requested_by' => auth()->id(),
+                'requested_by' => auth()->id() ?? 1,
                 'request_number' => $requestNumber,
                 'request_date' => $data['request_date'] ?? now()->toDateString(),
                 'required_date' => $data['required_date'] ?? null,
@@ -58,7 +59,7 @@ class ProjectMaterialRequestService
     public function update(ProjectMaterialRequest $request, array $data): ProjectMaterialRequest
     {
         return DB::transaction(function () use ($request, $data) {
-            $request->update([
+            $updateData = [
                 'project_id' => $data['project_id'] ?? $request->project_id,
                 'task_id' => array_key_exists('task_id', $data) ? $data['task_id'] : $request->task_id,
                 'request_date' => $data['request_date'] ?? $request->request_date,
@@ -67,7 +68,13 @@ class ProjectMaterialRequestService
                 'priority' => $data['priority'] ?? $request->priority,
                 'notes' => $data['notes'] ?? $request->notes,
                 'updated_by' => auth()->id(),
-            ]);
+            ];
+
+            if (array_key_exists('company_id', $data) && $data['company_id']) {
+                $updateData['company_id'] = $data['company_id'];
+            }
+
+            $request->update($updateData);
 
             if (isset($data['items'])) {
                 // Remove existing items and recreate to handle dynamic additions/removals

@@ -156,4 +156,20 @@ class Task extends Model
     {
         return $this->hasMany(ProjectMaterialIssue::class);
     }
+
+    /**
+     * Get all budget lines allocated to this task/activity.
+     */
+    public function budgetLines(): HasMany
+    {
+        return $this->hasMany(BudgetLine::class, 'task_id');
+    }
+
+    /**
+     * Get the latest budget line allocated to this task.
+     */
+    public function budgetLine(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(BudgetLine::class, 'task_id')->latestOfMany();
+    }
 }

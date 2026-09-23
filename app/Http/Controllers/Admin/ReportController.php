@@ -89,8 +89,15 @@ class ReportController extends Controller
             'branches' => \App\Models\Branch::select('id', 'name', 'company_id')->get(),
             'departments' => \App\Models\Department::select('id', 'name', 'branch_id')->get(),
             'projects' => \App\Models\Project::select('id', 'name')->get(),
-            'clients' => \App\Models\Client::select('id', 'name')->get(),
+            'clients' => \App\Models\Client::select('id', 'display_name', 'company_name', 'first_name', 'last_name')->get()->map(function ($client) {
+                return (object) [
+                    'id' => $client->id,
+                    'name' => $client->name,
+                ];
+            }),
             'users' => \App\Models\User::select('id', 'name', 'department_id')->get(),
+            'warehouses' => \App\Models\Warehouse::select('id', 'name', 'company_id')->get(),
+            'suppliers' => \App\Models\Supplier::select('id', 'name', 'company_id')->get(),
         ];
 
         return view('admin.reports.builder', compact('template', 'options'));

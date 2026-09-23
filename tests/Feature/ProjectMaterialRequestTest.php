@@ -206,4 +206,86 @@ class ProjectMaterialRequestTest extends TestCase
             'status' => 'Approved'
         ]);
     }
+
+    public function test_can_view_create_page_with_companies_and_projects_data()
+    {
+        [$project, $product] = $this->createDependencies();
+
+        $response = $this->actingAs($this->user)->get(route('admin.material-requests.create'));
+
+        $response->assertStatus(200);
+        $response->assertViewIs('admin.projects.material-requests.create');
+        $response->assertViewHas('companies');
+        $response->assertViewHas('projectsData');
+        $response->assertSee('Select a Company');
+        $response->assertSee($this->company->name);
+    }
+
+    public function test_can_create_material_request_with_explicit_company_id()
+    {
+        [$project, $product] = $this->createDependencies();
+        $otherCompany = Company::factory()->create(['name' => 'Secondary Enterprise']);
+
+        $data = [
+            'company_id' => $otherCompany->id,
+            'project_id' => $project->id,
+            'request_date' => now()->toDateString(),
+            'priority' => 'High',
+            'items' => [
+                [
+                    'product_id' => $product->id,
+                    'quantity_requested' => 20,
+                ]
+            ]
+        ];
+
+        $response = $this->actingAs($this->user)->post(route('admin.material-requests.store'), $data);
+
+        $request = ProjectMaterialRequest::where('company_id', $otherCompany->id)->first();
+        $this->assertNotNull($request);
+        $response->assertRedirect(route('admin.material-requests.show', $request));
+        
+        $this->assertDatabaseHas('project_material_requests', [
+            'id' => $request->id,
+            'project_id' => $project->id,
+            'company_id' => $otherCompany->id,
+        ]);
+    }
+
+    public function test_can_update_material_request_company()
+    {
+        [$project, $product] = $this->createDependencies();
+        $otherCompany = Company::factory()->create(['name' => 'Third Enterprise']);
+
+        $request = ProjectMaterialRequest::create([
+            'company_id' => $this->company->id,
+            'project_id' => $project->id,
+            'requested_by' => $this->user->id,
+            'request_number' => 'MR-TEST-04',
+            'request_date' => now()->toDateString(),
+            'status' => 'Draft'
+        ]);
+
+        $updateData = [
+            'company_id' => $otherCompany->id,
+            'project_id' => $project->id,
+            'request_date' => now()->toDateString(),
+            'priority' => 'Normal',
+            'items' => [
+                [
+                    'product_id' => $product->id,
+                    'quantity_requested' => 8,
+                ]
+            ]
+        ];
+
+        $response = $this->actingAs($this->user)->put(route('admin.material-requests.update', $request), $updateData);
+
+        $response->assertRedirect(route('admin.material-requests.show', $request));
+
+        $this->assertDatabaseHas('project_material_requests', [
+            'id' => $request->id,
+            'company_id' => $otherCompany->id,
+        ]);
+    }
 }

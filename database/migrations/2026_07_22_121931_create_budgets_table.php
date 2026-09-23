@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid')->unique();
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('fiscal_year_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('fiscal_year_id')->nullable()->constrained()->nullOnDelete();
             $table->string('name');
             $table->text('description')->nullable();
             $table->decimal('total_amount', 15, 2)->default(0);

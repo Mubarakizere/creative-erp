@@ -626,11 +626,22 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {{-- Budget Tracking --}}
                     <div class="bg-white rounded-2xl p-6 shadow-xs border border-slate-200/80">
-                        <div class="flex items-center gap-3 mb-6">
-                            <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <div class="flex items-center justify-between gap-3 mb-6">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                </div>
+                                <h3 class="text-base font-bold text-slate-900 tracking-tight">Budget Tracking</h3>
                             </div>
-                            <h3 class="text-base font-bold text-slate-900 tracking-tight">Budget Tracking</h3>
+                            @if($project->activeBudget)
+                                <a href="{{ route('admin.finance.budgets.show', $project->activeBudget->id) }}" class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 transition-colors border border-indigo-200">
+                                    Activity Breakdown &rarr;
+                                </a>
+                            @else
+                                <a href="{{ route('admin.finance.budgets.create', ['project_id' => $project->id]) }}" class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 transition-colors border border-indigo-200">
+                                    + Setup Budget
+                                </a>
+                            @endif
                         </div>
                         
                         <div class="space-y-4">

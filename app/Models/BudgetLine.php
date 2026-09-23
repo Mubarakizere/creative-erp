@@ -28,9 +28,23 @@ class BudgetLine extends Model
         return $this->belongsTo(Department::class);
     }
 
+    public function task()
+    {
+        return $this->belongsTo(Task::class, 'task_id');
+    }
+
     public function project()
     {
         return $this->belongsTo(Project::class);
+    }
+
+    public function getActivityTitleAttribute(): string
+    {
+        if ($this->task) {
+            return ($this->task->task_code ? '[' . $this->task->task_code . '] ' : '') . $this->task->name;
+        }
+
+        return $this->activity_name ?? 'General Activity';
     }
 
     public function chartOfAccount()

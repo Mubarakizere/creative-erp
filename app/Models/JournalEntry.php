@@ -35,6 +35,11 @@ class JournalEntry extends Model
         return $this->belongsTo(ChartOfAccount::class);
     }
 
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
+    }
+
     protected static function boot()
     {
         parent::boot();

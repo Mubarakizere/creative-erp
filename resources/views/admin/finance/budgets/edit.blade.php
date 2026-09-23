@@ -1,36 +1,37 @@
-<x-layouts.admin title="Create Project Budget">
+<x-layouts.admin title="Edit Budget - {{ $budget->name }}">
     <x-slot:breadcrumbs>
         @php
             $breadcrumbs = [
                 ['label' => 'Finance', 'url' => '#'],
                 ['label' => 'Budgets', 'url' => route('admin.finance.budgets.index')],
-                ['label' => 'New Project Budget'],
+                ['label' => $budget->name, 'url' => route('admin.finance.budgets.show', $budget)],
+                ['label' => 'Edit'],
             ];
         @endphp
     </x-slot:breadcrumbs>
 
-    <div class="space-y-6" x-data="projectBudgetForm()">
+    <div class="space-y-6" x-data="projectBudgetEditForm()">
         {{-- Page Header --}}
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <div class="flex items-center gap-2 text-sm text-slate-500 mb-1">
-                    <a href="{{ route('admin.finance.budgets.index') }}" class="hover:text-indigo-600 font-medium transition-colors flex items-center gap-1">
+                    <a href="{{ route('admin.finance.budgets.show', $budget) }}" class="hover:text-indigo-600 font-medium transition-colors flex items-center gap-1">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-                        Project Budgets
+                        Quotation / Budget
                     </a>
                     <span>/</span>
-                    <span class="font-semibold text-slate-700">New Budget</span>
+                    <span class="font-semibold text-slate-700">Edit Budget</span>
                 </div>
                 <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                    Create Project Activity Budget
+                    Edit Project Budget: {{ $budget->name }}
                 </h1>
                 <p class="text-xs sm:text-sm text-slate-500 mt-1">
-                    Assign budgetary funds directly to specific project activities and work breakdown tasks.
+                    Adjust activity financial allocations, status, and notes.
                 </p>
             </div>
 
             <div class="flex items-center gap-2">
-                <a href="{{ route('admin.finance.budgets.index') }}" class="px-4 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition-colors shadow-xs">
+                <a href="{{ route('admin.finance.budgets.show', $budget) }}" class="px-4 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition-colors shadow-xs">
                     Cancel
                 </a>
             </div>
@@ -50,49 +51,51 @@
             </div>
         @endif
 
-        <form action="{{ route('admin.finance.budgets.store') }}" method="POST" class="space-y-6">
+        <form action="{{ route('admin.finance.budgets.update', $budget) }}" method="POST" class="space-y-6">
             @csrf
+            @method('PUT')
 
-            {{-- Section 1: Project & Scope Selection --}}
+            {{-- Section 1: Project & Scope Context --}}
             <x-card class="border-slate-200/80 shadow-xs">
                 <div class="border-b border-slate-100 pb-3 mb-5 flex items-center justify-between">
                     <div>
                         <h3 class="text-base font-bold text-slate-900">1. Project & Scope Context</h3>
-                        <p class="text-xs text-slate-500">Select the target project. The budget will directly align with this project's activities.</p>
+                        <p class="text-xs text-slate-500">Project details linked to this budget.</p>
                     </div>
                     <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
-                        Project-Centric Budget
+                        {{ $budget->project?->project_code ?? 'Project Budget' }}
                     </span>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                    {{-- Project Select --}}
+                    {{-- Project (Read-only on edit to preserve historical activity integrity) --}}
                     <div class="md:col-span-2">
-                        <label for="project_id" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Target Project <span class="text-rose-500">*</span>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                            Target Project
                         </label>
-                        <select name="project_id" id="project_id" x-model="selectedProjectId" @change="onProjectChange()" required
-                                class="w-full text-sm font-semibold rounded-xl border-slate-300 shadow-xs focus:border-indigo-500 focus:ring-indigo-500 py-2.5">
-                            <option value="">— Select Project —</option>
-                            @foreach($projects as $p)
-                                <option value="{{ $p->id }}" {{ (old('project_id', $selectedProjectId) == $p->id) ? 'selected' : '' }}>
-                                    {{ $p->name }} ({{ $p->project_code ?? $p->code }}) &bull; {{ $p->company?->name ?? 'General' }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <p class="text-[11px] text-slate-400 mt-1">Selecting a project unlocks its activities below and synchronizes its estimated budget.</p>
+                        <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-900 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span>{{ $budget->project?->name ?? 'General Project' }}</span>
+                                <span class="px-2 py-0.5 rounded text-[11px] font-mono bg-slate-200 text-slate-700 font-semibold">
+                                    {{ $budget->project?->project_code ?? 'N/A' }}
+                                </span>
+                            </div>
+                            <span class="text-xs font-medium text-slate-500">
+                                {{ $budget->project?->company?->name ?? $budget->company?->name }}
+                            </span>
+                        </div>
                     </div>
 
-                    {{-- Fiscal Year (Optional) --}}
+                    {{-- Fiscal Year --}}
                     <div>
                         <label for="fiscal_year_id" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Fiscal Year <span class="text-slate-400 font-normal">(Optional)</span>
+                            Fiscal Year
                         </label>
                         <select name="fiscal_year_id" id="fiscal_year_id"
                                 class="w-full text-sm rounded-xl border-slate-300 shadow-xs focus:border-indigo-500 focus:ring-indigo-500 py-2.5">
-                            <option value="">— No Fiscal Year Restriction —</option>
+                            <option value="">— No Fiscal Year —</option>
                             @foreach($fiscalYears as $fy)
-                                <option value="{{ $fy->id }}" {{ old('fiscal_year_id') == $fy->id ? 'selected' : '' }}>
+                                <option value="{{ $fy->id }}" {{ old('fiscal_year_id', $budget->fiscal_year_id) == $fy->id ? 'selected' : '' }}>
                                     {{ $fy->name }}
                                 </option>
                             @endforeach
@@ -104,32 +107,31 @@
                         <label for="name" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                             Budget Title <span class="text-rose-500">*</span>
                         </label>
-                        <input type="text" name="name" id="name" x-model="budgetName" required
-                               class="w-full text-sm rounded-xl border-slate-300 shadow-xs focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
-                               placeholder="e.g. Alpha Tower - Execution Budget">
+                        <input type="text" name="name" id="name" value="{{ old('name', $budget->name) }}" required
+                               class="w-full text-sm rounded-xl border-slate-300 shadow-xs focus:border-indigo-500 focus:ring-indigo-500 py-2.5">
                     </div>
 
-                    {{-- Initial Status --}}
+                    {{-- Status --}}
                     <div>
                         <label for="status" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Initial Status
+                            Budget Status
                         </label>
                         <select name="status" id="status"
-                                class="w-full text-sm rounded-xl border-slate-300 shadow-xs focus:border-indigo-500 focus:ring-indigo-500 py-2.5">
-                            <option value="draft" selected>Draft</option>
-                            <option value="active">Active (Set as Project Budget)</option>
-                            <option value="approved">Approved</option>
+                                class="w-full text-sm font-semibold rounded-xl border-slate-300 shadow-xs focus:border-indigo-500 focus:ring-indigo-500 py-2.5">
+                            <option value="draft" {{ old('status', $budget->status) === 'draft' ? 'selected' : '' }}>Draft</option>
+                            <option value="active" {{ old('status', $budget->status) === 'active' ? 'selected' : '' }}>Active (Syncs Project Budget)</option>
+                            <option value="approved" {{ old('status', $budget->status) === 'approved' ? 'selected' : '' }}>Approved</option>
+                            <option value="closed" {{ old('status', $budget->status) === 'closed' ? 'selected' : '' }}>Closed</option>
                         </select>
                     </div>
 
                     {{-- Description --}}
                     <div class="md:col-span-3">
                         <label for="description" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Budget Description & Justification <span class="text-slate-400 font-normal">(Optional)</span>
+                            Budget Notes & Justification
                         </label>
                         <textarea name="description" id="description" rows="2"
-                                  class="w-full text-sm rounded-xl border-slate-300 shadow-xs focus:border-indigo-500 focus:ring-indigo-500"
-                                  placeholder="Provide context, constraints, or milestone phases for this project budget..."></textarea>
+                                  class="w-full text-sm rounded-xl border-slate-300 shadow-xs focus:border-indigo-500 focus:ring-indigo-500">{{ old('description', $budget->description) }}</textarea>
                     </div>
                 </div>
             </x-card>
@@ -139,14 +141,12 @@
                 <div class="p-4 border-b border-slate-100 bg-slate-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
                         <h3 class="text-base font-bold text-slate-900">2. Activity Budget Allocations</h3>
-                        <p class="text-xs text-slate-500">Allocate money to each project task/activity. Actual expenses will be tracked against these lines.</p>
+                        <p class="text-xs text-slate-500">Edit allocations per task or activity.</p>
                     </div>
 
-                    <div class="flex items-center gap-3">
-                        <div class="text-right">
-                            <span class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Allocated Budget</span>
-                            <span class="text-xl font-black text-emerald-600" x-text="formatCurrency(totalAmount)"></span>
-                        </div>
+                    <div class="text-right">
+                        <span class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Allocated Budget</span>
+                        <span class="text-xl font-black text-emerald-600" x-text="formatCurrency(totalAmount)"></span>
                     </div>
                 </div>
 
@@ -177,11 +177,11 @@
                                                 </select>
                                             </template>
 
-                                            {{-- Fallback / Custom Activity Name --}}
+                                            {{-- Custom Activity Name --}}
                                             <div>
                                                 <input type="text" :name="`lines[${index}][activity_name]`" x-model="line.activity_name"
                                                        class="w-full text-xs rounded-lg border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 py-1.5"
-                                                       :placeholder="projectTasks.length > 0 ? 'Or custom activity name...' : 'Enter activity / task name...'">
+                                                       placeholder="Activity name...">
                                             </div>
                                         </div>
                                     </td>
@@ -199,19 +199,17 @@
 
                                     {{-- Amount --}}
                                     <td class="py-3 px-4 align-top">
-                                        <div class="relative rounded-lg shadow-2xs">
-                                            <input type="number" step="0.01" min="0" required
-                                                   :name="`lines[${index}][amount]`" x-model.number="line.amount"
-                                                   class="w-full text-xs text-right font-bold text-slate-900 rounded-lg border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 py-1.5 pr-3"
-                                                   placeholder="0.00">
-                                        </div>
+                                        <input type="number" step="0.01" min="0" required
+                                               :name="`lines[${index}][amount]`" x-model.number="line.amount"
+                                               class="w-full text-xs text-right font-bold text-slate-900 rounded-lg border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 py-1.5 pr-3"
+                                               placeholder="0.00">
                                     </td>
 
                                     {{-- Notes --}}
                                     <td class="py-3 px-4 align-top">
                                         <input type="text" :name="`lines[${index}][notes]`" x-model="line.notes"
                                                class="w-full text-xs rounded-lg border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 py-1.5"
-                                               placeholder="Specifications, limits, or team notes...">
+                                               placeholder="Notes...">
                                     </td>
 
                                     {{-- Remove Button --}}
@@ -244,63 +242,28 @@
 
             {{-- Footer Action Bar --}}
             <div class="flex items-center justify-between pt-4 border-t border-slate-200">
-                <a href="{{ route('admin.finance.budgets.index') }}" class="px-5 py-2.5 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition-colors shadow-xs">
-                    Cancel & Return
+                <a href="{{ route('admin.finance.budgets.show', $budget) }}" class="px-5 py-2.5 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition-colors shadow-xs">
+                    Cancel & Discard
                 </a>
 
                 <button type="submit" class="px-6 py-2.5 text-xs font-bold text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 transition-colors shadow-xs flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                    Save Project Budget
+                    Update Project Budget
                 </button>
             </div>
         </form>
     </div>
 
     <script>
-        function projectBudgetForm() {
-            const projectsData = @json($projectsData);
-            const initialProjectId = '{{ old('project_id', $selectedProjectId ?? '') }}';
+        function projectBudgetEditForm() {
+            const initialLines = @json($initialLines ?? []);
+            const projectTasks = @json($projectTasks ?? []);
 
             return {
-                selectedProjectId: initialProjectId,
-                budgetName: '{{ old('name', '') }}',
-                projectTasks: [],
-                lines: [
+                projectTasks: projectTasks,
+                lines: initialLines.length > 0 ? initialLines : [
                     { task_id: '', activity_name: '', budget_category_id: '', amount: 0, notes: '' }
                 ],
-
-                init() {
-                    if (this.selectedProjectId && projectsData[this.selectedProjectId]) {
-                        this.projectTasks = projectsData[this.selectedProjectId].tasks || [];
-                        if (!this.budgetName) {
-                            const p = projectsData[this.selectedProjectId];
-                            this.budgetName = `${p.name} - Project Budget`;
-                        }
-                    }
-                },
-
-                onProjectChange() {
-                    const project = projectsData[this.selectedProjectId];
-                    if (project) {
-                        this.projectTasks = project.tasks || [];
-                        if (!this.budgetName || this.budgetName.includes('Project Budget')) {
-                            this.budgetName = `${project.name} - Project Budget`;
-                        }
-
-                        // Auto-populate lines with project tasks if lines are empty
-                        if (this.lines.length === 1 && !this.lines[0].task_id && !this.lines[0].activity_name && this.projectTasks.length > 0) {
-                            this.lines = this.projectTasks.map(t => ({
-                                task_id: t.id,
-                                activity_name: t.name,
-                                budget_category_id: '',
-                                amount: 0,
-                                notes: ''
-                            }));
-                        }
-                    } else {
-                        this.projectTasks = [];
-                    }
-                },
 
                 addLine() {
                     this.lines.push({

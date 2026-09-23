@@ -43,6 +43,9 @@ class JournalService
 
                 $entryData['company_id'] = $journal->company_id;
                 $entryData['journal_id'] = $journal->id;
+                if (!isset($entryData['project_id']) && $journal->project_id) {
+                    $entryData['project_id'] = $journal->project_id;
+                }
                 
                 $entry = JournalEntry::create($entryData);
                 

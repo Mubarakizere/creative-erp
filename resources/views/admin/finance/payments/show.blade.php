@@ -1,10 +1,10 @@
-<x-layouts.admin title="Payment {{ $payment->reference_number }}">
+<x-layouts.admin title="Payment {{ $payment->reference_number ?? $payment->payment_number }}">
     <x-slot:breadcrumbs>
         @php
             $breadcrumbs = [
                 ['label' => 'Finance', 'url' => '#'],
                 ['label' => 'Payments', 'url' => route('admin.finance.payments.index')],
-                ['label' => $payment->reference_number]
+                ['label' => $payment->reference_number ?? $payment->payment_number]
             ];
         @endphp
     </x-slot:breadcrumbs>
@@ -15,13 +15,18 @@
                 <a href="{{ route('admin.finance.payments.index') }}" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                 </a>
-                <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Payment: {{ $payment->reference_number }}</h1>
+                <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Payment: {{ $payment->reference_number ?? $payment->payment_number }}</h1>
                 <span class="inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider leading-5 bg-green-100 text-green-800 border border-green-200">
                     Completed
                 </span>
+                @if($payment->project)
+                    <a href="{{ route('admin.projects.show', $payment->project) }}" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-800 border border-blue-200 hover:bg-blue-100 transition-colors">
+                        Project: {{ $payment->project->name }} ({{ $payment->project->project_code }})
+                    </a>
+                @endif
             </div>
             @if($payment->client)
-                <p class="mt-1.5 text-sm text-gray-500 font-medium">Received from: <span class="text-gray-700">{{ $payment->client->name }}</span> on {{ $payment->payment_date->format('M d, Y') }}</p>
+                <p class="mt-1.5 text-sm text-gray-500 font-medium">Received from: <span class="text-gray-700">{{ $payment->client->name }}</span> on {{ $payment->payment_date ? $payment->payment_date->format('M d, Y') : '—' }}</p>
             @endif
         </div>
         
@@ -96,11 +101,22 @@
                     </div>
                 </div>
 
-                <div class="mb-10">
-                    <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Received From:</h3>
-                    <p class="text-xl font-bold text-gray-900">{{ $payment->client->name ?? 'Unknown Client' }}</p>
-                    @if($payment->client && $payment->client->email)
-                        <p class="text-sm text-gray-500 font-medium mt-1">{{ $payment->client->email }}</p>
+                <div class="mb-10 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">Received From:</h3>
+                        <p class="text-xl font-bold text-gray-900">{{ $payment->client->name ?? 'Unknown Client' }}</p>
+                        @if($payment->client && $payment->client->email)
+                            <p class="text-sm text-gray-500 font-medium mt-0.5">{{ $payment->client->email }}</p>
+                        @endif
+                    </div>
+                    @if($payment->project)
+                        <div>
+                            <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">Project:</h3>
+                            <a href="{{ route('admin.projects.show', $payment->project) }}" class="text-lg font-bold text-blue-600 hover:underline">
+                                {{ $payment->project->name }}
+                            </a>
+                            <span class="block text-xs font-mono font-medium text-gray-500 mt-0.5">{{ $payment->project->project_code }}</span>
+                        </div>
                     @endif
                 </div>
 
@@ -165,6 +181,17 @@
                     <h3 class="text-lg font-bold text-gray-900 tracking-tight">Transaction Info</h3>
                 </div>
                 <div class="p-6 space-y-5">
+                    @if($payment->project)
+                    <div>
+                        <span class="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1">Project</span>
+                        <a href="{{ route('admin.projects.show', $payment->project) }}" class="text-sm font-bold text-blue-600 hover:underline block">
+                            {{ $payment->project->name }}
+                        </a>
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-blue-50 text-blue-700 border border-blue-100 mt-1">
+                            {{ $payment->project->project_code }}
+                        </span>
+                    </div>
+                    @endif
                     <div>
                         <span class="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1">Created On</span>
                         <span class="text-sm font-medium text-gray-900">{{ $payment->created_at->format('M d, Y h:i A') }}</span>

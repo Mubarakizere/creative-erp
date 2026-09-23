@@ -25,7 +25,7 @@
     @endif
 
     <form method="POST" action="{{ route('admin.finance.payments.store') }}" 
-          x-data="paymentForm({{ json_encode($openInvoices) }}, {{ $preselectedInvoice ? $preselectedInvoice->client_id : 'null' }}, {{ $preselectedInvoice ? $preselectedInvoice->id : 'null' }})" 
+          x-data="paymentForm({{ json_encode($openInvoices) }}, {{ $preselectedInvoice ? $preselectedInvoice->client_id : 'null' }}, {{ $preselectedInvoice ? $preselectedInvoice->id : 'null' }}, {{ $preselectedProjectId ? $preselectedProjectId : 'null' }}, {{ json_encode($projects) }})" 
           class="space-y-6" id="payment-form">
         @csrf
 
@@ -43,6 +43,21 @@
                     </div>
 
                     <div>
+                        <label for="project_id" class="block text-sm font-medium text-gray-700 mb-1">
+                            Project <span class="text-xs text-gray-500 font-normal">(Optional - links payment to a project)</span>
+                        </label>
+                        <select name="project_id" id="project_id" x-model="selectedProjectId" @change="onProjectChange" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors bg-white min-h-[42px]">
+                            <option value="">No Project (General Payment)</option>
+                            @foreach($projects as $project)
+                                <option value="{{ $project->id }}">
+                                    {{ $project->name }} ({{ $project->project_code }})
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('project_id') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div>
                         <label for="client_id" class="block text-sm font-medium text-gray-700 mb-1">Client <span class="text-red-500">*</span></label>
                         <select name="client_id" id="client_id" x-model="selectedClient" @change="updateAvailableInvoices" required class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors bg-white min-h-[42px]">
                             <option value="">Select a Client</option>
@@ -50,6 +65,7 @@
                                 <option value="{{ $client->id }}">{{ $client->name }}</option>
                             @endforeach
                         </select>
+                        @error('client_id') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
@@ -61,12 +77,14 @@
                             <input type="number" name="amount" id="amount" x-model="totalAmount" @input="autoAllocate" required min="0.01" step="0.01"
                                    class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-xl transition-colors min-h-[42px]" placeholder="0.00">
                         </div>
+                        @error('amount') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
                         <label for="payment_date" class="block text-sm font-medium text-gray-700 mb-1">Payment Date <span class="text-red-500">*</span></label>
                         <input type="date" name="payment_date" id="payment_date" required value="{{ old('payment_date', now()->format('Y-m-d')) }}"
                                class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors min-h-[42px]">
+                        @error('payment_date') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
                     </div>
                 </div>
             </div>
@@ -87,6 +105,7 @@
                                 </option>
                             @endforeach
                         </select>
+                        @error('payment_method_id') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
@@ -99,12 +118,14 @@
                                 </option>
                             @endforeach
                         </select>
+                        @error('bank_account_id') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
-                        <label for="reference" class="block text-sm font-medium text-gray-700 mb-1">Reference / Check No.</label>
-                        <input type="text" name="reference" id="reference" value="{{ old('reference') }}" placeholder="Optional reference"
+                        <label for="reference_number" class="block text-sm font-medium text-gray-700 mb-1">Reference / Check No.</label>
+                        <input type="text" name="reference_number" id="reference_number" value="{{ old('reference_number', old('reference')) }}" placeholder="Optional reference / check number"
                                class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors min-h-[42px]">
+                        @error('reference_number') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
@@ -128,6 +149,7 @@
                     <thead class="bg-gray-50/30">
                         <tr>
                             <th class="px-6 py-4 text-left text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">Invoice #</th>
+                            <th class="px-6 py-4 text-left text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">Project</th>
                             <th class="px-6 py-4 text-left text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">Issue Date</th>
                             <th class="px-6 py-4 text-right text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">Original Amount</th>
                             <th class="px-6 py-4 text-right text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">Balance Due</th>
@@ -141,6 +163,18 @@
                                     <input type="hidden" :name="`allocations[${index}][invoice_id]`" :value="invoice.id" :disabled="!allocations[invoice.id] || allocations[invoice.id] <= 0">
                                     <span class="text-sm font-bold text-blue-600" x-text="invoice.invoice_number"></span>
                                     <span x-show="invoice.status === 'Overdue'" class="ml-2 px-2.5 py-0.5 inline-flex text-[11px] font-bold rounded-full bg-red-100 text-red-800 uppercase tracking-wide">Overdue</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <template x-if="invoice.project">
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold border"
+                                              :class="invoice.project_id == selectedProjectId ? 'bg-blue-50 text-blue-800 border-blue-200 font-bold' : 'bg-gray-50 text-gray-700 border-gray-200'">
+                                            <span x-text="invoice.project.name"></span>
+                                            <span class="ml-1 text-[11px] text-gray-400 font-mono" x-text="'(' + invoice.project.project_code + ')'"></span>
+                                        </span>
+                                    </template>
+                                    <template x-if="!invoice.project">
+                                        <span class="text-xs text-gray-400 italic">None</span>
+                                    </template>
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-600 font-medium" x-text="new Date(invoice.issue_date).toLocaleDateString()"></td>
                                 <td class="px-6 py-4 text-sm text-gray-500 text-right">RWF <span x-text="parseFloat(invoice.total_amount).toFixed(2)"></span></td>
@@ -157,7 +191,7 @@
                             </tr>
                         </template>
                         <tr x-show="availableInvoices.length === 0">
-                            <td colspan="5" class="py-12 text-center">
+                            <td colspan="6" class="py-12 text-center">
                                 <div class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3 border border-gray-100">
                                     <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                 </div>
@@ -179,15 +213,20 @@
     </form>
 
     <script>
-        function paymentForm(allOpenInvoices, initialClientId, initialInvoiceId) {
+        function paymentForm(allOpenInvoices, initialClientId, initialInvoiceId, initialProjectId, allProjects) {
             return {
                 allInvoices: allOpenInvoices,
+                allProjects: allProjects || [],
+                selectedProjectId: initialProjectId ? String(initialProjectId) : '',
                 selectedClient: initialClientId ? String(initialClientId) : '',
                 availableInvoices: [],
                 allocations: {},
                 totalAmount: 0,
                 
                 init() {
+                    if (this.selectedProjectId && !this.selectedClient) {
+                        this.onProjectChange();
+                    }
                     if (this.selectedClient) {
                         this.updateAvailableInvoices();
                         
@@ -201,8 +240,28 @@
                     }
                 },
                 
+                onProjectChange() {
+                    if (this.selectedProjectId) {
+                        let project = this.allProjects.find(p => p.id == this.selectedProjectId);
+                        if (project && project.client_id) {
+                            this.selectedClient = String(project.client_id);
+                            this.updateAvailableInvoices();
+                        }
+                    }
+                },
+                
                 updateAvailableInvoices() {
                     this.availableInvoices = this.allInvoices.filter(i => i.client_id == this.selectedClient);
+                    
+                    // If a project is selected, sort invoices belonging to that project first
+                    if (this.selectedProjectId) {
+                        this.availableInvoices.sort((a, b) => {
+                            if (a.project_id == this.selectedProjectId && b.project_id != this.selectedProjectId) return -1;
+                            if (a.project_id != this.selectedProjectId && b.project_id == this.selectedProjectId) return 1;
+                            return new Date(a.issue_date) - new Date(b.issue_date);
+                        });
+                    }
+                    
                     this.allocations = {};
                     this.autoAllocate();
                 },
@@ -214,8 +273,14 @@
                     
                     if (amountToAllocate <= 0) return;
 
-                    // Sort oldest first
-                    let sortedInvoices = [...this.availableInvoices].sort((a, b) => new Date(a.issue_date) - new Date(b.issue_date));
+                    // Sort: prefer invoices of selected project first, then oldest first
+                    let sortedInvoices = [...this.availableInvoices].sort((a, b) => {
+                        if (this.selectedProjectId) {
+                            if (a.project_id == this.selectedProjectId && b.project_id != this.selectedProjectId) return -1;
+                            if (a.project_id != this.selectedProjectId && b.project_id == this.selectedProjectId) return 1;
+                        }
+                        return new Date(a.issue_date) - new Date(b.issue_date);
+                    });
                     
                     for (let invoice of sortedInvoices) {
                         let balance = parseFloat(invoice.balance_due);

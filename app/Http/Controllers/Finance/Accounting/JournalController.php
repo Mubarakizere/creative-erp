@@ -7,6 +7,8 @@ use App\Models\ChartOfAccount;
 use App\Models\Journal;
 use App\Models\FiscalYear;
 use App\Models\AccountingPeriod;
+use App\Models\Company;
+use App\Models\Project;
 use App\Services\Finance\JournalService;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -26,15 +28,29 @@ class JournalController extends Controller
     {
         $companyId = auth()->user()->company_id ?? 1;
 
-        $query = Journal::where('company_id', $companyId)
-            ->with(['fiscalYear', 'accountingPeriod']);
+        $query = Journal::query()
+            ->with(['company', 'project', 'fiscalYear', 'accountingPeriod']);
+
+        if ($request->filled('company_id')) {
+            $query->where('company_id', $request->company_id);
+        } else {
+            $query->where('company_id', $companyId);
+        }
+
+        if ($request->filled('project_id')) {
+            $query->where('project_id', $request->project_id);
+        }
 
         if ($request->filled('search')) {
             $search = trim($request->get('search'));
             $query->where(function ($q) use ($search) {
                 $q->where('journal_number', 'like', "%{$search}%")
                   ->orWhere('memo', 'like', "%{$search}%")
-                  ->orWhere('reference_number', 'like', "%{$search}%");
+                  ->orWhere('reference_number', 'like', "%{$search}%")
+                  ->orWhereHas('project', function ($projQ) use ($search) {
+                      $projQ->where('name', 'like', "%{$search}%")
+                            ->orWhere('project_code', 'like', "%{$search}%");
+                  });
             });
         }
 
@@ -62,31 +78,70 @@ class JournalController extends Controller
             'total_volume' => Journal::where('company_id', $companyId)->where('status', 'Posted')->sum('total_debit'),
         ];
 
-        return view('admin.finance.accounting.journals.index', compact('journals', 'stats'));
+        $companies = Company::where('status', 'active')->orderBy('name')->get();
+        if ($companies->isEmpty()) {
+            $companies = Company::all();
+        }
+
+        $projects = Project::where('company_id', $companyId)
+            ->whereNotIn('status', ['Cancelled', 'Closed'])
+            ->orderBy('name')
+            ->get(['id', 'name', 'project_code']);
+
+        return view('admin.finance.accounting.journals.index', compact('journals', 'stats', 'companies', 'projects'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        $companyId = auth()->user()->company_id ?? 1;
-        
-        $accounts = ChartOfAccount::where('company_id', $companyId)->where('is_active', true)->orderBy('code')->get();
-        $fiscalYears = FiscalYear::where('company_id', $companyId)->where('is_closed', false)->get();
-        $periods = AccountingPeriod::where('company_id', $companyId)->where('status', 'Open')->get();
+        $this->authorize('create', Journal::class);
+        $userCompanyId = auth()->user()->company_id ?? 1;
 
-        $journal_number = app(\App\Services\SequenceService::class)->generate('journal', $companyId);
+        $companies = Company::where('status', 'active')->orderBy('name')->get();
+        if ($companies->isEmpty()) {
+            $companies = Company::all();
+        }
 
-        return view('admin.finance.accounting.journals.create', compact('accounts', 'fiscalYears', 'periods', 'journal_number'));
+        $projects = Project::whereNotIn('status', ['Cancelled', 'Closed'])
+            ->with(['company:id,name', 'client:id,name'])
+            ->orderBy('name')
+            ->get(['id', 'name', 'project_code', 'company_id', 'client_id']);
+
+        // Load active chart of accounts with account types
+        $accounts = ChartOfAccount::where('is_active', true)
+            ->with('accountType')
+            ->orderBy('code')
+            ->get();
+
+        $selectedProjectId = $request->input('project_id');
+        $selectedCompanyId = $request->input('company_id', $userCompanyId);
+        if ($selectedProjectId) {
+            $preselectedProject = $projects->firstWhere('id', $selectedProjectId);
+            if ($preselectedProject && $preselectedProject->company_id) {
+                $selectedCompanyId = $preselectedProject->company_id;
+            }
+        }
+
+        $journal_number = app(\App\Services\SequenceService::class)->generate('journal', $selectedCompanyId);
+
+        return view('admin.finance.accounting.journals.create', compact(
+            'companies',
+            'projects',
+            'accounts',
+            'selectedCompanyId',
+            'selectedProjectId',
+            'journal_number'
+        ));
     }
 
     public function store(Request $request)
     {
-        $companyId = auth()->user()->company_id ?? 1;
+        $this->authorize('create', Journal::class);
 
         $validated = $request->validate([
+            'company_id' => 'required|exists:companies,id',
+            'project_id' => 'nullable|exists:projects,id',
             'journal_number' => 'required|string|unique:journals,journal_number',
             'date' => 'required|date',
-            'fiscal_year_id' => 'nullable|exists:fiscal_years,id',
-            'accounting_period_id' => 'nullable|exists:accounting_periods,id',
             'reference_number' => 'nullable|string|max:255',
             'memo' => 'required|string',
             'entries' => 'required|array|min:2',
@@ -97,21 +152,28 @@ class JournalController extends Controller
         ]);
 
         $data = [
-            'company_id' => $companyId,
+            'company_id' => $validated['company_id'],
+            'project_id' => $validated['project_id'] ?? null,
             'journal_number' => $validated['journal_number'],
             'date' => $validated['date'],
-            'fiscal_year_id' => $validated['fiscal_year_id'],
-            'accounting_period_id' => $validated['accounting_period_id'],
-            'reference_number' => $validated['reference_number'],
+            'reference_number' => $validated['reference_number'] ?? null,
             'memo' => $validated['memo'],
             'status' => 'Draft',
             'created_by' => auth()->id(),
         ];
 
+        // If project is set and has a client, attach client_id as well
+        if (!empty($validated['project_id'])) {
+            $project = Project::find($validated['project_id']);
+            if ($project && $project->client_id) {
+                $data['client_id'] = $project->client_id;
+            }
+        }
+
         try {
             $this->journalService->createManualJournal($data, $validated['entries']);
             return redirect()->route('admin.finance.accounting.journals.index')
-                ->with('success', 'Journal created successfully.');
+                ->with('success', 'Journal entry created successfully.');
         } catch (\Exception $e) {
             return back()->withInput()->with('error', $e->getMessage());
         }
@@ -119,7 +181,7 @@ class JournalController extends Controller
 
     public function show(Journal $journal)
     {
-        $journal->load(['entries.chartOfAccount.accountType', 'fiscalYear', 'accountingPeriod', 'company', 'branch', 'department']);
+        $journal->load(['entries.chartOfAccount.accountType', 'project', 'company', 'branch', 'department', 'fiscalYear', 'accountingPeriod']);
         return view('admin.finance.accounting.journals.show', compact('journal'));
     }
 

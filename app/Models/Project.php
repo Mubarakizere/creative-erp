@@ -266,5 +266,21 @@ class Project extends Model
     {
         return $this->hasMany(ProjectExpense::class);
     }
+
+    /**
+     * Get all of the project's budgets.
+     */
+    public function budgets(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Budget::class);
+    }
+
+    /**
+     * Get the latest active budget of the project.
+     */
+    public function activeBudget(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Budget::class)->whereIn('status', ['active', 'approved'])->latestOfMany();
+    }
 }
 

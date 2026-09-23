@@ -27,26 +27,53 @@
 
     {{-- Filter/Search --}}
     <div class="bg-white p-5 rounded-2xl border border-gray-200/60 shadow-sm mb-6">
-        <form method="GET" action="{{ route('admin.finance.invoices.index') }}" class="flex flex-wrap items-end gap-4">
-            <div class="w-full sm:w-auto flex-1 max-w-xs">
-                <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+        <form method="GET" action="{{ route('admin.finance.invoices.index') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+            <div>
+                <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Search</label>
                 <div class="relative">
-                    <select name="status" id="status" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors bg-white min-h-[42px] pl-3 pr-10" onchange="this.form.submit()">
-                        <option value="">All Statuses</option>
-                        <option value="Draft" {{ request('status') === 'Draft' ? 'selected' : '' }}>Draft</option>
-                        <option value="Issued" {{ request('status') === 'Issued' ? 'selected' : '' }}>Issued</option>
-                        <option value="Partially Paid" {{ request('status') === 'Partially Paid' ? 'selected' : '' }}>Partially Paid</option>
-                        <option value="Paid" {{ request('status') === 'Paid' ? 'selected' : '' }}>Paid</option>
-                        <option value="Overdue" {{ request('status') === 'Overdue' ? 'selected' : '' }}>Overdue</option>
-                        <option value="Cancelled" {{ request('status') === 'Cancelled' ? 'selected' : '' }}>Cancelled</option>
-                    </select>
+                    <input type="text" name="search" id="search" value="{{ request('search') }}"
+                           placeholder="Invoice #, client, project..."
+                           class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm min-h-[42px] pl-9">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    </div>
                 </div>
             </div>
+
+            <div>
+                <label for="company_id" class="block text-sm font-medium text-gray-700 mb-1">Company</label>
+                <select name="company_id" id="company_id" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors bg-white min-h-[42px]" onchange="this.form.submit()">
+                    <option value="">All Companies</option>
+                    @foreach($companies as $c)
+                        <option value="{{ $c->id }}" {{ request('company_id') == $c->id ? 'selected' : '' }}>
+                            {{ $c->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div>
+                <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                <select name="status" id="status" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors bg-white min-h-[42px]" onchange="this.form.submit()">
+                    <option value="">All Statuses</option>
+                    <option value="Draft" {{ request('status') === 'Draft' ? 'selected' : '' }}>Draft</option>
+                    <option value="Issued" {{ request('status') === 'Issued' ? 'selected' : '' }}>Issued</option>
+                    <option value="Partially Paid" {{ request('status') === 'Partially Paid' ? 'selected' : '' }}>Partially Paid</option>
+                    <option value="Paid" {{ request('status') === 'Paid' ? 'selected' : '' }}>Paid</option>
+                    <option value="Overdue" {{ request('status') === 'Overdue' ? 'selected' : '' }}>Overdue</option>
+                    <option value="Cancelled" {{ request('status') === 'Cancelled' ? 'selected' : '' }}>Cancelled</option>
+                </select>
+            </div>
             
-            <div class="w-full sm:w-auto">
-                <a href="{{ route('admin.finance.invoices.index') }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors shadow-sm border border-gray-200 w-full justify-center sm:w-auto min-h-[42px]">
-                    Clear
-                </a>
+            <div class="flex items-center gap-2">
+                <button type="submit" class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors shadow-sm flex-1 min-h-[42px]">
+                    Filter
+                </button>
+                @if(request()->anyFilled(['search', 'company_id', 'status', 'project_id']))
+                    <a href="{{ route('admin.finance.invoices.index') }}" class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors shadow-sm border border-gray-200 min-h-[42px]">
+                        Clear
+                    </a>
+                @endif
             </div>
         </form>
     </div>
@@ -73,9 +100,16 @@
                             </td>
                             <td class="px-6 py-4">
                                 <div class="text-sm font-medium text-gray-900">{{ $invoice->client->name ?? 'Unknown Client' }}</div>
-                                @if($invoice->project)
-                                    <div class="text-xs text-gray-500 mt-0.5">{{ $invoice->project->name }}</div>
-                                @endif
+                                <div class="flex items-center gap-1.5 flex-wrap mt-0.5">
+                                    @if($invoice->project)
+                                        <span class="text-xs text-gray-500">{{ $invoice->project->name }}</span>
+                                    @endif
+                                    @if($invoice->company)
+                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-violet-50 text-violet-700 border border-violet-100">
+                                            {{ $invoice->company->name }}
+                                        </span>
+                                    @endif
+                                </div>
                             </td>
                             <td class="px-6 py-4 hidden md:table-cell">
                                 <div class="text-sm text-gray-500">Issued: <span class="font-medium text-gray-700">{{ $invoice->issue_date->format('M d, Y') }}</span></div>

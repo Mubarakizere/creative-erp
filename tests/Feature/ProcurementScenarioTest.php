@@ -58,7 +58,6 @@ class ProcurementScenarioTest extends TestCase
         $product1 = Product::create([
             'company_id' => $this->company->id,
             'name' => 'Server Rack',
-            'code' => 'PRD-SRV-01',
             'sku' => 'SKU-001',
             'type' => 'raw_material',
             'cost_price' => 500,
@@ -68,7 +67,6 @@ class ProcurementScenarioTest extends TestCase
         $product2 = Product::create([
             'company_id' => $this->company->id,
             'name' => 'Network Switch',
-            'code' => 'PRD-NET-01',
             'sku' => 'SKU-002',
             'type' => 'raw_material',
             'cost_price' => 200,

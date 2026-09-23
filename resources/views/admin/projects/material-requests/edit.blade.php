@@ -44,7 +44,27 @@
                 </div>
             @endif
 
-            <form action="{{ route('admin.material-requests.update', $materialRequest) }}" method="POST" id="material-request-form">
+            @php
+                $initialItems = old('items', $materialRequest->items->map(function($item) {
+                    return [
+                        'product_id' => (string)$item->product_id,
+                        'quantity_requested' => $item->quantity_requested,
+                        'notes' => $item->notes ?? '',
+                    ];
+                })->values()->all());
+                if (empty($initialItems)) {
+                    $initialItems = [['product_id' => '', 'quantity_requested' => '', 'notes' => '']];
+                }
+            @endphp
+
+            <form action="{{ route('admin.material-requests.update', $materialRequest) }}" method="POST" id="material-request-form"
+                  x-data="materialRequestForm({
+                      projectsData: {{ \Illuminate\Support\Js::from($projectsData) }},
+                      initialProjectId: '{{ old('project_id', $materialRequest->project_id) }}',
+                      initialCompanyId: '{{ old('company_id', $materialRequest->company_id) }}',
+                      initialTaskId: '{{ old('task_id', $materialRequest->task_id ?? '') }}',
+                      initialItems: {{ \Illuminate\Support\Js::from($initialItems) }}
+                  })">
                 @csrf
                 @method('PUT')
                 
@@ -56,28 +76,79 @@
                     </x-slot:header>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6">
+                        {{-- Request Number --}}
+                        <div class="col-span-1 sm:col-span-2 lg:col-span-2">
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Request Number</label>
+                            <div class="px-3.5 py-2.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-900 font-mono font-bold text-sm">
+                                {{ $materialRequest->request_number }}
+                            </div>
+                        </div>
+
+                        {{-- Company --}}
+                        <div class="col-span-1 sm:col-span-2 lg:col-span-2">
+                            <label for="company_id" class="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1.5">
+                                Company <span class="text-rose-500 font-bold ml-0.5">*</span>
+                            </label>
+                            <div class="relative group">
+                                <select name="company_id" id="company_id" required x-model="selectedCompanyId"
+                                        class="block w-full rounded-xl text-sm transition-all duration-200 border appearance-none border-gray-200 bg-gray-50/50 hover:bg-white hover:border-gray-300 text-gray-900 focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-500/10 pl-3.5 pr-10 py-2.5 min-h-[42px] shadow-xs cursor-pointer">
+                                    <option value="">Select a Company</option>
+                                    @foreach($companies as $company)
+                                        <option value="{{ $company->id }}">
+                                            {{ $company->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-gray-400 group-focus-within:text-blue-600 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
                         {{-- Project --}}
-                        <div class="col-span-1 sm:col-span-2 lg:col-span-3">
-                            <x-select name="project_id" id="project_id" label="Project" required x-on:change="window.location.href = this.value ? '?project_id=' + this.value : '?'">
-                                <option value="">Select a Project</option>
-                                @foreach($projects as $project)
-                                    <option value="{{ $project->id }}" {{ (old('project_id', $materialRequest->project_id) == $project->id) ? 'selected' : '' }}>
-                                        {{ $project->name }} ({{ $project->project_code }})
-                                    </option>
-                                @endforeach
-                            </x-select>
+                        <div class="col-span-1 sm:col-span-2 lg:col-span-2">
+                            <label for="project_id" class="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1.5">
+                                Project <span class="text-rose-500 font-bold ml-0.5">*</span>
+                            </label>
+                            <div class="relative group">
+                                <select name="project_id" id="project_id" required x-model="selectedProjectId" @change="onProjectChange"
+                                        class="block w-full rounded-xl text-sm transition-all duration-200 border appearance-none border-gray-200 bg-gray-50/50 hover:bg-white hover:border-gray-300 text-gray-900 focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-500/10 pl-3.5 pr-10 py-2.5 min-h-[42px] shadow-xs cursor-pointer">
+                                    <option value="">Select a Project</option>
+                                    @foreach($projects as $project)
+                                        <option value="{{ $project->id }}">
+                                            {{ $project->name }} ({{ $project->project_code }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-gray-400 group-focus-within:text-blue-600 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
+                                </div>
+                            </div>
                         </div>
 
                         {{-- Task --}}
-                        <div class="col-span-1 sm:col-span-2 lg:col-span-3">
-                            <x-select name="task_id" id="task_id" label="Task / Activity (Optional)">
-                                <option value="">Select a Task</option>
-                                @foreach($tasks as $task)
-                                    <option value="{{ $task->id }}" {{ old('task_id', $materialRequest->task_id) == $task->id ? 'selected' : '' }}>
-                                        {{ $task->name }} ({{ $task->task_code }})
-                                    </option>
-                                @endforeach
-                            </x-select>
+                        <div class="col-span-1 sm:col-span-2 lg:col-span-2">
+                            <label for="task_id" class="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1.5">
+                                Task / Activity (Optional)
+                            </label>
+                            <div class="relative group">
+                                <select name="task_id" id="task_id" x-model="selectedTaskId"
+                                        class="block w-full rounded-xl text-sm transition-all duration-200 border appearance-none border-gray-200 bg-gray-50/50 hover:bg-white hover:border-gray-300 text-gray-900 focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-500/10 pl-3.5 pr-10 py-2.5 min-h-[42px] shadow-xs cursor-pointer">
+                                    <option value="">Select a Task</option>
+                                    <template x-for="task in availableTasks" :key="task.id">
+                                        <option :value="task.id" x-text="task.name + (task.task_code ? ' (' + task.task_code + ')' : '')"></option>
+                                    </template>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-gray-400 group-focus-within:text-blue-600 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
+                                </div>
+                            </div>
                         </div>
 
                         {{-- Request Date --}}
@@ -113,7 +184,7 @@
                 </x-card>
 
                 {{-- Material Items Card --}}
-                <div x-data="materialRequestForm()">
+                <div>
                     <x-card class="mb-6">
                         <x-slot:header>
                             <div class="flex items-center justify-between">
@@ -196,23 +267,35 @@
         </div>
     @endcan
 
-    @php
-        $initialItems = $materialRequest->items->map(function($item) {
-            return [
-                'product_id' => (string)$item->product_id,
-                'quantity_requested' => $item->quantity_requested,
-                'notes' => $item->notes ?? '',
-            ];
-        })->values();
-        if ($initialItems->isEmpty()) {
-            $initialItems = collect([['product_id' => '', 'quantity_requested' => '', 'notes' => '']]);
-        }
-    @endphp
-
     <script>
         document.addEventListener('alpine:init', () => {
-            Alpine.data('materialRequestForm', () => ({
-                items: @json($initialItems),
+            Alpine.data('materialRequestForm', (config = {}) => ({
+                projectsData: config.projectsData || {},
+                selectedProjectId: config.initialProjectId || '',
+                selectedCompanyId: config.initialCompanyId || '',
+                selectedTaskId: config.initialTaskId || '',
+                items: config.initialItems && config.initialItems.length ? config.initialItems : [
+                    { product_id: '', quantity_requested: '', notes: '' }
+                ],
+
+                get availableTasks() {
+                    if (!this.selectedProjectId || !this.projectsData[this.selectedProjectId]) {
+                        return [];
+                    }
+                    return this.projectsData[this.selectedProjectId].tasks || [];
+                },
+
+                onProjectChange() {
+                    const proj = this.projectsData[this.selectedProjectId];
+                    if (proj && proj.company_id) {
+                        this.selectedCompanyId = String(proj.company_id);
+                    }
+                    const taskExists = this.availableTasks.some(t => String(t.id) === String(this.selectedTaskId));
+                    if (!taskExists) {
+                        this.selectedTaskId = '';
+                    }
+                },
+
                 addItem() {
                     this.items.push({ product_id: '', quantity_requested: '', notes: '' });
                 },

@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\StoreProjectMaterialRequestRequest;
 use App\Http\Requests\Admin\UpdateProjectMaterialRequestRequest;
 use App\Models\ProjectMaterialRequest;
 use App\Models\Project;
+use App\Models\Company;
 use App\Models\Product;
 use App\Models\Task;
 use App\Services\ProjectMaterialRequestService;
@@ -23,7 +24,7 @@ class ProjectMaterialRequestController extends Controller
     {
         Gate::authorize('viewAny', ProjectMaterialRequest::class);
 
-        $query = ProjectMaterialRequest::with(['project', 'requestedBy', 'items', 'purchaseRequisition'])
+        $query = ProjectMaterialRequest::with(['project', 'requestedBy', 'items', 'purchaseRequisition', 'company'])
             ->orderBy('created_at', 'desc');
 
         if (!auth()->user()->hasRole('Super Admin') && !auth()->user()->hasRole('CEO')) {
@@ -43,6 +44,9 @@ class ProjectMaterialRequestController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('request_number', 'like', "%{$search}%")
                   ->orWhere('title', 'like', "%{$search}%")
+                  ->orWhereHas('company', function ($cq) use ($search) {
+                      $cq->where('name', 'like', "%{$search}%");
+                  })
                   ->orWhereHas('project', function ($pq) use ($search) {
                       $pq->where('name', 'like', "%{$search}%")
                         ->orWhere('code', 'like', "%{$search}%");
@@ -70,20 +74,54 @@ class ProjectMaterialRequestController extends Controller
     {
         Gate::authorize('create', ProjectMaterialRequest::class);
 
-        $projects = auth()->user()->accessibleProjects()->where('status', '!=', 'Closed')->get();
-        // Ideally we would load products via ajax depending on project/branch, but for this foundation we can load active products
+        $companies = Company::where('status', 'active')->orderBy('name')->get();
+        $projects = auth()->user()->accessibleProjects()
+            ->where('status', '!=', 'Closed')
+            ->with(['tasks' => function($q) {
+                $q->select('id', 'project_id', 'name', 'task_code');
+            }, 'company:id,name'])
+            ->get();
+
         $products = Product::where('status', 'active')->get(); 
         
-        $selectedProject = $request->project_id ? Project::find($request->project_id) : null;
-        if ($selectedProject && !$selectedProject->isAssignedTo(auth()->user())) {
-            abort(403);
+        $selectedProject = $request->project_id ? $projects->firstWhere('id', $request->project_id) : null;
+        if ($request->project_id && !$selectedProject) {
+            $proj = Project::find($request->project_id);
+            if ($proj && !$proj->isAssignedTo(auth()->user())) {
+                abort(403);
+            }
+            $selectedProject = $proj;
         }
+
         $tasks = $selectedProject ? $selectedProject->tasks : collect();
 
-        $companyId = auth()->user()->company_id ?? 1;
-        $request_number = app(\App\Services\SequenceService::class)->generate('material_request', $companyId);
+        $defaultCompanyId = $selectedProject?->company_id ?? auth()->user()->company_id ?? ($companies->first()?->id ?? 1);
+        $request_number = app(\App\Services\SequenceService::class)->generate('material_request', $defaultCompanyId);
 
-        return view('admin.projects.material-requests.create', compact('projects', 'products', 'selectedProject', 'tasks', 'request_number'));
+        $projectsData = $projects->mapWithKeys(function ($p) {
+            return [$p->id => [
+                'id' => $p->id,
+                'name' => $p->name,
+                'code' => $p->project_code,
+                'company_id' => $p->company_id,
+                'tasks' => $p->tasks->map(fn($t) => [
+                    'id' => $t->id,
+                    'name' => $t->name,
+                    'task_code' => $t->task_code,
+                ])->values()->all(),
+            ]];
+        });
+
+        return view('admin.projects.material-requests.create', compact(
+            'projects',
+            'companies',
+            'products',
+            'selectedProject',
+            'tasks',
+            'request_number',
+            'projectsData',
+            'defaultCompanyId'
+        ));
     }
 
     public function store(StoreProjectMaterialRequestRequest $request)
@@ -107,7 +145,7 @@ class ProjectMaterialRequestController extends Controller
     {
         Gate::authorize('view', $materialRequest);
 
-        $materialRequest->load(['project', 'requestedBy', 'creator', 'updater', 'items.product', 'company', 'branch']);
+        $materialRequest->load(['project', 'requestedBy', 'creator', 'updater', 'items.product', 'company', 'branch', 'task']);
 
         return view('admin.projects.material-requests.show', compact('materialRequest'));
     }
@@ -116,12 +154,40 @@ class ProjectMaterialRequestController extends Controller
     {
         Gate::authorize('update', $materialRequest);
 
-        $projects = auth()->user()->accessibleProjects()->where('status', '!=', 'Closed')->get();
+        $companies = Company::where('status', 'active')->orderBy('name')->get();
+        $projects = auth()->user()->accessibleProjects()
+            ->where('status', '!=', 'Closed')
+            ->with(['tasks' => function($q) {
+                $q->select('id', 'project_id', 'name', 'task_code');
+            }, 'company:id,name'])
+            ->get();
+
         $products = Product::where('status', 'active')->get(); 
-        $materialRequest->load('items', 'task');
+        $materialRequest->load(['items', 'task', 'company']);
         $tasks = $materialRequest->project_id ? Task::where('project_id', $materialRequest->project_id)->get() : collect();
 
-        return view('admin.projects.material-requests.edit', compact('materialRequest', 'projects', 'products', 'tasks'));
+        $projectsData = $projects->mapWithKeys(function ($p) {
+            return [$p->id => [
+                'id' => $p->id,
+                'name' => $p->name,
+                'code' => $p->project_code,
+                'company_id' => $p->company_id,
+                'tasks' => $p->tasks->map(fn($t) => [
+                    'id' => $t->id,
+                    'name' => $t->name,
+                    'task_code' => $t->task_code,
+                ])->values()->all(),
+            ]];
+        });
+
+        return view('admin.projects.material-requests.edit', compact(
+            'materialRequest',
+            'projects',
+            'companies',
+            'products',
+            'tasks',
+            'projectsData'
+        ));
     }
 
     public function update(UpdateProjectMaterialRequestRequest $request, ProjectMaterialRequest $materialRequest)

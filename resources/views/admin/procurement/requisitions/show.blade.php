@@ -35,6 +35,13 @@
 
             {{-- Actions Bar --}}
             <div class="flex flex-wrap items-center gap-2">
+                @can('update', $requisition)
+                    <a href="{{ route('admin.procurement.requisitions.edit', $requisition->id) }}" class="inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 transition-colors shadow-xs">
+                        <svg class="w-4 h-4 mr-1.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                        Edit Requisition
+                    </a>
+                @endcan
+
                 @if(in_array(strtolower($requisition->status), ['submitted', 'draft']) && auth()->user()->can('approve', $requisition))
                     <form action="{{ route('admin.procurement.requisitions.approve', $requisition) }}" method="POST">
                         @csrf
@@ -93,7 +100,7 @@
                 <span class="text-xs font-semibold text-slate-400">PR Ref: #{{ $requisition->id }}</span>
             </div>
 
-            <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
                 {{-- Project / Department --}}
                 <div class="space-y-1">
                     <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Project / Scope</span>
@@ -111,6 +118,20 @@
                                 <p class="text-sm font-bold text-slate-900 leading-snug">{{ $requisition->department?->name ?? 'General Procurement' }}</p>
                                 <span class="text-xs text-slate-500">Internal Department</span>
                             @endif
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Company --}}
+                <div class="space-y-1">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Company</span>
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center font-extrabold text-xs border border-sky-100">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-slate-900 leading-snug">{{ $requisition->company?->name ?? 'General' }}</p>
+                            <span class="text-xs text-slate-500">Operating Entity</span>
                         </div>
                     </div>
                 </div>
@@ -164,7 +185,7 @@
 
                 {{-- Notes --}}
                 @if($requisition->notes)
-                    <div class="col-span-1 md:col-span-2 lg:col-span-4 pt-4 border-t border-slate-100">
+                    <div class="col-span-1 md:col-span-2 lg:col-span-5 pt-4 border-t border-slate-100">
                         <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">Requisition Notes & Justification</span>
                         <p class="text-sm text-slate-700 leading-relaxed bg-slate-50 p-3.5 rounded-xl border border-slate-100 font-medium">
                             {{ $requisition->notes }}

@@ -162,6 +162,24 @@
             </h3>
 
             <div class="space-y-4 text-xs">
+                @if($journal->company)
+                    <div>
+                        <span class="text-gray-500 block">Company</span>
+                        <span class="font-semibold text-gray-900 mt-0.5 block">
+                            {{ $journal->company->name }}
+                        </span>
+                    </div>
+                @endif
+
+                @if($journal->project)
+                    <div>
+                        <span class="text-gray-500 block">Project</span>
+                        <a href="{{ route('admin.projects.show', $journal->project) }}" class="font-semibold text-blue-600 hover:underline mt-0.5 block">
+                            {{ $journal->project->name }} ({{ $journal->project->project_code }})
+                        </a>
+                    </div>
+                @endif
+
                 <div>
                     <span class="text-gray-500 block">Transaction Date</span>
                     <span class="font-semibold text-gray-900 text-sm mt-0.5 block">

@@ -10,12 +10,19 @@
     </x-slot:breadcrumbs>
 
     @can('create', App\Models\SupplierQuotation::class)
-    <div class="space-y-6" x-data="quotationForm()">
+    <div class="space-y-6" x-data="quotationForm({
+        projectsData: {{ \Illuminate\Support\Js::from($projectsData) }},
+        requisitionsData: {{ \Illuminate\Support\Js::from($requisitionsData) }},
+        initialProjectId: '{{ old('project_id', $defaultProjectId ?? '') }}',
+        initialCompanyId: '{{ old('company_id', $defaultCompanyId ?? '') }}',
+        initialPrId: '{{ old('purchase_requisition_id', $selectedPrId ?? '') }}',
+        initialItems: {{ \Illuminate\Support\Js::from(old('items', !empty($preloadedItems) ? $preloadedItems : [['product_id' => '', 'quantity' => 1, 'unit_price' => 0, 'discount' => 0, 'tax' => 0]])) }}
+    })">
         {{-- Header & Action Bar --}}
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <div class="flex items-center gap-2 text-sm text-slate-500 mb-1.5">
-                    <a href="{{ route('admin.procurement.rfqs.index') }}" class="hover:text-indigo-600 font-medium transition-colors flex items-center gap-1">
+                    <a href="{{ route('admin.procurement.rfqs.index') }}" class="hover:text-indigo-600 font-semibold transition-colors flex items-center gap-1">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                         RFQs & Quotations
                     </a>
@@ -23,10 +30,10 @@
                     <span class="font-semibold text-slate-700">Record Quotation</span>
                 </div>
                 <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Record Supplier Quotation</h1>
-                <p class="mt-1 text-sm text-slate-500 font-medium">Enter pricing, discounts, taxes, and vendor details for this quotation offer.</p>
+                <p class="mt-1 text-sm text-slate-500 font-medium">Capture vendor pricing, discount structure, project scope, and company details.</p>
             </div>
             <div class="flex items-center gap-3">
-                <a href="{{ route('admin.procurement.rfqs.index') }}" class="inline-flex items-center px-4 py-2 rounded-xl text-sm font-medium text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 transition-colors shadow-xs">
+                <a href="{{ route('admin.procurement.rfqs.index') }}" class="inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 transition-colors shadow-xs">
                     Cancel & Back
                 </a>
             </div>
@@ -36,16 +43,16 @@
         @if($selectedPr)
             <div class="bg-indigo-50/80 border border-indigo-200/80 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
                 <div class="flex items-center gap-3.5">
-                    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold shrink-0">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold shrink-0 shadow-xs">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <span class="text-xs font-bold uppercase tracking-wider text-indigo-700">Pre-filled from Purchase Requisition</span>
-                            <span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-indigo-100 text-indigo-800">{{ $selectedPr->code }}</span>
+                            <span class="text-xs font-bold uppercase tracking-wider text-indigo-700">Linked Purchase Requisition</span>
+                            <span class="px-2 py-0.5 rounded-md text-[11px] font-mono font-bold bg-indigo-100 text-indigo-800">{{ $selectedPr->code }}</span>
                         </div>
                         <div class="text-xs text-slate-600 mt-0.5">
-                            Scope: <span class="font-semibold text-slate-800">{{ $selectedPr->project?->name ?? 'General Procurement' }}</span> • Requested by <span class="font-semibold text-slate-800">{{ $selectedPr->requestedBy?->name ?? 'System' }}</span>
+                            Project: <strong class="text-slate-800">{{ $selectedPr->project?->name ?? 'General Procurement' }}</strong> • Company: <strong class="text-slate-800">{{ $selectedPr->company?->name ?? 'N/A' }}</strong> • Requested by <span class="font-semibold text-slate-800">{{ $selectedPr->requestedBy?->name ?? 'System' }}</span>
                         </div>
                     </div>
                 </div>
@@ -55,106 +62,191 @@
             </div>
         @endif
 
+        {{-- Error Summary --}}
+        @if ($errors->any())
+            <div class="rounded-2xl bg-rose-50 p-4 border border-rose-200 shadow-xs">
+                <div class="flex items-start gap-3">
+                    <div class="p-1.5 bg-rose-100 rounded-lg text-rose-700 flex-shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-rose-900">There were {{ $errors->count() }} errors with your submission</h3>
+                        <ul role="list" class="mt-1 text-xs text-rose-700 list-disc list-inside space-y-0.5 font-medium">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <form action="{{ route('admin.procurement.rfqs.store') }}" method="POST" id="rfq-form" class="space-y-6">
             @csrf
 
-            {{-- Card 1: Quotation & Vendor Information --}}
-            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6">
-                <h3 class="text-base font-bold text-slate-900 mb-4 pb-3 border-b border-slate-100 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                    Quotation & Supplier Information
-                </h3>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                    {{-- Quotation Code --}}
+            {{-- Card 1: Quotation, Project & Vendor Scope --}}
+            <x-card>
+                <x-slot:header>
                     <div>
-                        <label for="code" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                            Quotation Code <span class="text-rose-500">*</span>
+                        <h3 class="text-lg font-bold text-slate-900 tracking-tight">Quotation & Scope Details</h3>
+                        <p class="mt-0.5 text-xs text-slate-500 font-medium">Specify the vendor, destination project, operating company, and quotation validity.</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-semibold text-slate-400">Quotation Code:</span>
+                        <span class="font-mono text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 px-2.5 py-1 rounded-lg">
+                            {{ old('code', $code ?? '') }}
+                        </span>
+                    </div>
+                </x-slot:header>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6">
+                    {{-- Quotation Code Input --}}
+                    <div class="col-span-1 sm:col-span-2 lg:col-span-2">
+                        <label for="code" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+                            Quotation Code <span class="text-rose-500 font-bold ml-0.5">*</span>
                         </label>
-                        <input type="text" name="code" id="code" value="{{ old('code', $code ?? '') }}" required class="block w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors shadow-xs font-semibold">
+                        <input type="text" name="code" id="code" value="{{ old('code', $code ?? '') }}" required
+                               class="block w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm font-mono font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors shadow-xs bg-slate-50/50 hover:bg-white min-h-[42px]">
                         @error('code') <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p> @enderror
                     </div>
 
-                    {{-- Supplier Selection --}}
-                    <div>
-                        <label for="supplier_id" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                            Supplier <span class="text-rose-500">*</span>
+                    {{-- Company Select --}}
+                    <div class="col-span-1 sm:col-span-2 lg:col-span-2">
+                        <label for="company_id" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+                            Company <span class="text-rose-500 font-bold ml-0.5">*</span>
                         </label>
-                        <select id="supplier_id" name="supplier_id" required class="block w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors bg-white shadow-xs font-medium">
-                            <option value="">Select Supplier</option>
-                            @foreach($suppliers as $supplier)
-                                <option value="{{ $supplier->id }}" {{ old('supplier_id') == $supplier->id ? 'selected' : '' }}>
-                                    {{ $supplier->name }} {{ $supplier->code ? "({$supplier->code})" : '' }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <div class="relative group">
+                            <select name="company_id" id="company_id" required x-model="selectedCompanyId"
+                                    class="block w-full px-3.5 pr-10 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors bg-slate-50/50 hover:bg-white shadow-xs font-medium appearance-none cursor-pointer min-h-[42px]">
+                                <option value="">Select Company</option>
+                                @foreach($companies as $company)
+                                    <option value="{{ $company->id }}">
+                                        {{ $company->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-indigo-600 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </div>
+                        </div>
+                        @error('company_id') <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p> @enderror
+                    </div>
+
+                    {{-- Project Select --}}
+                    <div class="col-span-1 sm:col-span-2 lg:col-span-2">
+                        <label for="project_id" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+                            Project <span class="text-xs text-slate-400 font-normal ml-1">(Optional)</span>
+                        </label>
+                        <div class="relative group">
+                            <select name="project_id" id="project_id" x-model="selectedProjectId" @change="onProjectChange"
+                                    class="block w-full px-3.5 pr-10 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors bg-slate-50/50 hover:bg-white shadow-xs font-medium appearance-none cursor-pointer min-h-[42px]">
+                                <option value="">Select Project (General / Non-Project)</option>
+                                @foreach($projects as $project)
+                                    <option value="{{ $project->id }}">
+                                        {{ $project->name }} ({{ $project->project_code }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-indigo-600 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </div>
+                        </div>
+                        @error('project_id') <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p> @enderror
+                    </div>
+
+                    {{-- Supplier Select --}}
+                    <div class="col-span-1 sm:col-span-2 lg:col-span-2">
+                        <label for="supplier_id" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+                            Supplier / Vendor <span class="text-rose-500 font-bold ml-0.5">*</span>
+                        </label>
+                        <div class="relative group">
+                            <select id="supplier_id" name="supplier_id" required
+                                    class="block w-full px-3.5 pr-10 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors bg-slate-50/50 hover:bg-white shadow-xs font-medium appearance-none cursor-pointer min-h-[42px]">
+                                <option value="">Select Supplier</option>
+                                @foreach($suppliers as $supplier)
+                                    <option value="{{ $supplier->id }}" {{ old('supplier_id') == $supplier->id ? 'selected' : '' }}>
+                                        {{ $supplier->name }} {{ $supplier->code ? "({$supplier->code})" : '' }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-indigo-600 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </div>
+                        </div>
                         @error('supplier_id') <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p> @enderror
                     </div>
 
-                    {{-- Purchase Requisition Selection --}}
-                    <div>
-                        <label for="purchase_requisition_id" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                            Purchase Requisition
+                    {{-- Purchase Requisition Select --}}
+                    <div class="col-span-1 sm:col-span-2 lg:col-span-2">
+                        <label for="purchase_requisition_id" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+                            From Purchase Requisition <span class="text-xs text-slate-400 font-normal ml-1">(Optional)</span>
                         </label>
-                        <select id="purchase_requisition_id" name="purchase_requisition_id" class="block w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors bg-white shadow-xs font-medium">
-                            <option value="">-- Direct Quotation (No PR) --</option>
-                            @foreach($requisitions as $pr)
-                                <option value="{{ $pr->id }}" {{ (old('purchase_requisition_id', $selectedPrId ?? '') == $pr->id) ? 'selected' : '' }}>
-                                    {{ $pr->code }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <div class="relative group">
+                            <select id="purchase_requisition_id" name="purchase_requisition_id" x-model="selectedPrId" @change="onRequisitionChange"
+                                    class="block w-full px-3.5 pr-10 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors bg-slate-50/50 hover:bg-white shadow-xs font-medium appearance-none cursor-pointer min-h-[42px]">
+                                <option value="">-- Direct Quotation (No PR) --</option>
+                                @foreach($requisitions as $pr)
+                                    <option value="{{ $pr->id }}">
+                                        {{ $pr->code }} {{ $pr->project ? "({$pr->project->name})" : '' }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-indigo-600 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </div>
+                        </div>
                         @error('purchase_requisition_id') <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p> @enderror
                     </div>
 
                     {{-- Issue Date --}}
-                    <div>
-                        <label for="issue_date" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                            Issue Date <span class="text-rose-500">*</span>
+                    <div class="col-span-1 sm:col-span-1 lg:col-span-1">
+                        <label for="issue_date" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+                            Issue Date <span class="text-rose-500 font-bold ml-0.5">*</span>
                         </label>
-                        <input type="date" name="issue_date" id="issue_date" value="{{ old('issue_date', date('Y-m-d')) }}" required class="block w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors shadow-xs font-medium">
+                        <input type="date" name="issue_date" id="issue_date" value="{{ old('issue_date', date('Y-m-d')) }}" required
+                               class="block w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors shadow-xs font-medium min-h-[42px]">
                         @error('issue_date') <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p> @enderror
                     </div>
 
                     {{-- Valid Until Date --}}
-                    <div>
-                        <label for="valid_until" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                            Valid Until Date <span class="text-rose-500">*</span>
+                    <div class="col-span-1 sm:col-span-1 lg:col-span-1">
+                        <label for="valid_until" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+                            Valid Until Date <span class="text-rose-500 font-bold ml-0.5">*</span>
                         </label>
-                        <input type="date" name="valid_until" id="valid_until" value="{{ old('valid_until', date('Y-m-d', strtotime('+14 days'))) }}" required class="block w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors shadow-xs font-medium">
+                        <input type="date" name="valid_until" id="valid_until" value="{{ old('valid_until', date('Y-m-d', strtotime('+14 days'))) }}" required
+                               class="block w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors shadow-xs font-medium min-h-[42px]">
                         @error('valid_until') <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p> @enderror
                     </div>
                 </div>
-            </div>
+            </x-card>
 
             {{-- Card 2: Line Items & Live Pricing Calculator Table --}}
-            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
-                <div class="p-5 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div>
-                        <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
-                            <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-                            Quotation Line Items & Pricing
-                        </h3>
-                        <p class="text-xs text-slate-500">Enter product prices, discounts, and taxes for each item.</p>
+            <x-card>
+                <x-slot:header>
+                    <div class="flex items-center justify-between w-full">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-900 tracking-tight">Quotation Line Items & Pricing</h3>
+                            <p class="mt-0.5 text-xs text-slate-500 font-medium">Enter product prices, quantities, discounts, and taxes for each item.</p>
+                        </div>
+                        <button type="button" @click="addItem()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 transition-colors border border-indigo-200 shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                            + Add Line Item
+                        </button>
                     </div>
-                    <button type="button" @click="addItem()" class="inline-flex items-center px-3.5 py-2 rounded-xl text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 transition-colors border border-indigo-200 shrink-0">
-                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-                        + Add Line Item
-                    </button>
-                </div>
+                </x-slot:header>
 
                 @error('items') <p class="mt-2 text-xs text-rose-600 font-medium px-6 py-2 bg-rose-50 border-b border-rose-100">{{ $message }}</p> @enderror
 
-                <div class="overflow-x-auto">
+                <div class="overflow-x-auto border-t border-slate-100">
                     <table class="w-full text-left border-collapse text-xs">
                         <thead>
                             <tr class="bg-slate-100/70 border-b border-slate-200 text-slate-700 font-bold uppercase tracking-wider">
                                 <th class="py-3.5 px-4 min-w-[220px]">Product / Item <span class="text-rose-500">*</span></th>
                                 <th class="py-3.5 px-4 text-center w-28">Qty <span class="text-rose-500">*</span></th>
-                                <th class="py-3.5 px-4 text-right w-36">Unit Price (RWF) <span class="text-rose-500">*</span></th>
-                                <th class="py-3.5 px-4 text-right w-32">Discount (RWF)</th>
-                                <th class="py-3.5 px-4 text-right w-32">Tax (RWF)</th>
-                                <th class="py-3.5 px-4 text-right w-36">Line Total (RWF)</th>
+                                <th class="py-3.5 px-4 text-right w-36">Unit Price <span class="text-rose-500">*</span></th>
+                                <th class="py-3.5 px-4 text-right w-32">Discount</th>
+                                <th class="py-3.5 px-4 text-right w-32">Tax</th>
+                                <th class="py-3.5 px-4 text-right w-36">Line Total</th>
                                 <th class="py-3.5 px-4 text-center w-14"></th>
                             </tr>
                         </thead>
@@ -235,18 +327,19 @@
                         </div>
                     </div>
                 </div>
-            </div>
 
-            {{-- Form Submit Footer --}}
-            <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs flex items-center justify-end gap-3">
-                <a href="{{ route('admin.procurement.rfqs.index') }}" class="px-5 py-2.5 text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">
-                    Cancel
-                </a>
-                <button type="submit" class="inline-flex items-center px-6 py-2.5 text-sm font-extrabold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs transition-all hover:shadow-md focus:ring-2 focus:ring-indigo-500">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                    Record Supplier Quotation
-                </button>
-            </div>
+                <x-slot:footer>
+                    <div class="flex items-center justify-end gap-3 w-full">
+                        <a href="{{ route('admin.procurement.rfqs.index') }}" class="px-5 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-xl transition-colors shadow-xs">
+                            Cancel
+                        </a>
+                        <button type="submit" class="inline-flex items-center px-6 py-2.5 text-sm font-extrabold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs transition-all hover:shadow-md focus:ring-2 focus:ring-indigo-500">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            Record Supplier Quotation
+                        </button>
+                    </div>
+                </x-slot:footer>
+            </x-card>
         </form>
     </div>
     @else
@@ -261,17 +354,49 @@
 </x-layouts.admin>
 
 <script>
-    function quotationForm() {
+    function quotationForm(config = {}) {
         return {
-            items: {!! !empty($preloadedItems) ? json_encode($preloadedItems) : "[{ product_id: '', quantity: 1, unit_price: 0, discount: 0, tax: 0 }]" !!},
+            projectsData: config.projectsData || {},
+            requisitionsData: config.requisitionsData || {},
+            selectedProjectId: config.initialProjectId || '',
+            selectedCompanyId: config.initialCompanyId || '',
+            selectedPrId: config.initialPrId || '',
+            items: config.initialItems && config.initialItems.length ? config.initialItems : [
+                { product_id: '', quantity: 1, unit_price: 0, discount: 0, tax: 0 }
+            ],
+
+            onRequisitionChange() {
+                if (this.selectedPrId && this.requisitionsData[this.selectedPrId]) {
+                    const req = this.requisitionsData[this.selectedPrId];
+                    if (req.company_id) {
+                        this.selectedCompanyId = String(req.company_id);
+                    }
+                    if (req.project_id) {
+                        this.selectedProjectId = String(req.project_id);
+                    }
+                    if (req.items && req.items.length) {
+                        this.items = JSON.parse(JSON.stringify(req.items));
+                    }
+                }
+            },
+
+            onProjectChange() {
+                const proj = this.projectsData[this.selectedProjectId];
+                if (proj && proj.company_id) {
+                    this.selectedCompanyId = String(proj.company_id);
+                }
+            },
+
             addItem() {
                 this.items.push({ product_id: '', quantity: 1, unit_price: 0, discount: 0, tax: 0 });
             },
+
             removeItem(index) {
                 if (this.items.length > 1) {
                     this.items.splice(index, 1);
                 }
             },
+
             getItemTotal(item) {
                 const qty = parseFloat(item.quantity) || 0;
                 const price = parseFloat(item.unit_price) || 0;
@@ -279,18 +404,23 @@
                 const tax = parseFloat(item.tax) || 0;
                 return (qty * price) - discount + tax;
             },
+
             getSubtotal() {
                 return this.items.reduce((sum, item) => sum + ((parseFloat(item.quantity) || 0) * (parseFloat(item.unit_price) || 0)), 0);
             },
+
             getTotalDiscounts() {
                 return this.items.reduce((sum, item) => sum + (parseFloat(item.discount) || 0), 0);
             },
+
             getTotalTaxes() {
                 return this.items.reduce((sum, item) => sum + (parseFloat(item.tax) || 0), 0);
             },
+
             getGrandTotal() {
                 return this.getSubtotal() - this.getTotalDiscounts() + this.getTotalTaxes();
             },
+
             formatMoney(amount) {
                 const currency = '{{ session('currency', 'RWF') }}';
                 return currency + ' ' + (parseFloat(amount) || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });

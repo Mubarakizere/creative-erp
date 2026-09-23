@@ -35,21 +35,36 @@ class ProjectActivityMaterialTrackingTest extends TestCase
             'company_id' => $this->company->id,
             'branch_id' => $this->branch->id,
         ]);
+        $this->user->assignRole('Super Admin');
         
         $this->withoutMiddleware();
         
-        $this->project = Project::factory()->create(['company_id' => $this->company->id, 'branch_id' => $this->branch->id]);
+        $this->project = Project::factory()->create([
+            'company_id' => $this->company->id,
+            'branch_id' => $this->branch->id,
+            'project_manager_id' => $this->user->id,
+            'actual_cost' => 0,
+        ]);
         $this->task = Task::factory()->create(['project_id' => $this->project->id, 'company_id' => $this->company->id]);
-        $this->product = Product::factory()->create(['company_id' => $this->company->id, 'type' => 'goods', 'is_stockable' => true]);
-        $this->warehouse = Warehouse::factory()->create(['company_id' => $this->company->id, 'branch_id' => $this->branch->id]);
+        $this->product = Product::create([
+            'company_id' => $this->company->id,
+            'name' => 'Test Product',
+            'sku' => 'SKU-' . uniqid(),
+            'type' => 'Goods',
+            'status' => 'active',
+        ]);
+        $this->warehouse = Warehouse::create([
+            'company_id' => $this->company->id,
+            'name' => 'Main Warehouse',
+            'status' => 'active',
+        ]);
         
         // Add some stock
         Inventory::create([
             'company_id' => $this->company->id,
             'warehouse_id' => $this->warehouse->id,
             'product_id' => $this->product->id,
-            'quantity' => 100,
-            'batch_number' => 'BATCH1',
+            'available_quantity' => 100,
         ]);
     }
 
@@ -79,16 +94,35 @@ class ProjectActivityMaterialTrackingTest extends TestCase
     public function test_material_issue_updates_task_cost()
     {
         // Mock valuation so we don't need actual valuation entries
-        $this->product->update(['standard_cost' => 10.50]);
+        $this->product->update(['cost_price' => 10.50]);
+
+        $materialRequest = \App\Models\ProjectMaterialRequest::create([
+            'company_id' => $this->company->id,
+            'project_id' => $this->project->id,
+            'task_id' => $this->task->id,
+            'requested_by' => $this->user->id,
+            'request_number' => 'MR-TEST-001',
+            'request_date' => now()->toDateString(),
+            'priority' => 'Normal',
+            'status' => 'Approved',
+        ]);
+
+        $mrItem = \App\Models\ProjectMaterialRequestItem::create([
+            'project_material_request_id' => $materialRequest->id,
+            'product_id' => $this->product->id,
+            'quantity_requested' => 10,
+        ]);
         
         $response = $this->actingAs($this->user)->post(route('admin.project-material-issues.store'), [
             'project_id' => $this->project->id,
             'task_id' => $this->task->id,
+            'project_material_request_id' => $materialRequest->id,
             'warehouse_id' => $this->warehouse->id,
             'issue_date' => now()->toDateString(),
             'items' => [
                 [
                     'product_id' => $this->product->id,
+                    'project_material_request_item_id' => $mrItem->id,
                     'quantity' => 5,
                 ]
             ]

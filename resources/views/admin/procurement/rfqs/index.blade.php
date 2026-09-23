@@ -1,26 +1,26 @@
-<x-layouts.admin title="Request for Quotations">
+<x-layouts.admin title="RFQs & Supplier Quotations">
     <x-slot:breadcrumbs>
         @php
             $breadcrumbs = [
                 ['label' => 'Procurement', 'url' => route('admin.procurement.requisitions.index')],
-                ['label' => 'RFQs & Supplier Quotations'],
+                ['label' => 'RFQs & Quotations'],
             ];
         @endphp
     </x-slot:breadcrumbs>
 
     @can('viewAny', App\Models\SupplierQuotation::class)
     <div class="space-y-6">
-        {{-- Header & Action Button --}}
+        {{-- Header & Action Bar --}}
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">RFQs & Supplier Quotations</h1>
-                <p class="mt-1 text-sm text-slate-500 font-medium">Manage vendor price quotes, evaluate supplier offers, and trigger purchase orders.</p>
+                <p class="mt-1 text-sm text-slate-500 font-medium">Record and track vendor bids, linked projects, price comparisons, and quotation approvals.</p>
             </div>
             <div class="flex items-center gap-3">
                 @can('create', App\Models\SupplierQuotation::class)
                     <a href="{{ route('admin.procurement.rfqs.create') }}" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 shadow-xs transition-all hover:shadow-md focus:ring-2 focus:ring-indigo-500 focus:outline-none shrink-0">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-                        Record New Quotation
+                        Record Quotation
                     </a>
                 @endcan
             </div>
@@ -41,51 +41,77 @@
 
             <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Quoted Value</span>
-                    <div class="w-8 h-8 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    </div>
-                </div>
-                <div class="mt-2 text-xl font-extrabold text-slate-900 truncate">
-                    {{ format_currency($stats['total_value'] ?? 0, session('currency', 'RWF')) }}
-                </div>
-                <div class="text-xs text-slate-400 mt-0.5">Combined value of quotes</div>
-            </div>
-
-            <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs">
-                <div class="flex items-center justify-between">
                     <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Approved Quotes</span>
                     <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     </div>
                 </div>
                 <div class="mt-2 text-2xl font-extrabold text-emerald-600">{{ $stats['approved'] ?? 0 }}</div>
-                <div class="text-xs text-slate-400 mt-0.5">Accepted & converted to PO</div>
+                <div class="text-xs text-slate-400 mt-0.5">Ready for PO issuance</div>
             </div>
 
             <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Drafts</span>
-                    <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Draft / Under Review</span>
+                    <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     </div>
                 </div>
-                <div class="mt-2 text-2xl font-extrabold text-slate-700">{{ $stats['draft'] ?? 0 }}</div>
-                <div class="text-xs text-slate-400 mt-0.5">Under evaluation</div>
+                <div class="mt-2 text-2xl font-extrabold text-amber-600">{{ $stats['draft'] ?? 0 }}</div>
+                <div class="text-xs text-slate-400 mt-0.5">Awaiting comparison</div>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Quoted Value</span>
+                    <div class="w-8 h-8 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                </div>
+                <div class="mt-2 text-2xl font-extrabold text-slate-900">{{ format_currency($stats['total_value'] ?? 0, session('currency', 'RWF')) }}</div>
+                <div class="text-xs text-slate-400 mt-0.5">Sum of all active quotations</div>
             </div>
         </div>
 
         {{-- Filter & Search Bar --}}
         <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
-            <form method="GET" action="{{ route('admin.procurement.rfqs.index') }}" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <form method="GET" action="{{ route('admin.procurement.rfqs.index') }}" class="flex flex-col lg:flex-row items-stretch lg:items-center gap-3">
+                {{-- Search Box --}}
                 <div class="relative flex-1">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </div>
-                    <input type="text" name="search" placeholder="Search by quote number or supplier name..." value="{{ request('search') }}" class="block w-full pl-9 pr-3 py-2 border border-slate-300 rounded-xl leading-5 bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-colors shadow-xs">
+                    <input type="text" name="search" placeholder="Search by quote number, supplier, or project..." value="{{ request('search') }}" class="block w-full pl-9 pr-3 py-2 border border-slate-300 rounded-xl leading-5 bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-colors shadow-xs">
                 </div>
 
-                <div class="w-full sm:w-48">
+                {{-- Project Filter Dropdown --}}
+                <div class="w-full sm:w-60">
+                    <select name="project_id" onchange="this.form.submit()" class="block w-full px-3 py-2 border border-slate-300 rounded-xl leading-5 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-colors shadow-xs">
+                        <option value="">All Projects</option>
+                        @foreach($projects as $project)
+                            <option value="{{ $project->id }}" {{ request('project_id') == $project->id ? 'selected' : '' }}>
+                                {{ $project->name }} ({{ $project->project_code }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- Company Filter (if applicable) --}}
+                @if(isset($companies) && $companies->count() > 1 && (auth()->user()->hasRole('Super Admin') || auth()->user()->hasRole('CEO') || !auth()->user()->company_id))
+                    <div class="w-full sm:w-48">
+                        <select name="company_id" onchange="this.form.submit()" class="block w-full px-3 py-2 border border-slate-300 rounded-xl leading-5 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-colors shadow-xs">
+                            <option value="">All Companies</option>
+                            @foreach($companies as $comp)
+                                <option value="{{ $comp->id }}" {{ request('company_id') == $comp->id ? 'selected' : '' }}>
+                                    {{ $comp->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                @endif
+
+                {{-- Status Filter Dropdown --}}
+                <div class="w-full sm:w-44">
                     <select name="status" onchange="this.form.submit()" class="block w-full px-3 py-2 border border-slate-300 rounded-xl leading-5 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-colors shadow-xs">
                         <option value="">All Statuses</option>
                         <option value="draft" {{ request('status') === 'draft' ? 'selected' : '' }}>Draft</option>
@@ -95,12 +121,13 @@
                     </select>
                 </div>
                 
+                {{-- Action Buttons --}}
                 <div class="flex items-center gap-2 shrink-0">
                     <button type="submit" class="inline-flex items-center px-4 py-2 text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors shadow-xs border border-slate-200">
                         <svg class="w-4 h-4 mr-1.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
                         Filter
                     </button>
-                    @if(request()->has('search') || request()->has('status'))
+                    @if(request()->has('search') || request()->has('status') || request()->has('project_id') || request()->has('company_id'))
                         <a href="{{ route('admin.procurement.rfqs.index') }}" class="inline-flex items-center px-3.5 py-2 text-sm font-medium text-slate-500 hover:text-slate-900 bg-white border border-slate-300 rounded-xl transition-colors">
                             Reset
                         </a>
@@ -116,6 +143,7 @@
                     <thead>
                         <tr class="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
                             <th class="py-3.5 px-6">Quote Code & Date</th>
+                            <th class="py-3.5 px-6">Project & Company</th>
                             <th class="py-3.5 px-6">Supplier</th>
                             <th class="py-3.5 px-6">Requisition Ref</th>
                             <th class="py-3.5 px-6 text-center">Items</th>
@@ -138,6 +166,9 @@
                                 $quoteTotal = $rfq->items ? $rfq->items->sum(function($item) {
                                     return $item->total > 0 ? $item->total : (($item->quantity * $item->unit_price) - $item->discount + $item->tax);
                                 }) : 0;
+
+                                $project = $rfq->project ?? $rfq->purchaseRequisition?->project;
+                                $company = $rfq->company ?? $project?->company;
                             @endphp
                             <tr class="hover:bg-slate-50/80 transition-colors">
                                 {{-- Code & Valid Date --}}
@@ -148,6 +179,37 @@
                                     <div class="text-[11px] text-slate-400 mt-0.5">
                                         Valid until {{ $rfq->valid_until ? $rfq->valid_until->format('M d, Y') : 'N/A' }}
                                     </div>
+                                </td>
+
+                                {{-- Project & Company --}}
+                                <td class="py-4 px-6">
+                                    @if($project)
+                                        <div class="space-y-1">
+                                            <div class="flex items-center gap-1.5 flex-wrap">
+                                                <a href="{{ route('admin.projects.show', $project->id) }}" class="text-xs font-bold text-slate-900 hover:text-indigo-600 transition-colors">
+                                                    {{ $project->name }}
+                                                </a>
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                                    {{ $project->project_code }}
+                                                </span>
+                                            </div>
+                                            @if($company)
+                                                <div class="flex items-center gap-1 text-[11px] text-slate-500 font-medium">
+                                                    <svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                                                    <span class="truncate max-w-[160px]">{{ $company->name }}</span>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <div class="space-y-1">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium text-slate-600 bg-slate-100 border border-slate-200">
+                                                General Procurement
+                                            </span>
+                                            @if($company)
+                                                <div class="text-[11px] text-slate-400">{{ $company->name }}</div>
+                                            @endif
+                                        </div>
+                                    @endif
                                 </td>
 
                                 {{-- Supplier --}}
@@ -222,12 +284,6 @@
                                                 </x-action-dropdown-item>
                                             @endcan
 
-                                            @if($rfq->purchaseRequisition)
-                                                <x-action-dropdown-item href="{{ route('admin.procurement.requisitions.compare', $rfq->purchaseRequisition->id) }}">
-                                                    Compare PR Quotes
-                                                </x-action-dropdown-item>
-                                            @endif
-
                                             @can('update', $rfq)
                                                 <x-action-dropdown-item href="{{ route('admin.procurement.rfqs.edit', $rfq->id) }}" icon="edit">
                                                     Edit Quotation
@@ -235,7 +291,7 @@
                                             @endcan
 
                                             @can('delete', $rfq)
-                                                <form method="POST" action="{{ route('admin.procurement.rfqs.destroy', $rfq->id) }}" id="delete-rfq-form-{{ $rfq->id }}">
+                                                <form action="{{ route('admin.procurement.rfqs.destroy', $rfq->id) }}" method="POST" id="delete-rfq-form-{{ $rfq->id }}">
                                                     @csrf
                                                     @method('DELETE')
                                                 </form>
@@ -249,15 +305,15 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="py-16 text-center">
+                                <td colspan="8" class="py-16 text-center">
                                     <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3 border border-slate-200/80">
                                         <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                     </div>
                                     <h3 class="text-base font-bold text-slate-900 mb-1">No supplier quotations found</h3>
-                                    <p class="text-xs text-slate-500 font-medium max-w-sm mx-auto mb-4">There are currently no recorded quotations in the system. Click below to record your first supplier quotation.</p>
+                                    <p class="text-xs text-slate-500 font-medium max-w-sm mx-auto mb-4">No quotations matched your search criteria. Record your first supplier quote to begin price comparisons.</p>
                                     @can('create', App\Models\SupplierQuotation::class)
                                         <a href="{{ route('admin.procurement.rfqs.create') }}" class="inline-flex items-center px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs transition-all">
-                                            Record New Quotation
+                                            Record Quotation
                                         </a>
                                     @endcan
                                 </td>
@@ -280,7 +336,7 @@
             <svg class="h-7 w-7 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
         </div>
         <h3 class="text-lg font-bold text-slate-900 mb-1">Access Denied</h3>
-        <p class="text-xs text-slate-500 font-medium">You do not have permission to view Request for Quotations.</p>
+        <p class="text-xs text-slate-500 font-medium">You do not have permission to view supplier quotations.</p>
     </div>
     @endcan
 </x-layouts.admin>

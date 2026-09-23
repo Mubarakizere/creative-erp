@@ -1,9 +1,9 @@
-<x-layouts.admin title="Edit RFQ">
+<x-layouts.admin title="Edit RFQ: {{ $rfq->code }}">
     <x-slot:breadcrumbs>
         @php
             $breadcrumbs = [
                 ['label' => 'Procurement', 'url' => route('admin.procurement.requisitions.index')],
-                ['label' => 'Request for Quotations', 'url' => route('admin.procurement.rfqs.index')],
+                ['label' => 'RFQs & Quotations', 'url' => route('admin.procurement.rfqs.index')],
                 ['label' => $rfq->code, 'url' => route('admin.procurement.rfqs.show', $rfq->id)],
                 ['label' => 'Edit'],
             ];
@@ -11,125 +11,281 @@
     </x-slot:breadcrumbs>
 
     @can('update', $rfq)
-    <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-            <a href="{{ route('admin.procurement.rfqs.show', $rfq->id) }}" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 mb-2 transition-colors">
-                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-                Back to RFQ
-            </a>
-            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Edit Quotation: {{ $rfq->code }}</h1>
-            <p class="mt-1 text-sm text-gray-500 font-medium">Update the Request for Quotation.</p>
-        </div>
-    </div>
-
-    <div class="mt-6" x-data="{ items: {{ count($rfq->items) > 0 ? Js::from($rfq->items->map(fn($i) => ['product_id' => $i->product_id, 'quantity' => $i->quantity, 'unit_price' => $i->unit_price ?? 0, 'discount' => $i->discount ?? 0, 'tax' => $i->tax ?? 0])) : '[{ product_id: \'\', quantity: 1, unit_price: 0, discount: 0, tax: 0 }]' }} }">
-        <form action="{{ route('admin.procurement.rfqs.update', $rfq->id) }}" method="POST" id="rfq-form">
-            @csrf
-            @method('PUT')
-            
-            <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden mb-6">
-                <div class="bg-gray-50/50 border-b border-gray-100 px-6 py-4">
-                    <h3 class="text-lg font-bold text-gray-900 tracking-tight">Quotation Details</h3>
+    <div class="space-y-6" x-data="quotationForm({
+        projectsData: {{ \Illuminate\Support\Js::from($projectsData) }},
+        initialProjectId: '{{ old('project_id', $rfq->project_id ?? '') }}',
+        initialCompanyId: '{{ old('company_id', $rfq->company_id ?? '') }}',
+        initialPrId: '{{ old('purchase_requisition_id', $rfq->purchase_requisition_id ?? '') }}',
+        initialItems: {{ \Illuminate\Support\Js::from(old('items', count($rfq->items) > 0 ? $rfq->items->map(fn($i) => ['product_id' => $i->product_id, 'quantity' => (float)$i->quantity, 'unit_price' => (float)($i->unit_price ?? 0), 'discount' => (float)($i->discount ?? 0), 'tax' => (float)($i->tax ?? 0)]) : [['product_id' => '', 'quantity' => 1, 'unit_price' => 0, 'discount' => 0, 'tax' => 0]])) }}
+    })">
+        {{-- Header & Action Bar --}}
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <div class="flex items-center gap-2 text-sm text-slate-500 mb-1.5">
+                    <a href="{{ route('admin.procurement.rfqs.show', $rfq->id) }}" class="hover:text-indigo-600 font-semibold transition-colors flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                        Back to Quotation Details
+                    </a>
+                    <span>/</span>
+                    <span class="font-semibold text-slate-700">Edit Quotation</span>
                 </div>
-                <div class="p-6">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <div class="col-span-1 lg:col-span-2">
-                            <label for="code" class="block text-sm font-medium text-gray-700 mb-1">Quotation Number <span class="text-red-500">*</span></label>
-                            <input type="text" name="code" id="code" value="{{ old('code', $rfq->code) }}" required class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors">
-                            @error('code') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
-                        </div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Edit Quotation: {{ $rfq->code }}</h1>
+                <p class="mt-1 text-sm text-slate-500 font-medium">Update pricing, supplier terms, project scope, or operating company.</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="{{ route('admin.procurement.rfqs.show', $rfq->id) }}" class="inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 transition-colors shadow-xs">
+                    Cancel & Return
+                </a>
+            </div>
+        </div>
 
-                        <div class="col-span-1 lg:col-span-2">
-                            <label for="supplier_id" class="block text-sm font-medium text-gray-700 mb-1">Supplier <span class="text-red-500">*</span></label>
-                            <select id="supplier_id" name="supplier_id" required class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors bg-white">
-                                <option value="">Select a Supplier</option>
-                                @foreach($suppliers as $supplier)
-                                    <option value="{{ $supplier->id }}" {{ old('supplier_id', $rfq->supplier_id) == $supplier->id ? 'selected' : '' }}>{{ $supplier->name }}</option>
-                                @endforeach
-                            </select>
-                            @error('supplier_id') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
-                        </div>
-                        
-                        <div class="col-span-1 sm:col-span-2 lg:col-span-4">
-                            <label for="purchase_requisition_id" class="block text-sm font-medium text-gray-700 mb-1">From Purchase Requisition (Approved)</label>
-                            <select id="purchase_requisition_id" name="purchase_requisition_id" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors bg-white">
-                                <option value="">-- None --</option>
-                                @foreach($requisitions as $pr)
-                                    <option value="{{ $pr->id }}" {{ old('purchase_requisition_id', $rfq->purchase_requisition_id) == $pr->id ? 'selected' : '' }}>{{ $pr->code }}</option>
-                                @endforeach
-                            </select>
-                            @error('purchase_requisition_id') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
-                        </div>
-
-                        <div class="col-span-1 sm:col-span-1 lg:col-span-2">
-                            <label for="issue_date" class="block text-sm font-medium text-gray-700 mb-1">Issue Date <span class="text-red-500">*</span></label>
-                            <input type="date" name="issue_date" id="issue_date" value="{{ old('issue_date', $rfq->issue_date) }}" required class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors">
-                            @error('issue_date') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
-                        </div>
-                        
-                        <div class="col-span-1 sm:col-span-1 lg:col-span-2">
-                            <label for="valid_until" class="block text-sm font-medium text-gray-700 mb-1">Valid Until <span class="text-red-500">*</span></label>
-                            <input type="date" name="valid_until" id="valid_until" value="{{ old('valid_until', $rfq->valid_until) }}" required class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors">
-                            @error('valid_until') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
-                        </div>
+        {{-- Error Summary --}}
+        @if ($errors->any())
+            <div class="rounded-2xl bg-rose-50 p-4 border border-rose-200 shadow-xs">
+                <div class="flex items-start gap-3">
+                    <div class="p-1.5 bg-rose-100 rounded-lg text-rose-700 flex-shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-rose-900">There were {{ $errors->count() }} errors with your submission</h3>
+                        <ul role="list" class="mt-1 text-xs text-rose-700 list-disc list-inside space-y-0.5 font-medium">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
                     </div>
                 </div>
             </div>
+        @endif
 
-            <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden mb-6">
-                <div class="bg-gray-50/50 border-b border-gray-100 px-6 py-4 flex justify-between items-center">
+        <form action="{{ route('admin.procurement.rfqs.update', $rfq->id) }}" method="POST" id="rfq-form" class="space-y-6">
+            @csrf
+            @method('PUT')
+
+            {{-- Card 1: Quotation, Project & Vendor Scope --}}
+            <x-card>
+                <x-slot:header>
                     <div>
-                        <h3 class="text-lg font-bold text-gray-900 tracking-tight">Items (Prices, Discounts, Taxes)</h3>
-                        <p class="mt-1 text-sm text-gray-500 font-medium">Add products and pricing details.</p>
+                        <h3 class="text-lg font-bold text-slate-900 tracking-tight">Quotation & Scope Details</h3>
+                        <p class="mt-0.5 text-xs text-slate-500 font-medium">Specify the vendor, destination project, operating company, and quotation validity.</p>
                     </div>
-                    <button type="button" @click="items.push({ product_id: '', quantity: 1, unit_price: 0, discount: 0, tax: 0 })" class="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-700 bg-blue-100 rounded-xl hover:bg-blue-200 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-                        Add Item
-                    </button>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-semibold text-slate-400">Quotation Code:</span>
+                        <span class="font-mono text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 px-2.5 py-1 rounded-lg">
+                            {{ $rfq->code }}
+                        </span>
+                    </div>
+                </x-slot:header>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6">
+                    {{-- Quotation Code Input --}}
+                    <div class="col-span-1 sm:col-span-2 lg:col-span-2">
+                        <label for="code" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+                            Quotation Code <span class="text-rose-500 font-bold ml-0.5">*</span>
+                        </label>
+                        <input type="text" name="code" id="code" value="{{ old('code', $rfq->code) }}" required
+                               class="block w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm font-mono font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors shadow-xs bg-slate-50/50 hover:bg-white min-h-[42px]">
+                        @error('code') <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p> @enderror
+                    </div>
+
+                    {{-- Company Select --}}
+                    <div class="col-span-1 sm:col-span-2 lg:col-span-2">
+                        <label for="company_id" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+                            Company <span class="text-rose-500 font-bold ml-0.5">*</span>
+                        </label>
+                        <div class="relative group">
+                            <select name="company_id" id="company_id" required x-model="selectedCompanyId"
+                                    class="block w-full px-3.5 pr-10 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors bg-slate-50/50 hover:bg-white shadow-xs font-medium appearance-none cursor-pointer min-h-[42px]">
+                                <option value="">Select Company</option>
+                                @foreach($companies as $company)
+                                    <option value="{{ $company->id }}">
+                                        {{ $company->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-indigo-600 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </div>
+                        </div>
+                        @error('company_id') <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p> @enderror
+                    </div>
+
+                    {{-- Project Select --}}
+                    <div class="col-span-1 sm:col-span-2 lg:col-span-2">
+                        <label for="project_id" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+                            Project <span class="text-xs text-slate-400 font-normal ml-1">(Optional)</span>
+                        </label>
+                        <div class="relative group">
+                            <select name="project_id" id="project_id" x-model="selectedProjectId" @change="onProjectChange"
+                                    class="block w-full px-3.5 pr-10 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors bg-slate-50/50 hover:bg-white shadow-xs font-medium appearance-none cursor-pointer min-h-[42px]">
+                                <option value="">Select Project (General / Non-Project)</option>
+                                @foreach($projects as $project)
+                                    <option value="{{ $project->id }}">
+                                        {{ $project->name }} ({{ $project->project_code }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-indigo-600 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </div>
+                        </div>
+                        @error('project_id') <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p> @enderror
+                    </div>
+
+                    {{-- Supplier Select --}}
+                    <div class="col-span-1 sm:col-span-2 lg:col-span-2">
+                        <label for="supplier_id" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+                            Supplier / Vendor <span class="text-rose-500 font-bold ml-0.5">*</span>
+                        </label>
+                        <div class="relative group">
+                            <select id="supplier_id" name="supplier_id" required
+                                    class="block w-full px-3.5 pr-10 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors bg-slate-50/50 hover:bg-white shadow-xs font-medium appearance-none cursor-pointer min-h-[42px]">
+                                <option value="">Select Supplier</option>
+                                @foreach($suppliers as $supplier)
+                                    <option value="{{ $supplier->id }}" {{ old('supplier_id', $rfq->supplier_id) == $supplier->id ? 'selected' : '' }}>
+                                        {{ $supplier->name }} {{ $supplier->code ? "({$supplier->code})" : '' }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-indigo-600 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </div>
+                        </div>
+                        @error('supplier_id') <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p> @enderror
+                    </div>
+
+                    {{-- Purchase Requisition Select --}}
+                    <div class="col-span-1 sm:col-span-2 lg:col-span-2">
+                        <label for="purchase_requisition_id" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+                            From Purchase Requisition <span class="text-xs text-slate-400 font-normal ml-1">(Optional)</span>
+                        </label>
+                        <div class="relative group">
+                            <select id="purchase_requisition_id" name="purchase_requisition_id" x-model="selectedPrId"
+                                    class="block w-full px-3.5 pr-10 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors bg-slate-50/50 hover:bg-white shadow-xs font-medium appearance-none cursor-pointer min-h-[42px]">
+                                <option value="">-- Direct Quotation (No PR) --</option>
+                                @foreach($requisitions as $pr)
+                                    <option value="{{ $pr->id }}" {{ old('purchase_requisition_id', $rfq->purchase_requisition_id) == $pr->id ? 'selected' : '' }}>
+                                        {{ $pr->code }} {{ $pr->project ? "({$pr->project->name})" : '' }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-indigo-600 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </div>
+                        </div>
+                        @error('purchase_requisition_id') <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p> @enderror
+                    </div>
+
+                    {{-- Status Select --}}
+                    <div class="col-span-1 sm:col-span-1 lg:col-span-1">
+                        <label for="status" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+                            Status <span class="text-rose-500 font-bold ml-0.5">*</span>
+                        </label>
+                        <select name="status" id="status" required
+                                class="block w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors bg-slate-50/50 hover:bg-white shadow-xs font-medium min-h-[42px]">
+                            <option value="draft" {{ old('status', $rfq->status) == 'draft' ? 'selected' : '' }}>Draft</option>
+                            <option value="submitted" {{ old('status', $rfq->status) == 'submitted' ? 'selected' : '' }}>Submitted</option>
+                            <option value="approved" {{ old('status', $rfq->status) == 'approved' ? 'selected' : '' }}>Approved</option>
+                            <option value="rejected" {{ old('status', $rfq->status) == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                        </select>
+                    </div>
+
+                    {{-- Issue Date --}}
+                    <div class="col-span-1 sm:col-span-1 lg:col-span-1">
+                        <label for="issue_date" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+                            Issue Date <span class="text-rose-500 font-bold ml-0.5">*</span>
+                        </label>
+                        <input type="date" name="issue_date" id="issue_date" value="{{ old('issue_date', $rfq->issue_date ? $rfq->issue_date->format('Y-m-d') : '') }}" required
+                               class="block w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors shadow-xs font-medium min-h-[42px]">
+                        @error('issue_date') <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p> @enderror
+                    </div>
+
+                    {{-- Valid Until Date --}}
+                    <div class="col-span-1 sm:col-span-1 lg:col-span-2">
+                        <label for="valid_until" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+                            Valid Until Date <span class="text-rose-500 font-bold ml-0.5">*</span>
+                        </label>
+                        <input type="date" name="valid_until" id="valid_until" value="{{ old('valid_until', $rfq->valid_until ? $rfq->valid_until->format('Y-m-d') : '') }}" required
+                               class="block w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors shadow-xs font-medium min-h-[42px]">
+                        @error('valid_until') <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p> @enderror
+                    </div>
                 </div>
-                
-                @error('items') <p class="mt-2 text-sm text-red-600 mb-4 px-6">{{ $message }}</p> @enderror
-                
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200/60">
-                        <thead class="bg-gray-50/30">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">Product <span class="text-red-500">*</span></th>
-                                <th class="px-6 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 w-32">Qty <span class="text-red-500">*</span></th>
-                                <th class="px-6 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 w-32">Price <span class="text-red-500">*</span></th>
-                                <th class="px-6 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 w-32">Discount</th>
-                                <th class="px-6 py-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 w-32">Tax</th>
-                                <th class="px-6 py-3 text-right text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 w-16"></th>
+            </x-card>
+
+            {{-- Card 2: Line Items & Live Pricing Calculator Table --}}
+            <x-card>
+                <x-slot:header>
+                    <div class="flex items-center justify-between w-full">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-900 tracking-tight">Quotation Line Items & Pricing</h3>
+                            <p class="mt-0.5 text-xs text-slate-500 font-medium">Enter product prices, quantities, discounts, and taxes for each item.</p>
+                        </div>
+                        <button type="button" @click="addItem()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 transition-colors border border-indigo-200 shrink-0">
+                            <svg class="w-4 h-4 fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                            + Add Line Item
+                        </button>
+                    </div>
+                </x-slot:header>
+
+                @error('items') <p class="mt-2 text-xs text-rose-600 font-medium px-6 py-2 bg-rose-50 border-b border-rose-100">{{ $message }}</p> @enderror
+
+                <div class="overflow-x-auto border-t border-slate-100">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-100/70 border-b border-slate-200 text-slate-700 font-bold uppercase tracking-wider">
+                                <th class="py-3.5 px-4 min-w-[220px]">Product / Item <span class="text-rose-500">*</span></th>
+                                <th class="py-3.5 px-4 text-center w-28">Qty <span class="text-rose-500">*</span></th>
+                                <th class="py-3.5 px-4 text-right w-36">Unit Price <span class="text-rose-500">*</span></th>
+                                <th class="py-3.5 px-4 text-right w-32">Discount</th>
+                                <th class="py-3.5 px-4 text-right w-32">Tax</th>
+                                <th class="py-3.5 px-4 text-right w-36">Line Total</th>
+                                <th class="py-3.5 px-4 text-center w-14"></th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-100">
+                        <tbody class="divide-y divide-slate-100 text-slate-800">
                             <template x-for="(item, index) in items" :key="index">
-                                <tr class="hover:bg-gray-50/50 transition-colors">
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <select x-model="item.product_id" :name="'items[' + index + '][product_id]'" required class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white">
+                                <tr class="hover:bg-slate-50/80 transition-colors">
+                                    {{-- Product Selection --}}
+                                    <td class="py-3 px-4">
+                                        <select x-model="item.product_id" :name="'items[' + index + '][product_id]'" required class="block w-full px-3 py-2 rounded-xl border border-slate-300 text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white font-medium">
                                             <option value="">Select Product</option>
-                                            @foreach(\App\Models\Product::all() as $product)
-                                                <option value="{{ $product->id }}">{{ $product->name }}</option>
+                                            @foreach($products as $product)
+                                                <option value="{{ $product->id }}">
+                                                    {{ $product->name }} {{ $product->unit ? "({$product->unit->name})" : '' }}
+                                                </option>
                                             @endforeach
                                         </select>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <input type="number" step="0.01" min="0.01" x-model="item.quantity" :name="'items[' + index + '][quantity]'" required class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+
+                                    {{-- Quantity --}}
+                                    <td class="py-3 px-4">
+                                        <input type="number" step="0.01" min="0.01" x-model.number="item.quantity" :name="'items[' + index + '][quantity]'" required class="block w-full px-3 py-2 text-center rounded-xl border border-slate-300 text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500">
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <input type="number" step="0.01" min="0" x-model="item.unit_price" :name="'items[' + index + '][unit_price]'" required class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+
+                                    {{-- Unit Price --}}
+                                    <td class="py-3 px-4">
+                                        <input type="number" step="0.01" min="0" x-model.number="item.unit_price" :name="'items[' + index + '][unit_price]'" required class="block w-full px-3 py-2 text-right rounded-xl border border-slate-300 text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500">
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <input type="number" step="0.01" min="0" x-model="item.discount" :name="'items[' + index + '][discount]'" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+
+                                    {{-- Discount --}}
+                                    <td class="py-3 px-4">
+                                        <input type="number" step="0.01" min="0" x-model.number="item.discount" :name="'items[' + index + '][discount]'" class="block w-full px-3 py-2 text-right rounded-xl border border-slate-300 text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500">
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <input type="number" step="0.01" min="0" x-model="item.tax" :name="'items[' + index + '][tax]'" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+
+                                    {{-- Tax --}}
+                                    <td class="py-3 px-4">
+                                        <input type="number" step="0.01" min="0" x-model.number="item.tax" :name="'items[' + index + '][tax]'" class="block w-full px-3 py-2 text-right rounded-xl border border-slate-300 text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500">
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right">
-                                        <button type="button" @click="items.splice(index, 1)" class="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors" x-show="items.length > 1">
-                                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
+
+                                    {{-- Line Total Calculation --}}
+                                    <td class="py-3 px-4 text-right font-black text-slate-900 text-sm">
+                                        <span x-text="formatMoney(getItemTotal(item))"></span>
+                                    </td>
+
+                                    {{-- Remove Row --}}
+                                    <td class="py-3 px-4 text-center">
+                                        <button type="button" @click="removeItem(index)" x-show="items.length > 1" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors" title="Remove Item">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                         </button>
                                     </td>
                                 </tr>
@@ -137,27 +293,114 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
 
-            <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden px-6 py-4 flex items-center justify-end gap-3 mb-8">
-                <a href="{{ route('admin.procurement.rfqs.show', $rfq->id) }}" class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors shadow-sm">Cancel</a>
-                <button type="submit" class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 shadow-sm transition-all focus:ring-2 focus:ring-blue-500 focus:outline-none hover:shadow-md">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                    Update Quotation
-                </button>
-            </div>
+                {{-- Grand Total Running Summary Footer --}}
+                <div class="p-5 bg-slate-50/90 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="text-xs text-slate-500">
+                        Total Items: <span class="font-bold text-slate-800" x-text="items.length"></span>
+                    </div>
+
+                    <div class="flex items-center gap-6 text-xs">
+                        <div>
+                            <span class="text-slate-400 font-medium">Subtotal:</span>
+                            <span class="font-bold text-slate-800 ml-1" x-text="formatMoney(getSubtotal())"></span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 font-medium">Discounts:</span>
+                            <span class="font-bold text-emerald-600 ml-1" x-text="'-' + formatMoney(getTotalDiscounts())"></span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 font-medium">Taxes:</span>
+                            <span class="font-bold text-slate-800 ml-1" x-text="'+' + formatMoney(getTotalTaxes())"></span>
+                        </div>
+                        <div class="pl-4 border-l border-slate-300">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block">Quotation Grand Total</span>
+                            <span class="text-2xl font-black text-emerald-600" x-text="formatMoney(getGrandTotal())"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <x-slot:footer>
+                    <div class="flex items-center justify-end gap-3 w-full">
+                        <a href="{{ route('admin.procurement.rfqs.show', $rfq->id) }}" class="px-5 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-xl transition-colors shadow-xs">
+                            Cancel
+                        </a>
+                        <button type="submit" class="inline-flex items-center px-6 py-2.5 text-sm font-extrabold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs transition-all hover:shadow-md focus:ring-2 focus:ring-indigo-500">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            Update Quotation
+                        </button>
+                    </div>
+                </x-slot:footer>
+            </x-card>
         </form>
     </div>
     @else
-    <div class="text-center py-16 bg-white rounded-2xl border border-gray-200/60 shadow-sm">
-        <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4 border border-red-200">
-            <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+    <div class="text-center py-16 bg-white rounded-2xl border border-slate-200/80 shadow-xs">
+        <div class="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-rose-100 mb-4 border border-rose-200">
+            <svg class="h-7 w-7 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
         </div>
-        <h3 class="text-xl font-bold text-gray-900 mb-2">Access Denied</h3>
-        <p class="text-sm text-gray-500 font-medium">You do not have permission to edit RFQs.</p>
-        <div class="mt-6">
-            <a href="{{ route('admin.procurement.rfqs.show', $rfq->id) }}" class="px-5 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 shadow-sm transition-all">Return to RFQ</a>
-        </div>
+        <h3 class="text-lg font-bold text-slate-900 mb-1">Access Denied</h3>
+        <p class="text-xs text-slate-500 font-medium">You do not have permission to edit this quotation.</p>
     </div>
     @endcan
 </x-layouts.admin>
+
+<script>
+    function quotationForm(config = {}) {
+        return {
+            projectsData: config.projectsData || {},
+            selectedProjectId: config.initialProjectId || '',
+            selectedCompanyId: config.initialCompanyId || '',
+            selectedPrId: config.initialPrId || '',
+            items: config.initialItems && config.initialItems.length ? config.initialItems : [
+                { product_id: '', quantity: 1, unit_price: 0, discount: 0, tax: 0 }
+            ],
+
+            onProjectChange() {
+                const proj = this.projectsData[this.selectedProjectId];
+                if (proj && proj.company_id) {
+                    this.selectedCompanyId = String(proj.company_id);
+                }
+            },
+
+            addItem() {
+                this.items.push({ product_id: '', quantity: 1, unit_price: 0, discount: 0, tax: 0 });
+            },
+
+            removeItem(index) {
+                if (this.items.length > 1) {
+                    this.items.splice(index, 1);
+                }
+            },
+
+            getItemTotal(item) {
+                const qty = parseFloat(item.quantity) || 0;
+                const price = parseFloat(item.unit_price) || 0;
+                const discount = parseFloat(item.discount) || 0;
+                const tax = parseFloat(item.tax) || 0;
+                return (qty * price) - discount + tax;
+            },
+
+            getSubtotal() {
+                return this.items.reduce((sum, item) => sum + ((parseFloat(item.quantity) || 0) * (parseFloat(item.unit_price) || 0)), 0);
+            },
+
+            getTotalDiscounts() {
+                return this.items.reduce((sum, item) => sum + (parseFloat(item.discount) || 0), 0);
+            },
+
+            getTotalTaxes() {
+                return this.items.reduce((sum, item) => sum + (parseFloat(item.tax) || 0), 0);
+            },
+
+            getGrandTotal() {
+                return this.getSubtotal() - this.getTotalDiscounts() + this.getTotalTaxes();
+            },
+
+            formatMoney(amount) {
+                const currency = '{{ session('currency', 'RWF') }}';
+                return currency + ' ' + (parseFloat(amount) || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+            }
+        };
+    }
+</script>

@@ -105,23 +105,43 @@
                 </div>
 
                 {{-- Search & Additional Controls --}}
-                <div class="flex items-center gap-2 w-full lg:w-auto">
-                    <div class="relative flex-1 lg:w-72">
+                <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+                    {{-- Company Filter --}}
+                    <select name="company_id" class="px-2.5 py-1.5 text-xs rounded-lg border border-gray-300 focus:ring-1 focus:ring-blue-500 bg-white">
+                        <option value="">All Companies</option>
+                        @foreach($companies as $company)
+                            <option value="{{ $company->id }}" {{ request('company_id') == $company->id ? 'selected' : '' }}>
+                                {{ $company->name }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    {{-- Project Filter --}}
+                    <select name="project_id" class="px-2.5 py-1.5 text-xs rounded-lg border border-gray-300 focus:ring-1 focus:ring-blue-500 bg-white">
+                        <option value="">All Projects</option>
+                        @foreach($projects as $project)
+                            <option value="{{ $project->id }}" {{ request('project_id') == $project->id ? 'selected' : '' }}>
+                                {{ $project->name }} ({{ $project->project_code }})
+                            </option>
+                        @endforeach
+                    </select>
+
+                    <div class="relative flex-1 lg:w-60">
                         <input type="text" 
                                name="search" 
                                value="{{ request('search') }}" 
-                               placeholder="Search Journal #, Memo, Ref..." 
-                               class="w-full pl-9 pr-4 py-2 text-xs rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                        <svg class="w-4 h-4 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                               placeholder="Search Journal #, Memo, Project..." 
+                               class="w-full pl-9 pr-4 py-1.5 text-xs rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                        <svg class="w-4 h-4 text-gray-400 absolute left-3 top-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
                     </div>
 
-                    @if(request()->anyFilled(['search', 'status', 'date_from', 'date_to']))
+                    @if(request()->anyFilled(['search', 'status', 'company_id', 'project_id', 'date_from', 'date_to']))
                         <a href="{{ route('admin.finance.accounting.journals.index') }}" 
                            class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors shrink-0"
                            title="Clear Filters">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
                         </a>
@@ -157,6 +177,7 @@
                 <thead>
                     <tr class="bg-gray-50/80 border-b border-gray-200 text-gray-500 text-[11px] font-bold uppercase tracking-wider">
                         <th class="py-3.5 px-3 sm:px-4">Journal #</th>
+                        <th class="py-3.5 px-3 sm:px-4">Project / Company</th>
                         <th class="py-3.5 px-3 sm:px-4 whitespace-nowrap">Date</th>
                         <th class="py-3.5 px-3 sm:px-4">Memo</th>
                         <th class="py-3.5 px-3 sm:px-4">Reference</th>
@@ -176,6 +197,24 @@
                                     </svg>
                                     {{ $journal->journal_number ?? 'JE-' . str_pad($journal->id, 5, '0', STR_PAD_LEFT) }}
                                 </a>
+                            </td>
+                            <td class="py-3.5 px-3 sm:px-4 text-xs whitespace-nowrap">
+                                @if($journal->project)
+                                    <div class="flex flex-col">
+                                        <a href="{{ route('admin.projects.show', $journal->project) }}" class="font-semibold text-gray-900 hover:text-blue-600 transition-colors">
+                                            {{ $journal->project->name }}
+                                        </a>
+                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-blue-50 text-blue-700 border border-blue-100 w-max mt-0.5">
+                                            {{ $journal->project->project_code }}
+                                        </span>
+                                    </div>
+                                @elseif($journal->company)
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-gray-100 text-gray-700">
+                                        {{ $journal->company->name }}
+                                    </span>
+                                @else
+                                    <span class="text-gray-400 italic">—</span>
+                                @endif
                             </td>
                             <td class="py-3.5 px-3 sm:px-4 text-gray-700 font-medium text-xs whitespace-nowrap">
                                 {{ $journal->date ? $journal->date->format('M d, Y') : '-' }}

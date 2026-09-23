@@ -38,6 +38,23 @@
                 </div>
                 
                 <div class="p-6 space-y-4">
+                    {{-- Company Selection --}}
+                    <div>
+                        <label for="company_id" class="block text-sm font-medium text-gray-700 mb-1">Company <span class="text-red-500">*</span></label>
+                        <select name="company_id" id="company_id" required 
+                                x-model="selectedCompanyId"
+                                @change="onCompanyChange()"
+                                class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors bg-white min-h-[42px]">
+                            <option value="">Select a Company</option>
+                            @foreach($companies as $company)
+                                <option value="{{ $company->id }}" {{ old('company_id', $defaultCompanyId) == $company->id ? 'selected' : '' }}>
+                                    {{ $company->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('company_id') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+
                     <div>
                         <label for="invoice_number" class="block text-sm font-medium text-gray-700 mb-1">Invoice Number <span class="text-red-500">*</span></label>
                         <input type="text" name="invoice_number" id="invoice_number" value="{{ old('invoice_number', $invoice_number ?? '') }}" required class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors">
@@ -46,7 +63,9 @@
 
                     <div>
                         <label for="client_id" class="block text-sm font-medium text-gray-700 mb-1">Client <span class="text-red-500">*</span></label>
-                        <select name="client_id" id="client_id" required class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors bg-white min-h-[42px]">
+                        <select name="client_id" id="client_id" required 
+                                x-model="selectedClientId"
+                                class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors bg-white min-h-[42px]">
                             <option value="">Select a Client</option>
                             @foreach($clients as $client)
                                 <option value="{{ $client->id }}" {{ (old('client_id', $quotation->account_id ?? '') == $client->id) ? 'selected' : '' }}>
@@ -59,11 +78,14 @@
 
                     <div>
                         <label for="project_id" class="block text-sm font-medium text-gray-700 mb-1">Project (Optional)</label>
-                        <select name="project_id" id="project_id" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors bg-white min-h-[42px]">
+                        <select name="project_id" id="project_id" 
+                                x-model="selectedProjectId"
+                                @change="onProjectChange()"
+                                class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors bg-white min-h-[42px]">
                             <option value="">No Project</option>
                             @foreach($projects as $project)
                                 <option value="{{ $project->id }}" {{ old('project_id') == $project->id ? 'selected' : '' }}>
-                                    {{ $project->name }}
+                                    {{ $project->name }} ({{ $project->project_code ?? $project->code }})
                                 </option>
                             @endforeach
                         </select>
@@ -180,10 +202,36 @@
 
     <script>
         function invoiceForm(initialItems) {
+            const projectsData = @json($projectsData ?? []);
+
             return {
                 items: initialItems.length > 0 ? initialItems : [
                     { description: '', quantity: 1, unit_price: 0 }
                 ],
+                selectedCompanyId: '{{ old('company_id', $defaultCompanyId ?? '') }}',
+                selectedProjectId: '{{ old('project_id', '') }}',
+                selectedClientId: '{{ old('client_id', $quotation->account_id ?? '') }}',
+
+                onProjectChange() {
+                    if (this.selectedProjectId && projectsData[this.selectedProjectId]) {
+                        const p = projectsData[this.selectedProjectId];
+                        if (p.company_id) {
+                            this.selectedCompanyId = p.company_id;
+                        }
+                        if (p.client_id && !this.selectedClientId) {
+                            this.selectedClientId = p.client_id;
+                        }
+                    }
+                },
+
+                onCompanyChange() {
+                    if (this.selectedProjectId && projectsData[this.selectedProjectId]) {
+                        if (projectsData[this.selectedProjectId].company_id != this.selectedCompanyId) {
+                            this.selectedProjectId = '';
+                        }
+                    }
+                },
+
                 addItem() {
                     this.items.push({ description: '', quantity: 1, unit_price: 0 });
                 },
