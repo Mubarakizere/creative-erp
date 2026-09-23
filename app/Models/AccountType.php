@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class AccountType extends Model
 {
@@ -22,6 +23,16 @@ class AccountType extends Model
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
+    }
+
+    public function chartOfAccounts(): HasMany
+    {
+        return $this->hasMany(ChartOfAccount::class);
+    }
+
+    public function accounts(): HasMany
+    {
+        return $this->chartOfAccounts();
     }
 
     protected static function boot()

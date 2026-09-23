@@ -13,7 +13,7 @@ class ChartOfAccountPolicy
      */
     public function before(User $user, string $ability): bool|null
     {
-        if ($user->hasRole('Super Admin') || $user->hasRole('CEO')) {
+        if ($user->hasRole('Super Admin') || $user->hasRole('CEO') || $user->hasRole('Administrator') || $user->hasRole('Company Admin')) {
             return true;
         }
 

@@ -91,6 +91,9 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
     Route::resource('roles', RoleController::class);
     Route::resource('permissions', PermissionController::class);
 
+    // Account Types (Administrator)
+    Route::resource('account-types', \App\Http\Controllers\Admin\AccountTypeController::class);
+
     // Users
     Route::get('/users/branches/{company}', [UserController::class, 'getBranches'])->name('users.branches');
     Route::get('/users/departments/{branch}', [UserController::class, 'getDepartments'])->name('users.departments');

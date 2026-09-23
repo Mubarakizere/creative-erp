@@ -74,6 +74,7 @@ return [
         ['route' => 'admin.departments.index', 'label' => 'Departments', 'icon' => 'sitemap', 'permission' => 'department.view', 'model' => \App\Models\Department::class, 'active' => 'admin.departments.*'],
         ['route' => 'admin.users.index', 'label' => 'Users', 'icon' => 'user', 'permission' => 'user.view', 'model' => \App\Models\User::class, 'active' => 'admin.users.*'],
         ['route' => 'admin.roles.index', 'label' => 'Roles', 'icon' => 'shield', 'permission' => 'role.view', 'active' => 'admin.roles.*'],
+        ['route' => 'admin.account-types.index', 'label' => 'Account Types', 'icon' => 'tag', 'permission' => 'account.view', 'model' => \App\Models\AccountType::class, 'active' => 'admin.account-types.*'],
         ['route' => 'admin.workflows.index', 'label' => 'Workflows', 'icon' => 'git-branch', 'permission' => 'workflow.view', 'model' => \App\Models\ApprovalWorkflow::class, 'active' => 'admin.workflows.*'],
         ['route' => 'admin.website-settings.index', 'label' => 'Website', 'icon' => 'globe', 'permission' => 'settings.manage', 'active' => 'admin.website-settings.*'],
     ],
