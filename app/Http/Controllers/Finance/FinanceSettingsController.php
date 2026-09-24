@@ -22,8 +22,9 @@ class FinanceSettingsController extends Controller
         $paymentMethods = PaymentMethod::where('company_id', $companyId)->get();
         $bankAccounts = BankAccount::where('company_id', $companyId)->get();
         $taxes = \App\Models\Tax::where('company_id', $companyId)->get();
+        $budgetCategories = \App\Models\BudgetCategory::where('company_id', $companyId)->withCount('lines')->orderBy('name')->get();
 
-        return view('admin.finance.settings.index', compact('paymentMethods', 'bankAccounts', 'taxes'));
+        return view('admin.finance.settings.index', compact('paymentMethods', 'bankAccounts', 'taxes', 'budgetCategories'));
     }
 
     public function storePaymentMethod(Request $request)
@@ -133,5 +134,84 @@ class FinanceSettingsController extends Controller
         $tax->delete();
 
         return redirect()->route('admin.finance.settings')->with('success', 'Tax deleted successfully.');
+    }
+
+    public function storeBudgetCategory(Request $request)
+    {
+        Gate::authorize('create', \App\Models\Payment::class);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'type' => 'required|in:expense,revenue',
+            'description' => 'nullable|string|max:1000',
+        ]);
+
+        $companyId = session('company_id') ?? auth()->user()->company_id ?? 1;
+
+        $category = \App\Models\BudgetCategory::create([
+            'company_id' => $companyId,
+            'name' => $validated['name'],
+            'type' => $validated['type'],
+            'description' => $validated['description'] ?? null,
+            'created_by' => auth()->id(),
+        ]);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Cost Category added successfully.',
+                'category' => $category,
+            ]);
+        }
+
+        return redirect()->route('admin.finance.settings')->with('success', 'Cost Category added successfully.');
+    }
+
+    public function updateBudgetCategory(Request $request, $id)
+    {
+        Gate::authorize('create', \App\Models\Payment::class);
+
+        $category = \App\Models\BudgetCategory::findOrFail($id);
+        $companyId = session('company_id') ?? auth()->user()->company_id ?? 1;
+
+        if ($category->company_id !== (int)$companyId && !auth()->user()->hasRole('Super Admin')) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'type' => 'required|in:expense,revenue',
+            'description' => 'nullable|string|max:1000',
+        ]);
+
+        $category->update([
+            'name' => $validated['name'],
+            'type' => $validated['type'],
+            'description' => $validated['description'] ?? null,
+            'updated_by' => auth()->id(),
+        ]);
+
+        return redirect()->route('admin.finance.settings')->with('success', 'Cost Category updated successfully.');
+    }
+
+    public function destroyBudgetCategory($id)
+    {
+        Gate::authorize('create', \App\Models\Payment::class);
+
+        $category = \App\Models\BudgetCategory::withCount('lines')->findOrFail($id);
+        $companyId = session('company_id') ?? auth()->user()->company_id ?? 1;
+
+        if ($category->company_id !== (int)$companyId && !auth()->user()->hasRole('Super Admin')) {
+            abort(403);
+        }
+
+        if ($category->lines_count > 0) {
+            return redirect()->route('admin.finance.settings')
+                ->with('error', "Cannot delete '{$category->name}' because it is assigned to {$category->lines_count} project budget activity line(s).");
+        }
+
+        $category->delete();
+
+        return redirect()->route('admin.finance.settings')->with('success', 'Cost Category deleted successfully.');
     }
 }

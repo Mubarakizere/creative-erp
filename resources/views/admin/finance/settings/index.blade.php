@@ -11,7 +11,7 @@
     <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Finance Settings</h1>
-            <p class="mt-1 text-sm text-gray-500 font-medium">Manage payment methods, bank accounts, and tax rates.</p>
+            <p class="mt-1 text-sm text-gray-500 font-medium">Manage payment methods, bank accounts, tax rates, and project budget cost categories.</p>
         </div>
     </div>
 
@@ -249,6 +249,134 @@
                 </div>
             </div>
         </div>
+
+        {{-- Project Cost & Budget Categories --}}
+        <div class="lg:col-span-2">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4 mt-8 lg:mt-4">
+                <div>
+                    <h2 class="text-lg font-bold text-gray-900 tracking-tight">Project Cost & Budget Categories</h2>
+                    <p class="text-xs text-gray-500 font-medium mt-0.5">Define cost centers and budget classifications used across project activities and budgeting.</p>
+                </div>
+                <button type="button" @click="$dispatch('open-modal', 'add-budget-category')" class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-100 rounded-lg hover:bg-blue-100 transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none shrink-0">
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                    Add Cost Category
+                </button>
+            </div>
+            
+            <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-left divide-y divide-gray-200/60">
+                        <thead class="bg-gray-50/50">
+                            <tr>
+                                <th class="py-3 px-6 text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">Category Name</th>
+                                <th class="py-3 px-6 text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">Classification</th>
+                                <th class="py-3 px-6 text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">Description</th>
+                                <th class="py-3 px-6 text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center">Activities Linked</th>
+                                <th class="py-3 px-6 text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 text-right w-28">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-100">
+                            @forelse($budgetCategories ?? [] as $category)
+                                <tr class="hover:bg-gray-50/50 transition-colors group">
+                                    <td class="py-4 px-6 text-sm font-bold text-gray-900">
+                                        {{ $category->name }}
+                                    </td>
+                                    <td class="py-4 px-6 text-sm">
+                                        <span class="inline-flex rounded-md px-2 py-0.5 text-xs font-semibold leading-5 {{ $category->type === 'expense' ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200' }}">
+                                            {{ ucfirst($category->type) }}
+                                        </span>
+                                    </td>
+                                    <td class="py-4 px-6 text-xs text-gray-500 max-w-xs truncate">
+                                        {{ $category->description ?? '—' }}
+                                    </td>
+                                    <td class="py-4 px-6 text-xs text-center font-semibold text-gray-600">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ ($category->lines_count ?? 0) > 0 ? 'bg-indigo-50 text-indigo-700' : 'bg-gray-100 text-gray-500' }}">
+                                            {{ $category->lines_count ?? 0 }} {{ Str::plural('activity', $category->lines_count ?? 0) }}
+                                        </span>
+                                    </td>
+                                    <td class="py-4 px-6 text-right">
+                                        <div class="inline-flex items-center gap-1" x-data>
+                                            <button @click="$dispatch('open-modal', 'edit-budget-category-{{ $category->id }}')" class="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors inline-flex" title="Edit Category">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                            </button>
+
+                                            <button @click="$dispatch('open-modal', 'delete-budget-category-{{ $category->id }}')" class="p-1.5 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors inline-flex" title="Delete Category">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                            </button>
+
+                                            {{-- Edit Category Modal --}}
+                                            <x-modal id="edit-budget-category-{{ $category->id }}" maxWidth="md">
+                                                <x-slot:header>Edit Cost Category</x-slot:header>
+                                                <form method="POST" action="{{ route('admin.finance.settings.budget-categories.update', $category->id) }}" class="p-6 space-y-4 text-left">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700 mb-1">Category Name <span class="text-red-500">*</span></label>
+                                                        <input type="text" name="name" value="{{ $category->name }}" required class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm min-h-[42px]">
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700 mb-1">Classification Type <span class="text-red-500">*</span></label>
+                                                        <select name="type" required class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white min-h-[42px]">
+                                                            <option value="expense" {{ $category->type === 'expense' ? 'selected' : '' }}>Expense</option>
+                                                            <option value="revenue" {{ $category->type === 'revenue' ? 'selected' : '' }}>Revenue</option>
+                                                        </select>
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                                        <textarea name="description" rows="2" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">{{ $category->description }}</textarea>
+                                                    </div>
+                                                    <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-100">
+                                                        <button type="button" @click="open = false" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors shadow-sm">Cancel</button>
+                                                        <button type="submit" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors shadow-sm">Save Changes</button>
+                                                    </div>
+                                                </form>
+                                            </x-modal>
+
+                                            {{-- Delete Category Modal --}}
+                                            <x-modal id="delete-budget-category-{{ $category->id }}" maxWidth="md">
+                                                <x-slot:header>Delete Cost Category</x-slot:header>
+                                                <div class="text-center py-4 whitespace-normal">
+                                                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4 border border-red-200">
+                                                        <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                                    </div>
+                                                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Delete {{ $category->name }}?</h3>
+                                                    @if(($category->lines_count ?? 0) > 0)
+                                                        <p class="text-sm text-red-600 font-medium">This category is currently linked to {{ $category->lines_count }} project budget activity line(s). Deletion is blocked until lines are reassigned.</p>
+                                                    @else
+                                                        <p class="text-sm text-gray-500">This action will remove this cost category from future budget line selections. Are you sure you want to proceed?</p>
+                                                    @endif
+                                                </div>
+                                                <x-slot:footer>
+                                                    <div class="flex items-center gap-3 w-full justify-end">
+                                                        <button type="button" @click="open = false" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors shadow-sm">Cancel</button>
+                                                        @if(($category->lines_count ?? 0) == 0)
+                                                            <form method="POST" action="{{ route('admin.finance.settings.budget-categories.destroy', $category->id) }}" class="inline">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-xl hover:bg-red-700 transition-colors shadow-sm">Delete Category</button>
+                                                            </form>
+                                                        @endif
+                                                    </div>
+                                                </x-slot:footer>
+                                            </x-modal>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="py-12 px-6 text-center">
+                                        <div class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3 border border-gray-100">
+                                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+                                        </div>
+                                        <p class="text-sm text-gray-500 font-medium">No cost categories configured.</p>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 
     {{-- Add Payment Method Modal --}}
@@ -333,6 +461,36 @@
             <div class="mt-8 flex justify-end gap-3 pt-4 border-t border-gray-100">
                 <button type="button" @click="open = false" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors shadow-sm">Cancel</button>
                 <button type="submit" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors shadow-sm">Save Tax</button>
+            </div>
+        </form>
+    </x-modal>
+
+    {{-- Add Cost Category Modal --}}
+    <x-modal id="add-budget-category" maxWidth="md">
+        <x-slot:header>Add Cost Category</x-slot:header>
+        <form method="POST" action="{{ route('admin.finance.settings.budget-categories.store') }}" class="p-6 space-y-4">
+            @csrf
+            <div>
+                <label for="cat_name" class="block text-sm font-medium text-gray-700 mb-1">Category Name <span class="text-red-500">*</span></label>
+                <input type="text" name="name" id="cat_name" required class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors min-h-[42px]" placeholder="e.g. Subcontractor Civil Works">
+            </div>
+
+            <div>
+                <label for="cat_type" class="block text-sm font-medium text-gray-700 mb-1">Classification Type <span class="text-red-500">*</span></label>
+                <select name="type" id="cat_type" required class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors bg-white min-h-[42px]">
+                    <option value="expense" selected>Expense (Cost Allocation)</option>
+                    <option value="revenue">Revenue</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="cat_desc" class="block text-sm font-medium text-gray-700 mb-1">Description / Notes</label>
+                <textarea name="description" id="cat_desc" rows="2" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="Scope, eligible expenditures, or guidelines..."></textarea>
+            </div>
+
+            <div class="mt-8 flex justify-end gap-3 pt-4 border-t border-gray-100">
+                <button type="button" @click="open = false" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors shadow-sm">Cancel</button>
+                <button type="submit" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors shadow-sm">Save Category</button>
             </div>
         </form>
     </x-modal>

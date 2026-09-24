@@ -121,7 +121,7 @@ class PaymentController extends Controller
         $clients = Client::where('company_id', $companyId)->orderBy('display_name')->get();
         $projects = Project::where('company_id', $companyId)
             ->whereNotIn('status', ['Cancelled', 'Closed'])
-            ->with(['client:id,name', 'company:id,name'])
+            ->with(['client:id,display_name,company_name,first_name,last_name', 'company:id,name'])
             ->orderBy('name')
             ->get(['id', 'name', 'project_code', 'client_id', 'company_id']);
 
@@ -146,7 +146,7 @@ class PaymentController extends Controller
         $openInvoices = Invoice::where('company_id', $companyId)
                                ->where('balance_due', '>', 0)
                                ->whereNotIn('status', ['Draft', 'Cancelled'])
-                               ->with(['project:id,name,project_code', 'client:id,name'])
+                               ->with(['project:id,name,project_code', 'client:id,display_name,company_name,first_name,last_name'])
                                ->orderBy('issue_date')
                                ->get();
 

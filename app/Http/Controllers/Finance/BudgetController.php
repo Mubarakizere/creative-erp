@@ -218,12 +218,16 @@ class BudgetController extends Controller
 
         $categories = BudgetCategory::orderBy('name')->get();
         $fiscalYears = FiscalYear::where('is_closed', false)->orderBy('name')->get();
+        $currentFiscalYear = $fiscalYears->first(function ($fy) {
+            return $fy->start_date && $fy->end_date && now()->between($fy->start_date, $fy->end_date);
+        }) ?? $fiscalYears->first();
 
         return view('admin.finance.budgets.create', compact(
             'projects',
             'projectsData',
             'categories',
             'fiscalYears',
+            'currentFiscalYear',
             'selectedProjectId'
         ));
     }
@@ -256,12 +260,33 @@ class BudgetController extends Controller
             return (float) ($line['amount'] ?? 0);
         });
 
+        // Resolve fiscal_year_id or fallback to current open fiscal year if omitted
+        $fiscalYearId = $request->fiscal_year_id;
+        if (!$fiscalYearId) {
+            $companyId = $project->company_id ?? $user->company_id ?? 1;
+            $fiscalYearId = FiscalYear::withoutGlobalScopes()
+                ->where('company_id', $companyId)
+                ->where('is_closed', false)
+                ->whereDate('start_date', '<=', now())
+                ->whereDate('end_date', '>=', now())
+                ->value('id')
+                ?? FiscalYear::withoutGlobalScopes()
+                    ->where('company_id', $companyId)
+                    ->where('is_closed', false)
+                    ->latest('start_date')
+                    ->value('id')
+                ?? FiscalYear::withoutGlobalScopes()
+                    ->where('is_closed', false)
+                    ->latest('start_date')
+                    ->value('id');
+        }
+
         $budget = Budget::create([
             'company_id' => $project->company_id ?? $user->company_id ?? 1,
             'project_id' => $project->id,
             'name' => $request->name,
             'description' => $request->description,
-            'fiscal_year_id' => $request->fiscal_year_id,
+            'fiscal_year_id' => $fiscalYearId,
             'total_amount' => $totalAmount,
             'status' => $request->input('status', 'draft'),
             'created_by' => $user->id,

@@ -73,6 +73,12 @@ class JournalEntryTest extends TestCase
 
     public function test_user_can_view_journal_create_page_with_company_and_project_options(): void
     {
+        $client = \App\Models\Client::factory()->create([
+            'company_id' => $this->company->id,
+            'display_name' => 'Acme Corporation',
+        ]);
+        $this->project->update(['client_id' => $client->id]);
+
         $response = $this->actingAs($this->user)->get(route('admin.finance.accounting.journals.create'));
 
         $response->assertStatus(200);

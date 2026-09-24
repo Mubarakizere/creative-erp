@@ -76,6 +76,7 @@ return [
         ['route' => 'admin.roles.index', 'label' => 'Roles', 'icon' => 'shield', 'permission' => 'role.view', 'active' => 'admin.roles.*'],
         ['route' => 'admin.account-types.index', 'label' => 'Account Types', 'icon' => 'tag', 'permission' => 'account.view', 'model' => \App\Models\AccountType::class, 'active' => 'admin.account-types.*'],
         ['route' => 'admin.workflows.index', 'label' => 'Workflows', 'icon' => 'git-branch', 'permission' => 'workflow.view', 'model' => \App\Models\ApprovalWorkflow::class, 'active' => 'admin.workflows.*'],
+        ['route' => 'admin.finance.settings', 'label' => 'Finance Settings', 'icon' => 'settings', 'permission' => 'create', 'model' => \App\Models\Payment::class, 'active' => 'admin.finance.settings*'],
         ['route' => 'admin.website-settings.index', 'label' => 'Website', 'icon' => 'globe', 'permission' => 'settings.manage', 'active' => 'admin.website-settings.*'],
     ],
 ];

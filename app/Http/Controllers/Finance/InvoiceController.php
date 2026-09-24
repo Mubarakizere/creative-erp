@@ -90,7 +90,7 @@ class InvoiceController extends Controller
         }
 
         $clients = Client::where('status', 'active')->orWhereNull('status')->orderBy('company_name')->orderBy('first_name')->get();
-        $projects = Project::where('status', '!=', 'Closed')->with(['company:id,name', 'client:id,first_name,last_name,company_name'])->orderBy('name')->get();
+        $projects = Project::where('status', '!=', 'Closed')->with(['company:id,name', 'client:id,display_name,first_name,last_name,company_name'])->orderBy('name')->get();
 
         $projectsData = $projects->mapWithKeys(function ($p) {
             return [
@@ -154,7 +154,7 @@ class InvoiceController extends Controller
 
         $companies = Company::where('status', 'active')->orderBy('name')->get();
         $clients = Client::where('status', 'active')->orWhereNull('status')->orderBy('company_name')->orderBy('first_name')->get();
-        $projects = Project::where('status', '!=', 'Closed')->with(['company:id,name', 'client:id,first_name,last_name,company_name'])->orderBy('name')->get();
+        $projects = Project::where('status', '!=', 'Closed')->with(['company:id,name', 'client:id,display_name,first_name,last_name,company_name'])->orderBy('name')->get();
         
         $projectsData = $projects->mapWithKeys(function ($p) {
             return [

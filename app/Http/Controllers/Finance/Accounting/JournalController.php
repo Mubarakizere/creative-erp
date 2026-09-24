@@ -102,7 +102,7 @@ class JournalController extends Controller
         }
 
         $projects = Project::whereNotIn('status', ['Cancelled', 'Closed'])
-            ->with(['company:id,name', 'client:id,name'])
+            ->with(['company:id,name', 'client:id,display_name,company_name,first_name,last_name'])
             ->orderBy('name')
             ->get(['id', 'name', 'project_code', 'company_id', 'client_id']);
 

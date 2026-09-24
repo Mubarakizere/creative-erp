@@ -155,7 +155,15 @@
                         <thead>
                             <tr class="bg-slate-100/70 border-b border-slate-200 text-slate-700 font-bold uppercase tracking-wider">
                                 <th class="py-3 px-4 w-72">Project Activity / Task</th>
-                                <th class="py-3 px-4 w-48">Cost Category</th>
+                                <th class="py-3 px-4 w-52">
+                                     <div class="flex items-center justify-between">
+                                        <span>Cost Category</span>
+                                        <a href="{{ route('admin.finance.settings') }}" target="_blank" class="text-[10px] normal-case font-semibold text-indigo-600 hover:text-indigo-800 hover:underline inline-flex items-center gap-0.5" title="Manage categories in Finance Settings">
+                                            <span>Manage</span>
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                        </a>
+                                    </div>
+                                </th>
                                 <th class="py-3 px-4 w-44 text-right">Allocated Amount (RWF)</th>
                                 <th class="py-3 px-4">Notes / Scope</th>
                                 <th class="py-3 px-2 w-12 text-center"></th>

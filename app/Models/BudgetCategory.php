@@ -19,6 +19,11 @@ class BudgetCategory extends Model
         return $this->belongsTo(Company::class);
     }
 
+    public function lines()
+    {
+        return $this->hasMany(BudgetLine::class, 'budget_category_id');
+    }
+
     protected static function boot()
     {
         parent::boot();

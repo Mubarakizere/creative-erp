@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             CompanySeeder::class,
             AccountTypeSeeder::class,
             ChartOfAccountSeeder::class,
+            BudgetCategorySeeder::class,
         ]);
     }
 }
