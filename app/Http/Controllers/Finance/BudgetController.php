@@ -50,7 +50,7 @@ class BudgetController extends Controller
         $query = (clone $baseQuery)
             ->with([
                 'project.company',
-                'project.manager:id,name',
+                'project.manager:id,first_name,last_name',
                 'lines.task:id,name,task_code',
                 'fiscalYear',
                 'company:id,name'
