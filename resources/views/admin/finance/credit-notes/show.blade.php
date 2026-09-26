@@ -15,7 +15,7 @@
                 <h1 class="text-2xl font-bold text-gray-900">Credit Note: {{ $creditNote->credit_note_number }}</h1>
                 @php
                     $statusType = match($creditNote->status) {
-                        'Open' => 'success',
+                        'Issued' => 'success',
                         'Applied' => 'default',
                         'Refunded' => 'primary',
                         default => 'default',
@@ -68,12 +68,12 @@
                                 <span class="font-medium text-gray-900">{{ $creditNote->issue_date->format('M d, Y') }}</span>
                             </div>
                             <div>
-                                <span class="block text-xs font-bold text-gray-400 uppercase tracking-wider">Original Amount</span>
-                                <span class="font-medium text-gray-900">${{ number_format($creditNote->amount, 2) }}</span>
+                                <span class="block text-xs font-bold text-gray-400 uppercase tracking-wider">Original Amount (RWF)</span>
+                                <span class="font-medium text-gray-900">RWF {{ number_format($creditNote->amount, 2) }}</span>
                             </div>
                             <div class="col-span-2">
-                                <span class="block text-xs font-bold text-gray-400 uppercase tracking-wider">Remaining Balance</span>
-                                <span class="text-lg font-bold text-green-600">${{ number_format($creditNote->remaining_balance, 2) }}</span>
+                                <span class="block text-xs font-bold text-gray-400 uppercase tracking-wider">Remaining Balance (RWF)</span>
+                                <span class="text-lg font-bold text-green-600">RWF {{ number_format($creditNote->remaining_balance, 2) }}</span>
                             </div>
                         </div>
                     </div>
@@ -101,12 +101,12 @@
                             <select name="invoice_id" id="invoice_id" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
                                 <option value="">Select Invoice</option>
                                 @foreach($openInvoices as $inv)
-                                    <option value="{{ $inv->id }}">{{ $inv->invoice_number }} (Balance: ${{ number_format($inv->balance_due, 2) }})</option>
+                                    <option value="{{ $inv->id }}">{{ $inv->invoice_number }} (Balance: RWF {{ number_format($inv->balance_due, 2) }})</option>
                                 @endforeach
                             </select>
                         </div>
                         <div>
-                            <label for="amount" class="block text-sm font-medium text-gray-700">Amount to Apply</label>
+                            <label for="amount" class="block text-sm font-medium text-gray-700">Amount to Apply (RWF)</label>
                             <input type="number" name="amount" id="amount" required min="0.01" max="{{ $creditNote->remaining_balance }}" step="0.01" value="{{ $creditNote->remaining_balance }}"
                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
                         </div>

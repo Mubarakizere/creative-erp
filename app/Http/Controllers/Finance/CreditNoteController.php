@@ -21,10 +21,30 @@ class CreditNoteController extends Controller
         $this->creditNoteService = $creditNoteService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $this->authorize('viewAny', CreditNote::class);
-        $creditNotes = CreditNote::with(['client', 'invoice'])->where('company_id', auth()->user()->company_id ?? 1)->latest()->paginate(15);
+        $query = CreditNote::with(['client', 'invoice'])
+            ->where('company_id', auth()->user()->company_id ?? 1);
+
+        if ($request->filled('search')) {
+            $search = trim($request->string('search')->toString());
+            $query->where(function ($q) use ($search) {
+                $q->where('credit_note_number', 'like', "%{$search}%")
+                    ->orWhere('reason', 'like', "%{$search}%")
+                    ->orWhereHas('client', function ($clientQuery) use ($search) {
+                        $clientQuery->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('invoice', fn ($invoiceQuery) => $invoiceQuery->where('invoice_number', 'like', "%{$search}%"));
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
+        $creditNotes = $query->latest()->paginate(15)->withQueryString();
         return view('admin.finance.credit-notes.index', compact('creditNotes'));
     }
 
@@ -99,5 +119,21 @@ class CreditNoteController extends Controller
                                ->get();
 
         return view('admin.finance.credit-notes.show', compact('creditNote', 'openInvoices'));
+    }
+
+    public function destroy(CreditNote $creditNote)
+    {
+        $this->authorize('delete', $creditNote);
+
+        $appliedAmount = (float) $creditNote->amount - (float) $creditNote->remaining_balance;
+        if ($appliedAmount > 0.005 || in_array($creditNote->status, ['Applied', 'Refunded'], true)) {
+            return redirect()->back()->with('error', 'This credit note has already been applied or refunded and cannot be deleted.');
+        }
+
+        $number = $creditNote->credit_note_number;
+        $creditNote->delete();
+
+        return redirect()->route('admin.finance.credit-notes.index')
+            ->with('success', "Credit note {$number} deleted successfully.");
     }
 }
