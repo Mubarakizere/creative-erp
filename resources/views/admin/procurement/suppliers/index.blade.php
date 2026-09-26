@@ -184,15 +184,25 @@
                                         @endcan
 
                                         @can('delete', $supplier)
-                                            <form method="POST" action="{{ route('admin.procurement.suppliers.destroy', $supplier) }}" id="delete-supplier-form-{{ $supplier->id }}">
-                                                @csrf
-                                                @method('DELETE')
-                                            </form>
-                                            <x-action-dropdown-item onclick="if(confirm('Are you sure you want to delete this supplier profile?')) document.getElementById('delete-supplier-form-{{ $supplier->id }}').submit()" icon="delete" variant="danger">
+                                            <x-action-dropdown-item type="button" @click="$dispatch('open-modal', 'delete-supplier-{{ $supplier->id }}')" icon="delete" variant="danger">
                                                 Delete Supplier
                                             </x-action-dropdown-item>
                                         @endcan
                                     </x-action-dropdown>
+
+                                    @can('delete', $supplier)
+                                        <form method="POST" action="{{ route('admin.procurement.suppliers.destroy', $supplier) }}" id="form-delete-supplier-{{ $supplier->id }}" class="hidden">
+                                            @csrf
+                                            @method('DELETE')
+                                        </form>
+                                        <x-confirm-modal
+                                            name="delete-supplier-{{ $supplier->id }}"
+                                            title="Delete Supplier Profile"
+                                            message="Are you sure you want to delete supplier profile '{{ $supplier->name }}'? This action cannot be undone."
+                                            confirmText="Delete Supplier"
+                                            confirmType="danger"
+                                        />
+                                    @endcan
                                 </td>
                             </tr>
                         @empty

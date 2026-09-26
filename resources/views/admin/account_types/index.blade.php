@@ -220,25 +220,9 @@
 
                                     @can('delete', $type)
                                         @if($type->chart_of_accounts_count === 0)
-                                            <form action="{{ route('admin.account-types.destroy', $type) }}" method="POST" id="form-delete-type-{{ $type->id }}" class="hidden">
-                                                @csrf
-                                                @method('DELETE')
-                                            </form>
-                                            <x-action-dropdown-item type="button" danger @click="$dispatch('open-modal', 'delete-type-{{ $type->id }}')">
-                                                <x-slot:icon>
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                                    </svg>
-                                                </x-slot:icon>
+                                            <x-action-dropdown-item type="button" danger @click="$dispatch('open-modal', 'delete-type-{{ $type->id }}')" icon="delete">
                                                 Delete Type
                                             </x-action-dropdown-item>
-                                            <x-confirm-modal
-                                                name="delete-type-{{ $type->id }}"
-                                                title="Delete Account Type"
-                                                message="Are you sure you want to delete account type '{{ $type->name }}'? This action cannot be undone."
-                                                confirmText="Delete Account Type"
-                                                confirmType="danger"
-                                            />
                                         @else
                                             <button type="button" 
                                                     class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-gray-400 cursor-not-allowed text-left opacity-60" 
@@ -251,6 +235,22 @@
                                         @endif
                                     @endcan
                                 </x-action-dropdown>
+
+                                @can('delete', $type)
+                                    @if($type->chart_of_accounts_count === 0)
+                                        <form action="{{ route('admin.account-types.destroy', $type) }}" method="POST" id="form-delete-type-{{ $type->id }}" class="hidden">
+                                            @csrf
+                                            @method('DELETE')
+                                        </form>
+                                        <x-confirm-modal
+                                            name="delete-type-{{ $type->id }}"
+                                            title="Delete Account Type"
+                                            message="Are you sure you want to delete account type '{{ $type->name }}'? This action cannot be undone."
+                                            confirmText="Delete Account Type"
+                                            confirmType="danger"
+                                        />
+                                    @endif
+                                @endcan
                             </td>
                         </tr>
                     @empty

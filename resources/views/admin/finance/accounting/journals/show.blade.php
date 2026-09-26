@@ -69,16 +69,23 @@
 
             @can('delete', $journal)
                 @if($journal->status === 'Draft')
-                    <form action="{{ route('admin.finance.accounting.journals.destroy', $journal) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this draft journal entry?');">
+                    <form action="{{ route('admin.finance.accounting.journals.destroy', $journal) }}" method="POST" id="form-delete-journal-{{ $journal->id }}" class="hidden">
                         @csrf
                         @method('DELETE')
-                        <x-button type="danger" submit class="shadow-sm">
-                            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                            </svg>
-                            Delete
-                        </x-button>
                     </form>
+                    <x-button type="danger" @click="$dispatch('open-modal', 'delete-journal-{{ $journal->id }}')" class="shadow-sm cursor-pointer">
+                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        Delete
+                    </x-button>
+                    <x-confirm-modal
+                        name="delete-journal-{{ $journal->id }}"
+                        title="Delete Journal Entry"
+                        message="Are you sure you want to delete draft journal entry '{{ $journal->entry_number }}'? This action cannot be undone."
+                        confirmText="Delete Entry"
+                        confirmType="danger"
+                    />
                 @endif
             @endcan
         </div>

@@ -218,23 +218,28 @@
 
                                     @if(!$account->is_system)
                                         @can('delete', $account)
-                                            <form action="{{ route('admin.finance.accounting.chart-of-accounts.destroy', $account) }}" method="POST" id="form-delete-account-{{ $account->id }}" class="hidden">
-                                                @csrf
-                                                @method('DELETE')
-                                            </form>
                                             <x-action-dropdown-item type="button" @click="$dispatch('open-modal', 'delete-account-{{ $account->id }}')" icon="delete" variant="danger">
                                                 Delete Account
                                             </x-action-dropdown-item>
-                                            <x-confirm-modal
-                                                name="delete-account-{{ $account->id }}"
-                                                title="Delete Account"
-                                                message="Are you sure you want to delete ledger account '{{ $account->code }} - {{ $account->name }}'? This action cannot be undone."
-                                                confirmText="Delete Account"
-                                                confirmType="danger"
-                                            />
                                         @endcan
                                     @endif
                                 </x-action-dropdown>
+
+                                @if(!$account->is_system)
+                                    @can('delete', $account)
+                                        <form action="{{ route('admin.finance.accounting.chart-of-accounts.destroy', $account) }}" method="POST" id="form-delete-account-{{ $account->id }}" class="hidden">
+                                            @csrf
+                                            @method('DELETE')
+                                        </form>
+                                        <x-confirm-modal
+                                            name="delete-account-{{ $account->id }}"
+                                            title="Delete Account"
+                                            message="Are you sure you want to delete ledger account '{{ $account->code }} - {{ $account->name }}'? This action cannot be undone."
+                                            confirmText="Delete Account"
+                                            confirmType="danger"
+                                        />
+                                    @endcan
+                                @endif
                             </td>
                         </tr>
                     @empty

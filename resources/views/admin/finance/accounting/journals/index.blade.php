@@ -265,15 +265,25 @@
                                     @endif
 
                                     @can('delete', $journal)
-                                        <form action="{{ route('admin.finance.accounting.journals.destroy', $journal) }}" method="POST" id="delete-journal-form-{{ $journal->id }}">
-                                            @csrf
-                                            @method('DELETE')
-                                        </form>
-                                        <x-action-dropdown-item onclick="if(confirm('Are you sure you want to delete this draft journal entry?')) document.getElementById('delete-journal-form-{{ $journal->id }}').submit()" icon="delete" variant="danger">
+                                        <x-action-dropdown-item type="button" @click="$dispatch('open-modal', 'delete-journal-{{ $journal->id }}')" icon="delete" variant="danger">
                                             Delete Entry
                                         </x-action-dropdown-item>
                                     @endcan
                                 </x-action-dropdown>
+
+                                @can('delete', $journal)
+                                    <form action="{{ route('admin.finance.accounting.journals.destroy', $journal) }}" method="POST" id="form-delete-journal-{{ $journal->id }}" class="hidden">
+                                        @csrf
+                                        @method('DELETE')
+                                    </form>
+                                    <x-confirm-modal
+                                        name="delete-journal-{{ $journal->id }}"
+                                        title="Delete Journal Entry"
+                                        message="Are you sure you want to delete draft journal entry '{{ $journal->entry_number }}'? This action cannot be undone."
+                                        confirmText="Delete Entry"
+                                        confirmType="danger"
+                                    />
+                                @endcan
                             </td>
                         </tr>
                     @empty
