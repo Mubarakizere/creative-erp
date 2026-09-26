@@ -53,9 +53,11 @@
                 @endcan
             @endif
 
-            <x-button type="ghost" size="sm" onclick="window.print()">
-                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                Print
+            <x-button type="ghost" size="sm" href="{{ route('admin.finance.invoices.pdf', $invoice) }}" target="_blank">
+                <svg class="w-4 h-4 mr-1.5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                </svg>
+                Export PDF
             </x-button>
 
             @if($invoice->balance_due > 0 && !in_array($invoice->status, ['Draft', 'Cancelled', 'Pending Approval']))
@@ -161,17 +163,17 @@
                             <tr class="bg-gray-50 border-y border-gray-200">
                                 <th class="py-3 px-4 text-xs font-semibold text-gray-700 uppercase tracking-wider w-1/2">Description</th>
                                 <th class="py-3 px-4 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Qty</th>
-                                <th class="py-3 px-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Unit Price</th>
-                                <th class="py-3 px-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Line Total</th>
+                                <th class="py-3 px-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Unit Price (RWF)</th>
+                                <th class="py-3 px-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Line Total (RWF)</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             @foreach($invoice->items as $item)
                                 <tr>
                                     <td class="py-4 px-4 text-sm font-medium text-gray-900">{{ $item->description }}</td>
-                                    <td class="py-4 px-4 text-sm text-gray-600 text-center">{{ $item->quantity }}</td>
-                                    <td class="py-4 px-4 text-sm text-gray-600 text-right">${{ number_format($item->unit_price, 2) }}</td>
-                                    <td class="py-4 px-4 text-sm font-semibold text-gray-900 text-right">${{ number_format($item->total, 2) }}</td>
+                                    <td class="py-4 px-4 text-sm text-gray-600 text-center">{{ number_format($item->quantity, $item->quantity == intval($item->quantity) ? 0 : 2) }}</td>
+                                    <td class="py-4 px-4 text-sm text-gray-600 text-right">RWF {{ number_format($item->unit_price) }}</td>
+                                    <td class="py-4 px-4 text-sm font-semibold text-gray-900 text-right">RWF {{ number_format($item->total_amount ?? ($item->quantity * $item->unit_price)) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -184,36 +186,36 @@
                         <div class="bg-gray-50 rounded-xl p-5 space-y-3 border border-gray-200">
                             <div class="flex justify-between text-sm text-gray-600">
                                 <span>Subtotal</span>
-                                <span class="font-medium">${{ number_format($invoice->subtotal, 2) }}</span>
+                                <span class="font-medium">RWF {{ number_format($invoice->subtotal) }}</span>
                             </div>
                             
                             @if($invoice->tax_total > 0)
                                 <div class="flex justify-between text-sm text-gray-600">
                                     <span>Tax</span>
-                                    <span class="font-medium">${{ number_format($invoice->tax_total, 2) }}</span>
+                                    <span class="font-medium">RWF {{ number_format($invoice->tax_total) }}</span>
                                 </div>
                             @endif
 
                             <div class="border-t border-gray-200 pt-3 mt-3">
                                 <div class="flex justify-between items-center">
                                     <span class="text-base font-bold text-gray-900">Total Amount</span>
-                                    <span class="text-lg font-bold text-gray-900">${{ number_format($invoice->total_amount, 2) }}</span>
+                                    <span class="text-lg font-bold text-gray-900">RWF {{ number_format($invoice->total_amount) }}</span>
                                 </div>
                             </div>
                             
                             @if($invoice->paid_amount > 0)
                                 <div class="flex justify-between items-center text-sm text-green-600 pt-2 border-t border-gray-200 mt-2">
                                     <span>Amount Paid</span>
-                                    <span class="font-medium">-${{ number_format($invoice->paid_amount, 2) }}</span>
+                                    <span class="font-medium">-RWF {{ number_format($invoice->paid_amount) }}</span>
                                 </div>
                                 <div class="flex justify-between items-center bg-gray-900 text-white p-3 rounded-lg mt-3">
                                     <span class="text-base font-bold">Balance Due</span>
-                                    <span class="text-xl font-black">${{ number_format($invoice->balance_due, 2) }}</span>
+                                    <span class="text-xl font-black">RWF {{ number_format($invoice->balance_due) }}</span>
                                 </div>
                             @else
                                 <div class="flex justify-between items-center bg-gray-900 text-white p-3 rounded-lg mt-3">
                                     <span class="text-base font-bold">Balance Due</span>
-                                    <span class="text-xl font-black">${{ number_format($invoice->balance_due, 2) }}</span>
+                                    <span class="text-xl font-black">RWF {{ number_format($invoice->balance_due) }}</span>
                                 </div>
                             @endif
                         </div>
@@ -261,7 +263,7 @@
                                                 {{ $allocation->payment->paymentMethod->name ?? 'Unknown' }}
                                             </td>
                                             <td class="px-4 py-3 whitespace-nowrap text-sm font-semibold text-gray-900 text-right">
-                                                ${{ number_format($allocation->amount, 2) }}
+                                                RWF {{ number_format($allocation->amount) }}
                                             </td>
                                         </tr>
                                     @endforeach

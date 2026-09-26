@@ -84,7 +84,18 @@ class SupplierPaymentController extends Controller
     public function show(SupplierPayment $payment)
     {
         $this->authorize('view', $payment);
-        $payment->load(['supplier', 'invoice']);
+        $payment->load(['supplier', 'invoice', 'bankAccount', 'company']);
         return view('admin.procurement.payments.show', compact('payment'));
+    }
+
+    public function pdf(SupplierPayment $payment)
+    {
+        $this->authorize('view', $payment);
+        $payment->load(['supplier', 'invoice', 'bankAccount', 'company']);
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.procurement.payments.pdf', compact('payment'))
+            ->setPaper('a4', 'portrait')
+            ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => false, 'defaultFont' => 'Helvetica']);
+
+        return $pdf->download('Supplier-Payment-' . preg_replace('/[^A-Za-z0-9-]/', '-', $payment->payment_number) . '.pdf');
     }
 }

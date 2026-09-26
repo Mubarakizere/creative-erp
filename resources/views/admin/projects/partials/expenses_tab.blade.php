@@ -12,6 +12,8 @@
     form: { 
         title: '', 
         category: 'Miscellaneous', 
+        task_id: '',
+        budget_line_id: '',
         amount: '', 
         expense_date: '{{ date('Y-m-d') }}', 
         vendor_name: '', 
@@ -26,6 +28,8 @@
         this.form = {
             title: defaultCategory === 'Worker Salary' ? 'Worker Salary Payout' : '',
             category: defaultCategory,
+            task_id: '',
+            budget_line_id: '',
             amount: '',
             expense_date: '{{ date('Y-m-d') }}',
             vendor_name: '',
@@ -42,6 +46,8 @@
         this.form = {
             title: expense.title,
             category: expense.category,
+            task_id: expense.task_id || '',
+            budget_line_id: expense.budget_line_id || '',
             amount: expense.amount,
             expense_date: expense.expense_date ? expense.expense_date.split('T')[0] : '',
             vendor_name: expense.vendor_name || '',
@@ -136,6 +142,7 @@
         <x-table>
             <x-slot:head>
                 <th class="px-5 py-3.5 text-left text-[11px] font-bold text-slate-400 uppercase tracking-widest">Expense & Category</th>
+                <th class="px-5 py-3.5 text-left text-[11px] font-bold text-slate-400 uppercase tracking-widest">Task</th>
                 <th class="px-5 py-3.5 text-left text-[11px] font-bold text-slate-400 uppercase tracking-widest">Payee / Worker</th>
                 <th class="px-5 py-3.5 text-left text-[11px] font-bold text-slate-400 uppercase tracking-widest">Date</th>
                 <th class="px-5 py-3.5 text-left text-[11px] font-bold text-slate-400 uppercase tracking-widest">Payment</th>
@@ -162,6 +169,8 @@
                             </div>
                         </div>
                     </td>
+
+                    <td class="px-5 py-3.5 text-xs font-medium text-slate-600">{{ $expense->task?->name ?? 'Unassigned' }}</td>
 
                     <td class="px-5 py-3.5">
                         @if($expense->user)
@@ -221,7 +230,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="6" class="px-5 py-12 text-center text-slate-500 text-xs">
+                    <td colspan="7" class="px-5 py-12 text-center text-slate-500 text-xs">
                         No expenses or worker salary entries recorded for this project yet.
                     </td>
                 </tr>
@@ -253,6 +262,27 @@
                             </div>
 
                             <div class="space-y-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Project Task</label>
+                                        <select name="task_id" x-model="form.task_id" class="w-full rounded-xl border-slate-200 text-xs">
+                                            <option value="">— No task assigned —</option>
+                                            @foreach($project->tasks as $task)
+                                                <option value="{{ $task->id }}">{{ $task->task_code ? '['.$task->task_code.'] ' : '' }}{{ $task->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Active Budget Line</label>
+                                        <select name="budget_line_id" x-model="form.budget_line_id" class="w-full rounded-xl border-slate-200 text-xs">
+                                            <option value="">— Match by task/category —</option>
+                                            @foreach($project->activeBudget?->lines ?? collect() as $budgetLine)
+                                                <option value="{{ $budgetLine->id }}">{{ $budgetLine->activity_title }} · {{ ucfirst($budgetLine->cost_type ?: 'other') }}{{ $budgetLine->resource_name ? ' · '.$budgetLine->resource_name : '' }} ({{ format_currency($budgetLine->amount, $project->currency) }})</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+
                                 <div>
                                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Expense Category *</label>
                                     <select name="category" x-model="form.category" required class="w-full rounded-xl border-slate-200 text-xs font-medium focus:border-blue-500 focus:ring-blue-500">

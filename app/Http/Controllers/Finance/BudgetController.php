@@ -11,6 +11,8 @@ use App\Models\BudgetCategory;
 use App\Models\FiscalYear;
 use App\Models\Project;
 use App\Models\Company;
+use App\Models\Product;
+use Illuminate\Validation\ValidationException;
 
 class BudgetController extends Controller
 {
@@ -217,6 +219,7 @@ class BudgetController extends Controller
         });
 
         $categories = BudgetCategory::orderBy('name')->get();
+        $products = Product::orderBy('name')->get(['id', 'name']);
         $fiscalYears = FiscalYear::where('is_closed', false)->orderBy('name')->get();
         $currentFiscalYear = $fiscalYears->first(function ($fy) {
             return $fy->start_date && $fy->end_date && now()->between($fy->start_date, $fy->end_date);
@@ -226,6 +229,7 @@ class BudgetController extends Controller
             'projects',
             'projectsData',
             'categories',
+            'products',
             'fiscalYears',
             'currentFiscalYear',
             'selectedProjectId'
@@ -245,6 +249,9 @@ class BudgetController extends Controller
             'status' => 'nullable|string|in:draft,approved,active,closed',
             'lines' => 'required|array|min:1',
             'lines.*.task_id' => 'nullable|exists:tasks,id',
+            'lines.*.cost_type' => 'nullable|in:labor,materials,other',
+            'lines.*.resource_name' => 'nullable|string|max:255',
+            'lines.*.product_id' => 'nullable|exists:products,id',
             'lines.*.activity_name' => 'nullable|string|max:255',
             'lines.*.budget_category_id' => 'nullable|exists:budget_categories,id',
             'lines.*.amount' => 'required|numeric|min:0',
@@ -255,6 +262,7 @@ class BudgetController extends Controller
         if (!$project->isAssignedTo($user)) {
             abort(403, 'Unauthorized access to project.');
         }
+        $this->assertLinesBelongToProject($request->lines, $project);
 
         $totalAmount = collect($request->lines)->sum(function ($line) {
             return (float) ($line['amount'] ?? 0);
@@ -297,17 +305,15 @@ class BudgetController extends Controller
                 'budget_id' => $budget->id,
                 'project_id' => $project->id,
                 'task_id' => $line['task_id'] ?? null,
+                'cost_type' => $line['cost_type'] ?? 'other',
+                'resource_name' => $line['resource_name'] ?? null,
+                'product_id' => $line['product_id'] ?? null,
                 'activity_name' => $line['activity_name'] ?? null,
                 'budget_category_id' => $line['budget_category_id'] ?? null,
                 'amount' => $line['amount'],
                 'notes' => $line['notes'] ?? null,
                 'created_by' => $user->id,
             ]);
-        }
-
-        // Sync with project's estimated_budget
-        if ($project->estimated_budget <= 0 || in_array($budget->status, ['active', 'approved'])) {
-            $project->update(['estimated_budget' => $totalAmount]);
         }
 
         $this->logActivity('budget_created', $budget, ['amount' => $totalAmount, 'project_id' => $project->id]);
@@ -319,10 +325,41 @@ class BudgetController extends Controller
     public function show(Budget $budget)
     {
         $this->authorize('view', $budget);
-        $budget->load(['project.company', 'project.manager', 'project.client', 'lines.task', 'lines.category', 'fiscalYear']);
+        $budget->load(['project.company', 'project.manager', 'project.client', 'lines.task', 'lines.category', 'lines.product', 'fiscalYear']);
         $analysis = $this->budgetService->getBudgetVsActual($budget->id);
 
         return view('admin.finance.budgets.show', compact('budget', 'analysis'));
+    }
+
+    public function pdf(Budget $budget)
+    {
+        $this->authorize('view', $budget);
+        $budget->load(['project.company', 'lines.task', 'lines.category', 'lines.product', 'fiscalYear', 'company']);
+        $analysis = $this->budgetService->getBudgetVsActual($budget->id);
+        $actualsByLine = collect($analysis['lines'])->keyBy('id');
+        $currency = $budget->project?->currency ?? 'RWF';
+        $rows = $budget->lines->map(fn($line) => [
+            'activity' => $line->activity_title . ' · ' . ucfirst($line->cost_type ?: 'other') . ($line->resource_name || $line->product?->name ? ' · ' . ($line->resource_name ?: $line->product?->name) : ''),
+            'category' => $line->category?->name,
+            'amount' => format_currency($line->amount, $currency),
+            'notes' => trim(implode(' · ', array_filter([
+                'Actual: ' . format_currency($actualsByLine[$line->id]['actual_amount'] ?? 0, $currency),
+                'Remaining: ' . format_currency(($line->amount - ($actualsByLine[$line->id]['actual_amount'] ?? 0)), $currency),
+                $line->notes,
+            ]))),
+        ])->all();
+
+        return app(\App\Services\RecordPdfService::class)->download('Project Budget', $budget->name, [
+            'Project' => $budget->project?->name, 'Status' => ucfirst($budget->status),
+            'Fiscal year' => $budget->fiscalYear?->name, 'Description' => $budget->description,
+        ], [ ['label' => 'Task / cost type / resource', 'key' => 'activity'], ['label' => 'Account category', 'key' => 'category'], ['label' => 'Allocation', 'key' => 'amount'], ['label' => 'Use / notes', 'key' => 'notes'] ],
+            $rows, [
+                'Allocated budget' => format_currency($analysis['summary']['budget'], $currency),
+                'Actual costs' => format_currency($analysis['summary']['actual'], $currency),
+                'Open purchase commitments' => format_currency($analysis['summary']['committed'], $currency),
+                'Pending payables' => format_currency($analysis['summary']['payable'], $currency),
+                'Available after commitments' => format_currency($analysis['summary']['available'], $currency),
+            ], $budget->company?->name ?? $budget->project?->company?->name);
     }
 
     public function edit(Budget $budget)
@@ -330,7 +367,7 @@ class BudgetController extends Controller
         $this->authorize('update', $budget);
         $user = auth()->user();
 
-        $budget->load(['project.tasks', 'lines.task', 'lines.category']);
+        $budget->load(['project.tasks', 'lines.task', 'lines.category', 'lines.product']);
 
         $projectsQuery = Project::query()->with([
             'company:id,name',
@@ -367,12 +404,17 @@ class BudgetController extends Controller
         });
 
         $categories = BudgetCategory::orderBy('name')->get();
+        $products = Product::orderBy('name')->get(['id', 'name']);
         $fiscalYears = FiscalYear::where('is_closed', false)->orderBy('name')->get();
 
         $initialLines = $budget->lines->map(function ($l) {
             return [
+                'id' => $l->id,
                 'task_id' => $l->task_id ?? '',
                 'activity_name' => $l->activity_name ?? '',
+                'cost_type' => $l->cost_type ?: 'other',
+                'resource_name' => $l->resource_name ?? '',
+                'product_id' => $l->product_id ?? '',
                 'budget_category_id' => $l->budget_category_id ?? '',
                 'amount' => (float)$l->amount,
                 'notes' => $l->notes ?? '',
@@ -393,6 +435,7 @@ class BudgetController extends Controller
             'projects',
             'projectsData',
             'categories',
+            'products',
             'fiscalYears',
             'initialLines',
             'projectTasks'
@@ -411,11 +454,24 @@ class BudgetController extends Controller
             'fiscal_year_id' => 'nullable|exists:fiscal_years,id',
             'lines' => 'sometimes|required|array|min:1',
             'lines.*.task_id' => 'nullable|exists:tasks,id',
+            'lines.*.id' => 'nullable|exists:budget_lines,id',
+            'lines.*.cost_type' => 'nullable|in:labor,materials,other',
+            'lines.*.resource_name' => 'nullable|string|max:255',
+            'lines.*.product_id' => 'nullable|exists:products,id',
             'lines.*.activity_name' => 'nullable|string|max:255',
             'lines.*.budget_category_id' => 'nullable|exists:budget_categories,id',
             'lines.*.amount' => 'required|numeric|min:0',
             'lines.*.notes' => 'nullable|string',
         ]);
+
+        if ($request->has('lines')) {
+            $this->assertLinesBelongToProject($request->lines, $budget->project);
+            foreach ($request->lines as $line) {
+                if (!empty($line['id']) && !$budget->lines()->whereKey($line['id'])->exists()) {
+                    throw ValidationException::withMessages(['lines' => 'A budget line belongs to a different budget.']);
+                }
+            }
+        }
 
         $updateData = [
             'name' => $request->input('name', $budget->name),
@@ -431,24 +487,29 @@ class BudgetController extends Controller
             });
             $updateData['total_amount'] = $totalAmount;
 
-            $budget->lines()->delete();
+            $keptIds = [];
             foreach ($request->lines as $line) {
-                BudgetLine::create([
+                $budgetLine = !empty($line['id']) ? $budget->lines()->whereKey($line['id'])->first() : new BudgetLine();
+                $budgetLine->fill([
                     'budget_id' => $budget->id,
                     'project_id' => $budget->project_id,
                     'task_id' => $line['task_id'] ?? null,
                     'activity_name' => $line['activity_name'] ?? null,
+                    'cost_type' => $line['cost_type'] ?? 'other',
+                    'resource_name' => $line['resource_name'] ?? null,
+                    'product_id' => $line['product_id'] ?? null,
                     'budget_category_id' => $line['budget_category_id'] ?? null,
                     'amount' => $line['amount'],
                     'notes' => $line['notes'] ?? null,
-                    'created_by' => $user->id,
                 ]);
+                if (!$budgetLine->exists) {
+                    $budgetLine->created_by = $user->id;
+                }
+                $budgetLine->updated_by = $user->id;
+                $budgetLine->save();
+                $keptIds[] = $budgetLine->id;
             }
-
-            // Sync with project's estimated budget if active or approved
-            if ($budget->project && in_array($updateData['status'], ['active', 'approved'])) {
-                $budget->project->update(['estimated_budget' => $totalAmount]);
-            }
+            $budget->lines()->whereNotIn('id', $keptIds)->delete();
         }
 
         $budget->update($updateData);
@@ -467,5 +528,17 @@ class BudgetController extends Controller
 
         return redirect()->route('admin.finance.budgets.index')
             ->with('success', 'Budget deleted successfully.');
+    }
+
+    private function assertLinesBelongToProject(array $lines, ?Project $project): void
+    {
+        foreach ($lines as $index => $line) {
+            if (!empty($line['task_id']) && (!$project || !$project->tasks()->whereKey($line['task_id'])->exists())) {
+                throw ValidationException::withMessages(["lines.{$index}.task_id" => 'The selected task must belong to the selected project.']);
+            }
+            if (!empty($line['product_id']) && ($line['cost_type'] ?? 'other') !== 'materials') {
+                throw ValidationException::withMessages(["lines.{$index}.product_id" => 'Products can only be assigned to material budget lines.']);
+            }
+        }
     }
 }

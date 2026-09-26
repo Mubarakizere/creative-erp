@@ -136,6 +136,7 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
     Route::prefix('projects/tasks')->name('projects.tasks.')->group(function () {
         Route::patch('/{task}/restore', [\App\Http\Controllers\Admin\TaskController::class, 'restore'])->name('restore')->withTrashed();
         Route::post('/{task}/duplicate', [\App\Http\Controllers\Admin\TaskController::class, 'duplicate'])->name('duplicate');
+        Route::get('/{task}/pdf', [\App\Http\Controllers\Admin\TaskController::class, 'pdf'])->name('pdf');
     });
     Route::resource('projects/tasks', \App\Http\Controllers\Admin\TaskController::class, [
         'names' => 'projects.tasks'
@@ -228,6 +229,7 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
     Route::prefix('reports')->name('reports.')->group(function () {
         Route::get('/builder', [\App\Http\Controllers\Admin\ReportController::class, 'builder'])->name('builder');
         Route::post('/preview', [\App\Http\Controllers\Admin\ReportController::class, 'preview'])->name('preview');
+        Route::get('/dashboard-pdf', [\App\Http\Controllers\Admin\ReportController::class, 'dashboardPdf'])->name('dashboard-pdf');
         Route::post('/{reportTemplate}/favorite', [\App\Http\Controllers\Admin\ReportController::class, 'favorite'])->name('favorite');
         Route::post('/{reportTemplate}/export', [\App\Http\Controllers\Admin\ReportController::class, 'export'])->name('export');
     });
@@ -255,6 +257,7 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
 
         Route::resource('pipelines', \App\Http\Controllers\Admin\PipelineController::class);
         
+        Route::get('activities/{activity}/pdf', [\App\Http\Controllers\Admin\ActivityController::class, 'pdf'])->name('activities.pdf');
         Route::resource('activities', \App\Http\Controllers\Admin\ActivityController::class);
 
         // Sales Documents (Quotations)
@@ -264,6 +267,7 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
         Route::post('/quotations/{quotation}/approve', [\App\Http\Controllers\QuotationController::class, 'approve'])->name('quotations.approve');
         Route::post('/quotations/{quotation}/reject', [\App\Http\Controllers\QuotationController::class, 'reject'])->name('quotations.reject');
         Route::post('/quotations/{quotation}/export', [\App\Http\Controllers\QuotationController::class, 'export'])->name('quotations.export');
+        Route::get('/quotations/{quotation}/pdf', [\App\Http\Controllers\QuotationController::class, 'pdf'])->name('quotations.pdf');
         Route::resource('quotations', \App\Http\Controllers\QuotationController::class);
     });
 
@@ -299,6 +303,7 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
 
         Route::patch('/invoices/{invoice}/issue', [\App\Http\Controllers\Finance\InvoiceController::class, 'issue'])->name('invoices.issue');
         Route::patch('/invoices/{invoice}/cancel', [\App\Http\Controllers\Finance\InvoiceController::class, 'cancel'])->name('invoices.cancel');
+        Route::get('/invoices/{invoice}/pdf', [\App\Http\Controllers\Finance\InvoiceController::class, 'pdf'])->name('invoices.pdf');
         Route::resource('invoices', \App\Http\Controllers\Finance\InvoiceController::class);
         
         Route::resource('payments', \App\Http\Controllers\Finance\PaymentController::class)->except(['edit', 'update']);
@@ -318,6 +323,7 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
             Route::get('cash-flow', [\App\Http\Controllers\Finance\FinancialReportController::class, 'cashFlow'])->name('cash-flow');
         });
         
+        Route::get('budgets/{budget}/pdf', [\App\Http\Controllers\Finance\BudgetController::class, 'pdf'])->name('budgets.pdf');
         Route::resource('budgets', \App\Http\Controllers\Finance\BudgetController::class);
         
         Route::get('analytics', [\App\Http\Controllers\Finance\AnalyticsController::class, 'index'])->name('analytics');
@@ -368,12 +374,16 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
         Route::post('requisitions/{requisition}/accept/{quotation}', [\App\Http\Controllers\Admin\Procurement\PurchaseRequisitionController::class, 'acceptQuotation'])->name('requisitions.accept');
         
         Route::post('pos/{po}/approve', [\App\Http\Controllers\Admin\Procurement\PurchaseOrderController::class, 'approve'])->name('pos.approve');
+        Route::get('pos/{po}/pdf', [\App\Http\Controllers\Admin\Procurement\PurchaseOrderController::class, 'pdf'])->name('pos.pdf');
         Route::resource('pos', \App\Http\Controllers\Admin\Procurement\PurchaseOrderController::class);
         
         Route::resource('receipts', \App\Http\Controllers\Admin\Procurement\GoodsReceiptController::class);
         Route::resource('invoices', \App\Http\Controllers\Admin\Procurement\PurchaseInvoiceController::class);
         Route::resource('payments', \App\Http\Controllers\Admin\Procurement\SupplierPaymentController::class);
+        Route::get('payments/{payment}/pdf', [\App\Http\Controllers\Admin\Procurement\SupplierPaymentController::class, 'pdf'])->name('payments.pdf');
+        Route::get('requisitions/{requisition}/pdf', [\App\Http\Controllers\Admin\Procurement\PurchaseRequisitionController::class, 'pdf'])->name('requisitions.pdf');
         Route::resource('requisitions', \App\Http\Controllers\Admin\Procurement\PurchaseRequisitionController::class);
+        Route::get('rfqs/{rfq}/pdf', [\App\Http\Controllers\Admin\Procurement\SupplierQuotationController::class, 'pdf'])->name('rfqs.pdf');
         Route::resource('rfqs', \App\Http\Controllers\Admin\Procurement\SupplierQuotationController::class);
     });
 

@@ -26,6 +26,7 @@ class ProjectExpenseController extends Controller
         Gate::authorize('create', [ProjectExpense::class, $project]);
 
         $validated = $request->validated();
+        $this->validateBudgetAssignment($project, $validated);
 
         if ($request->hasFile('receipt')) {
             $path = $request->file('receipt')->store('expenses', 'public');
@@ -46,6 +47,7 @@ class ProjectExpenseController extends Controller
         Gate::authorize('update', $expense);
 
         $validated = $request->validated();
+        $this->validateBudgetAssignment($expense->project, $validated);
 
         if ($request->hasFile('receipt')) {
             if ($expense->receipt_path && Storage::disk('public')->exists($expense->receipt_path)) {
@@ -72,5 +74,35 @@ class ProjectExpenseController extends Controller
         $this->financialService->deleteExpense($expense);
 
         return redirect()->back()->with('success', "Expense '{$title}' deleted successfully.");
+    }
+
+    private function validateBudgetAssignment(Project $project, array &$data): void
+    {
+        if (!empty($data['task_id']) && !$project->tasks()->whereKey($data['task_id'])->exists()) {
+            abort(422, 'The selected task does not belong to this project.');
+        }
+
+        if (empty($data['budget_line_id'])) {
+            return;
+        }
+
+        $activeBudgetId = $project->activeBudget()->value('id');
+        $line = \App\Models\BudgetLine::query()
+            ->whereKey($data['budget_line_id'])
+            ->where('project_id', $project->id)
+            ->where('budget_id', $activeBudgetId)
+            ->firstOrFail();
+
+        if (!empty($data['task_id']) && $line->task_id && (int) $data['task_id'] !== (int) $line->task_id) {
+            abort(422, 'The selected budget line belongs to a different task.');
+        }
+        if (($line->cost_type ?: 'other') === 'materials') {
+            abort(422, 'Material actuals are tracked from project material issues. Select a labor or other cost line for this expense.');
+        }
+        $isLaborExpense = in_array(strtolower($data['category'] ?? ''), ['worker salary', 'labor', 'payroll'], true);
+        if ($isLaborExpense !== (($line->cost_type ?: 'other') === 'labor')) {
+            abort(422, 'Choose a budget line with a cost type that matches this expense category.');
+        }
+        $data['task_id'] = $line->task_id ?? ($data['task_id'] ?? null);
     }
 }

@@ -187,6 +187,13 @@
                     </div>
                 @endif
 
+                @if($journal->memo)
+                    <div>
+                        <span class="text-gray-500 block">Memo</span>
+                        <span class="font-medium text-gray-900 mt-0.5 block leading-relaxed">{{ $journal->memo }}</span>
+                    </div>
+                @endif
+
                 <div>
                     <span class="text-gray-500 block">Transaction Date</span>
                     <span class="font-semibold text-gray-900 text-sm mt-0.5 block">

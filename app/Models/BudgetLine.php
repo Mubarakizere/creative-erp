@@ -52,6 +52,16 @@ class BudgetLine extends Model
         return $this->belongsTo(ChartOfAccount::class);
     }
 
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
+
+    public function expenses()
+    {
+        return $this->hasMany(ProjectExpense::class, 'budget_line_id');
+    }
+
     protected static function boot()
     {
         parent::boot();

@@ -120,6 +120,21 @@ class TaskController extends Controller
         return view('admin.projects.tasks.show', compact('task'));
     }
 
+    public function pdf(Task $task)
+    {
+        $this->authorize('view', $task);
+        $task->load(['project', 'assignee', 'parent', 'children', 'company', 'budgetLines.category']);
+        return app(\App\Services\RecordPdfService::class)->download('Project Task', $task->task_code ?: $task->name, [
+            'Task' => $task->name, 'Project' => $task->project?->name, 'Status' => ucfirst($task->status),
+            'Priority' => ucfirst($task->priority), 'Assigned to' => $task->assignee?->name,
+            'Start date' => $task->start_date?->format('d M Y'), 'Due date' => $task->due_date?->format('d M Y'),
+            'Progress' => $task->progress . '%', 'Parent task' => $task->parent?->name,
+            'Description' => $task->description,
+        ], [ ['label' => 'Budget category', 'key' => 'category'], ['label' => 'Allocated amount', 'key' => 'amount'] ],
+            $task->budgetLines->map(fn($line) => ['category' => $line->category?->name ?? $line->activity_name ?? 'Activity', 'amount' => number_format($line->amount, 2)])->all(),
+            ['Actual material cost' => number_format($task->actual_material_cost, 2)], $task->company?->name);
+    }
+
     /**
      * Show the form for editing the specified resource.
      */

@@ -14,6 +14,7 @@ use App\Models\Quotation;
 use App\Models\ApprovalWorkflow;
 use App\Services\ApprovalService;
 use App\Models\Company;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class InvoiceController extends Controller
 {
@@ -142,6 +143,27 @@ class InvoiceController extends Controller
         $this->authorize('view', $invoice);
         $invoice->load(['items', 'client', 'project', 'company', 'allocations.payment']);
         return view('admin.finance.invoices.show', compact('invoice'));
+    }
+
+    public function pdf(Invoice $invoice)
+    {
+        $this->authorize('view', $invoice);
+        $invoice->load(['items', 'client', 'project', 'company', 'allocations.payment.paymentMethod']);
+
+        $bankAccount = \App\Models\BankAccount::where('company_id', $invoice->company_id)->where('status', 'active')->first()
+            ?? \App\Models\BankAccount::where('company_id', $invoice->company_id)->first();
+
+        $pdf = Pdf::loadView('admin.finance.invoices.pdf', compact('invoice', 'bankAccount'))
+            ->setPaper('a4', 'portrait')
+            ->setOptions([
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled' => true,
+                'defaultFont' => 'Helvetica',
+            ]);
+
+        $filename = 'Invoice-' . preg_replace('/[^A-Za-z0-9\-_]/', '-', $invoice->invoice_number) . '.pdf';
+
+        return $pdf->stream($filename);
     }
 
     public function edit(Invoice $invoice)

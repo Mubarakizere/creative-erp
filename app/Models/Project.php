@@ -275,6 +275,11 @@ class Project extends Model
         return $this->hasMany(Budget::class);
     }
 
+    public function purchaseOrders(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(PurchaseOrder::class);
+    }
+
     /**
      * Get the latest active budget of the project.
      */

@@ -146,6 +146,14 @@ class QuotationController extends Controller
         return view('admin.crm.quotations.show', compact('quotation'));
     }
 
+    public function pdf(Quotation $quotation)
+    {
+        Gate::authorize('export', $quotation);
+        $quotation->load(['items.tax', 'status', 'owner', 'account', 'opportunity', 'lead', 'contact', 'paymentTerm']);
+        $file = $this->exportService->exportQuotation($quotation, 'pdf');
+        return response()->download($file, 'Quotation-' . $quotation->quotation_number . '.pdf');
+    }
+
     public function edit(Request $request, Quotation $quotation)
     {
         Gate::authorize('update', $quotation);

@@ -94,11 +94,13 @@ class ProjectController extends Controller
             'materialRequests.items.product',
             'materialIssues.items.product',
             'milestones', 'documents', 'timeEntries', 'comments.user',
-            'expenses.creator', 'expenses.user'
+            'expenses.creator', 'expenses.user', 'expenses.task', 'expenses.budgetLine',
+            'activeBudget.lines.task', 'activeBudget.lines.category', 'activeBudget.lines.product'
         ]);
         
         $financialService = app(\App\Services\ProjectFinancialService::class);
         $financialSummary = $financialService->getProjectFinancialSummary($project);
+        $projectBudgetAnalysis = app(\App\Services\Finance\BudgetService::class)->getProjectBudgetAnalysis($project);
         $teamUserIds = $project->projectMembers()->pluck('user_id')->push($project->project_manager_id)->filter()->unique();
         $teamUsers = \App\Models\User::whereIn('id', $teamUserIds)->orderBy('first_name')->get();
         if ($teamUsers->isEmpty()) {
@@ -189,7 +191,7 @@ class ProjectController extends Controller
         
         $timelineEvents = $events->sortByDesc('date');
 
-        return view('admin.projects.show', compact('project', 'timelineEvents', 'activityLogs', 'financialSummary', 'teamUsers'));
+        return view('admin.projects.show', compact('project', 'timelineEvents', 'activityLogs', 'financialSummary', 'projectBudgetAnalysis', 'teamUsers'));
     }
 
 

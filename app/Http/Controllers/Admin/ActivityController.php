@@ -39,6 +39,19 @@ class ActivityController extends Controller
         return view('admin.crm.activities.show', compact('activity'));
     }
 
+    public function pdf(Activity $activity)
+    {
+        $activity->load(['company', 'assignee', 'creator', 'activityable']);
+        return app(\App\Services\RecordPdfService::class)->download('Project Activity', $activity->subject, [
+            'Type' => ucfirst($activity->type), 'Status' => ucfirst($activity->status),
+            'Related to' => $activity->activityable?->name ?? $activity->activityable?->subject,
+            'Assigned to' => $activity->assignee?->name, 'Created by' => $activity->creator?->name,
+            'Scheduled' => $activity->scheduled_at?->format('d M Y H:i'),
+            'Completed' => $activity->completed_at?->format('d M Y H:i'),
+            'Description' => $activity->description,
+        ], [], [], [], $activity->company?->name);
+    }
+
     public function edit(Activity $activity)
     {
         return view('admin.crm.activities.edit', compact('activity'));

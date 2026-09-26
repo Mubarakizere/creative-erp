@@ -9,6 +9,9 @@ use App\Services\ReportService;
 use App\Services\ExportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
 class ReportController extends Controller
 {
@@ -21,56 +24,238 @@ class ReportController extends Controller
         $this->exportService = $exportService;
     }
 
-    public function index()
+    /**
+     * Resolve date range from filter parameters.
+     */
+    private function resolveDateRange(Request $request): array
     {
-        Gate::authorize('viewAny', ReportTemplate::class);
+        $preset = $request->input('date_preset', 'all');
+        $dateFromInput = $request->input('date_from');
+        $dateToInput   = $request->input('date_to');
 
-        $userId = auth()->id();
-        $companyId = auth()->user()->company_id ?? 1;
-        $systemTemplates = $this->reportService->getSystemTemplates();
-        $userTemplates = $this->reportService->getUserTemplates($userId);
-        $favoriteTemplates = $this->reportService->getFavoriteTemplates($userId);
+        // If custom preset or direct date inputs are provided
+        if ($preset === 'custom' || ($dateFromInput && $dateToInput)) {
+            $dateFrom = $dateFromInput ? Carbon::parse($dateFromInput)->startOfDay() : null;
+            $dateTo   = $dateToInput   ? Carbon::parse($dateToInput)->endOfDay()     : null;
+            return [$dateFrom, $dateTo, 'custom'];
+        }
 
-        // Fetch basic financial stats for accounting staff dashboard
-        $totalInvoiced = \App\Models\Invoice::where('company_id', $companyId)->sum('total_amount');
-        $totalPaid = \App\Models\Payment::where('company_id', $companyId)->sum('amount');
-        $totalOutstanding = \App\Models\Invoice::where('company_id', $companyId)->sum('balance_due');
+        $dateFrom = null;
+        $dateTo   = null;
+
+        switch ($preset) {
+            case 'today':
+                $dateFrom = Carbon::today();
+                $dateTo   = Carbon::today()->endOfDay();
+                break;
+            case 'yesterday':
+                $dateFrom = Carbon::yesterday();
+                $dateTo   = Carbon::yesterday()->endOfDay();
+                break;
+            case 'this_week':
+                $dateFrom = Carbon::now()->startOfWeek();
+                $dateTo   = Carbon::now()->endOfWeek();
+                break;
+            case 'last_week':
+                $dateFrom = Carbon::now()->subWeek()->startOfWeek();
+                $dateTo   = Carbon::now()->subWeek()->endOfWeek();
+                break;
+            case 'this_month':
+                $dateFrom = Carbon::now()->startOfMonth();
+                $dateTo   = Carbon::now()->endOfMonth();
+                break;
+            case 'last_month':
+                $dateFrom = Carbon::now()->subMonth()->startOfMonth();
+                $dateTo   = Carbon::now()->subMonth()->endOfMonth();
+                break;
+            case 'this_quarter':
+                $dateFrom = Carbon::now()->startOfQuarter();
+                $dateTo   = Carbon::now()->endOfQuarter();
+                break;
+            case 'this_year':
+                $dateFrom = Carbon::now()->startOfYear();
+                $dateTo   = Carbon::now()->endOfYear();
+                break;
+            case 'last_year':
+                $dateFrom = Carbon::now()->subYear()->startOfYear();
+                $dateTo   = Carbon::now()->subYear()->endOfYear();
+                break;
+            default:
+                $preset = 'all';
+                break;
+        }
+
+        return [$dateFrom, $dateTo, $preset];
+    }
+
+    /**
+     * Build filtered dashboard statistics.
+     */
+    private function buildDashboardStats(?int $companyId, ?Carbon $dateFrom, ?Carbon $dateTo, ?int $clientId, ?int $projectId = null): array
+    {
+        // --- Invoice base query ---
+        $invoiceQuery = \App\Models\Invoice::query();
+        if ($companyId) $invoiceQuery->where('company_id', $companyId);
+        if ($dateFrom)  $invoiceQuery->where('issue_date', '>=', $dateFrom);
+        if ($dateTo)    $invoiceQuery->where('issue_date', '<=', $dateTo);
+        if ($clientId)  $invoiceQuery->where('client_id', $clientId);
+        if ($projectId) $invoiceQuery->where('project_id', $projectId);
+
+        // --- Payment base query ---
+        $paymentQuery = \App\Models\Payment::query();
+        if ($companyId) $paymentQuery->where('company_id', $companyId);
+        if ($dateFrom)  $paymentQuery->where('payment_date', '>=', $dateFrom);
+        if ($dateTo)    $paymentQuery->where('payment_date', '<=', $dateTo);
+        if ($clientId)  $paymentQuery->where('client_id', $clientId);
+        if ($projectId) $paymentQuery->where('project_id', $projectId);
+
+        // KPIs
+        $totalInvoiced    = (clone $invoiceQuery)->sum('total_amount');
+        $totalPaid        = (clone $paymentQuery)->sum('amount');
+        $totalOutstanding = (clone $invoiceQuery)->sum('balance_due');
+        $invoiceCount     = (clone $invoiceQuery)->count();
+        $overdueCount     = (clone $invoiceQuery)->where('status', 'overdue')->count();
+        $avgInvoice       = $invoiceCount > 0 ? round($totalInvoiced / $invoiceCount, 2) : 0;
+        $collectionRate   = $totalInvoiced > 0 ? round(($totalPaid / $totalInvoiced) * 100, 1) : 0;
+
+        // Previous period comparison (same length window)
+        $prevTotalPaid = 0;
+        if ($dateFrom && $dateTo) {
+            $diff = $dateTo->diffInSeconds($dateFrom);
+            $prevFrom = (clone $dateFrom)->subSeconds($diff);
+            $prevTo   = (clone $dateFrom)->subSecond();
+            $prevQuery = \App\Models\Payment::query()
+                ->whereBetween('payment_date', [$prevFrom, $prevTo]);
+            if ($companyId) $prevQuery->where('company_id', $companyId);
+            if ($clientId)  $prevQuery->where('client_id', $clientId);
+            if ($projectId) $prevQuery->where('project_id', $projectId);
+            $prevTotalPaid = $prevQuery->sum('amount');
+        }
+        $revenueGrowth = $prevTotalPaid > 0 ? round((($totalPaid - $prevTotalPaid) / $prevTotalPaid) * 100, 1) : null;
 
         // Invoice Status Breakdown
-        $invoiceStatusData = \App\Models\Invoice::where('company_id', $companyId)
-            ->select('status', \Illuminate\Support\Facades\DB::raw('count(*) as count'), \Illuminate\Support\Facades\DB::raw('sum(total_amount) as total'))
+        $invoiceStatusData = (clone $invoiceQuery)
+            ->select('status', DB::raw('count(*) as count'), DB::raw('sum(total_amount) as total'))
             ->groupBy('status')
             ->get();
 
         // Payments by Method
-        $paymentMethodData = \App\Models\Payment::where('company_id', $companyId)
+        $paymentMethodData = (clone $paymentQuery)
             ->with('paymentMethod')
-            ->select('payment_method_id', \Illuminate\Support\Facades\DB::raw('sum(amount) as total'))
+            ->select('payment_method_id', DB::raw('sum(amount) as total'))
+            ->whereNotNull('payment_method_id')
             ->groupBy('payment_method_id')
             ->get();
 
-        // Monthly Payments (Last 6 Months) - DB agnostic grouping
-        $sixMonthsAgo = now()->subMonths(5)->startOfMonth();
-        $recentPayments = \App\Models\Payment::where('company_id', $companyId)
-            ->where('payment_date', '>=', $sixMonthsAgo)
-            ->get();
+        // Monthly trend (last 6 periods)
+        $trendFrom = $dateFrom ?? now()->subMonths(5)->startOfMonth();
+        $trendPayments = \App\Models\Payment::query()
+            ->where('payment_date', '>=', $trendFrom);
+        if ($companyId) $trendPayments->where('company_id', $companyId);
+        if ($dateTo)    $trendPayments->where('payment_date', '<=', $dateTo);
+        if ($clientId)  $trendPayments->where('client_id', $clientId);
+        if ($projectId) $trendPayments->where('project_id', $projectId);
+        $allPayments = $trendPayments->get();
 
         $monthlyPayments = collect();
         for ($i = 5; $i >= 0; $i--) {
             $month = now()->subMonths($i);
             $monthlyPayments->push([
                 'label' => $month->format('M Y'),
-                'total' => $recentPayments->filter(function ($payment) use ($month) {
-                    return $payment->payment_date && $payment->payment_date->format('Y-m') === $month->format('Y-m');
-                })->sum('amount'),
+                'total' => (float) $allPayments->filter(fn($p) =>
+                    $p->payment_date && $p->payment_date->format('Y-m') === $month->format('Y-m')
+                )->sum('amount'),
             ]);
         }
 
-        return view('admin.reports.index', compact(
-            'systemTemplates', 'userTemplates', 'favoriteTemplates',
+        // Top Clients by revenue (invoiced)
+        $topClientsQuery = \App\Models\Invoice::query()
+            ->with('client')
+            ->select('client_id', DB::raw('sum(total_amount) as total'), DB::raw('count(*) as invoice_count'))
+            ->whereNotNull('client_id')
+            ->groupBy('client_id')
+            ->orderByDesc('total')
+            ->limit(5);
+        if ($companyId) $topClientsQuery->where('company_id', $companyId);
+        if ($dateFrom)  $topClientsQuery->where('issue_date', '>=', $dateFrom);
+        if ($dateTo)    $topClientsQuery->where('issue_date', '<=', $dateTo);
+        if ($clientId)  $topClientsQuery->where('client_id', $clientId);
+        if ($projectId) $topClientsQuery->where('project_id', $projectId);
+        $topClients = $topClientsQuery->get();
+
+        return compact(
             'totalInvoiced', 'totalPaid', 'totalOutstanding',
-            'invoiceStatusData', 'paymentMethodData', 'monthlyPayments'
-        ));
+            'invoiceCount', 'overdueCount', 'avgInvoice', 'collectionRate', 'revenueGrowth',
+            'invoiceStatusData', 'paymentMethodData', 'monthlyPayments', 'topClients'
+        );
+    }
+
+    public function index(Request $request)
+    {
+        Gate::authorize('viewAny', ReportTemplate::class);
+
+        $userId = auth()->id();
+        $user   = auth()->user();
+
+        $selectedCompanyId = $request->filled('company_id') ? (int) $request->input('company_id') : ($user->company_id ?? null);
+        $clientId          = $request->filled('client_id') ? (int) $request->input('client_id') : null;
+        $projectId         = $request->filled('project_id') ? (int) $request->input('project_id') : null;
+
+        [$dateFrom, $dateTo, $datePreset] = $this->resolveDateRange($request);
+
+        $stats = $this->buildDashboardStats($selectedCompanyId, $dateFrom, $dateTo, $clientId, $projectId);
+
+        // Filter options for inputs
+        $companies = \App\Models\Company::select('id', 'name')->orderBy('name')->get();
+
+        $projectsQuery = \App\Models\Project::query()->select('id', 'name', 'company_id')->orderBy('name');
+        if ($selectedCompanyId) {
+            $projectsQuery->where('company_id', $selectedCompanyId);
+        }
+        $projects = $projectsQuery->get();
+
+        $clientsQuery = \App\Models\Client::query()->select('id', 'display_name', 'first_name', 'last_name', 'company_name', 'company_id')->orderBy('display_name');
+        if ($selectedCompanyId) {
+            $clientsQuery->where('company_id', $selectedCompanyId);
+        }
+        $clients = $clientsQuery->get();
+
+        $systemTemplates   = $this->reportService->getSystemTemplates();
+        $userTemplates     = $this->reportService->getUserTemplates($userId);
+        $favoriteTemplates = $this->reportService->getFavoriteTemplates($userId);
+
+        return view('admin.reports.index', array_merge($stats, compact(
+            'systemTemplates', 'userTemplates', 'favoriteTemplates',
+            'companies', 'projects', 'clients',
+            'datePreset', 'dateFrom', 'dateTo',
+            'selectedCompanyId', 'projectId', 'clientId'
+        )));
+    }
+
+    /**
+     * Generate & stream a PDF of the filtered dashboard.
+     */
+    public function dashboardPdf(Request $request)
+    {
+        Gate::authorize('viewAny', ReportTemplate::class);
+
+        $companyId = auth()->user()->company_id ?? 1;
+        [$dateFrom, $dateTo, $datePreset] = $this->resolveDateRange($request);
+        $clientId  = $request->input('client_id') ? (int) $request->input('client_id') : null;
+
+        $stats  = $this->buildDashboardStats($companyId, $dateFrom, $dateTo, $clientId);
+        $client = $clientId ? \App\Models\Client::find($clientId) : null;
+
+        $pdf = Pdf::loadView('admin.reports.exports.dashboard-pdf', array_merge($stats, [
+            'dateFrom'   => $dateFrom,
+            'dateTo'     => $dateTo,
+            'datePreset' => $datePreset,
+            'client'     => $client,
+            'companyId'  => $companyId,
+        ]))->setPaper('a4', 'portrait');
+
+        $filename = 'reports-dashboard-' . now()->format('Y-m-d') . '.pdf';
+        return $pdf->download($filename);
     }
 
     public function builder(Request $request)

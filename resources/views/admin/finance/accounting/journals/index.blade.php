@@ -80,20 +80,20 @@
     </div>
 
     {{-- Filter & Search Toolbar --}}
-    <x-card class="mb-6 p-3.5 sm:p-4 bg-white border border-gray-200/80 shadow-sm rounded-xl">
-        <form method="GET" action="{{ route('admin.finance.accounting.journals.index') }}" class="flex flex-col gap-3.5">
-            {{-- Top Filter Row: Status Pills & Search --}}
-            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5">
+    <x-card class="mb-6 p-4 bg-white border border-gray-200/80 shadow-sm rounded-xl">
+        <form method="GET" action="{{ route('admin.finance.accounting.journals.index') }}" class="flex flex-col gap-3">
+            {{-- Row 1: Status Pills + Search --}}
+            <div class="flex flex-col sm:flex-row sm:items-center gap-2.5">
                 {{-- Status Pills --}}
-                <div class="flex items-center gap-1.5 overflow-x-auto pb-2 lg:pb-0 scrollbar-none max-w-full">
+                <div class="flex items-center gap-1.5 overflow-x-auto scrollbar-none shrink-0">
                     @php
                         $currentStatus = request('status', 'all');
                         $statuses = [
-                            'all' => 'All Entries',
-                            'Draft' => 'Draft',
+                            'all'     => 'All Entries',
+                            'Draft'   => 'Draft',
                             'Pending' => 'Pending',
-                            'Posted' => 'Posted',
-                            'Voided' => 'Voided',
+                            'Posted'  => 'Posted',
+                            'Voided'  => 'Voided',
                         ];
                     @endphp
                     @foreach($statuses as $key => $label)
@@ -103,69 +103,67 @@
                         </a>
                     @endforeach
                 </div>
-
-                {{-- Search & Additional Controls --}}
-                <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
-                    {{-- Company Filter --}}
-                    <select name="company_id" class="px-2.5 py-1.5 text-xs rounded-lg border border-gray-300 focus:ring-1 focus:ring-blue-500 bg-white">
-                        <option value="">All Companies</option>
-                        @foreach($companies as $company)
-                            <option value="{{ $company->id }}" {{ request('company_id') == $company->id ? 'selected' : '' }}>
-                                {{ $company->name }}
-                            </option>
-                        @endforeach
-                    </select>
-
-                    {{-- Project Filter --}}
-                    <select name="project_id" class="px-2.5 py-1.5 text-xs rounded-lg border border-gray-300 focus:ring-1 focus:ring-blue-500 bg-white">
-                        <option value="">All Projects</option>
-                        @foreach($projects as $project)
-                            <option value="{{ $project->id }}" {{ request('project_id') == $project->id ? 'selected' : '' }}>
-                                {{ $project->name }} ({{ $project->project_code }})
-                            </option>
-                        @endforeach
-                    </select>
-
-                    <div class="relative flex-1 lg:w-60">
-                        <input type="text" 
-                               name="search" 
-                               value="{{ request('search') }}" 
-                               placeholder="Search Journal #, Memo, Project..." 
-                               class="w-full pl-9 pr-4 py-1.5 text-xs rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                        <svg class="w-4 h-4 text-gray-400 absolute left-3 top-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                        </svg>
-                    </div>
-
-                    @if(request()->anyFilled(['search', 'status', 'company_id', 'project_id', 'date_from', 'date_to']))
-                        <a href="{{ route('admin.finance.accounting.journals.index') }}" 
-                           class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors shrink-0"
-                           title="Clear Filters">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                        </a>
-                    @endif
+                {{-- Search --}}
+                <div class="relative flex-1 min-w-0">
+                    <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    <input type="text"
+                           name="search"
+                           value="{{ request('search') }}"
+                           placeholder="Search journal #, memo, reference..."
+                           class="w-full pl-9 pr-4 py-1.5 text-xs rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white">
                 </div>
             </div>
 
-            {{-- Date Range Controls --}}
-            <div class="pt-3 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 text-xs">
-                <span class="font-medium text-gray-500 shrink-0">Date Range:</span>
-                <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-                    <input type="date" 
-                           name="date_from" 
-                           value="{{ request('date_from') }}" 
-                           class="px-2.5 py-1.5 text-xs border border-gray-300 rounded-md focus:ring-1 focus:ring-blue-500 flex-1 sm:flex-none">
-                    <span class="text-gray-400">to</span>
-                    <input type="date" 
-                           name="date_to" 
-                           value="{{ request('date_to') }}" 
-                           class="px-2.5 py-1.5 text-xs border border-gray-300 rounded-md focus:ring-1 focus:ring-blue-500 flex-1 sm:flex-none">
-                    <button type="submit" class="px-3.5 py-1.5 bg-gray-900 text-white font-semibold rounded-md hover:bg-gray-800 transition-colors w-full sm:w-auto">
-                        Filter
-                    </button>
+            {{-- Row 2: Dropdowns + Date Range + Apply --}}
+            <div class="flex flex-wrap items-center gap-2 pt-2.5 border-t border-gray-100">
+                {{-- Company --}}
+                <select name="company_id" class="px-2.5 py-1.5 text-xs rounded-lg border border-gray-300 focus:ring-1 focus:ring-blue-500 bg-white">
+                    <option value="">All Companies</option>
+                    @foreach($companies as $company)
+                        <option value="{{ $company->id }}" {{ request('company_id') == $company->id ? 'selected' : '' }}>
+                            {{ $company->name }}
+                        </option>
+                    @endforeach
+                </select>
+                {{-- Project --}}
+                <select name="project_id" class="px-2.5 py-1.5 text-xs rounded-lg border border-gray-300 focus:ring-1 focus:ring-blue-500 bg-white">
+                    <option value="">All Projects</option>
+                    @foreach($projects as $project)
+                        <option value="{{ $project->id }}" {{ request('project_id') == $project->id ? 'selected' : '' }}>
+                            {{ $project->name }} ({{ $project->project_code }})
+                        </option>
+                    @endforeach
+                </select>
+                <span class="text-gray-200 hidden sm:block select-none">|</span>
+                {{-- Date From --}}
+                <div class="flex items-center gap-1.5">
+                    <span class="text-[11px] font-medium text-gray-500 shrink-0">From</span>
+                    <input type="date" name="date_from" value="{{ request('date_from') }}"
+                           class="px-2.5 py-1.5 text-xs border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 bg-white">
                 </div>
+                {{-- Date To --}}
+                <div class="flex items-center gap-1.5">
+                    <span class="text-[11px] font-medium text-gray-500 shrink-0">To</span>
+                    <input type="date" name="date_to" value="{{ request('date_to') }}"
+                           class="px-2.5 py-1.5 text-xs border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 bg-white">
+                </div>
+                {{-- Apply --}}
+                <button type="submit"
+                        class="px-3.5 py-1.5 bg-gray-900 text-white text-xs font-semibold rounded-lg hover:bg-gray-700 transition-colors whitespace-nowrap">
+                    Apply
+                </button>
+                {{-- Clear --}}
+                @if(request()->anyFilled(['search', 'status', 'company_id', 'project_id', 'date_from', 'date_to']))
+                    <a href="{{ route('admin.finance.accounting.journals.index') }}"
+                       class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-gray-500 hover:text-rose-600 hover:bg-rose-50 border border-gray-200 hover:border-rose-200 rounded-lg transition-all whitespace-nowrap">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        Clear
+                    </a>
+                @endif
             </div>
         </form>
     </x-card>
@@ -177,9 +175,9 @@
                 <thead>
                     <tr class="bg-gray-50/80 border-b border-gray-200 text-gray-500 text-[11px] font-bold uppercase tracking-wider">
                         <th class="py-3.5 px-3 sm:px-4">Journal #</th>
-                        <th class="py-3.5 px-3 sm:px-4">Project / Company</th>
+                        <th class="py-3.5 px-3 sm:px-4">Project</th>
+                        <th class="py-3.5 px-3 sm:px-4">Company</th>
                         <th class="py-3.5 px-3 sm:px-4 whitespace-nowrap">Date</th>
-                        <th class="py-3.5 px-3 sm:px-4">Memo</th>
                         <th class="py-3.5 px-3 sm:px-4">Reference</th>
                         <th class="py-3.5 px-3 sm:px-4 text-right whitespace-nowrap">Debit / Credit</th>
                         <th class="py-3.5 px-3 sm:px-4 text-center">Status</th>
@@ -198,30 +196,35 @@
                                     {{ $journal->journal_number ?? 'JE-' . str_pad($journal->id, 5, '0', STR_PAD_LEFT) }}
                                 </a>
                             </td>
-                            <td class="py-3.5 px-3 sm:px-4 text-xs whitespace-nowrap">
+                            {{-- Project --}}
+                            <td class="py-3.5 px-3 sm:px-4 text-xs">
                                 @if($journal->project)
                                     <div class="flex flex-col">
-                                        <a href="{{ route('admin.projects.show', $journal->project) }}" class="font-semibold text-gray-900 hover:text-blue-600 transition-colors">
+                                        <a href="{{ route('admin.projects.show', $journal->project) }}" class="font-semibold text-gray-900 hover:text-blue-600 transition-colors leading-tight">
                                             {{ $journal->project->name }}
                                         </a>
                                         <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-blue-50 text-blue-700 border border-blue-100 w-max mt-0.5">
                                             {{ $journal->project->project_code }}
                                         </span>
                                     </div>
-                                @elseif($journal->company)
+                                @else
+                                    <span class="text-gray-300">—</span>
+                                @endif
+                            </td>
+                            {{-- Company --}}
+                            <td class="py-3.5 px-3 sm:px-4 text-xs whitespace-nowrap">
+                                @if($journal->company)
                                     <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-gray-100 text-gray-700">
                                         {{ $journal->company->name }}
                                     </span>
                                 @else
-                                    <span class="text-gray-400 italic">—</span>
+                                    <span class="text-gray-300">—</span>
                                 @endif
                             </td>
                             <td class="py-3.5 px-3 sm:px-4 text-gray-700 font-medium text-xs whitespace-nowrap">
                                 {{ $journal->date ? $journal->date->format('M d, Y') : '-' }}
                             </td>
-                            <td class="py-3.5 px-3 sm:px-4 text-gray-600 text-xs max-w-xs truncate" title="{{ $journal->memo }}">
-                                {{ \Illuminate\Support\Str::limit($journal->memo, 45) }}
-                            </td>
+
                             <td class="py-3.5 px-3 sm:px-4 text-gray-500 text-xs font-mono whitespace-nowrap">
                                 {{ $journal->reference_number ?: '-' }}
                             </td>

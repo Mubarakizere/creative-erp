@@ -18,6 +18,8 @@ class ProjectExpense extends Model
         'company_id',
         'branch_id',
         'project_id',
+        'task_id',
+        'budget_line_id',
         'user_id',
         'category',
         'title',
@@ -62,6 +64,16 @@ class ProjectExpense extends Model
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
+    }
+
+    public function task(): BelongsTo
+    {
+        return $this->belongsTo(Task::class);
+    }
+
+    public function budgetLine(): BelongsTo
+    {
+        return $this->belongsTo(BudgetLine::class, 'budget_line_id');
     }
 
     public function user(): BelongsTo

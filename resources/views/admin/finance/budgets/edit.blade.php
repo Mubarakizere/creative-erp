@@ -114,12 +114,12 @@
                     {{-- Status --}}
                     <div>
                         <label for="status" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Budget Status
+                            Budget Status <span class="text-rose-500">*</span>
                         </label>
-                        <select name="status" id="status"
+                        <select name="status" id="status" required
                                 class="w-full text-sm font-semibold rounded-xl border-slate-300 shadow-xs focus:border-indigo-500 focus:ring-indigo-500 py-2.5">
                             <option value="draft" {{ old('status', $budget->status) === 'draft' ? 'selected' : '' }}>Draft</option>
-                            <option value="active" {{ old('status', $budget->status) === 'active' ? 'selected' : '' }}>Active (Syncs Project Budget)</option>
+                            <option value="active" {{ old('status', $budget->status) === 'active' ? 'selected' : '' }}>Active project cost budget</option>
                             <option value="approved" {{ old('status', $budget->status) === 'approved' ? 'selected' : '' }}>Approved</option>
                             <option value="closed" {{ old('status', $budget->status) === 'closed' ? 'selected' : '' }}>Closed</option>
                         </select>
@@ -155,6 +155,8 @@
                         <thead>
                             <tr class="bg-slate-100/70 border-b border-slate-200 text-slate-700 font-bold uppercase tracking-wider">
                                 <th class="py-3 px-4 w-72">Project Activity / Task</th>
+                                <th class="py-3 px-4 w-32">Cost Type</th>
+                                <th class="py-3 px-4 w-56">Resource / Material</th>
                                 <th class="py-3 px-4 w-52">
                                      <div class="flex items-center justify-between">
                                         <span>Cost Category</span>
@@ -164,7 +166,7 @@
                                         </a>
                                     </div>
                                 </th>
-                                <th class="py-3 px-4 w-44 text-right">Allocated Amount (RWF)</th>
+                                <th class="py-3 px-4 w-44 text-right">Allocated Amount (RWF) <span class="text-rose-500">*</span></th>
                                 <th class="py-3 px-4">Notes / Scope</th>
                                 <th class="py-3 px-2 w-12 text-center"></th>
                             </tr>
@@ -174,6 +176,7 @@
                                 <tr class="hover:bg-slate-50/60 transition-colors">
                                     {{-- Task / Activity --}}
                                     <td class="py-3 px-4 align-top">
+                                        <input type="hidden" :name="`lines[${index}][id]`" x-model="line.id">
                                         <div class="space-y-1">
                                             <template x-if="projectTasks.length > 0">
                                                 <select :name="`lines[${index}][task_id]`" x-model="line.task_id"
@@ -192,6 +195,19 @@
                                                        placeholder="Activity name...">
                                             </div>
                                         </div>
+                                    </td>
+
+                                    <td class="py-3 px-4 align-top space-y-2">
+                                        <select :name="`lines[${index}][cost_type]`" x-model="line.cost_type" @change="if (line.cost_type !== 'materials') line.product_id = ''" class="w-full text-xs rounded-lg border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 py-1.5">
+                                            <option value="labor">Labor</option><option value="materials">Materials</option><option value="other">Other</option>
+                                        </select>
+                                    </td>
+                                    <td class="py-3 px-4 align-top space-y-2">
+                                        <input type="text" :name="`lines[${index}][resource_name]`" x-model="line.resource_name" class="w-full text-xs rounded-lg border-slate-300 py-1.5" placeholder="e.g. Mason / cement">
+                                        <select x-show="line.cost_type === 'materials'" :name="`lines[${index}][product_id]`" x-model="line.product_id" class="w-full text-xs rounded-lg border-slate-300 py-1.5">
+                                            <option value="">Optional product match</option>
+                                            @foreach($products as $product)<option value="{{ $product->id }}">{{ $product->name }}</option>@endforeach
+                                        </select>
                                     </td>
 
                                     {{-- Cost Category --}}
@@ -233,7 +249,7 @@
                         </tbody>
                         <tfoot>
                             <tr class="bg-slate-100/90 border-t-2 border-slate-300 font-extrabold text-slate-900">
-                                <td class="py-3.5 px-4 text-xs font-bold" colspan="2">
+                                <td class="py-3.5 px-4 text-xs font-bold" colspan="4">
                                     <button type="button" @click="addLine()"
                                             class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition-colors cursor-pointer">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -270,13 +286,17 @@
             return {
                 projectTasks: projectTasks,
                 lines: initialLines.length > 0 ? initialLines : [
-                    { task_id: '', activity_name: '', budget_category_id: '', amount: 0, notes: '' }
+                    { id: '', task_id: '', activity_name: '', cost_type: 'other', resource_name: '', product_id: '', budget_category_id: '', amount: 0, notes: '' }
                 ],
 
                 addLine() {
                     this.lines.push({
+                        id: '',
                         task_id: '',
                         activity_name: '',
+                        cost_type: 'other',
+                        resource_name: '',
+                        product_id: '',
                         budget_category_id: '',
                         amount: 0,
                         notes: ''
@@ -287,7 +307,7 @@
                     if (this.lines.length > 1) {
                         this.lines.splice(index, 1);
                     } else {
-                        this.lines[0] = { task_id: '', activity_name: '', budget_category_id: '', amount: 0, notes: '' };
+                        this.lines[0] = { id: '', task_id: '', activity_name: '', cost_type: 'other', resource_name: '', product_id: '', budget_category_id: '', amount: 0, notes: '' };
                     }
                 },
 

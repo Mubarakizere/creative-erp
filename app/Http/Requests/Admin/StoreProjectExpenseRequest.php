@@ -21,6 +21,8 @@ class StoreProjectExpenseRequest extends FormRequest
             'expense_date' => 'required|date',
             'vendor_name' => 'nullable|string|max:255',
             'user_id' => 'nullable|exists:users,id',
+            'task_id' => 'nullable|exists:tasks,id',
+            'budget_line_id' => 'nullable|exists:budget_lines,id',
             'payment_status' => 'required|string|in:Paid,Pending,Reimbursement',
             'payment_method' => 'nullable|string|max:50',
             'receipt' => 'nullable|file|mimes:pdf,png,jpg,jpeg,webp,doc,docx|max:10240',

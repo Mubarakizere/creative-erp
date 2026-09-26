@@ -44,6 +44,7 @@
         </div>
         
         <div class="flex items-center gap-2">
+            <a href="{{ route('admin.projects.tasks.pdf', $task) }}" class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50">Export PDF</a>
             @if(!$task->trashed())
                 @can('update', $task)
                     <x-button type="ghost" href="{{ route('admin.projects.tasks.edit', $task) }}">

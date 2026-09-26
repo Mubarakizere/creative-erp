@@ -93,6 +93,19 @@ class PurchaseOrderController extends Controller
         return view('admin.procurement.pos.show', compact('po'));
     }
 
+    public function pdf(PurchaseOrder $po)
+    {
+        $this->authorize('view', $po);
+        $po->load(['supplier', 'items.product', 'project', 'company']);
+        return app(\App\Services\RecordPdfService::class)->download('Purchase Order', $po->code, [
+            'Supplier' => $po->supplier?->name, 'Status' => str_replace('_', ' ', ucfirst($po->status)),
+            'Order date' => $po->order_date?->format('d M Y'), 'Delivery date' => $po->delivery_date?->format('d M Y'),
+            'Project' => $po->project?->name, 'Notes' => $po->notes,
+        ], [ ['label' => 'Item', 'key' => 'name'], ['label' => 'Quantity', 'key' => 'quantity'], ['label' => 'Unit price', 'key' => 'unit_price'], ['label' => 'Total', 'key' => 'total'] ],
+            $po->items->map(fn($item) => ['name' => $item->product?->name, 'quantity' => $item->quantity, 'unit_price' => number_format($item->unit_price, 2), 'total' => number_format($item->total, 2)])->all(),
+            ['Subtotal' => number_format($po->subtotal, 2), 'Tax' => number_format($po->tax_total, 2), 'Discount' => number_format($po->discount_total, 2), 'Total' => number_format($po->grand_total, 2)], $po->company?->name);
+    }
+
     public function approve(PurchaseOrder $po)
     {
         $po->update(['status' => 'approved']);

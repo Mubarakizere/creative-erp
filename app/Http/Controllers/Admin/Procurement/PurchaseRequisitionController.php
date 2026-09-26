@@ -282,6 +282,25 @@ class PurchaseRequisitionController extends Controller
         return view('admin.procurement.requisitions.show', compact('requisition'));
     }
 
+    public function pdf(PurchaseRequisition $requisition)
+    {
+        $this->authorize('view', $requisition);
+        $requisition->load(['items.product.unit', 'requestedBy', 'project', 'department', 'company', 'projectMaterialRequest', 'quotations.supplier', 'quotations.items']);
+        $requisition->quotations->each(function ($quote) {
+            $quote->setAttribute('pdf_total', $quote->items->sum(function ($item) {
+                return $item->total > 0
+                    ? $item->total
+                    : (($item->quantity * $item->unit_price) - $item->discount + $item->tax);
+            }));
+        });
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.procurement.requisitions.pdf', compact('requisition'))
+            ->setPaper('a4', 'portrait')
+            ->setOptions(['isHtml5ParserEnabled' => true, 'defaultFont' => 'Helvetica']);
+
+        return $pdf->download('Purchase-Requisition-' . preg_replace('/[^A-Za-z0-9-]/', '-', $requisition->code) . '.pdf');
+    }
+
     public function approve(PurchaseRequisition $requisition)
     {
         $this->authorize('approve', $requisition);

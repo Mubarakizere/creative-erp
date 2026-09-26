@@ -50,6 +50,9 @@ class JournalController extends Controller
                   ->orWhereHas('project', function ($projQ) use ($search) {
                       $projQ->where('name', 'like', "%{$search}%")
                             ->orWhere('project_code', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('company', function ($compQ) use ($search) {
+                      $compQ->where('name', 'like', "%{$search}%");
                   });
             });
         }

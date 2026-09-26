@@ -33,6 +33,7 @@
 
             {{-- Actions --}}
             <div class="flex flex-wrap items-center gap-3">
+                <a href="{{ route('admin.procurement.pos.pdf', $po) }}" class="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50">Export PDF</a>
                 @if($po->status === 'draft')
                     <button type="button" 
                             @click="$dispatch('open-modal', 'approve-po-modal')"

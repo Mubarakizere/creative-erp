@@ -42,6 +42,7 @@
 
             {{-- Actions --}}
             <div class="flex flex-wrap items-center gap-2">
+                <a href="{{ route('admin.finance.budgets.pdf', $budget) }}" class="inline-flex items-center px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50">Export PDF</a>
                 @if($budget->project)
                     <a href="{{ route('admin.projects.show', $budget->project->id) }}" class="inline-flex items-center px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 transition-colors shadow-xs">
                         <svg class="w-4 h-4 mr-1.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
@@ -108,13 +109,15 @@
         {{-- 4 Executive Summary KPI Cards --}}
         @php
             $summary = $analysis['summary'];
+            $currency = $budget->project?->currency ?? 'RWF';
             $totalBudget = $summary['budget'];
             $totalActual = $summary['actual'];
             $variance = $summary['variance'];
-            $utilization = $totalBudget > 0 ? round(($totalActual / $totalBudget) * 100, 1) : 0;
+            $available = $summary['available'];
+            $utilization = $summary['utilization'];
         @endphp
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {{-- Card 1: Total Allocated Budget --}}
             <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs">
                 <div class="flex items-center justify-between">
@@ -124,7 +127,7 @@
                     </div>
                 </div>
                 <div class="mt-3">
-                    <span class="text-2xl font-black text-slate-900 tracking-tight">{{ format_currency($totalBudget, 'RWF') }}</span>
+                    <span class="text-2xl font-black text-slate-900 tracking-tight">{{ format_currency($totalBudget, $currency) }}</span>
                     <p class="text-xs text-slate-500 mt-1">Across {{ count($analysis['lines']) }} activity lines</p>
                 </div>
             </div>
@@ -138,7 +141,7 @@
                     </div>
                 </div>
                 <div class="mt-3">
-                    <span class="text-2xl font-black text-slate-900 tracking-tight">{{ format_currency($totalActual, 'RWF') }}</span>
+                    <span class="text-2xl font-black text-slate-900 tracking-tight">{{ format_currency($totalActual, $currency) }}</span>
                     <p class="text-xs text-slate-500 mt-1">Materials issued & direct costs</p>
                 </div>
             </div>
@@ -146,17 +149,17 @@
             {{-- Card 3: Variance / Remaining Balance --}}
             <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Remaining Balance</span>
-                    <div class="w-8 h-8 rounded-xl {{ $variance >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600' }} flex items-center justify-center font-bold">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Available After Commitments</span>
+                    <div class="w-8 h-8 rounded-xl {{ $available >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600' }} flex items-center justify-center font-bold">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                     </div>
                 </div>
                 <div class="mt-3">
-                    <span class="text-2xl font-black tracking-tight {{ $variance >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">
-                        {{ $variance >= 0 ? '+' : '' }}{{ format_currency($variance, 'RWF') }}
+                    <span class="text-2xl font-black tracking-tight {{ $available >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">
+                        {{ $available >= 0 ? '' : '-' }}{{ format_currency(abs($available), $currency) }}
                     </span>
-                    <p class="text-xs {{ $variance >= 0 ? 'text-emerald-700' : 'text-rose-600' }} mt-1 font-semibold">
-                        {{ $variance >= 0 ? 'Under budget (Safe)' : 'Budget overrun!' }}
+                    <p class="text-xs {{ $available >= 0 ? 'text-emerald-700' : 'text-rose-600' }} mt-1 font-semibold">
+                        {{ $available >= 0 ? 'After actuals and open purchase orders' : 'Actuals and commitments exceed budget' }}
                     </p>
                 </div>
             </div>
@@ -180,6 +183,47 @@
                     </div>
                 </div>
             </div>
+            <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Open Purchase Commitments</span>
+                <div class="mt-3 text-2xl font-black text-amber-700">{{ format_currency($summary['committed'], $currency) }}</div>
+                <p class="text-xs text-slate-500 mt-1">Unreceived quantities on approved orders</p>
+            </div>
+            <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Pending Payables</span>
+                <div class="mt-3 text-2xl font-black text-slate-800">{{ format_currency($summary['payable'], $currency) }}</div>
+                <p class="text-xs text-slate-500 mt-1">Included in actual costs above</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+            <div class="p-4 border-b border-slate-100 bg-slate-50/50">
+                <h3 class="text-base font-bold text-slate-900">Task Cost Summary</h3>
+                <p class="text-xs text-slate-500">Labor, material issues, and other project costs grouped by task.</p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-slate-100 text-slate-600 uppercase tracking-wide"><tr>
+                        <th class="px-5 py-3">Task / Activity</th><th class="px-5 py-3 text-right">Labor budget / used</th>
+                        <th class="px-5 py-3 text-right">Materials budget / used</th><th class="px-5 py-3 text-right">Other budget / used</th>
+                        <th class="px-5 py-3 text-right">Total budget</th><th class="px-5 py-3 text-right">Actual used</th><th class="px-5 py-3 text-right">Remaining</th>
+                    </tr></thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @forelse($analysis['task_groups'] as $group)
+                            <tr>
+                                <td class="px-5 py-3 font-semibold text-slate-900">{{ $group['task_code'] ? $group['task_code'].' · ' : '' }}{{ $group['task_name'] }}</td>
+                                <td class="px-5 py-3 text-right">{{ format_currency($group['labor_budget'], $currency) }} / {{ format_currency($group['labor_actual'], $currency) }}</td>
+                                <td class="px-5 py-3 text-right">{{ format_currency($group['materials_budget'], $currency) }} / {{ format_currency($group['materials_actual'], $currency) }}</td>
+                                <td class="px-5 py-3 text-right">{{ format_currency($group['other_budget'], $currency) }} / {{ format_currency($group['other_actual'], $currency) }}</td>
+                                <td class="px-5 py-3 text-right font-bold">{{ format_currency($group['budget'], $currency) }}</td>
+                                <td class="px-5 py-3 text-right font-bold">{{ format_currency($group['actual'], $currency) }}</td>
+                                <td class="px-5 py-3 text-right font-bold {{ $group['remaining'] < 0 ? 'text-rose-600' : 'text-emerald-700' }}">{{ format_currency($group['remaining'], $currency) }}</td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="7" class="px-5 py-8 text-center text-slate-500">No task allocations or project costs recorded yet.</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         {{-- Activity Breakdown Table --}}
@@ -199,10 +243,11 @@
                     <thead>
                         <tr class="bg-slate-100/70 border-b border-slate-200 text-slate-700 font-bold uppercase tracking-wider">
                             <th class="py-3.5 px-6">Project Activity / Task</th>
+                            <th class="py-3.5 px-6">Cost Type / Resource</th>
                             <th class="py-3.5 px-6">Cost Category</th>
-                            <th class="py-3.5 px-6 text-right">Allocated Budget (RWF)</th>
-                            <th class="py-3.5 px-6 text-right">Actual Spent (RWF)</th>
-                            <th class="py-3.5 px-6 text-right">Variance (RWF)</th>
+                            <th class="py-3.5 px-6 text-right">Allocated Budget ({{ $currency }})</th>
+                            <th class="py-3.5 px-6 text-right">Actual Spent ({{ $currency }})</th>
+                            <th class="py-3.5 px-6 text-right">Variance ({{ $currency }})</th>
                             <th class="py-3.5 px-6 text-right">Utilization</th>
                             <th class="py-3.5 px-6 text-center">Status</th>
                         </tr>
@@ -230,6 +275,11 @@
                                     </div>
                                 </td>
 
+                                <td class="py-3.5 px-6 text-slate-600">
+                                    <span class="block font-semibold capitalize">{{ $line['cost_type'] }}</span>
+                                    @if($line['resource_name'])<span class="text-[11px] text-slate-400">{{ $line['resource_name'] }}</span>@endif
+                                </td>
+
                                 {{-- Cost Category --}}
                                 <td class="py-3.5 px-6 text-slate-600 font-medium">
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-100 text-slate-700">
@@ -239,17 +289,17 @@
 
                                 {{-- Budget Amount --}}
                                 <td class="py-3.5 px-6 text-right font-extrabold text-slate-900">
-                                    {{ format_currency($line['budget_amount'], 'RWF') }}
+                                    {{ format_currency($line['budget_amount'], $currency) }}
                                 </td>
 
                                 {{-- Actual Amount --}}
                                 <td class="py-3.5 px-6 text-right font-bold text-slate-700">
-                                    {{ format_currency($line['actual_amount'], 'RWF') }}
+                                    {{ format_currency($line['actual_amount'], $currency) }}
                                 </td>
 
                                 {{-- Variance (RWF) --}}
                                 <td class="py-3.5 px-6 text-right font-bold {{ $line['variance'] >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">
-                                    {{ $line['variance'] >= 0 ? '+' : '' }}{{ format_currency($line['variance'], 'RWF') }}
+                                    {{ $line['variance'] >= 0 ? '+' : '' }}{{ format_currency($line['variance'], $currency) }}
                                 </td>
 
                                 {{-- Utilization (%) --}}
@@ -274,7 +324,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="py-8 text-center text-slate-500">
+                                <td colspan="8" class="py-8 text-center text-slate-500">
                                     No activity allocations found in this budget.
                                 </td>
                             </tr>
@@ -282,17 +332,17 @@
                     </tbody>
                     <tfoot>
                         <tr class="bg-slate-100/90 border-t-2 border-slate-300 font-extrabold text-slate-900">
-                            <td class="py-4 px-6 text-xs uppercase tracking-wider" colspan="2">
+                            <td class="py-4 px-6 text-xs uppercase tracking-wider" colspan="3">
                                 TOTAL PROJECT BUDGET
                             </td>
                             <td class="py-4 px-6 text-right text-sm font-black text-slate-900">
-                                {{ format_currency($totalBudget, 'RWF') }}
+                                {{ format_currency($totalBudget, $currency) }}
                             </td>
                             <td class="py-4 px-6 text-right text-sm font-black text-slate-700">
-                                {{ format_currency($totalActual, 'RWF') }}
+                                {{ format_currency($totalActual, $currency) }}
                             </td>
                             <td class="py-4 px-6 text-right text-sm font-black {{ $variance >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">
-                                {{ $variance >= 0 ? '+' : '' }}{{ format_currency($variance, 'RWF') }}
+                                {{ $variance >= 0 ? '+' : '' }}{{ format_currency($variance, $currency) }}
                             </td>
                             <td class="py-4 px-6 text-right text-xs font-bold text-slate-700">
                                 {{ $utilization }}%

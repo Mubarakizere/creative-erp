@@ -701,6 +701,39 @@
                         </div>
                     </div>
                     
+                    @if($projectBudgetAnalysis)
+                        @php($costBudget = $projectBudgetAnalysis['summary'])
+                        <div class="lg:col-span-2 bg-white rounded-2xl p-6 shadow-xs border border-indigo-100">
+                            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-5">
+                                <div>
+                                    <h3 class="text-base font-bold text-slate-900">Approved Project Cost Budget</h3>
+                                    <p class="text-xs text-slate-500">Actual project costs and open purchase orders against the active budget.</p>
+                                </div>
+                                <a href="{{ route('admin.finance.budgets.show', $project->activeBudget) }}" class="text-xs font-bold text-indigo-700 hover:underline">Full budget breakdown →</a>
+                            </div>
+                            <div class="grid grid-cols-2 xl:grid-cols-5 gap-3 mb-5">
+                                <div class="rounded-xl bg-slate-50 p-3"><span class="block text-[10px] font-bold uppercase text-slate-400">Allocated</span><strong class="mt-1 block text-sm text-slate-900">{{ format_currency($costBudget['budget'], $project->currency) }}</strong></div>
+                                <div class="rounded-xl bg-slate-50 p-3"><span class="block text-[10px] font-bold uppercase text-slate-400">Spent / issued</span><strong class="mt-1 block text-sm text-slate-900">{{ format_currency($costBudget['actual'], $project->currency) }}</strong></div>
+                                <div class="rounded-xl bg-amber-50 p-3"><span class="block text-[10px] font-bold uppercase text-amber-700">Committed</span><strong class="mt-1 block text-sm text-amber-900">{{ format_currency($costBudget['committed'], $project->currency) }}</strong></div>
+                                <div class="rounded-xl bg-slate-50 p-3"><span class="block text-[10px] font-bold uppercase text-slate-400">Pending payables</span><strong class="mt-1 block text-sm text-slate-900">{{ format_currency($costBudget['payable'], $project->currency) }}</strong></div>
+                                <div class="rounded-xl {{ $costBudget['available'] < 0 ? 'bg-rose-50' : 'bg-emerald-50' }} p-3"><span class="block text-[10px] font-bold uppercase {{ $costBudget['available'] < 0 ? 'text-rose-700' : 'text-emerald-700' }}">Available</span><strong class="mt-1 block text-sm {{ $costBudget['available'] < 0 ? 'text-rose-900' : 'text-emerald-900' }}">{{ format_currency($costBudget['available'], $project->currency) }}</strong></div>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-xs text-left">
+                                    <thead class="text-[10px] uppercase tracking-wide text-slate-400 border-b border-slate-100"><tr><th class="py-2 pr-4">Task / activity</th><th class="py-2 px-2 text-right">Labor budget / used</th><th class="py-2 px-2 text-right">Materials budget / used</th><th class="py-2 px-2 text-right">Other budget / used</th><th class="py-2 pl-2 text-right">Remaining</th></tr></thead>
+                                    <tbody class="divide-y divide-slate-100">
+                                        @foreach($projectBudgetAnalysis['task_groups'] as $group)
+                                            <tr><td class="py-2 pr-4 font-semibold text-slate-700">{{ $group['task_code'] ? $group['task_code'].' · ' : '' }}{{ $group['task_name'] }}</td><td class="py-2 px-2 text-right">{{ format_currency($group['labor_budget'], $project->currency) }} / {{ format_currency($group['labor_actual'], $project->currency) }}</td><td class="py-2 px-2 text-right">{{ format_currency($group['materials_budget'], $project->currency) }} / {{ format_currency($group['materials_actual'], $project->currency) }}</td><td class="py-2 px-2 text-right">{{ format_currency($group['other_budget'], $project->currency) }} / {{ format_currency($group['other_actual'], $project->currency) }}</td><td class="py-2 pl-2 text-right font-bold {{ $group['remaining'] < 0 ? 'text-rose-600' : 'text-emerald-700' }}">{{ format_currency($group['remaining'], $project->currency) }}</td></tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                            @if($costBudget['unassigned_actual'] > 0)
+                                <p class="mt-3 text-[11px] text-amber-700">{{ format_currency($costBudget['unassigned_actual'], $project->currency) }} in actual costs are not matched to a budget line. Assign a task or budget line on the expense record, or match the issued material to a task.</p>
+                            @endif
+                        </div>
+                    @endif
+
                     {{-- Profitability Analysis --}}
                     <div class="bg-white rounded-2xl p-6 shadow-xs border border-slate-200/80 lg:col-span-2">
                         <div class="flex items-center gap-3 mb-6">

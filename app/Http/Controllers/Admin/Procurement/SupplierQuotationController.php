@@ -257,6 +257,32 @@ class SupplierQuotationController extends Controller
         return view('admin.procurement.rfqs.show', compact('rfq'));
     }
 
+    public function pdf(SupplierQuotation $rfq)
+    {
+        $this->authorize('view', $rfq);
+        $rfq->load(['supplier', 'purchaseRequisition.requestedBy', 'project.company', 'company', 'items.product.unit']);
+        $items = $rfq->items->map(function ($item) {
+            $discount = (float) ($item->discount ?? 0);
+            $tax = (float) ($item->tax ?? 0);
+            $calculatedTotal = ((float) $item->quantity * (float) $item->unit_price) - $discount + $tax;
+
+            return [
+                'item' => $item,
+                'discount' => $discount,
+                'tax' => $tax,
+                'line_total' => (float) ($item->total ?: $calculatedTotal),
+            ];
+        });
+        $grandTotal = $items->sum('line_total');
+        $company = $rfq->company ?? $rfq->project?->company;
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.procurement.rfqs.pdf', compact('rfq', 'items', 'grandTotal', 'company'))
+            ->setPaper('a4', 'portrait')
+            ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => false, 'defaultFont' => 'Helvetica']);
+
+        return $pdf->download('Supplier-Quotation-' . preg_replace('/[^A-Za-z0-9-]/', '-', $rfq->code) . '.pdf');
+    }
+
     public function edit(SupplierQuotation $rfq)
     {
         $user = auth()->user();
