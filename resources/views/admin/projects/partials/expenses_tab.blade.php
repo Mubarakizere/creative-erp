@@ -92,14 +92,14 @@
 
         <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Materials Issued</span>
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Materials Expenses & Issued</span>
                 <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                 </div>
             </div>
             <div class="mt-3">
                 <span class="text-2xl font-extrabold text-slate-900 tracking-tight">{{ format_currency($financialSummary['material_cost'], $project->currency) }}</span>
-                <p class="text-xs text-slate-500 mt-1">Inventory items issued</p>
+                <p class="text-xs text-slate-500 mt-1">Payable costs and inventory issued</p>
             </div>
         </div>
 
@@ -286,7 +286,9 @@
                                 <div>
                                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Expense Category *</label>
                                     <select name="category" x-model="form.category" required class="w-full rounded-xl border-slate-200 text-xs font-medium focus:border-blue-500 focus:ring-blue-500">
+                                        <option value="Labor">Labor Resource</option>
                                         <option value="Worker Salary">Worker Salary / Wages</option>
+                                        <option value="Materials">Materials Payable</option>
                                         <option value="Equipment Hire">Equipment Hire</option>
                                         <option value="Subcontractor">Subcontractor Fees</option>
                                         <option value="Travel & Logistics">Travel & Logistics</option>

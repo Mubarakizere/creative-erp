@@ -4,6 +4,8 @@ namespace App\Services\Finance;
 
 use App\Models\Journal;
 use App\Models\JournalEntry;
+use App\Models\ChartOfAccount;
+use App\Models\GeneralLedger;
 use App\Traits\LogsActivity;
 use Illuminate\Support\Facades\DB;
 use Exception;
@@ -169,6 +171,56 @@ class JournalService
         $this->logActivity('journal_cancelled', ['journal_id' => $journal->id, 'journal_number' => $journal->journal_number]);
 
         return $journal;
+    }
+
+    public function deleteJournal(Journal $journal): void
+    {
+        DB::transaction(function () use ($journal) {
+            $entries = $journal->entries()->withTrashed()->get(['id', 'chart_of_account_id']);
+            $entryIds = $entries->pluck('id');
+
+            if ($entryIds->isNotEmpty()) {
+                GeneralLedger::withTrashed()
+                    ->whereIn('journal_entry_id', $entryIds)
+                    ->get()
+                    ->each(fn (GeneralLedger $ledgerEntry) => $ledgerEntry->delete());
+
+                $journal->entries()->withTrashed()->get()->each(fn (JournalEntry $entry) => $entry->delete());
+            }
+
+            $journal->delete();
+
+            foreach ($entries->pluck('chart_of_account_id')->filter()->unique() as $accountId) {
+                $this->recalculateAccountLedger($journal->company_id, (int) $accountId);
+            }
+        });
+    }
+
+    private function recalculateAccountLedger(int $companyId, int $accountId): void
+    {
+        $account = ChartOfAccount::withTrashed()->with('accountType')->find($accountId);
+        if (!$account) {
+            return;
+        }
+
+        $category = strtolower($account->accountType?->category ?? '');
+        $isDebitNormal = in_array($category, ['asset', 'expense'], true);
+        $balance = 0.0;
+
+        GeneralLedger::query()
+            ->where('company_id', $companyId)
+            ->where('chart_of_account_id', $accountId)
+            ->orderBy('date')
+            ->orderBy('id')
+            ->get()
+            ->each(function (GeneralLedger $ledgerEntry) use (&$balance, $isDebitNormal) {
+                $balance += $isDebitNormal
+                    ? (float) $ledgerEntry->debit - (float) $ledgerEntry->credit
+                    : (float) $ledgerEntry->credit - (float) $ledgerEntry->debit;
+
+                $ledgerEntry->balance = round($balance, 2);
+                $ledgerEntry->saveQuietly();
+            });
     }
 
     private function generateJournalNumber($companyId): string

@@ -37,46 +37,55 @@
     </div>
 
     {{-- Stats Summary Row --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-        <x-stats-card 
-            title="Total Journal Entries" 
-            :value="number_format($stats['total'] ?? 0)" 
-            color="blue"
-        >
-            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-            </svg>
-        </x-stats-card>
+    <div class="mb-6 grid grid-cols-1 gap-3 sm:mb-8 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
+        @php
+            $journalStats = [
+                ['title' => 'Total Journal Entries', 'value' => number_format($stats['total'] ?? 0), 'currency' => null, 'icon' => 'journal', 'tone' => 'blue'],
+                ['title' => 'Posted Entries', 'value' => number_format($stats['posted'] ?? 0), 'currency' => null, 'icon' => 'posted', 'tone' => 'emerald'],
+                ['title' => 'Draft Entries', 'value' => number_format($stats['draft'] ?? 0), 'currency' => null, 'icon' => 'draft', 'tone' => 'amber'],
+                ['title' => 'Total Volume Posted', 'value' => number_format($stats['total_volume'] ?? 0, 2), 'currency' => 'RWF', 'icon' => 'volume', 'tone' => 'indigo'],
+            ];
+            $journalStatTones = [
+                'blue' => 'bg-blue-50 text-blue-600 ring-blue-100',
+                'emerald' => 'bg-emerald-50 text-emerald-600 ring-emerald-100',
+                'amber' => 'bg-amber-50 text-amber-600 ring-amber-100',
+                'indigo' => 'bg-indigo-50 text-indigo-600 ring-indigo-100',
+            ];
+        @endphp
 
-        <x-stats-card 
-            title="Posted Entries" 
-            :value="number_format($stats['posted'] ?? 0)" 
-            color="emerald"
-        >
-            <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-        </x-stats-card>
-
-        <x-stats-card 
-            title="Draft Entries" 
-            :value="number_format($stats['draft'] ?? 0)" 
-            color="amber"
-        >
-            <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-            </svg>
-        </x-stats-card>
-
-        <x-stats-card 
-            title="Total Volume Posted" 
-            :value="'RWF ' . number_format($stats['total_volume'] ?? 0, 2)" 
-            color="indigo"
-        >
-            <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-        </x-stats-card>
+        @foreach($journalStats as $stat)
+            <article class="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md sm:p-5">
+                <div class="flex min-w-0 items-start justify-between gap-3">
+                    <div class="min-w-0 flex-1">
+                        <p class="min-h-8 text-xs font-semibold uppercase leading-4 tracking-wide text-slate-500">{{ $stat['title'] }}</p>
+                        @if($stat['currency'])
+                            <div class="mt-3 flex min-w-0 flex-wrap items-baseline gap-x-1.5 gap-y-0.5 tabular-nums">
+                                <span class="shrink-0 text-xs font-semibold text-slate-500">{{ $stat['currency'] }}</span>
+                                <span class="min-w-0 max-w-full text-lg font-bold leading-tight tracking-tight text-slate-900 sm:text-xl" style="overflow-wrap:anywhere">{{ $stat['value'] }}</span>
+                            </div>
+                        @else
+                            <p class="mt-3 min-w-0 break-words text-2xl font-bold leading-tight tracking-tight text-slate-900 tabular-nums sm:text-3xl">{{ $stat['value'] }}</p>
+                        @endif
+                    </div>
+                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ring-1 {{ $journalStatTones[$stat['tone']] }}">
+                        @switch($stat['icon'])
+                            @case('journal')
+                                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3.75h7l4 4V20a.75.75 0 0 1-.75.75h-10.5A.75.75 0 0 1 6 20V4.5a.75.75 0 0 1 .75-.75Z"/><path d="M14 4v4h4M9 12h6M9 15.5h6"/></svg>
+                                @break
+                            @case('posted')
+                                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="m8.5 12 2.3 2.3 4.7-4.8"/></svg>
+                                @break
+                            @case('draft')
+                                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.75 3.75h7l4 4V20a.75.75 0 0 1-.75.75h-10.5A.75.75 0 0 1 5.75 20V4.75a1 1 0 0 1 1-1Z"/><path d="M13.75 4v4h4M8.5 12h4.75M8.5 15.5h3"/><path d="m14.5 16.5 3.75-3.75 1.5 1.5L16 18h-1.5v-1.5Z"/></svg>
+                                @break
+                            @case('volume')
+                                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.75" y="6.25" width="16.5" height="13" rx="2"/><path d="M16 6V4.75a1 1 0 0 0-1.25-.97L5 6.25M3.75 10.25h16.5"/><circle cx="16.5" cy="14.75" r="1"/></svg>
+                                @break
+                        @endswitch
+                    </span>
+                </div>
+            </article>
+        @endforeach
     </div>
 
     {{-- Filter & Search Toolbar --}}
@@ -282,7 +291,7 @@
                                     <x-confirm-modal
                                         name="delete-journal-{{ $journal->id }}"
                                         title="Delete Journal Entry"
-                                        message="Are you sure you want to delete draft journal entry '{{ $journal->entry_number }}'? This action cannot be undone."
+                                        message="Delete journal entry '{{ $journal->journal_number }}' ({{ $journal->status }}) and remove its ledger postings?"
                                         confirmText="Delete Entry"
                                         confirmType="danger"
                                     />

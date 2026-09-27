@@ -273,6 +273,12 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
 
     // Finance (Payments & Receivables)
     Route::prefix('finance')->name('finance.')->group(function () {
+        Route::get('expenses', [\App\Http\Controllers\Finance\ExpenseController::class, 'index'])->name('expenses.index');
+        Route::get('expenses/projects/{project}', [\App\Http\Controllers\Finance\ExpenseController::class, 'show'])->name('expenses.projects.show');
+        Route::post('expenses', [\App\Http\Controllers\Finance\ExpenseController::class, 'store'])->name('expenses.store');
+        Route::put('expenses/{expense}', [\App\Http\Controllers\Finance\ExpenseController::class, 'update'])->name('expenses.update');
+        Route::delete('expenses/{expense}', [\App\Http\Controllers\Finance\ExpenseController::class, 'destroy'])->name('expenses.destroy');
+
         // Accounting Foundation
         Route::prefix('accounting')->name('accounting.')->group(function () {
             Route::resource('chart-of-accounts', \App\Http\Controllers\Finance\Accounting\ChartOfAccountController::class);

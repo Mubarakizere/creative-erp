@@ -66,7 +66,7 @@ class JournalPolicy
             return false;
         }
 
-        return $journal->status === 'Draft' && ($user->hasPermissionTo('journal.delete') || $user->hasPermissionTo('finance.delete'));
+        return $user->hasPermissionTo('journal.delete') || $user->hasPermissionTo('finance.delete');
     }
 
     public function post(User $user, Journal $journal): bool

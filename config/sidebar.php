@@ -44,6 +44,7 @@ return [
     ],
 
     'Finance' => [
+        ['route' => 'admin.finance.expenses.index', 'label' => 'Expenses', 'icon' => 'banknote', 'permission' => 'project_expense.view', 'model' => \App\Models\ProjectExpense::class, 'active' => 'admin.finance.expenses.*'],
         ['route' => 'admin.finance.budgets.index', 'label' => 'Budgets', 'icon' => 'wallet', 'permission' => 'budget.view', 'model' => \App\Models\Budget::class, 'active' => 'admin.finance.budgets.*'],
         ['route' => 'admin.finance.invoices.index', 'label' => 'Invoices', 'icon' => 'receipt', 'permission' => 'invoice.view', 'model' => \App\Models\Invoice::class, 'active' => 'admin.finance.invoices.*'],
         ['route' => 'admin.finance.payments.index', 'label' => 'Payments', 'icon' => 'credit-card', 'permission' => 'payment.view', 'model' => \App\Models\Payment::class, 'active' => 'admin.finance.payments.*'],

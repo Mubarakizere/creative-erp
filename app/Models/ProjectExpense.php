@@ -97,8 +97,13 @@ class ProjectExpense extends Model
         return $query->whereIn('category', ['Worker Salary', 'Labor', 'Payroll']);
     }
 
+    public function scopeMaterials($query)
+    {
+        return $query->whereIn('category', ['Materials', 'Material']);
+    }
+
     public function scopeDirectExpenses($query)
     {
-        return $query->whereNotIn('category', ['Worker Salary', 'Labor', 'Payroll']);
+        return $query->whereNotIn('category', ['Worker Salary', 'Labor', 'Payroll', 'Materials', 'Material']);
     }
 }

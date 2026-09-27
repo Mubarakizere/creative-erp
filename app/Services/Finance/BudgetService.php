@@ -80,8 +80,8 @@ class BudgetService
                 'available' => $available,
                 'utilization' => $budgetTotal > 0 ? round(($actualTotal / $budgetTotal) * 100, 1) : 0,
                 'labor_actual' => (float) $actuals['expenses']->filter(fn ($expense) => $this->isLabor($expense->category))->sum('amount'),
-                'materials_actual' => (float) $actuals['material_items']->sum('total_cost'),
-                'other_actual' => (float) $actuals['expenses']->reject(fn ($expense) => $this->isLabor($expense->category))->sum('amount'),
+                'materials_actual' => (float) $actuals['material_items']->sum('total_cost') + (float) $actuals['expenses']->filter(fn ($expense) => $this->isMaterials($expense->category))->sum('amount'),
+                'other_actual' => (float) $actuals['expenses']->reject(fn ($expense) => $this->isLabor($expense->category) || $this->isMaterials($expense->category))->sum('amount'),
                 'unassigned_actual' => max(0, $actualTotal - array_sum($lineResults)),
                 'status' => $this->getBudgetStatus($budgetTotal, $actualTotal),
             ],
@@ -138,6 +138,11 @@ class BudgetService
                     $items = collect();
                 }
                 $results[$line->id] += (float) $items->sum('total_cost');
+                if ($line->task_id && $materialLines->count() === 1) {
+                    $results[$line->id] += (float) $unlinkedExpenses
+                        ->filter(fn ($expense) => $this->isMaterials($expense->category) && (int) $expense->task_id === (int) $line->task_id)
+                        ->sum('amount');
+                }
                 continue;
             }
 
@@ -149,7 +154,11 @@ class BudgetService
                 if ((int) $expense->task_id !== (int) $line->task_id) {
                     return false;
                 }
-                return $type === 'labor' ? $this->isLabor($expense->category) : !$this->isLabor($expense->category);
+                return match ($type) {
+                    'labor' => $this->isLabor($expense->category),
+                    'materials' => $this->isMaterials($expense->category),
+                    default => !$this->isLabor($expense->category) && !$this->isMaterials($expense->category),
+                };
             });
 
             if ($taskLines->count() === 1) {
@@ -186,7 +195,7 @@ class BudgetService
         foreach ($actuals['expenses'] as $expense) {
             $key = $expense->task_id ? (string) $expense->task_id : 'unassigned';
             $groups[$key] ??= $this->emptyTaskGroup($expense->task_id, $expense->task?->name ?? 'Unassigned costs', $expense->task?->task_code);
-            $type = $this->isLabor($expense->category) ? 'labor' : 'other';
+            $type = $this->isLabor($expense->category) ? 'labor' : ($this->isMaterials($expense->category) ? 'materials' : 'other');
             $groups[$key][$type . '_actual'] += (float) $expense->amount;
         }
         foreach ($actuals['material_items'] as $item) {
@@ -249,6 +258,11 @@ class BudgetService
     private function isLabor(?string $category): bool
     {
         return in_array(mb_strtolower((string) $category), ['worker salary', 'labor', 'payroll'], true);
+    }
+
+    private function isMaterials(?string $category): bool
+    {
+        return in_array(mb_strtolower((string) $category), ['materials', 'material'], true);
     }
 
     private function getBudgetStatus(float $budget, float $actual): string

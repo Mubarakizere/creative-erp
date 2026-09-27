@@ -24,7 +24,7 @@ class ProjectFinancialService
         // Fallback to project actual_budget if no invoices are logged yet
         $revenue = $invoicedRevenue > 0 ? (float) $invoicedRevenue : (float) ($project->actual_budget ?? $project->estimated_budget ?? 0);
 
-        // 2. Direct Operational Expenses (excluding Worker Salary/Labor/Payroll category)
+        // 2. Direct Operational Expenses (excluding labor and materials lines)
         $directExpenses = (float) ProjectExpense::where('project_id', $project->id)
             ->directExpenses()
             ->sum('amount');
@@ -56,10 +56,14 @@ class ProjectFinancialService
 
         $totalLaborCost = $directLaborExpenses + $timeEntriesLaborCost;
 
-        // 5. Material Cost (Issued materials for project)
-        $materialCost = (float) ProjectMaterialIssueItem::whereHas('issue', function ($q) use ($project) {
+        // 5. Material Cost (payable material lines and issued inventory materials)
+        $materialExpenseCost = (float) ProjectExpense::where('project_id', $project->id)
+            ->materials()
+            ->sum('amount');
+        $issuedMaterialCost = (float) ProjectMaterialIssueItem::whereHas('issue', function ($q) use ($project) {
             $q->where('project_id', $project->id)->where('status', '!=', 'Cancelled');
         })->sum('total_cost');
+        $materialCost = $materialExpenseCost + $issuedMaterialCost;
 
         // Total Expenses & Costs
         $totalCosts = $directExpenses + $totalLaborCost + $materialCost;

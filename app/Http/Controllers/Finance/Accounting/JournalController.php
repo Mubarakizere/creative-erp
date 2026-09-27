@@ -202,11 +202,13 @@ class JournalController extends Controller
     {
         $this->authorize('delete', $journal);
 
-        if ($journal->status !== 'Draft') {
-            return back()->with('error', 'Only draft journals can be deleted.');
-        }
+        try {
+            $this->journalService->deleteJournal($journal);
+        } catch (\Throwable $exception) {
+            report($exception);
 
-        $journal->delete();
+            return back()->with('error', 'Unable to delete this journal entry. Please try again.');
+        }
 
         return redirect()->route('admin.finance.accounting.journals.index')
             ->with('success', 'Journal entry deleted successfully.');

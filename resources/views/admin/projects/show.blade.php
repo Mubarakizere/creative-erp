@@ -273,7 +273,7 @@
         ];
     @endphp
 
-    <div x-data="{ activeTab: '{{ session('activeTab', 'overview') }}' }" class="mb-8">
+    <div x-data="{ activeTab: '{{ request('tab') === 'expenses' ? 'expenses' : session('activeTab', 'overview') }}' }" class="mb-8">
         <div class="bg-white p-1.5 rounded-2xl shadow-xs border border-slate-200/80 mb-6 overflow-x-auto">
             <nav class="flex items-center gap-1 min-w-max" aria-label="Tabs">
                 @foreach($tabs as $tab)
