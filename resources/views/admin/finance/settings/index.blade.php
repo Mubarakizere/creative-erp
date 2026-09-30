@@ -377,6 +377,144 @@
                 </div>
             </div>
         </div>
+
+        {{-- Project Budget Cost Types --}}
+        <div class="lg:col-span-2" id="cost-types">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4 mt-8 lg:mt-4">
+                <div>
+                    <h2 class="text-lg font-bold text-gray-900 tracking-tight">Project Budget Cost Types</h2>
+                    <p class="text-xs text-gray-500 font-medium mt-0.5">Manage the cost classifications (e.g. Labor, Materials, Equipment, Subcontractor) selectable when budgeting project activities.</p>
+                </div>
+                <button type="button" @click="$dispatch('open-modal', 'add-cost-type')" class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-100 rounded-lg hover:bg-blue-100 transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none shrink-0">
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                    Add Cost Type
+                </button>
+            </div>
+            
+            <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-left divide-y divide-gray-200/60">
+                        <thead class="bg-gray-50/50">
+                            <tr>
+                                <th class="py-3 px-6 text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">Cost Type Name</th>
+                                <th class="py-3 px-6 text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">System Key / Slug</th>
+                                <th class="py-3 px-6 text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">Description</th>
+                                <th class="py-3 px-6 text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center">Type Protection</th>
+                                <th class="py-3 px-6 text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 text-center">Lines Linked</th>
+                                <th class="py-3 px-6 text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 text-right w-28">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-100">
+                            @forelse($costTypes ?? [] as $ct)
+                                <tr class="hover:bg-gray-50/50 transition-colors group">
+                                    <td class="py-4 px-6 text-sm font-bold text-gray-900">
+                                        {{ $ct->name }}
+                                    </td>
+                                    <td class="py-4 px-6 text-xs font-mono font-semibold text-slate-600">
+                                        <span class="inline-flex px-2 py-0.5 rounded bg-slate-100 border border-slate-200">
+                                            {{ $ct->slug }}
+                                        </span>
+                                    </td>
+                                    <td class="py-4 px-6 text-xs text-gray-500 max-w-xs truncate">
+                                        {{ $ct->description ?? '—' }}
+                                    </td>
+                                    <td class="py-4 px-6 text-xs text-center">
+                                        @if($ct->is_system)
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200">
+                                                System Core
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                                Custom
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td class="py-4 px-6 text-xs text-center font-semibold text-gray-600">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ ($ct->lines_count ?? 0) > 0 ? 'bg-indigo-50 text-indigo-700' : 'bg-gray-100 text-gray-500' }}">
+                                            {{ $ct->lines_count ?? 0 }} {{ Str::plural('line', $ct->lines_count ?? 0) }}
+                                        </span>
+                                    </td>
+                                    <td class="py-4 px-6 text-right">
+                                        <div class="inline-flex items-center gap-1" x-data>
+                                            <button @click="$dispatch('open-modal', 'edit-cost-type-{{ $ct->id }}')" class="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors inline-flex" title="Edit Cost Type">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                            </button>
+
+                                            {{-- Delete Button (disabled for system types or types in use) --}}
+                                            @if(!$ct->is_system && ($ct->lines_count ?? 0) == 0)
+                                                <button @click="$dispatch('open-modal', 'delete-cost-type-{{ $ct->id }}')" class="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors inline-flex" title="Delete Cost Type">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                                </button>
+                                            @else
+                                                <span class="p-1.5 text-gray-300 cursor-not-allowed inline-flex" title="{{ $ct->is_system ? 'Core system types cannot be deleted.' : 'Cannot delete type currently used by budget lines.' }}">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m0 0v2m0-2h2m-2 0H10m11-5a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                                </span>
+                                            @endif
+
+                                            {{-- Edit Cost Type Modal --}}
+                                            <x-modal id="edit-cost-type-{{ $ct->id }}" maxWidth="md">
+                                                <x-slot:header>Edit Cost Type: {{ $ct->name }}</x-slot:header>
+                                                <form method="POST" action="{{ route('admin.finance.settings.cost-types.update', $ct->id) }}" class="p-6 space-y-4">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700 mb-1">Cost Type Name <span class="text-red-500">*</span></label>
+                                                        <input type="text" name="name" value="{{ $ct->name }}" required class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700 mb-1">System Key / Slug</label>
+                                                        <input type="text" value="{{ $ct->slug }}" disabled class="block w-full rounded-xl border-gray-200 bg-gray-50 text-gray-500 shadow-sm sm:text-sm font-mono cursor-not-allowed">
+                                                        <p class="text-[11px] text-gray-400 mt-1">System key cannot be modified to preserve existing budget line references.</p>
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                                        <textarea name="description" rows="2" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">{{ $ct->description }}</textarea>
+                                                    </div>
+                                                    <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-100">
+                                                        <button type="button" @click="open = false" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors shadow-sm">Cancel</button>
+                                                        <button type="submit" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors shadow-sm">Save Changes</button>
+                                                    </div>
+                                                </form>
+                                            </x-modal>
+
+                                            {{-- Delete Cost Type Modal --}}
+                                            @if(!$ct->is_system && ($ct->lines_count ?? 0) == 0)
+                                                <x-modal id="delete-cost-type-{{ $ct->id }}" maxWidth="md">
+                                                    <x-slot:header>Delete Cost Type</x-slot:header>
+                                                    <div class="text-center py-4 whitespace-normal">
+                                                        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4 border border-red-200">
+                                                            <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                                        </div>
+                                                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Delete {{ $ct->name }}?</h3>
+                                                        <p class="text-sm text-gray-500">This action will remove this cost type from future budget activity options. This cannot be undone.</p>
+                                                    </div>
+                                                    <x-slot:footer>
+                                                        <div class="flex items-center gap-3 w-full justify-end">
+                                                            <button type="button" @click="open = false" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors shadow-sm">Cancel</button>
+                                                            <form method="POST" action="{{ route('admin.finance.settings.cost-types.destroy', $ct->id) }}" class="inline">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-xl hover:bg-red-700 transition-colors shadow-sm">Delete Cost Type</button>
+                                                            </form>
+                                                        </div>
+                                                    </x-slot:footer>
+                                                </x-modal>
+                                            @endif
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="py-12 px-6 text-center">
+                                        <p class="text-sm text-gray-500 font-medium">No cost types configured.</p>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 
     {{-- Add Payment Method Modal --}}
@@ -491,6 +629,34 @@
             <div class="mt-8 flex justify-end gap-3 pt-4 border-t border-gray-100">
                 <button type="button" @click="open = false" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors shadow-sm">Cancel</button>
                 <button type="submit" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors shadow-sm">Save Category</button>
+            </div>
+        </form>
+    </x-modal>
+
+    {{-- Add Cost Type Modal --}}
+    <x-modal id="add-cost-type" maxWidth="md">
+        <x-slot:header>Add Project Budget Cost Type</x-slot:header>
+        <form method="POST" action="{{ route('admin.finance.settings.cost-types.store') }}" class="p-6 space-y-4">
+            @csrf
+            <div>
+                <label for="ct_name" class="block text-sm font-medium text-gray-700 mb-1">Cost Type Name <span class="text-red-500">*</span></label>
+                <input type="text" name="name" id="ct_name" required class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors min-h-[42px]" placeholder="e.g. Equipment & Machinery, Subcontractor">
+            </div>
+
+            <div>
+                <label for="ct_slug" class="block text-sm font-medium text-gray-700 mb-1">System Key / Slug <span class="text-gray-400 font-normal">(Optional)</span></label>
+                <input type="text" name="slug" id="ct_slug" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors font-mono min-h-[42px]" placeholder="e.g. equipment (auto-generated if empty)">
+                <p class="text-[11px] text-gray-400 mt-1">Unique identifier used for tracking and calculations.</p>
+            </div>
+
+            <div>
+                <label for="ct_desc" class="block text-sm font-medium text-gray-700 mb-1">Description / Scope</label>
+                <textarea name="description" id="ct_desc" rows="2" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="Define what expenditures qualify for this cost type..."></textarea>
+            </div>
+
+            <div class="mt-8 flex justify-end gap-3 pt-4 border-t border-gray-100">
+                <button type="button" @click="open = false" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors shadow-sm">Cancel</button>
+                <button type="submit" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors shadow-sm">Save Cost Type</button>
             </div>
         </form>
     </x-modal>

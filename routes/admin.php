@@ -306,6 +306,9 @@ Route::middleware(['auth', 'check.status', 'track.activity', 'ensure.role'])->pr
         Route::post('settings/budget-categories', [\App\Http\Controllers\Finance\FinanceSettingsController::class, 'storeBudgetCategory'])->name('settings.budget-categories.store');
         Route::put('settings/budget-categories/{id}', [\App\Http\Controllers\Finance\FinanceSettingsController::class, 'updateBudgetCategory'])->name('settings.budget-categories.update');
         Route::delete('settings/budget-categories/{id}', [\App\Http\Controllers\Finance\FinanceSettingsController::class, 'destroyBudgetCategory'])->name('settings.budget-categories.destroy');
+        Route::post('settings/cost-types', [\App\Http\Controllers\Finance\FinanceSettingsController::class, 'storeCostType'])->name('settings.cost-types.store');
+        Route::put('settings/cost-types/{id}', [\App\Http\Controllers\Finance\FinanceSettingsController::class, 'updateCostType'])->name('settings.cost-types.update');
+        Route::delete('settings/cost-types/{id}', [\App\Http\Controllers\Finance\FinanceSettingsController::class, 'destroyCostType'])->name('settings.cost-types.destroy');
 
         Route::patch('/invoices/{invoice}/issue', [\App\Http\Controllers\Finance\InvoiceController::class, 'issue'])->name('invoices.issue');
         Route::patch('/invoices/{invoice}/cancel', [\App\Http\Controllers\Finance\InvoiceController::class, 'cancel'])->name('invoices.cancel');

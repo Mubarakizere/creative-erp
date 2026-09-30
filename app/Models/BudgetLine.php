@@ -38,6 +38,16 @@ class BudgetLine extends Model
         return $this->belongsTo(Project::class);
     }
 
+    public function costType()
+    {
+        return $this->belongsTo(CostType::class, 'cost_type', 'slug');
+    }
+
+    public function getCostTypeNameAttribute(): string
+    {
+        return $this->costType?->name ?? ucfirst(str_replace('_', ' ', $this->cost_type ?: 'other'));
+    }
+
     public function getActivityTitleAttribute(): string
     {
         if ($this->task) {

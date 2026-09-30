@@ -196,32 +196,105 @@
         </div>
 
         <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
-            <div class="p-4 border-b border-slate-100 bg-slate-50/50">
-                <h3 class="text-base font-bold text-slate-900">Task Cost Summary</h3>
-                <p class="text-xs text-slate-500">Labor, material issues, and other project costs grouped by task.</p>
+            <div class="p-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                    <h3 class="text-base font-bold text-slate-900">Task Cost Summary</h3>
+                    <p class="text-xs text-slate-500">Allocated budget vs. real-time expenditure (labor, materials, other costs) per task.</p>
+                </div>
+                <span class="text-xs font-bold text-slate-500">
+                    {{ count($analysis['task_groups']) }} Tasks Grouped
+                </span>
             </div>
             <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs">
-                    <thead class="bg-slate-100 text-slate-600 uppercase tracking-wide"><tr>
-                        <th class="px-5 py-3">Task / Activity</th><th class="px-5 py-3 text-right">Labor budget / used</th>
-                        <th class="px-5 py-3 text-right">Materials budget / used</th><th class="px-5 py-3 text-right">Other budget / used</th>
-                        <th class="px-5 py-3 text-right">Total budget</th><th class="px-5 py-3 text-right">Actual used</th><th class="px-5 py-3 text-right">Remaining</th>
-                    </tr></thead>
-                    <tbody class="divide-y divide-slate-100">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="bg-slate-100/70 border-b border-slate-200 text-slate-700 font-bold uppercase tracking-wider">
+                            <th class="py-3.5 px-5">Task / Activity</th>
+                            <th class="py-3.5 px-4 text-right">Allocated Budget</th>
+                            <th class="py-3.5 px-4 text-right">Labor Spent</th>
+                            <th class="py-3.5 px-4 text-right">Materials Spent</th>
+                            <th class="py-3.5 px-4 text-right">Other Costs</th>
+                            <th class="py-3.5 px-4 text-right">Total Actual Spent</th>
+                            <th class="py-3.5 px-4 text-right">Remaining Balance</th>
+                            <th class="py-3.5 px-4 text-center">Utilization</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-slate-800">
                         @forelse($analysis['task_groups'] as $group)
-                            <tr>
-                                <td class="px-5 py-3 font-semibold text-slate-900">{{ $group['task_code'] ? $group['task_code'].' · ' : '' }}{{ $group['task_name'] }}</td>
-                                <td class="px-5 py-3 text-right">{{ format_currency($group['labor_budget'], $currency) }} / {{ format_currency($group['labor_actual'], $currency) }}</td>
-                                <td class="px-5 py-3 text-right">{{ format_currency($group['materials_budget'], $currency) }} / {{ format_currency($group['materials_actual'], $currency) }}</td>
-                                <td class="px-5 py-3 text-right">{{ format_currency($group['other_budget'], $currency) }} / {{ format_currency($group['other_actual'], $currency) }}</td>
-                                <td class="px-5 py-3 text-right font-bold">{{ format_currency($group['budget'], $currency) }}</td>
-                                <td class="px-5 py-3 text-right font-bold">{{ format_currency($group['actual'], $currency) }}</td>
-                                <td class="px-5 py-3 text-right font-bold {{ $group['remaining'] < 0 ? 'text-rose-600' : 'text-emerald-700' }}">{{ format_currency($group['remaining'], $currency) }}</td>
+                            @php
+                                $util = $group['budget'] > 0 ? round(($group['actual'] / $group['budget']) * 100, 1) : 0;
+                            @endphp
+                            <tr class="hover:bg-slate-50/80 transition-colors">
+                                <td class="py-3.5 px-5 font-semibold text-slate-900">
+                                    @if($group['task_code'])
+                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-100 text-slate-700 border border-slate-200 mr-1.5">
+                                            {{ $group['task_code'] }}
+                                        </span>
+                                    @endif
+                                    <span>{{ $group['task_name'] }}</span>
+                                </td>
+                                <td class="py-3.5 px-4 text-right font-bold text-slate-900">
+                                    {{ format_currency($group['budget'], $currency) }}
+                                </td>
+                                <td class="py-3.5 px-4 text-right text-slate-600">
+                                    {{ format_currency($group['labor_actual'], $currency) }}
+                                </td>
+                                <td class="py-3.5 px-4 text-right text-slate-600">
+                                    {{ format_currency($group['materials_actual'], $currency) }}
+                                </td>
+                                <td class="py-3.5 px-4 text-right text-slate-600">
+                                    {{ format_currency($group['other_actual'], $currency) }}
+                                </td>
+                                <td class="py-3.5 px-4 text-right font-extrabold text-slate-900">
+                                    {{ format_currency($group['actual'], $currency) }}
+                                </td>
+                                <td class="py-3.5 px-4 text-right font-extrabold {{ $group['remaining'] < 0 ? 'text-rose-600' : 'text-emerald-700' }}">
+                                    {{ $group['remaining'] < 0 ? '-' : '' }}{{ format_currency(abs($group['remaining']), $currency) }}
+                                </td>
+                                <td class="py-3.5 px-4 text-center font-semibold">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border {{ $util > 100 ? 'bg-rose-50 text-rose-700 border-rose-200' : ($util > 90 ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200') }}">
+                                        {{ $util }}%
+                                    </span>
+                                </td>
                             </tr>
                         @empty
-                            <tr><td colspan="7" class="px-5 py-8 text-center text-slate-500">No task allocations or project costs recorded yet.</td></tr>
+                            <tr>
+                                <td colspan="8" class="px-5 py-8 text-center text-slate-500">
+                                    No task allocations or project costs recorded yet.
+                                </td>
+                            </tr>
                         @endforelse
                     </tbody>
+                    @if(count($analysis['task_groups']) > 0)
+                        <tfoot>
+                            <tr class="bg-slate-100/90 border-t-2 border-slate-300 font-extrabold text-slate-900">
+                                <td class="py-3.5 px-5 text-xs uppercase tracking-wider">
+                                    TOTAL
+                                </td>
+                                <td class="py-3.5 px-4 text-right text-sm font-black text-slate-900">
+                                    {{ format_currency($totalBudget, $currency) }}
+                                </td>
+                                <td class="py-3.5 px-4 text-right text-xs font-bold text-slate-700">
+                                    {{ format_currency($summary['labor_actual'] ?? 0, $currency) }}
+                                </td>
+                                <td class="py-3.5 px-4 text-right text-xs font-bold text-slate-700">
+                                    {{ format_currency($summary['materials_actual'] ?? 0, $currency) }}
+                                </td>
+                                <td class="py-3.5 px-4 text-right text-xs font-bold text-slate-700">
+                                    {{ format_currency($summary['other_actual'] ?? 0, $currency) }}
+                                </td>
+                                <td class="py-3.5 px-4 text-right text-sm font-black text-slate-900">
+                                    {{ format_currency($totalActual, $currency) }}
+                                </td>
+                                <td class="py-3.5 px-4 text-right text-sm font-black {{ $variance < 0 ? 'text-rose-600' : 'text-emerald-700' }}">
+                                    {{ $variance < 0 ? '-' : '' }}{{ format_currency(abs($variance), $currency) }}
+                                </td>
+                                <td class="py-3.5 px-4 text-center text-xs font-bold text-slate-700">
+                                    {{ $utilization }}%
+                                </td>
+                            </tr>
+                        </tfoot>
+                    @endif
                 </table>
             </div>
         </div>
@@ -276,7 +349,7 @@
                                 </td>
 
                                 <td class="py-3.5 px-6 text-slate-600">
-                                    <span class="block font-semibold capitalize">{{ $line['cost_type'] }}</span>
+                                    <span class="block font-semibold capitalize">{{ $line['cost_type_name'] ?? ucfirst(str_replace('_', ' ', $line['cost_type'])) }}</span>
                                     @if($line['resource_name'])<span class="text-[11px] text-slate-400">{{ $line['resource_name'] }}</span>@endif
                                 </td>
 

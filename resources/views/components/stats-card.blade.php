@@ -10,55 +10,64 @@
 
 @php
     $colorClasses = match($color) {
-        'blue' => ['bg' => 'bg-blue-50', 'icon' => 'text-blue-600', 'ring' => 'ring-blue-500/20'],
-        'emerald' => ['bg' => 'bg-emerald-50', 'icon' => 'text-emerald-600', 'ring' => 'ring-emerald-500/20'],
-        'purple' => ['bg' => 'bg-purple-50', 'icon' => 'text-purple-600', 'ring' => 'ring-purple-500/20'],
-        'amber' => ['bg' => 'bg-amber-50', 'icon' => 'text-amber-600', 'ring' => 'ring-amber-500/20'],
-        'rose' => ['bg' => 'bg-rose-50', 'icon' => 'text-rose-600', 'ring' => 'ring-rose-500/20'],
-        'cyan' => ['bg' => 'bg-cyan-50', 'icon' => 'text-cyan-600', 'ring' => 'ring-cyan-500/20'],
-        'indigo' => ['bg' => 'bg-indigo-50', 'icon' => 'text-indigo-600', 'ring' => 'ring-indigo-500/20'],
-        'orange' => ['bg' => 'bg-orange-50', 'icon' => 'text-orange-600', 'ring' => 'ring-orange-500/20'],
-        default => ['bg' => 'bg-blue-50', 'icon' => 'text-blue-600', 'ring' => 'ring-blue-500/20'],
+        'blue' => ['bg' => 'bg-blue-50', 'icon' => 'text-blue-600', 'border' => 'border-blue-100', 'ring' => 'ring-blue-500/10'],
+        'emerald', 'green' => ['bg' => 'bg-emerald-50', 'icon' => 'text-emerald-600', 'border' => 'border-emerald-100', 'ring' => 'ring-emerald-500/10'],
+        'teal' => ['bg' => 'bg-teal-50', 'icon' => 'text-teal-600', 'border' => 'border-teal-100', 'ring' => 'ring-teal-500/10'],
+        'purple' => ['bg' => 'bg-purple-50', 'icon' => 'text-purple-600', 'border' => 'border-purple-100', 'ring' => 'ring-purple-500/10'],
+        'amber' => ['bg' => 'bg-amber-50', 'icon' => 'text-amber-600', 'border' => 'border-amber-100', 'ring' => 'ring-amber-500/10'],
+        'rose', 'red' => ['bg' => 'bg-rose-50', 'icon' => 'text-rose-600', 'border' => 'border-rose-100', 'ring' => 'ring-rose-500/10'],
+        'cyan' => ['bg' => 'bg-cyan-50', 'icon' => 'text-cyan-600', 'border' => 'border-cyan-100', 'ring' => 'ring-cyan-500/10'],
+        'indigo' => ['bg' => 'bg-indigo-50', 'icon' => 'text-indigo-600', 'border' => 'border-indigo-100', 'ring' => 'ring-indigo-500/10'],
+        'orange' => ['bg' => 'bg-orange-50', 'icon' => 'text-orange-600', 'border' => 'border-orange-100', 'ring' => 'ring-orange-500/10'],
+        'violet' => ['bg' => 'bg-violet-50', 'icon' => 'text-violet-600', 'border' => 'border-violet-100', 'ring' => 'ring-violet-500/10'],
+        default => ['bg' => 'bg-blue-50', 'icon' => 'text-blue-600', 'border' => 'border-blue-100', 'ring' => 'ring-blue-500/10'],
     };
 @endphp
 
-<div {{ $attributes->merge(['class' => 'bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 p-6 group']) }}>
+<div {{ $attributes->merge(['class' => 'bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md hover:border-slate-300/80 transition-all duration-300 p-5 group overflow-hidden relative flex flex-col justify-between']) }}>
     @if($href)
         <a href="{{ $href }}" class="block">
     @endif
 
-    <div class="flex items-start justify-between">
-        <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium text-gray-500 truncate">{{ $title }}</p>
-            <p class="mt-2 text-3xl font-bold text-gray-900">{{ $value }}</p>
-
-            @if($trend)
-                <div class="mt-2 flex items-center gap-1">
-                    @if($trendUp)
-                        <svg class="w-4 h-4 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-                        </svg>
-                        <span class="text-sm font-medium text-emerald-600">{{ $trend }}</span>
-                    @else
-                        <svg class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 12.586V5a1 1 0 012 0v7.586l2.293-2.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                        </svg>
-                        <span class="text-sm font-medium text-red-600">{{ $trend }}</span>
-                    @endif
-                    <span class="text-xs text-gray-400">vs last month</span>
-                </div>
-            @endif
+    <div>
+        {{-- Top Row: Title + Icon Badge --}}
+        <div class="flex items-center justify-between gap-3 mb-3">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider truncate" title="{{ $title }}">
+                {{ $title }}
+            </span>
+            <div class="shrink-0 {{ $colorClasses['bg'] }} {{ $colorClasses['icon'] }} p-2.5 rounded-xl border {{ $colorClasses['border'] }} ring-1 {{ $colorClasses['ring'] }} group-hover:scale-105 transition-transform duration-200 flex items-center justify-center">
+                @if($icon)
+                    {!! $icon !!}
+                @else
+                    {{ $slot }}
+                @endif
+            </div>
         </div>
 
-        {{-- Icon --}}
-        <div class="flex-shrink-0 {{ $colorClasses['bg'] }} {{ $colorClasses['icon'] }} p-3 rounded-xl ring-1 {{ $colorClasses['ring'] }} group-hover:scale-110 transition-transform duration-300">
-            @if($icon)
-                {!! $icon !!}
-            @else
-                {{ $slot }}
-            @endif
+        {{-- Value Row: Takes full width, never overflows or goes outside card --}}
+        <div class="min-w-0">
+            <p class="text-2xl sm:text-xl lg:text-2xl 2xl:text-2xl font-black text-slate-900 tracking-tight truncate select-all" title="{{ $value }}">
+                {{ $value }}
+            </p>
         </div>
     </div>
+
+    @if($trend)
+        <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-xs">
+            @if($trendUp)
+                <span class="inline-flex items-center text-emerald-600 font-semibold gap-0.5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                    {{ $trend }}
+                </span>
+            @else
+                <span class="inline-flex items-center text-rose-600 font-semibold gap-0.5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+                    {{ $trend }}
+                </span>
+            @endif
+            <span class="text-slate-400 font-medium text-[11px]">vs last month</span>
+        </div>
+    @endif
 
     @if($href)
         </a>

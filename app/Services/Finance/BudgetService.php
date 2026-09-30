@@ -45,6 +45,7 @@ class BudgetService
                 'task_code' => $line->task?->task_code,
                 'task_name' => $line->task?->name ?? $line->activity_name ?? 'Unassigned activity',
                 'cost_type' => $line->cost_type ?: 'other',
+                'cost_type_name' => $line->cost_type_name,
                 'resource_name' => $line->resource_name ?: $line->product?->name,
                 'product_name' => $line->product?->name,
                 'category' => $line->category?->name ?? 'Uncategorised',
@@ -209,6 +210,7 @@ class BudgetService
             $group['budget'] = $group['labor_budget'] + $group['materials_budget'] + $group['other_budget'];
             $group['actual'] = $group['labor_actual'] + $group['materials_actual'] + $group['other_actual'];
             $group['remaining'] = $group['budget'] - $group['actual'];
+            $group['utilization'] = $group['budget'] > 0 ? round(($group['actual'] / $group['budget']) * 100, 1) : 0;
             return $group;
         })->values()->all();
     }

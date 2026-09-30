@@ -720,10 +720,42 @@
                             </div>
                             <div class="overflow-x-auto">
                                 <table class="w-full text-xs text-left">
-                                    <thead class="text-[10px] uppercase tracking-wide text-slate-400 border-b border-slate-100"><tr><th class="py-2 pr-4">Task / activity</th><th class="py-2 px-2 text-right">Labor budget / used</th><th class="py-2 px-2 text-right">Materials budget / used</th><th class="py-2 px-2 text-right">Other budget / used</th><th class="py-2 pl-2 text-right">Remaining</th></tr></thead>
+                                    <thead class="text-[10px] uppercase tracking-wide text-slate-400 border-b border-slate-100">
+                                        <tr>
+                                            <th class="py-2 pr-4">Task / activity</th>
+                                            <th class="py-2 px-2 text-right">Allocated</th>
+                                            <th class="py-2 px-2 text-right">Labor spent</th>
+                                            <th class="py-2 px-2 text-right">Materials spent</th>
+                                            <th class="py-2 px-2 text-right">Other costs</th>
+                                            <th class="py-2 px-2 text-right">Total actual</th>
+                                            <th class="py-2 pl-2 text-right">Remaining</th>
+                                        </tr>
+                                    </thead>
                                     <tbody class="divide-y divide-slate-100">
                                         @foreach($projectBudgetAnalysis['task_groups'] as $group)
-                                            <tr><td class="py-2 pr-4 font-semibold text-slate-700">{{ $group['task_code'] ? $group['task_code'].' · ' : '' }}{{ $group['task_name'] }}</td><td class="py-2 px-2 text-right">{{ format_currency($group['labor_budget'], $project->currency) }} / {{ format_currency($group['labor_actual'], $project->currency) }}</td><td class="py-2 px-2 text-right">{{ format_currency($group['materials_budget'], $project->currency) }} / {{ format_currency($group['materials_actual'], $project->currency) }}</td><td class="py-2 px-2 text-right">{{ format_currency($group['other_budget'], $project->currency) }} / {{ format_currency($group['other_actual'], $project->currency) }}</td><td class="py-2 pl-2 text-right font-bold {{ $group['remaining'] < 0 ? 'text-rose-600' : 'text-emerald-700' }}">{{ format_currency($group['remaining'], $project->currency) }}</td></tr>
+                                            <tr>
+                                                <td class="py-2 pr-4 font-semibold text-slate-700">
+                                                    {{ $group['task_code'] ? $group['task_code'].' · ' : '' }}{{ $group['task_name'] }}
+                                                </td>
+                                                <td class="py-2 px-2 text-right font-bold text-slate-900">
+                                                    {{ format_currency($group['budget'], $project->currency) }}
+                                                </td>
+                                                <td class="py-2 px-2 text-right text-slate-600">
+                                                    {{ format_currency($group['labor_actual'], $project->currency) }}
+                                                </td>
+                                                <td class="py-2 px-2 text-right text-slate-600">
+                                                    {{ format_currency($group['materials_actual'], $project->currency) }}
+                                                </td>
+                                                <td class="py-2 px-2 text-right text-slate-600">
+                                                    {{ format_currency($group['other_actual'], $project->currency) }}
+                                                </td>
+                                                <td class="py-2 px-2 text-right font-bold text-slate-900">
+                                                    {{ format_currency($group['actual'], $project->currency) }}
+                                                </td>
+                                                <td class="py-2 pl-2 text-right font-bold {{ $group['remaining'] < 0 ? 'text-rose-600' : 'text-emerald-700' }}">
+                                                    {{ format_currency($group['remaining'], $project->currency) }}
+                                                </td>
+                                            </tr>
                                         @endforeach
                                     </tbody>
                                 </table>

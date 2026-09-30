@@ -50,43 +50,67 @@
     <div class="mb-8 overflow-x-auto pb-2 scrollbar-thin">
         <div class="flex gap-3 min-w-max">
             @can('project.create')
-            <a href="{{ route('admin.projects.create') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200/80 rounded-xl shadow-xs text-xs font-bold text-slate-700 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all">
-                <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> New Project
+            <a href="{{ route('admin.projects.create') }}" class="inline-flex items-center gap-2.5 px-3.5 py-2 bg-white border border-slate-200/80 rounded-xl shadow-xs text-xs font-bold text-slate-700 hover:bg-blue-50/70 hover:text-blue-700 hover:border-blue-200 transition-all group">
+                <span class="p-1 rounded-lg bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2zM12 11v6m-3-3h6"/></svg>
+                </span>
+                New Project
             </a>
             @endcan
             @can('invoice.create')
-            <a href="{{ route('admin.finance.invoices.create') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200/80 rounded-xl shadow-xs text-xs font-bold text-slate-700 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200 transition-all">
-                <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> New Invoice
+            <a href="{{ route('admin.finance.invoices.create') }}" class="inline-flex items-center gap-2.5 px-3.5 py-2 bg-white border border-slate-200/80 rounded-xl shadow-xs text-xs font-bold text-slate-700 hover:bg-emerald-50/70 hover:text-emerald-700 hover:border-emerald-200 transition-all group">
+                <span class="p-1 rounded-lg bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                </span>
+                New Invoice
             </a>
             @endcan
             @can('journal.create')
-            <a href="{{ route('admin.finance.accounting.journals.create') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200/80 rounded-xl shadow-xs text-xs font-bold text-slate-700 hover:bg-purple-50 hover:text-purple-600 hover:border-purple-200 transition-all">
-                <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> New Journal
+            <a href="{{ route('admin.finance.accounting.journals.create') }}" class="inline-flex items-center gap-2.5 px-3.5 py-2 bg-white border border-slate-200/80 rounded-xl shadow-xs text-xs font-bold text-slate-700 hover:bg-purple-50/70 hover:text-purple-700 hover:border-purple-200 transition-all group">
+                <span class="p-1 rounded-lg bg-purple-50 text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                </span>
+                New Journal
             </a>
             @endcan
             @can('purchase-order.create')
-            <a href="{{ route('admin.procurement.pos.create') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200/80 rounded-xl shadow-xs text-xs font-bold text-slate-700 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200 transition-all">
-                <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> New PO
+            <a href="{{ route('admin.procurement.pos.create') }}" class="inline-flex items-center gap-2.5 px-3.5 py-2 bg-white border border-slate-200/80 rounded-xl shadow-xs text-xs font-bold text-slate-700 hover:bg-orange-50/70 hover:text-orange-700 hover:border-orange-200 transition-all group">
+                <span class="p-1 rounded-lg bg-orange-50 text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                </span>
+                New PO
             </a>
             @endcan
             @can('lead.create')
-            <a href="{{ route('admin.crm.leads.create') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200/80 rounded-xl shadow-xs text-xs font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 transition-all">
-                <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> New Lead
+            <a href="{{ route('admin.crm.leads.create') }}" class="inline-flex items-center gap-2.5 px-3.5 py-2 bg-white border border-slate-200/80 rounded-xl shadow-xs text-xs font-bold text-slate-700 hover:bg-indigo-50/70 hover:text-indigo-700 hover:border-indigo-200 transition-all group">
+                <span class="p-1 rounded-lg bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                </span>
+                New Lead
             </a>
             @endcan
             @can('create', App\Models\ProjectMaterialRequest::class)
-            <a href="{{ route('admin.material-requests.create') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200/80 rounded-xl shadow-xs text-xs font-bold text-slate-700 hover:bg-amber-50 hover:text-amber-600 hover:border-amber-200 transition-all">
-                <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> Material Request
+            <a href="{{ route('admin.material-requests.create') }}" class="inline-flex items-center gap-2.5 px-3.5 py-2 bg-white border border-slate-200/80 rounded-xl shadow-xs text-xs font-bold text-slate-700 hover:bg-amber-50/70 hover:text-amber-700 hover:border-amber-200 transition-all group">
+                <span class="p-1 rounded-lg bg-amber-50 text-amber-600 group-hover:bg-amber-600 group-hover:text-white transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                </span>
+                Material Request
             </a>
             @endcan
             @can('time-entry.create')
-            <a href="{{ route('admin.time-tracking.create') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200/80 rounded-xl shadow-xs text-xs font-bold text-slate-700 hover:bg-cyan-50 hover:text-cyan-600 hover:border-cyan-200 transition-all">
-                <svg class="w-4 h-4 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Log Time
+            <a href="{{ route('admin.time-tracking.create') }}" class="inline-flex items-center gap-2.5 px-3.5 py-2 bg-white border border-slate-200/80 rounded-xl shadow-xs text-xs font-bold text-slate-700 hover:bg-cyan-50/70 hover:text-cyan-700 hover:border-cyan-200 transition-all group">
+                <span class="p-1 rounded-lg bg-cyan-50 text-cyan-600 group-hover:bg-cyan-600 group-hover:text-white transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </span>
+                Log Time
             </a>
             @endcan
             @can('announcement.create')
-            <a href="{{ route('admin.announcements.create') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200/80 rounded-xl shadow-xs text-xs font-bold text-slate-700 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-all">
-                <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path></svg> Announcement
+            <a href="{{ route('admin.announcements.create') }}" class="inline-flex items-center gap-2.5 px-3.5 py-2 bg-white border border-slate-200/80 rounded-xl shadow-xs text-xs font-bold text-slate-700 hover:bg-rose-50/70 hover:text-rose-700 hover:border-rose-200 transition-all group">
+                <span class="p-1 rounded-lg bg-rose-50 text-rose-600 group-hover:bg-rose-600 group-hover:text-white transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
+                </span>
+                Announcement
             </a>
             @endcan
         </div>
@@ -102,23 +126,28 @@
             @can('finance.view')
             <div class="space-y-4">
                 <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-                    <h2 class="text-base font-bold text-slate-900 tracking-tight">Financial Overview</h2>
-                    <a href="{{ route('admin.finance.analytics') }}" class="text-xs font-bold text-blue-600 hover:underline">Finance Module &rarr;</a>
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                        <h2 class="text-base font-bold text-slate-900 tracking-tight">Financial Overview</h2>
+                    </div>
+                    <a href="{{ route('admin.finance.analytics') }}" class="text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-1">
+                        Finance Module &rarr;
+                    </a>
                 </div>
                 
                 {{-- Cards --}}
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <x-stats-card title="Total Revenue" value="{{ format_currency((float) str_replace(['$', ','], '', $stats['total_payments']['value'] ?? 0)) }}" color="green">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <x-stats-card title="Total Revenue" value="{{ format_currency((float) str_replace(['$', ','], '', $stats['total_payments']['value'] ?? 0)) }}" color="emerald">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                     </x-stats-card>
-                    <x-stats-card title="Revenue This Month" value="{{ format_currency((float) str_replace(['$', ','], '', $stats['revenue_this_month']['value'] ?? 0)) }}" color="emerald">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                    <x-stats-card title="Revenue This Month" value="{{ format_currency((float) str_replace(['$', ','], '', $stats['revenue_this_month']['value'] ?? 0)) }}" color="teal">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6M8 4h8a2 2 0 012 2v1m-10 14H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/></svg>
                     </x-stats-card>
                     <x-stats-card title="Receivables" value="{{ format_currency((float) str_replace(['$', ','], '', $stats['total_receivables']['value'] ?? 0)) }}" color="indigo">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                     </x-stats-card>
                     <x-stats-card title="Collection Rate" value="{{ $stats['collection_rate']['value'] ?? '0.0%' }}" color="blue">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
                     </x-stats-card>
                 </div>
                 
@@ -190,23 +219,28 @@
             @can('project.view')
             <div class="space-y-4">
                 <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-                    <h2 class="text-base font-bold text-slate-900 tracking-tight">Projects & Operations</h2>
-                    <a href="{{ route('admin.projects.index') }}" class="text-xs font-bold text-blue-600 hover:underline">Projects Module &rarr;</a>
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+                        <h2 class="text-base font-bold text-slate-900 tracking-tight">Projects & Operations</h2>
+                    </div>
+                    <a href="{{ route('admin.projects.index') }}" class="text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-1">
+                        Projects Module &rarr;
+                    </a>
                 </div>
                 
                 {{-- Cards --}}
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <x-stats-card title="Total Projects" value="{{ number_format($stats['projects'] ?? 0) }}" color="blue">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
                     </x-stats-card>
                     <x-stats-card title="Active Projects" value="{{ number_format($stats['active_projects'] ?? 0) }}" color="emerald">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     </x-stats-card>
                     <x-stats-card title="My Assigned Tasks" value="{{ number_format($stats['my_tasks'] ?? 0) }}" color="amber">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
                     </x-stats-card>
                     <x-stats-card title="Overdue Tasks" value="{{ number_format($stats['overdue_tasks'] ?? 0) }}" color="rose">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                     </x-stats-card>
                 </div>
 
@@ -329,7 +363,10 @@
             @can('announcement.view')
             <div class="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden">
                 <div class="px-5 py-3.5 border-b border-slate-100 bg-slate-50/40">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Announcements</h3>
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
+                        Announcements
+                    </h3>
                 </div>
                 @php
                     $announcements = \App\Models\Announcement::latest()->take(4)->get();

@@ -23,8 +23,14 @@ class FinanceSettingsController extends Controller
         $bankAccounts = BankAccount::where('company_id', $companyId)->get();
         $taxes = \App\Models\Tax::where('company_id', $companyId)->get();
         $budgetCategories = \App\Models\BudgetCategory::where('company_id', $companyId)->withCount('lines')->orderBy('name')->get();
+        $costTypes = \App\Models\CostType::where(function ($q) use ($companyId) {
+            $q->whereNull('company_id')->orWhere('company_id', $companyId);
+        })->orderByDesc('is_system')->orderBy('name')->get()->map(function ($ct) {
+            $ct->lines_count = \App\Models\BudgetLine::where('cost_type', $ct->slug)->count();
+            return $ct;
+        });
 
-        return view('admin.finance.settings.index', compact('paymentMethods', 'bankAccounts', 'taxes', 'budgetCategories'));
+        return view('admin.finance.settings.index', compact('paymentMethods', 'bankAccounts', 'taxes', 'budgetCategories', 'costTypes'));
     }
 
     public function storePaymentMethod(Request $request)
@@ -213,5 +219,122 @@ class FinanceSettingsController extends Controller
         $category->delete();
 
         return redirect()->route('admin.finance.settings')->with('success', 'Cost Category deleted successfully.');
+    }
+
+    public function storeCostType(Request $request)
+    {
+        Gate::authorize('create', \App\Models\Payment::class);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'slug' => 'nullable|string|max:50',
+            'description' => 'nullable|string|max:1000',
+        ]);
+
+        $slug = !empty($validated['slug'])
+            ? \Illuminate\Support\Str::slug($validated['slug'], '_')
+            : \Illuminate\Support\Str::slug($validated['name'], '_');
+
+        if (\App\Models\CostType::where('slug', $slug)->exists()) {
+            $msg = "A cost type with key '{$slug}' already exists.";
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $msg,
+                ], 422);
+            }
+            return redirect()->route('admin.finance.settings')->with('error', $msg);
+        }
+
+        $companyId = session('company_id') ?? auth()->user()->company_id ?? 1;
+
+        $costType = \App\Models\CostType::create([
+            'company_id' => $companyId,
+            'name' => $validated['name'],
+            'slug' => $slug,
+            'is_system' => false,
+            'is_active' => true,
+            'description' => $validated['description'] ?? null,
+            'created_by' => auth()->id(),
+        ]);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Cost Type added successfully.',
+                'cost_type' => $costType,
+            ]);
+        }
+
+        return redirect()->route('admin.finance.settings')->with('success', 'Cost Type added successfully.');
+    }
+
+    public function updateCostType(Request $request, $id)
+    {
+        Gate::authorize('create', \App\Models\Payment::class);
+
+        $costType = \App\Models\CostType::findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string|max:1000',
+        ]);
+
+        $costType->update([
+            'name' => $validated['name'],
+            'description' => $validated['description'] ?? null,
+            'updated_by' => auth()->id(),
+        ]);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Cost Type updated successfully.',
+                'cost_type' => $costType,
+            ]);
+        }
+
+        return redirect()->route('admin.finance.settings')->with('success', 'Cost Type updated successfully.');
+    }
+
+    public function destroyCostType(Request $request, $id)
+    {
+        Gate::authorize('create', \App\Models\Payment::class);
+
+        $costType = \App\Models\CostType::findOrFail($id);
+
+        if ($costType->is_system) {
+            $msg = "System cost type '{$costType->name}' is protected and cannot be deleted.";
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $msg,
+                ], 422);
+            }
+            return redirect()->route('admin.finance.settings')->with('error', $msg);
+        }
+
+        $linesCount = \App\Models\BudgetLine::where('cost_type', $costType->slug)->count();
+        if ($linesCount > 0) {
+            $msg = "Cannot delete '{$costType->name}' because it is assigned to {$linesCount} project budget line(s).";
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $msg,
+                ], 422);
+            }
+            return redirect()->route('admin.finance.settings')->with('error', $msg);
+        }
+
+        $costType->delete();
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Cost Type deleted successfully.',
+            ]);
+        }
+
+        return redirect()->route('admin.finance.settings')->with('success', 'Cost Type deleted successfully.');
     }
 }

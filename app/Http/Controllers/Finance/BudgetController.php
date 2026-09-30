@@ -12,6 +12,7 @@ use App\Models\FiscalYear;
 use App\Models\Project;
 use App\Models\Company;
 use App\Models\Product;
+use App\Models\CostType;
 use Illuminate\Validation\ValidationException;
 
 class BudgetController extends Controller
@@ -220,6 +221,28 @@ class BudgetController extends Controller
 
         $categories = BudgetCategory::orderBy('name')->get();
         $products = Product::orderBy('name')->get(['id', 'name']);
+        
+        $companyId = session('company_id') ?? auth()->user()->company_id ?? 1;
+        try {
+            $costTypes = CostType::where(function ($q) use ($companyId) {
+                $q->whereNull('company_id')->orWhere('company_id', $companyId);
+            })->where('is_active', true)->orderByDesc('is_system')->orderBy('name')->get();
+
+            if ($costTypes->isEmpty()) {
+                $costTypes = collect([
+                    (object)['id' => 1, 'name' => 'Labor', 'slug' => 'labor'],
+                    (object)['id' => 2, 'name' => 'Materials', 'slug' => 'materials'],
+                    (object)['id' => 3, 'name' => 'Other', 'slug' => 'other'],
+                ]);
+            }
+        } catch (\Throwable $e) {
+            $costTypes = collect([
+                (object)['id' => 1, 'name' => 'Labor', 'slug' => 'labor'],
+                (object)['id' => 2, 'name' => 'Materials', 'slug' => 'materials'],
+                (object)['id' => 3, 'name' => 'Other', 'slug' => 'other'],
+            ]);
+        }
+
         $fiscalYears = FiscalYear::where('is_closed', false)->orderBy('name')->get();
         $currentFiscalYear = $fiscalYears->first(function ($fy) {
             return $fy->start_date && $fy->end_date && now()->between($fy->start_date, $fy->end_date);
@@ -230,6 +253,7 @@ class BudgetController extends Controller
             'projectsData',
             'categories',
             'products',
+            'costTypes',
             'fiscalYears',
             'currentFiscalYear',
             'selectedProjectId'
@@ -249,7 +273,7 @@ class BudgetController extends Controller
             'status' => 'nullable|string|in:draft,approved,active,closed',
             'lines' => 'required|array|min:1',
             'lines.*.task_id' => 'nullable|exists:tasks,id',
-            'lines.*.cost_type' => 'nullable|in:labor,materials,other',
+            'lines.*.cost_type' => 'nullable|string|max:50',
             'lines.*.resource_name' => 'nullable|string|max:255',
             'lines.*.product_id' => 'nullable|exists:products,id',
             'lines.*.activity_name' => 'nullable|string|max:255',
@@ -405,6 +429,39 @@ class BudgetController extends Controller
 
         $categories = BudgetCategory::orderBy('name')->get();
         $products = Product::orderBy('name')->get(['id', 'name']);
+        
+        $companyId = session('company_id') ?? auth()->user()->company_id ?? 1;
+        try {
+            $costTypes = CostType::where(function ($q) use ($companyId) {
+                $q->whereNull('company_id')->orWhere('company_id', $companyId);
+            })->where('is_active', true)->orderByDesc('is_system')->orderBy('name')->get();
+
+            if ($costTypes->isEmpty()) {
+                $costTypes = collect([
+                    (object)['id' => 1, 'name' => 'Labor', 'slug' => 'labor'],
+                    (object)['id' => 2, 'name' => 'Materials', 'slug' => 'materials'],
+                    (object)['id' => 3, 'name' => 'Other', 'slug' => 'other'],
+                ]);
+            }
+        } catch (\Throwable $e) {
+            $costTypes = collect([
+                (object)['id' => 1, 'name' => 'Labor', 'slug' => 'labor'],
+                (object)['id' => 2, 'name' => 'Materials', 'slug' => 'materials'],
+                (object)['id' => 3, 'name' => 'Other', 'slug' => 'other'],
+            ]);
+        }
+
+        // Ensure any existing cost type used in this budget is preserved in options
+        foreach ($budget->lines as $bl) {
+            if ($bl->cost_type && !$costTypes->contains('slug', $bl->cost_type)) {
+                $costTypes->push((object)[
+                    'id' => null,
+                    'name' => ucfirst(str_replace('_', ' ', $bl->cost_type)),
+                    'slug' => $bl->cost_type,
+                ]);
+            }
+        }
+
         $fiscalYears = FiscalYear::where('is_closed', false)->orderBy('name')->get();
 
         $initialLines = $budget->lines->map(function ($l) {
@@ -436,6 +493,7 @@ class BudgetController extends Controller
             'projectsData',
             'categories',
             'products',
+            'costTypes',
             'fiscalYears',
             'initialLines',
             'projectTasks'
@@ -455,7 +513,7 @@ class BudgetController extends Controller
             'lines' => 'sometimes|required|array|min:1',
             'lines.*.task_id' => 'nullable|exists:tasks,id',
             'lines.*.id' => 'nullable|exists:budget_lines,id',
-            'lines.*.cost_type' => 'nullable|in:labor,materials,other',
+            'lines.*.cost_type' => 'nullable|string|max:50',
             'lines.*.resource_name' => 'nullable|string|max:255',
             'lines.*.product_id' => 'nullable|exists:products,id',
             'lines.*.activity_name' => 'nullable|string|max:255',

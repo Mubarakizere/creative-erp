@@ -155,15 +155,37 @@
                         <thead>
                             <tr class="bg-slate-100/70 border-b border-slate-200 text-slate-700 font-bold uppercase tracking-wider">
                                 <th class="py-3 px-4 w-72">Project Activity / Task</th>
-                                <th class="py-3 px-4 w-32">Cost Type</th>
+                                <th class="py-3 px-4 w-40">
+                                    <div class="flex items-center justify-between">
+                                        <span>Cost Type</span>
+                                        <div class="flex items-center gap-1.5">
+                                            <button type="button" @click="$dispatch('open-modal', 'quick-add-cost-type')" class="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 px-1 py-0.5 rounded transition-colors inline-flex items-center gap-0.5" title="Quick Add New Cost Type">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                                                <span>New</span>
+                                            </button>
+                                            <span class="text-slate-300">|</span>
+                                            <a href="{{ route('admin.finance.settings') }}#cost-types" target="_blank" class="text-[10px] normal-case font-semibold text-indigo-600 hover:text-indigo-800 hover:underline inline-flex items-center gap-0.5" title="Manage cost types in Finance Settings">
+                                                <span>Manage</span>
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </th>
                                 <th class="py-3 px-4 w-56">Resource / Material</th>
                                 <th class="py-3 px-4 w-52">
                                      <div class="flex items-center justify-between">
                                         <span>Cost Category</span>
-                                        <a href="{{ route('admin.finance.settings') }}" target="_blank" class="text-[10px] normal-case font-semibold text-indigo-600 hover:text-indigo-800 hover:underline inline-flex items-center gap-0.5" title="Manage categories in Finance Settings">
-                                            <span>Manage</span>
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                                        </a>
+                                        <div class="flex items-center gap-1.5">
+                                            <button type="button" @click="$dispatch('open-modal', 'quick-add-budget-category')" class="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 px-1 py-0.5 rounded transition-colors inline-flex items-center gap-0.5" title="Quick Add Cost Category">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                                                <span>New</span>
+                                            </button>
+                                            <span class="text-slate-300">|</span>
+                                            <a href="{{ route('admin.finance.settings') }}" target="_blank" class="text-[10px] normal-case font-semibold text-indigo-600 hover:text-indigo-800 hover:underline inline-flex items-center gap-0.5" title="Manage categories in Finance Settings">
+                                                <span>Manage</span>
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                            </a>
+                                        </div>
                                     </div>
                                 </th>
                                 <th class="py-3 px-4 w-44 text-right">Allocated Amount (RWF) <span class="text-rose-500">*</span></th>
@@ -199,7 +221,12 @@
 
                                     <td class="py-3 px-4 align-top space-y-2">
                                         <select :name="`lines[${index}][cost_type]`" x-model="line.cost_type" @change="if (line.cost_type !== 'materials') line.product_id = ''" class="w-full text-xs rounded-lg border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 py-1.5">
-                                            <option value="labor">Labor</option><option value="materials">Materials</option><option value="other">Other</option>
+                                            <template x-for="ct in costTypesList" :key="ct.slug">
+                                                <option :value="ct.slug" x-text="ct.name" :selected="line.cost_type === ct.slug"></option>
+                                            </template>
+                                            @foreach($costTypes as $ct)
+                                                <option value="{{ $ct->slug }}" x-show="false">{{ $ct->name }}</option>
+                                            @endforeach
                                         </select>
                                     </td>
                                     <td class="py-3 px-4 align-top space-y-2">
@@ -215,8 +242,11 @@
                                         <select :name="`lines[${index}][budget_category_id]`" x-model="line.budget_category_id"
                                                 class="w-full text-xs rounded-lg border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 py-1.5">
                                             <option value="">— Category —</option>
+                                            <template x-for="cat in categoriesList" :key="cat.id">
+                                                <option :value="cat.id" x-text="cat.name" :selected="line.budget_category_id == cat.id"></option>
+                                            </template>
                                             @foreach($categories as $cat)
-                                                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                                <option value="{{ $cat->id }}" x-show="false">{{ $cat->name }}</option>
                                             @endforeach
                                         </select>
                                     </td>
@@ -276,6 +306,58 @@
                 </button>
             </div>
         </form>
+        {{-- Quick Add Cost Type Modal --}}
+        <x-modal id="quick-add-cost-type" maxWidth="md">
+            <x-slot:header>Quick Add Cost Type</x-slot:header>
+            <form @submit.prevent="submitQuickCostType()" class="p-6 space-y-4 text-left">
+                <div x-show="quickCostTypeError" class="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-600 font-medium" x-text="quickCostTypeError" style="display: none;"></div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Cost Type Name <span class="text-red-500">*</span></label>
+                    <input type="text" x-model="newCostType.name" required class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm min-h-[42px]" placeholder="e.g. Subcontractor, Machinery, Permits">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Description <span class="text-gray-400 font-normal">(Optional)</span></label>
+                    <textarea x-model="newCostType.description" rows="2" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="Define expenditure classification..."></textarea>
+                </div>
+                <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-100">
+                    <button type="button" @click="$dispatch('close-modal', 'quick-add-cost-type')" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors shadow-sm">Cancel</button>
+                    <button type="submit" :disabled="isSavingCostType" class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50">
+                        <span x-show="!isSavingCostType">Save Cost Type</span>
+                        <span x-show="isSavingCostType" style="display: none;">Saving...</span>
+                    </button>
+                </div>
+            </form>
+        </x-modal>
+
+        {{-- Quick Add Cost Category Modal --}}
+        <x-modal id="quick-add-budget-category" maxWidth="md">
+            <x-slot:header>Quick Add Cost Category</x-slot:header>
+            <form @submit.prevent="submitQuickCategory()" class="p-6 space-y-4 text-left">
+                <div x-show="quickCategoryError" class="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-600 font-medium" x-text="quickCategoryError" style="display: none;"></div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Category Name <span class="text-red-500">*</span></label>
+                    <input type="text" x-model="newCategory.name" required class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm min-h-[42px]" placeholder="e.g. Earthworks & Retaining">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Classification Type <span class="text-red-500">*</span></label>
+                    <select x-model="newCategory.type" required class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white min-h-[42px]">
+                        <option value="expense">Expense</option>
+                        <option value="revenue">Revenue</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Description <span class="text-gray-400 font-normal">(Optional)</span></label>
+                    <textarea x-model="newCategory.description" rows="2" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" placeholder="Scope or expenditure rules..."></textarea>
+                </div>
+                <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-100">
+                    <button type="button" @click="$dispatch('close-modal', 'quick-add-budget-category')" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors shadow-sm">Cancel</button>
+                    <button type="submit" :disabled="isSavingCategory" class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50">
+                        <span x-show="!isSavingCategory">Save Category</span>
+                        <span x-show="isSavingCategory" style="display: none;">Saving...</span>
+                    </button>
+                </div>
+            </form>
+        </x-modal>
     </div>
 
     <script>
@@ -285,9 +367,85 @@
 
             return {
                 projectTasks: projectTasks,
+                costTypesList: @json($costTypes->map(fn($ct) => ['slug' => $ct->slug, 'name' => $ct->name])),
+                categoriesList: @json($categories->map(fn($c) => ['id' => $c->id, 'name' => $c->name])),
+                newCostType: { name: '', description: '' },
+                isSavingCostType: false,
+                quickCostTypeError: '',
+                newCategory: { name: '', type: 'expense', description: '' },
+                isSavingCategory: false,
+                quickCategoryError: '',
                 lines: initialLines.length > 0 ? initialLines : [
                     { id: '', task_id: '', activity_name: '', cost_type: 'other', resource_name: '', product_id: '', budget_category_id: '', amount: 0, notes: '' }
                 ],
+
+                async submitQuickCostType() {
+                    this.quickCostTypeError = '';
+                    if (!this.newCostType.name || !this.newCostType.name.trim()) {
+                        this.quickCostTypeError = 'Cost Type Name is required.';
+                        return;
+                    }
+                    this.isSavingCostType = true;
+                    try {
+                        const response = await fetch('{{ route('admin.finance.settings.cost-types.store') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify(this.newCostType)
+                        });
+                        const data = await response.json();
+                        if (response.ok && data.success) {
+                            if (!this.costTypesList.some(ct => ct.slug === data.cost_type.slug)) {
+                                this.costTypesList.push({ slug: data.cost_type.slug, name: data.cost_type.name });
+                            }
+                            this.newCostType = { name: '', description: '' };
+                            this.$dispatch('close-modal', 'quick-add-cost-type');
+                        } else {
+                            this.quickCostTypeError = data.message || 'Failed to create cost type.';
+                        }
+                    } catch (err) {
+                        this.quickCostTypeError = 'Network error occurred while saving cost type.';
+                    } finally {
+                        this.isSavingCostType = false;
+                    }
+                },
+
+                async submitQuickCategory() {
+                    this.quickCategoryError = '';
+                    if (!this.newCategory.name || !this.newCategory.name.trim()) {
+                        this.quickCategoryError = 'Category Name is required.';
+                        return;
+                    }
+                    this.isSavingCategory = true;
+                    try {
+                        const response = await fetch('{{ route('admin.finance.settings.budget-categories.store') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify(this.newCategory)
+                        });
+                        const data = await response.json();
+                        if (response.ok && data.success) {
+                            if (!this.categoriesList.some(c => c.id === data.category.id)) {
+                                this.categoriesList.push({ id: data.category.id, name: data.category.name });
+                            }
+                            this.newCategory = { name: '', type: 'expense', description: '' };
+                            this.$dispatch('close-modal', 'quick-add-budget-category');
+                        } else {
+                            this.quickCategoryError = data.message || 'Failed to create category.';
+                        }
+                    } catch (err) {
+                        this.quickCategoryError = 'Network error occurred while saving category.';
+                    } finally {
+                        this.isSavingCategory = false;
+                    }
+                },
 
                 addLine() {
                     this.lines.push({
