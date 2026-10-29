@@ -207,7 +207,7 @@ class ExpenseController extends Controller
     {
         $resourceTypes = implode(',', ["Helper's", 'Mason', 'Carpenter', 'Steel fixer', 'Welder', 'Electrician', 'Plumber', 'Engineers', 'Specialist', 'Other']);
         $rules = [
-            'kind' => 'required|in:labor,materials',
+            'kind' => 'required|in:labor,materials,other',
             'task_id' => 'nullable|exists:tasks,id',
             'resource_type' => "nullable|in:{$resourceTypes}",
             'account_type' => 'nullable|string|max:255',
@@ -227,6 +227,8 @@ class ExpenseController extends Controller
 
         $rules['resource_type'] .= '|required_if:kind,labor';
         $rules['account_type'] .= '|required_if:kind,materials';
+        $rules['other_category'] = 'nullable|string|max:100|required_if:kind,other';
+        $rules['other_title'] = 'nullable|string|max:255|required_if:kind,other';
 
         return $request->validate($rules);
     }
@@ -248,6 +250,7 @@ class ExpenseController extends Controller
                     'other' => $other,
                     'labor_total' => (float) $labor->sum('amount'),
                     'materials_total' => (float) $materials->sum('amount'),
+                    'other_total' => (float) $other->sum('amount'),
                 ];
             })
             ->sortBy(fn (array $group) => strtolower(($group['project']?->name ?? '') . ' ' . ($group['task']?->name ?? '')))
@@ -256,6 +259,20 @@ class ExpenseController extends Controller
 
     private function expenseData(array $validated): array
     {
+        if ($validated['kind'] === 'other') {
+            return [
+                'task_id' => $validated['task_id'] ?? null,
+                'category' => $validated['other_category'],
+                'title' => trim($validated['other_title']),
+                'amount' => $validated['amount'],
+                'expense_date' => $validated['expense_date'],
+                'vendor_name' => $validated['vendor_name'] ?? null,
+                'payment_status' => $validated['payment_status'],
+                'payment_method' => $validated['payment_method'] ?? null,
+                'description' => $validated['description'] ?? null,
+            ];
+        }
+
         $isLabor = $validated['kind'] === 'labor';
         $typeValue = $isLabor ? ($validated['resource_type'] ?? '') : ($validated['account_type'] ?? '');
 

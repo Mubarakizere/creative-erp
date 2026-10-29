@@ -15,6 +15,8 @@
         $materialLines = $taskGroups->sum(fn (array $group) => $group['materials']->count());
         $laborTotal = $taskGroups->sum('labor_total');
         $materialsTotal = $taskGroups->sum('materials_total');
+        $otherLines = $taskGroups->sum(fn (array $group) => $group['other']->count());
+        $otherTotal = $taskGroups->sum('other_total');
     @endphp
 
     <div class="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -29,7 +31,7 @@
         @endcan
     </div>
 
-    <div class="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
+    <div class="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div class="rounded-xl border border-indigo-100 bg-indigo-50/70 p-4">
             <p class="text-[10px] font-bold uppercase tracking-wider text-indigo-600">Labor · {{ $laborLines }} lines</p>
             <p class="mt-1 text-lg font-extrabold text-indigo-800">{{ format_currency($laborTotal, $currency) }}</p>
@@ -38,9 +40,13 @@
             <p class="text-[10px] font-bold uppercase tracking-wider text-blue-600">Materials · {{ $materialLines }} lines</p>
             <p class="mt-1 text-lg font-extrabold text-blue-800">{{ format_currency($materialsTotal, $currency) }}</p>
         </div>
+        <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Other · {{ $otherLines }} lines</p>
+            <p class="mt-1 text-lg font-extrabold text-slate-800">{{ format_currency($otherTotal, $currency) }}</p>
+        </div>
         <div class="rounded-xl border border-slate-200 bg-white p-4">
-            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Labor + materials</p>
-            <p class="mt-1 text-lg font-extrabold text-slate-900">{{ format_currency($laborTotal + $materialsTotal, $currency) }}</p>
+            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">All expenses</p>
+            <p class="mt-1 text-lg font-extrabold text-slate-900">{{ format_currency($laborTotal + $materialsTotal + $otherTotal, $currency) }}</p>
         </div>
     </div>
 
@@ -48,7 +54,7 @@
         @forelse($taskGroups as $group)
             @php
                 $task = $group['task'];
-                $taskTotal = $group['labor_total'] + $group['materials_total'];
+                $taskTotal = $group['labor_total'] + $group['materials_total'] + ($group['other_total'] ?? 0);
             @endphp
             <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
                 <div class="flex flex-col gap-3 border-b border-slate-200 bg-slate-50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
@@ -60,7 +66,7 @@
                     <div class="sm:text-right">
                         <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Total Task Expenses</p>
                         <p class="mt-1 text-xl font-black tracking-tight text-slate-900">{{ format_currency($taskTotal, $currency) }}</p>
-                        <p class="text-[10px] text-slate-500">Labor + materials</p>
+                        <p class="text-[10px] text-slate-500">All expenses</p>
                     </div>
                 </div>
 

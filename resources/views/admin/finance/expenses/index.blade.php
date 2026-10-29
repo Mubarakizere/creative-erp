@@ -28,7 +28,9 @@
                 vendor_name: {{ Illuminate\Support\Js::from(old('vendor_name', '')) }},
                 payment_status: {{ Illuminate\Support\Js::from(old('payment_status', 'Pending')) }},
                 payment_method: {{ Illuminate\Support\Js::from(old('payment_method', 'Bank Transfer')) }},
-                description: {{ Illuminate\Support\Js::from(old('description', '')) }}
+                description: {{ Illuminate\Support\Js::from(old('description', '')) }},
+                other_category: {{ Illuminate\Support\Js::from(old('other_category', 'Miscellaneous')) }},
+                other_title: {{ Illuminate\Support\Js::from(old('other_title', '')) }}
             },
             get selectedProject() {
                 return this.projects.find(project => String(project.id) === String(this.form.project_id)) || null;
@@ -48,20 +50,34 @@
                     vendor_name: '',
                     payment_status: 'Pending',
                     payment_method: 'Bank Transfer',
-                    description: ''
+                    description: '',
+                    other_category: kind === 'other' ? 'Miscellaneous' : '',
+                    other_title: ''
                 };
                 this.showForm = true;
             },
             openEdit(expense) {
                 this.isEdit = true;
                 this.expenseId = expense.id;
-                const choices = expense.kind === 'labor' ? this.resources : this.accounts.map(account => account.value);
-                const hasChoice = choices.includes(expense.title);
-                this.form = {
-                    ...expense,
-                    type_choice: hasChoice ? expense.title : 'Other',
-                    custom_type: hasChoice ? '' : expense.title
-                };
+                if (expense.kind === 'other') {
+                    this.form = {
+                        ...expense,
+                        type_choice: '',
+                        custom_type: '',
+                        other_category: expense.category || 'Miscellaneous',
+                        other_title: expense.title || ''
+                    };
+                } else {
+                    const choices = expense.kind === 'labor' ? this.resources : this.accounts.map(account => account.value);
+                    const hasChoice = choices.includes(expense.title);
+                    this.form = {
+                        ...expense,
+                        type_choice: hasChoice ? expense.title : 'Other',
+                        custom_type: hasChoice ? '' : expense.title,
+                        other_category: '',
+                        other_title: ''
+                    };
+                }
                 this.showForm = true;
             },
             updateTypeChoice() {
@@ -73,7 +89,7 @@
         <div class="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
                 <h1 class="text-2xl font-bold tracking-tight text-slate-900">Expenses</h1>
-                <p class="mt-1 text-sm text-slate-500">Record labor and materials payable by project task.</p>
+                <p class="mt-1 text-sm text-slate-500">Record labor, materials, and other expenses payable by project task.</p>
                 <div class="mt-3 flex flex-wrap gap-2 text-xs font-semibold">
                     <span class="rounded-full bg-indigo-50 px-2.5 py-1 text-indigo-700">Labor lines: {{ number_format($stats['labor']) }}</span>
                     <span class="rounded-full bg-blue-50 px-2.5 py-1 text-blue-700">Materials lines: {{ number_format($stats['materials']) }}</span>
@@ -88,6 +104,9 @@
                     </button>
                     <button type="button" @click="openCreate('materials')" class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">
                         <span class="text-lg leading-none">+</span> Add Materials Expense
+                    </button>
+                    <button type="button" @click="openCreate('other')" class="inline-flex items-center gap-2 rounded-xl bg-slate-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800">
+                        <span class="text-lg leading-none">+</span> Add Other Expense
                     </button>
                 </div>
             @endif
@@ -169,6 +188,7 @@
                             <th class="px-4 py-3">Task</th>
                             <th class="px-4 py-3 text-right">Labor</th>
                             <th class="px-4 py-3 text-right">Materials</th>
+                            <th class="px-4 py-3 text-right">Other</th>
                             <th class="px-4 py-3 text-right">Task Total</th>
                             <th class="px-4 py-3 text-right sm:px-5">Details</th>
                         </tr>
@@ -179,7 +199,8 @@
                                 $project = $group['project'];
                                 $task = $group['task'];
                                 $currency = $project?->currency ?? 'RWF';
-                                $taskTotal = $group['labor_total'] + $group['materials_total'];
+                                $otherTotal = $group['other_total'] ?? 0;
+                                $taskTotal = $group['labor_total'] + $group['materials_total'] + $otherTotal;
                             @endphp
                             <tr class="hover:bg-slate-50/70">
                                 <td class="px-4 py-3 sm:px-5">
@@ -195,6 +216,10 @@
                                     <span class="block font-semibold text-blue-700">{{ format_currency($group['materials_total'], $currency) }}</span>
                                     <span class="text-[11px] text-slate-400">{{ $group['materials']->count() }} line(s)</span>
                                 </td>
+                                <td class="whitespace-nowrap px-4 py-3 text-right">
+                                    <span class="block font-semibold text-slate-600">{{ format_currency($otherTotal, $currency) }}</span>
+                                    <span class="text-[11px] text-slate-400">{{ $group['other']->count() }} line(s)</span>
+                                </td>
                                 <td class="whitespace-nowrap px-4 py-3 text-right font-extrabold text-slate-900">{{ format_currency($taskTotal, $currency) }}</td>
                                 <td class="whitespace-nowrap px-4 py-3 text-right sm:px-5">
                                     @if($project)
@@ -202,13 +227,11 @@
                                     @else
                                         <span class="text-xs text-slate-400">Unavailable</span>
                                     @endif
-                                    @if($group['other']->isNotEmpty())
-                                        <span class="mt-1 block text-[10px] text-slate-400">{{ $group['other']->count() }} other line(s) on project page</span>
-                                    @endif
+
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="6" class="px-5 py-12 text-center text-sm text-slate-500">No expense records found. Add a labor or materials line, or adjust the filters.</td></tr>
+                            <tr><td colspan="7" class="px-5 py-12 text-center text-sm text-slate-500">No expense records found. Add a labor, materials, or other expense line, or adjust the filters.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -237,7 +260,7 @@
                                 <div class="flex items-start justify-between gap-4">
                                     <div>
                                         <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Project Expense</p>
-                                        <h2 id="expense-form-title" class="mt-1 text-lg font-bold text-slate-900" x-text="(isEdit ? 'Edit ' : 'Add ') + (form.kind === 'labor' ? 'Labor Expense' : 'Materials Expense')"></h2>
+                                        <h2 id="expense-form-title" class="mt-1 text-lg font-bold text-slate-900" x-text="(isEdit ? 'Edit ' : 'Add ') + (form.kind === 'labor' ? 'Labor Expense' : form.kind === 'materials' ? 'Materials Expense' : 'Other Expense')"></h2>
                                     </div>
                                     <button type="button" @click="showForm = false" class="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700" aria-label="Close">✕</button>
                                 </div>
@@ -265,7 +288,7 @@
                                 </div>
 
                                 <div class="sm:col-span-2">
-                                    <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-600" x-text="form.kind === 'labor' ? 'Resource Type *' : 'Account Type *'"></label>
+                                    <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-600" x-text="form.kind === 'labor' ? 'Resource Type *' : form.kind === 'materials' ? 'Account Type *' : 'Expense Category *'"></label>
                                     <template x-if="form.kind === 'labor'">
                                         <div>
                                             <select name="resource_type" x-model="form.type_choice" @change="updateTypeChoice()" required class="w-full rounded-xl border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500">
@@ -288,7 +311,22 @@
                                             <p class="mt-1 text-[11px] text-slate-500">Options come from active Expense accounts in Finance &gt; Chart of Accounts.</p>
                                         </div>
                                     </template>
-                                    <template x-if="form.type_choice === 'Other'">
+                                    <template x-if="form.kind === 'other'">
+                                        <div>
+                                            <select name="other_category" x-model="form.other_category" required class="w-full rounded-xl border-slate-200 text-sm focus:border-slate-500 focus:ring-slate-500">
+                                                <option value="">Select a category</option>
+                                                <option value="Equipment Hire">Equipment Hire</option>
+                                                <option value="Subcontractor">Subcontractor Fees</option>
+                                                <option value="Travel & Logistics">Travel & Logistics</option>
+                                                <option value="Permits & Legal">Permits & Legal Fees</option>
+                                                <option value="Site Supplies">Site Supplies</option>
+                                                <option value="Utilities">Utilities & Power</option>
+                                                <option value="Miscellaneous">Miscellaneous Expense</option>
+                                            </select>
+                                            <input type="text" name="other_title" x-model="form.other_title" required maxlength="255" placeholder="Expense title / reason (e.g. Generator Fuel)" class="mt-2 w-full rounded-xl border-slate-200 text-sm focus:border-slate-500 focus:ring-slate-500">
+                                        </div>
+                                    </template>
+                                    <template x-if="form.type_choice === 'Other' && form.kind !== 'other'">
                                         <input type="text" name="custom_type" x-model="form.custom_type" required maxlength="255" placeholder="Enter resource or account type" class="mt-2 w-full rounded-xl border-slate-200 text-sm focus:border-blue-500 focus:ring-blue-500">
                                     </template>
                                 </div>
